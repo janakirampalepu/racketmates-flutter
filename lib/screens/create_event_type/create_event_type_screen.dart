@@ -34,6 +34,14 @@ class CreateEventTypeScreen extends ConsumerWidget {
     if (items.isEmpty) {
       items = [for (final key in supportedEventTypes) ReferenceItem(key: key)];
     }
+    // A team's events are for teams: no individual lesson or ball machine.
+    final teamLocked = ref.watch(createEventFlowProvider)?.teamLocked ?? false;
+    if (teamLocked) {
+      items = [
+        for (final i in items)
+          if (!(eventTypeSpecs[i.key]?.noTeam ?? false)) i,
+      ];
+    }
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) ref.read(createEventFlowProvider.notifier).reset();

@@ -31,6 +31,11 @@ class CreateEventFlow extends Notifier<EventDraft?> {
 
   void start() => state = const EventDraft();
 
+  /// Starts a team event for [team] (from the team's page): the team is
+  /// fixed, the team questions are skipped.
+  void startForTeam(Team team) =>
+      state = EventDraft(forTeam: true, team: team, teamLocked: true);
+
   void reset() => state = null;
 
   /// Starts from an existing draft (rescheduling reuses the venue screen).
@@ -48,10 +53,15 @@ class CreateEventFlow extends Notifier<EventDraft?> {
 
   EventDraft _fresh(String? type, SportKey? sport) {
     final spec = eventTypeSpecs[type];
+    // A team fixed by the team page survives a change of type or sport.
+    final locked = state?.teamLocked ?? false;
     return _synced(
       EventDraft(
         eventType: type,
         sport: sport,
+        forTeam: locked ? true : null,
+        team: locked ? state?.team : null,
+        teamLocked: locked,
         matches: (spec?.hasMatches ?? false) ? const [MatchDraft()] : const [],
       ),
     );
@@ -67,6 +77,7 @@ class CreateEventFlow extends Notifier<EventDraft?> {
     assignNow: _draft.assignNow,
     forTeam: _draft.forTeam ?? false,
     opponent: _draft.opponent,
+    teamLocked: _draft.teamLocked,
   );
 
   void setSport(SportKey sport) => state = _fresh(_draft.eventType, sport);

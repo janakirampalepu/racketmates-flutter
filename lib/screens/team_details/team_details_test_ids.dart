@@ -80,3 +80,36 @@ abstract final class TeamAddMembersTestIds {
   static String role(int userId, String role) =>
       'team_add_member_${userId}_$role';
 }
+
+abstract final class TeamHomeActionIds {
+  static const settingsButton = 'team_home_settings_button';
+  static const createEvent = 'team_home_create_event_button';
+  static const archivedBanner = 'team_home_archived_banner';
+  static const unarchiveButton = 'team_home_unarchive_button';
+}
+
+abstract final class TeamSettingsTestIds {
+  static const root = 'team_settings_screen';
+  static const title = 'team_settings_title';
+  static const name = 'team_settings_name_field';
+  static const nameError = 'team_settings_name_error';
+  static const typeError = 'team_settings_type_error';
+  static const sportError = 'team_settings_sport_error';
+  static const ranking = 'team_settings_ranking_switch';
+  static const save = 'team_settings_save_button';
+  static const failed = 'team_settings_failed';
+  static const archive = 'team_settings_archive_button';
+  static const unarchive = 'team_settings_unarchive_button';
+  static const delete = 'team_settings_delete_button';
+  static const actionFailed = 'team_settings_action_failed';
+  static const confirmYes = 'team_settings_confirm_yes_button';
+  static const confirmNo = 'team_settings_confirm_no_button';
+  static const loadError = 'team_settings_load_error';
+  static const retry = 'team_settings_retry_button';
+
+  /// `team_settings_type_<tt_casual|tt_competitive>`.
+  static String type(String key) => 'team_settings_type_$key';
+
+  /// `team_settings_sport_<st_*>`.
+  static String sport(String key) => 'team_settings_sport_$key';
+}

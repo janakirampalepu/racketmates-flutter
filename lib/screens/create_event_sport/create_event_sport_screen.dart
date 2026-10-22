@@ -20,7 +20,12 @@ class CreateEventSportScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final selected = ref.watch(createEventFlowProvider)?.sport;
+    final draft = ref.watch(createEventFlowProvider);
+    final selected = draft?.sport;
+    // A team's event is for a sport the team plays.
+    final teamSports = (draft?.teamLocked ?? false)
+        ? {for (final k in draft?.team?.sportKeys ?? const <String>[]) k}
+        : null;
     return StepScaffold(
       rootId: CreateEventSportTestIds.root,
       titleId: CreateEventSportTestIds.title,
@@ -48,13 +53,14 @@ class CreateEventSportScreen extends ConsumerWidget {
           child: Column(
             children: [
               for (final sport in SportKey.values)
-                TestId(
-                  CreateEventSportTestIds.sport(sport.key),
-                  child: RadioListTile<SportKey>(
-                    value: sport,
-                    title: Text(sportLabel(l10n, sport)),
+                if (teamSports == null || teamSports.contains(sport.key))
+                  TestId(
+                    CreateEventSportTestIds.sport(sport.key),
+                    child: RadioListTile<SportKey>(
+                      value: sport,
+                      title: Text(sportLabel(l10n, sport)),
+                    ),
                   ),
-                ),
             ],
           ),
         ),

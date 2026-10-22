@@ -42,6 +42,7 @@ String _flowPath(EventDraft draft, EventTypeSpec spec) {
         assignNow: draft.assignNow,
         forTeam: draft.forTeam ?? false,
         opponent: draft.opponent,
+        teamLocked: draft.teamLocked,
       ))
         _stepScreens[step]!,
     ].join('##');

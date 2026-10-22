@@ -136,6 +136,7 @@ List<CreateEventStep> createEventStepsFor(
   bool assignNow = false,
   bool forTeam = false,
   OpponentKind? opponent,
+  bool teamLocked = false,
 }) {
   // The team choice follows the sport (or the type when there is no sport).
   final steps = _stepsWithoutTeam(eventType, assignNow: assignNow);
@@ -149,8 +150,11 @@ List<CreateEventStep> createEventStepsFor(
       forTeam && (eventTypeSpecs[eventType]?.hasMatches ?? false);
   return [
     ...steps.take(at),
-    CreateEventStep.teamChoice,
-    if (forTeam) CreateEventStep.teamSelect,
+    // Started from a team: no asking whether, or which, team.
+    if (!teamLocked) ...[
+      CreateEventStep.teamChoice,
+      if (forTeam) CreateEventStep.teamSelect,
+    ],
     if (hasOpponent) ...[
       CreateEventStep.teamDynamics,
       if (opponent == OpponentKind.selectTeam) CreateEventStep.opponentSelect,
@@ -237,12 +241,14 @@ CreateEventStep? nextCreateEventStep(
   bool assignNow = false,
   bool forTeam = false,
   OpponentKind? opponent,
+  bool teamLocked = false,
 }) {
   final steps = createEventStepsFor(
     eventType,
     assignNow: assignNow,
     forTeam: forTeam,
     opponent: opponent,
+    teamLocked: teamLocked,
   );
   final i = steps.indexOf(current);
   return (i < 0 || i + 1 >= steps.length) ? null : steps[i + 1];
@@ -291,6 +297,7 @@ class EventDraft {
     this.eventSubType,
     this.forTeam,
     this.team,
+    this.teamLocked = false,
     this.considerForTeamRanking = true,
     this.opponent,
     this.opponentTeam,
@@ -355,6 +362,10 @@ class EventDraft {
   /// The team (one the user captains) a team event is for.
   final Team? team;
 
+  /// The wizard was started from this team's page: the event is its team
+  /// event and the team cannot be changed.
+  final bool teamLocked;
+
   /// Round robins of a team can count towards its player ranking.
   final bool considerForTeamRanking;
 
@@ -398,6 +409,7 @@ class EventDraft {
     String? Function()? eventSubType,
     bool? Function()? forTeam,
     Team? Function()? team,
+    bool? teamLocked,
     bool? considerForTeamRanking,
     OpponentKind? Function()? opponent,
     Team? Function()? opponentTeam,
@@ -437,6 +449,7 @@ class EventDraft {
     eventSubType: eventSubType != null ? eventSubType() : this.eventSubType,
     forTeam: forTeam != null ? forTeam() : this.forTeam,
     team: team != null ? team() : this.team,
+    teamLocked: teamLocked ?? this.teamLocked,
     considerForTeamRanking:
         considerForTeamRanking ?? this.considerForTeamRanking,
     opponent: opponent != null ? opponent() : this.opponent,

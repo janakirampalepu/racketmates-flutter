@@ -1145,6 +1145,77 @@ class FakeTeamsRepository implements TeamsRepository {
     ];
   }
 
+  /// Team calls: `update:<id>`, `archive:<id>`, `unarchive:<id>`,
+  /// `delete:<id>`, with the body of the last update in [updatedBody].
+  final List<String> teamCalls = [];
+  Map<String, dynamic>? updatedBody;
+  AppFailure? teamChangeFailure;
+
+  Future<void> _teamChange(String call, void Function() apply) async {
+    teamCalls.add(call);
+    await Future<void>.delayed(Duration.zero);
+    if (teamChangeFailure != null) throw teamChangeFailure!;
+    apply();
+  }
+
+  void _setTeam(int id, Team Function(Team) f) {
+    teams = [
+      for (final t in teams)
+        if (t.id == id) f(t) else t,
+    ];
+  }
+
+  Team _archived(Team t, {required bool archived}) => Team(
+    id: t.id,
+    name: t.name,
+    teamType: t.teamType,
+    archived: archived,
+    enablePlayerRanking: t.enablePlayerRanking,
+    teamSports: t.teamSports,
+    userPermissions: t.userPermissions,
+  );
+
+  @override
+  Future<void> updateTeam(int teamId, Map<String, dynamic> body) =>
+      _teamChange('update:$teamId', () {
+        updatedBody = body;
+        final team = (body['team'] as Map)['name'] as String;
+        _setTeam(
+          teamId,
+          (t) => Team(
+            id: t.id,
+            name: team,
+            teamType: (body['team'] as Map)['team_type'] as String?,
+            archived: t.archived,
+            enablePlayerRanking:
+                (body['team'] as Map)['enable_player_ranking'] as bool?,
+            teamSports: t.teamSports,
+            userPermissions: t.userPermissions,
+          ),
+        );
+      });
+
+  @override
+  Future<void> archive(int teamId) => _teamChange(
+    'archive:$teamId',
+    () => _setTeam(teamId, (t) => _archived(t, archived: true)),
+  );
+
+  @override
+  Future<void> unarchive(int teamId) => _teamChange(
+    'unarchive:$teamId',
+    () => _setTeam(teamId, (t) => _archived(t, archived: false)),
+  );
+
+  @override
+  Future<void> deleteTeam(int teamId) => _teamChange(
+    'delete:$teamId',
+    () => teams = [
+      for (final t in teams)
+        if (t.id != teamId) t,
+    ],
+  );
+
   @override
   Future<Team> create(Map<String, dynamic> body) async {
     await Future<void>.delayed(Duration.zero);

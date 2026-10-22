@@ -59,3 +59,6 @@ Pagination follows the native schedule screens: `per_page=10`, `page` starts at 
 | Remove member | `DELETE teams/{id}/team_players/{pid}` | Android (`deleteTeamMember`) | |
 | Add members to a team | `PUT teams/{id}` `{team:{team_players_attributes:[{user_id,is_captain,is_player,is_coach}]}}` | Android (`inviteMembersToTeam`) | |
 | Players outside a team | `GET users?search&exclude_team_id&is_signed_up=true&sport_types[]` | Android (`getListOfPlayersForTeam`) | |
+| Update team | `PUT teams/{id}` `{team:{id, name, team_type, enable_player_ranking, team_sports_attributes:[{id?, sport_type, _destroy?}]}}` | Android (`updateTeam`, `TeamViewModel.teamRequest`) | Same path as adding members (different body). Sports: ticked ones keep their id, new ones have no id, removed ones carry `_destroy: true`. |
+| Archive / unarchive team | `POST teams/{id}/archive`, `POST teams/{id}/unarchive` | Android | |
+| Delete team | `DELETE teams/{id}` | Android (`deleteTeam`) | |

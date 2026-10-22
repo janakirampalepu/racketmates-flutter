@@ -1,12 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/content/messages.dart';
+import 'package:racketmates/common/create_event/create_event_flow.dart';
+import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/session/access.dart';
+import 'package:racketmates/common/teams/member_rules.dart';
+import 'package:racketmates/common/teams/team_edit.dart';
+import 'package:racketmates/common/teams/teams_repository.dart';
 import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/teams/team_labels.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
+import 'package:racketmates/screens/team_details/team_access.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_members_tab.dart';
 import 'package:racketmates/screens/team_details/team_rankings_tab.dart';
@@ -20,6 +31,47 @@ class TeamDetailsScreen extends ConsumerWidget {
   const TeamDetailsScreen({required this.teamId, super.key});
 
   final int teamId;
+
+  /// Starts the create-event wizard for [team]: its team event. An archived
+  /// team cannot get events; permissions decide the rest.
+  Future<void> _createEvent(
+    BuildContext context,
+    WidgetRef ref,
+    Team team,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    if (!await checkTeamAccess(
+          context,
+          ref,
+          team,
+          TeamSettingsPermissions.createEvent,
+        ) ||
+        !context.mounted) {
+      return;
+    }
+    if (team.archived ?? false) {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          content: Text(
+            ref.msg(
+              MessageKeys.teamArchivedCreateEvent,
+              l10n.teamArchivedCreateEvent,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(l10n.closeAction),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+    ref.read(createEventFlowProvider.notifier).startForTeam(team);
+    unawaited(context.push(AppRoutes.createEvent));
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,6 +90,33 @@ class TeamDetailsScreen extends ConsumerWidget {
               TeamDetailsTestIds.title,
               child: Semantics(header: true, child: Text(t.name ?? '')),
             ),
+            actions: [
+              if (memberAccess(
+                    t,
+                    TeamSettingsPermissions.settings,
+                    subscribed: true,
+                  ) !=
+                  AccessDecision.hidden)
+                TestId(
+                  TeamHomeActionIds.settingsButton,
+                  child: IconButton(
+                    tooltip: l10n.teamSettingsAction,
+                    icon: const Icon(Icons.settings_outlined),
+                    onPressed: () async {
+                      if (await checkTeamAccess(
+                            context,
+                            ref,
+                            t,
+                            TeamSettingsPermissions.settings,
+                          ) &&
+                          context.mounted) {
+                        await context.push(AppRoutes.teamSettingsFor(teamId));
+                        ref.invalidate(teamDetailsProvider(teamId));
+                      }
+                    },
+                  ),
+                ),
+            ],
             bottom: TabBar(
               tabs: [
                 TestId(
@@ -56,10 +135,32 @@ class TeamDetailsScreen extends ConsumerWidget {
               ],
             ),
           ),
+          floatingActionButton:
+              memberAccess(
+                    t,
+                    TeamSettingsPermissions.createEvent,
+                    subscribed: true,
+                  ) ==
+                  AccessDecision.hidden
+              ? null
+              : TestId(
+                  TeamHomeActionIds.createEvent,
+                  child: FloatingActionButton.extended(
+                    icon: const Icon(Icons.add),
+                    label: Text(l10n.teamCreateEvent),
+                    onPressed: () => _createEvent(context, ref, t),
+                  ),
+                ),
           body: TestId(
             TeamDetailsTestIds.root,
             child: Column(
               children: [
+                if (t.archived ?? false)
+                  _ArchivedBanner(
+                    team: t,
+                    onChanged: () =>
+                        ref.invalidate(teamDetailsProvider(teamId)),
+                  ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                   child: Align(
@@ -134,6 +235,93 @@ class TeamDetailsScreen extends ConsumerWidget {
         ),
       ),
       data: loaded,
+    );
+  }
+}
+
+/// "This team is archived" with the way back (native team home).
+class _ArchivedBanner extends ConsumerWidget {
+  const _ArchivedBanner({required this.team, required this.onChanged});
+
+  final Team team;
+  final VoidCallback onChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final canUnarchive =
+        memberAccess(
+          team,
+          TeamSettingsPermissions.unarchive,
+          subscribed: true,
+        ) !=
+        AccessDecision.hidden;
+    return TestId(
+      TeamHomeActionIds.archivedBanner,
+      child: Material(
+        color: Theme.of(context).colorScheme.secondaryContainer,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: Row(
+            children: [
+              Expanded(child: Text(l10n.teamArchivedBanner)),
+              if (canUnarchive)
+                TestId(
+                  TeamHomeActionIds.unarchiveButton,
+                  child: TextButton(
+                    onPressed: () async {
+                      final messenger = ScaffoldMessenger.of(context);
+                      if (!await checkTeamAccess(
+                            context,
+                            ref,
+                            team,
+                            TeamSettingsPermissions.unarchive,
+                          ) ||
+                          !context.mounted) {
+                        return;
+                      }
+                      final ok = await showDialog<bool>(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: Text(l10n.teamUnarchiveTitle(team.name ?? '')),
+                          content: Text(l10n.teamUnarchiveText),
+                          actions: [
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(false),
+                              child: Text(l10n.teamActionNo),
+                            ),
+                            FilledButton(
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(true),
+                              child: Text(l10n.teamActionYes),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (ok != true) return;
+                      try {
+                        await ref
+                            .read(teamsRepositoryProvider)
+                            .unarchive(team.id ?? 0);
+                        ref.invalidate(myTeamsProvider);
+                        onChanged();
+                        messenger.showSnackBar(
+                          SnackBar(content: Text(l10n.teamUnarchivedDone)),
+                        );
+                      } on AppFailure {
+                        messenger.showSnackBar(
+                          SnackBar(content: Text(l10n.teamActionFailed)),
+                        );
+                      }
+                    },
+                    child: Text(l10n.teamUnarchive),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

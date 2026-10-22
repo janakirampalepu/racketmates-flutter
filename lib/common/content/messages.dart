@@ -83,6 +83,8 @@ abstract final class MessageKeys {
   static const scheduleNoUpcoming = 'schedule.no_upcoming_events_title';
   static const scheduleNoPast = 'schedule.no_past_events_title';
 
+  static const teamArchivedCreateEvent =
+      'events.create.team_archived_create_event_error';
   static const buttonNext = 'global.buttons.next';
   static const buttonSave = 'global.buttons.save';
   static const buttonCancel = 'global.buttons.cancel';

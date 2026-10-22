@@ -1147,6 +1147,86 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teamAddMembersLoadError => 'The search failed.';
 
   @override
+  String get teamSettingsTitle => 'Team settings';
+
+  @override
+  String get teamSettingsAction => 'Team settings';
+
+  @override
+  String get teamSettingsSave => 'Save';
+
+  @override
+  String get teamSettingsSaved => 'Team updated.';
+
+  @override
+  String get teamSettingsFailed =>
+      'The team could not be updated. Please try again.';
+
+  @override
+  String get teamArchive => 'Archive team';
+
+  @override
+  String get teamUnarchive => 'Unarchive team';
+
+  @override
+  String get teamDelete => 'Delete team';
+
+  @override
+  String teamArchiveTitle(String name) {
+    return 'Archive $name?';
+  }
+
+  @override
+  String get teamArchiveText =>
+      'An archived team keeps its history but cannot get new events. You can unarchive it later.';
+
+  @override
+  String teamUnarchiveTitle(String name) {
+    return 'Unarchive $name?';
+  }
+
+  @override
+  String get teamUnarchiveText =>
+      'The team becomes active again and can get new events.';
+
+  @override
+  String teamDeleteTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get teamDeleteText =>
+      'The team and its events are deleted for everyone. This cannot be undone.';
+
+  @override
+  String get teamActionYes => 'Yes';
+
+  @override
+  String get teamActionNo => 'No';
+
+  @override
+  String get teamArchivedDone => 'Team archived.';
+
+  @override
+  String get teamUnarchivedDone => 'Team unarchived.';
+
+  @override
+  String get teamDeletedDone => 'Team deleted.';
+
+  @override
+  String get teamActionFailed => 'That did not work. Please try again.';
+
+  @override
+  String get teamArchivedBanner => 'This team is archived.';
+
+  @override
+  String get teamArchivedCreateEvent =>
+      'An archived team cannot get new events. Unarchive it first.';
+
+  @override
+  String get teamCreateEvent => 'Create event';
+
+  @override
   String get teamRoleCaptain => 'Captain';
 
   @override

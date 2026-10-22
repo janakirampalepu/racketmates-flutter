@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
-import 'package:racketmates/common/billing/billing_sync.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/session/access.dart';
 import 'package:racketmates/common/session/session_info_controller.dart';
@@ -15,6 +14,7 @@ import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/teams/teams_repository.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
+import 'package:racketmates/screens/team_details/team_access.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
 
 enum _MemberAction { editRoles, deactivate, reactivate, remove }
@@ -90,30 +90,8 @@ class _TeamMembersTabState extends ConsumerState<TeamMembersTab> {
   }
 
   /// Applies the access rule of [key]; true when the action may go ahead.
-  Future<bool> _allowed(String key) async {
-    final l10n = AppLocalizations.of(context);
-    final info = widget.team.permission(key);
-    switch (_access(key)) {
-      case AccessDecision.allowed:
-        return true;
-      case AccessDecision.hidden:
-        return false;
-      case AccessDecision.needsSubscription:
-        if (ref.read(billingSupportedProvider)) {
-          unawaited(context.push(AppRoutes.subscription));
-        } else {
-          await _explain(l10n.accessNeedsSubscription);
-        }
-        return false;
-      case AccessDecision.blocked:
-        await _explain(
-          (info?.message ?? '').isNotEmpty
-              ? info!.message!
-              : l10n.accessBlocked,
-        );
-        return false;
-    }
-  }
+  Future<bool> _allowed(String key) =>
+      checkTeamAccess(context, ref, widget.team, key);
 
   Future<void> _change(Future<void> Function() call) async {
     final l10n = AppLocalizations.of(context);

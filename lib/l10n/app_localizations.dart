@@ -2176,6 +2176,144 @@ abstract class AppLocalizations {
   /// **'The search failed.'**
   String get teamAddMembersLoadError;
 
+  /// No description provided for @teamSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Team settings'**
+  String get teamSettingsTitle;
+
+  /// No description provided for @teamSettingsAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Team settings'**
+  String get teamSettingsAction;
+
+  /// No description provided for @teamSettingsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get teamSettingsSave;
+
+  /// No description provided for @teamSettingsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Team updated.'**
+  String get teamSettingsSaved;
+
+  /// No description provided for @teamSettingsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The team could not be updated. Please try again.'**
+  String get teamSettingsFailed;
+
+  /// No description provided for @teamArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive team'**
+  String get teamArchive;
+
+  /// No description provided for @teamUnarchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Unarchive team'**
+  String get teamUnarchive;
+
+  /// No description provided for @teamDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete team'**
+  String get teamDelete;
+
+  /// No description provided for @teamArchiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive {name}?'**
+  String teamArchiveTitle(String name);
+
+  /// No description provided for @teamArchiveText.
+  ///
+  /// In en, this message translates to:
+  /// **'An archived team keeps its history but cannot get new events. You can unarchive it later.'**
+  String get teamArchiveText;
+
+  /// No description provided for @teamUnarchiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unarchive {name}?'**
+  String teamUnarchiveTitle(String name);
+
+  /// No description provided for @teamUnarchiveText.
+  ///
+  /// In en, this message translates to:
+  /// **'The team becomes active again and can get new events.'**
+  String get teamUnarchiveText;
+
+  /// No description provided for @teamDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String teamDeleteTitle(String name);
+
+  /// No description provided for @teamDeleteText.
+  ///
+  /// In en, this message translates to:
+  /// **'The team and its events are deleted for everyone. This cannot be undone.'**
+  String get teamDeleteText;
+
+  /// No description provided for @teamActionYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get teamActionYes;
+
+  /// No description provided for @teamActionNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get teamActionNo;
+
+  /// No description provided for @teamArchivedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Team archived.'**
+  String get teamArchivedDone;
+
+  /// No description provided for @teamUnarchivedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Team unarchived.'**
+  String get teamUnarchivedDone;
+
+  /// No description provided for @teamDeletedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Team deleted.'**
+  String get teamDeletedDone;
+
+  /// No description provided for @teamActionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'That did not work. Please try again.'**
+  String get teamActionFailed;
+
+  /// No description provided for @teamArchivedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'This team is archived.'**
+  String get teamArchivedBanner;
+
+  /// No description provided for @teamArchivedCreateEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'An archived team cannot get new events. Unarchive it first.'**
+  String get teamArchivedCreateEvent;
+
+  /// No description provided for @teamCreateEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Create event'**
+  String get teamCreateEvent;
+
   /// No description provided for @teamRoleCaptain.
   ///
   /// In en, this message translates to:

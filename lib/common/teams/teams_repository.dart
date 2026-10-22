@@ -83,6 +83,15 @@ abstract class TeamsRepository {
     List<String> sportKeys = const [],
   });
 
+  /// `PUT teams/{id}` with the team body of [buildUpdateTeamBody].
+  Future<void> updateTeam(int teamId, Map<String, dynamic> body);
+
+  Future<void> archive(int teamId);
+
+  Future<void> unarchive(int teamId);
+
+  Future<void> deleteTeam(int teamId);
+
   /// `POST teams`; returns the created team.
   Future<Team> create(Map<String, dynamic> body);
 }
@@ -264,6 +273,19 @@ class TeamsRepositoryImpl implements TeamsRepository {
     );
     return response.users ?? const [];
   }
+
+  @override
+  Future<void> updateTeam(int teamId, Map<String, dynamic> body) =>
+      _guard(() => api.updateTeam(teamId, body));
+
+  @override
+  Future<void> archive(int teamId) => _guard(() => api.archive(teamId));
+
+  @override
+  Future<void> unarchive(int teamId) => _guard(() => api.unarchive(teamId));
+
+  @override
+  Future<void> deleteTeam(int teamId) => _guard(() => api.deleteTeam(teamId));
 
   @override
   Future<Team> create(Map<String, dynamic> body) async {

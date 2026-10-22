@@ -111,6 +111,7 @@ abstract final class AppRoutes {
   ).toString();
   static String teamFor(int id) => '$team/$id';
   static String teamAddMembersFor(int id) => '$team/$id/add-members';
+  static String teamSettingsFor(int id) => '$team/$id/settings';
   static const appUpdate = '/app-update';
   static const phoneEntry = '/phone-entry';
   static const countryPicker = '/country-picker';

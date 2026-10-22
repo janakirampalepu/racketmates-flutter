@@ -85,4 +85,20 @@ abstract class TeamsApi {
     @Query('is_signed_up') bool? isSignedUp,
     @Query('sport_types[]') List<String>? sportTypes,
   });
+
+  /// `{team: {id, name, team_type, team_sports_attributes, enable_player_ranking}}`.
+  @PUT('teams/{id}')
+  Future<void> updateTeam(
+    @Path('id') int id,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @POST('teams/{id}/archive')
+  Future<void> archive(@Path('id') int id);
+
+  @POST('teams/{id}/unarchive')
+  Future<void> unarchive(@Path('id') int id);
+
+  @DELETE('teams/{id}')
+  Future<void> deleteTeam(@Path('id') int id);
 }
