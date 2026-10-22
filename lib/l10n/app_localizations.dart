@@ -1894,6 +1894,288 @@ abstract class AppLocalizations {
   /// **'We couldn\'t load this team.'**
   String get teamDetailsLoadError;
 
+  /// No description provided for @teamTabSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get teamTabSchedule;
+
+  /// No description provided for @teamTabRankings.
+  ///
+  /// In en, this message translates to:
+  /// **'Rankings'**
+  String get teamTabRankings;
+
+  /// No description provided for @teamTabMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get teamTabMembers;
+
+  /// No description provided for @teamScheduleUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get teamScheduleUpcoming;
+
+  /// No description provided for @teamSchedulePast.
+  ///
+  /// In en, this message translates to:
+  /// **'Past'**
+  String get teamSchedulePast;
+
+  /// No description provided for @teamScheduleEmptyUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'The team has no upcoming events.'**
+  String get teamScheduleEmptyUpcoming;
+
+  /// No description provided for @teamScheduleEmptyPast.
+  ///
+  /// In en, this message translates to:
+  /// **'The team has no past events.'**
+  String get teamScheduleEmptyPast;
+
+  /// No description provided for @teamScheduleLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'The team\'s events could not be loaded.'**
+  String get teamScheduleLoadError;
+
+  /// No description provided for @teamRankingsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No ranking yet for this selection.'**
+  String get teamRankingsEmpty;
+
+  /// No description provided for @teamRankingsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'The ranking could not be loaded.'**
+  String get teamRankingsLoadError;
+
+  /// No description provided for @teamRankingsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Player ranking is not turned on for this team.'**
+  String get teamRankingsOff;
+
+  /// No description provided for @teamRankingPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get teamRankingPeriod;
+
+  /// No description provided for @teamRankingMatchType.
+  ///
+  /// In en, this message translates to:
+  /// **'Match type'**
+  String get teamRankingMatchType;
+
+  /// No description provided for @teamRankingAllMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get teamRankingAllMatches;
+
+  /// No description provided for @teamRankingRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'{wins}W - {losses}L'**
+  String teamRankingRecord(int wins, int losses);
+
+  /// No description provided for @teamRankingPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} pts'**
+  String teamRankingPoints(int points);
+
+  /// No description provided for @teamRankingUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Up {places}'**
+  String teamRankingUp(int places);
+
+  /// No description provided for @teamRankingDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Down {places}'**
+  String teamRankingDown(int places);
+
+  /// No description provided for @teamRankingRank.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank {rank}'**
+  String teamRankingRank(int rank);
+
+  /// No description provided for @teamMembersShowInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Show deactivated members'**
+  String get teamMembersShowInactive;
+
+  /// No description provided for @teamMemberInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated'**
+  String get teamMemberInactive;
+
+  /// No description provided for @teamMemberActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Member actions'**
+  String get teamMemberActions;
+
+  /// No description provided for @teamMemberEditRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit roles'**
+  String get teamMemberEditRoles;
+
+  /// No description provided for @teamMemberDeactivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get teamMemberDeactivate;
+
+  /// No description provided for @teamMemberReactivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate'**
+  String get teamMemberReactivate;
+
+  /// No description provided for @teamMemberRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from team'**
+  String get teamMemberRemove;
+
+  /// No description provided for @teamMemberRolesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Roles of {name}'**
+  String teamMemberRolesTitle(String name);
+
+  /// No description provided for @teamMemberRolesNeedOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least one role.'**
+  String get teamMemberRolesNeedOne;
+
+  /// No description provided for @teamMemberOnlyCaptain.
+  ///
+  /// In en, this message translates to:
+  /// **'A team needs a captain. Make someone else a captain first.'**
+  String get teamMemberOnlyCaptain;
+
+  /// No description provided for @teamMemberSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get teamMemberSave;
+
+  /// No description provided for @teamMemberYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get teamMemberYes;
+
+  /// No description provided for @teamMemberCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get teamMemberCancel;
+
+  /// No description provided for @teamMemberDeactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate {name}?'**
+  String teamMemberDeactivateTitle(String name);
+
+  /// No description provided for @teamMemberDeactivateText.
+  ///
+  /// In en, this message translates to:
+  /// **'They stay in the team but are left out of new events.'**
+  String get teamMemberDeactivateText;
+
+  /// No description provided for @teamMemberReactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate {name}?'**
+  String teamMemberReactivateTitle(String name);
+
+  /// No description provided for @teamMemberReactivateText.
+  ///
+  /// In en, this message translates to:
+  /// **'They will be part of new events again.'**
+  String get teamMemberReactivateText;
+
+  /// No description provided for @teamMemberRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String teamMemberRemoveTitle(String name);
+
+  /// No description provided for @teamMemberRemoveText.
+  ///
+  /// In en, this message translates to:
+  /// **'They are taken out of the team and its upcoming events.'**
+  String get teamMemberRemoveText;
+
+  /// No description provided for @teamMemberChangeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The change could not be saved. Please try again.'**
+  String get teamMemberChangeFailed;
+
+  /// No description provided for @teamAddMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Add members'**
+  String get teamAddMembers;
+
+  /// No description provided for @teamAddMembersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add members'**
+  String get teamAddMembersTitle;
+
+  /// No description provided for @teamAddMembersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for people and choose their roles.'**
+  String get teamAddMembersHint;
+
+  /// No description provided for @teamAddMembersSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to team'**
+  String get teamAddMembersSave;
+
+  /// No description provided for @teamAddMembersFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The members could not be added. Please try again.'**
+  String get teamAddMembersFailed;
+
+  /// No description provided for @teamAddMembersDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Members added.'**
+  String get teamAddMembersDone;
+
+  /// No description provided for @teamAddMembersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one found.'**
+  String get teamAddMembersEmpty;
+
+  /// No description provided for @teamAddMembersLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'The search failed.'**
+  String get teamAddMembersLoadError;
+
   /// No description provided for @teamRoleCaptain.
   ///
   /// In en, this message translates to:

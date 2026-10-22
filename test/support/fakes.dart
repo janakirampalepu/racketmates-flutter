@@ -320,6 +320,7 @@ class FakeScheduleRepository implements ScheduleRepository {
   AppFailure failure = const OfflineFailure();
   final List<String> calls = [];
   final List<int> requestedPages = [];
+  final List<int?> requestedTeams = [];
 
   Future<T> _run<T>(String name, T Function() value) async {
     calls.add(name);
@@ -346,8 +347,10 @@ class FakeScheduleRepository implements ScheduleRepository {
     required int page,
     required List<String> userIds,
     required int hourFormat,
+    int? teamId,
   }) {
     requestedPages.add(page);
+    requestedTeams.add(teamId);
     return _run('page-${tab.name}', () {
       final list = pages[tab] ?? const [];
       return ScheduleListResponse(
@@ -979,6 +982,7 @@ class FakeTeamsRepository implements TeamsRepository {
     String query = '',
     String? role,
     String? sportKey,
+    bool includeInactive = false,
   }) async {
     memberSearches.add((
       team: teamId,
@@ -990,7 +994,8 @@ class FakeTeamsRepository implements TeamsRepository {
     if (membersFail) throw const OfflineFailure();
     return [
       for (final m in membersByTeam[teamId] ?? const <TeamPlayer>[])
-        if ((query.isEmpty ||
+        if ((includeInactive || !m.isInactive) &&
+            (query.isEmpty ||
                 (m.user?.displayName ?? '').toLowerCase().contains(
                   query.toLowerCase(),
                 )) &&
@@ -998,6 +1003,145 @@ class FakeTeamsRepository implements TeamsRepository {
                 (role == 'ur_player' && (m.isPlayer ?? false)) ||
                 (role == 'ur_coach' && (m.isCoach ?? false))))
           m,
+    ];
+  }
+
+  /// What the ranking answers, by (sport, period, match type) in the calls.
+  List<TeamPlayer> ranking = const [];
+  bool rankingFails = false;
+  final List<({int team, String sport, String? period, String? matchType})>
+  rankingRequests = [];
+
+  /// Calls that change members: `roles:<team>:<player>:<c><o><p>`,
+  /// `inactivate:`, `reactivate:`, `remove:`, `add:<team>:<ids>`.
+  final List<String> memberCalls = [];
+  AppFailure? changeFailure;
+
+  /// People the add-members search finds.
+  List<AppUser> candidates = const [];
+  final List<({int team, String query, List<String> sports})>
+  candidateSearches = [];
+
+  @override
+  Future<List<TeamPlayer>> rankings(
+    int teamId, {
+    required String sportKey,
+    String? period,
+    String? matchType,
+  }) async {
+    rankingRequests.add((
+      team: teamId,
+      sport: sportKey,
+      period: period,
+      matchType: matchType,
+    ));
+    await Future<void>.delayed(Duration.zero);
+    if (rankingFails) throw const OfflineFailure();
+    return ranking;
+  }
+
+  Future<void> _change(String call, void Function() apply) async {
+    memberCalls.add(call);
+    await Future<void>.delayed(Duration.zero);
+    if (changeFailure != null) throw changeFailure!;
+    apply();
+  }
+
+  void _replace(int teamId, int playerId, TeamPlayer Function(TeamPlayer) f) {
+    membersByTeam = {
+      ...membersByTeam,
+      teamId: [
+        for (final m in membersByTeam[teamId] ?? const <TeamPlayer>[])
+          if (m.id == playerId) f(m) else m,
+      ],
+    };
+  }
+
+  TeamPlayer _copy(
+    TeamPlayer m, {
+    bool? captain,
+    bool? coach,
+    bool? player,
+    String? inactivatedAt,
+    bool clearInactive = false,
+  }) => TeamPlayer(
+    id: m.id,
+    userId: m.userId,
+    status: m.status,
+    isCaptain: captain ?? m.isCaptain,
+    isCoach: coach ?? m.isCoach,
+    isPlayer: player ?? m.isPlayer,
+    user: m.user,
+    inactivatedAt: clearInactive ? null : (inactivatedAt ?? m.inactivatedAt),
+  );
+
+  @override
+  Future<void> setMemberActive(
+    int teamId,
+    int teamPlayerId, {
+    required bool active,
+  }) => _change(
+    '${active ? 'reactivate' : 'inactivate'}:$teamId:$teamPlayerId',
+    () => _replace(
+      teamId,
+      teamPlayerId,
+      (m) => active
+          ? _copy(m, clearInactive: true)
+          : _copy(m, inactivatedAt: '2026-01-01'),
+    ),
+  );
+
+  @override
+  Future<void> updateMemberRoles(
+    int teamId,
+    int teamPlayerId, {
+    required bool captain,
+    required bool coach,
+    required bool player,
+  }) => _change(
+    'roles:$teamId:$teamPlayerId:${captain ? 'c' : '-'}${coach ? 'o' : '-'}${player ? 'p' : '-'}',
+    () => _replace(
+      teamId,
+      teamPlayerId,
+      (m) => _copy(m, captain: captain, coach: coach, player: player),
+    ),
+  );
+
+  @override
+  Future<void> removeMember(int teamId, int teamPlayerId) => _change(
+    'remove:$teamId:$teamPlayerId',
+    () => membersByTeam = {
+      ...membersByTeam,
+      teamId: [
+        for (final m in membersByTeam[teamId] ?? const <TeamPlayer>[])
+          if (m.id != teamPlayerId) m,
+      ],
+    },
+  );
+
+  @override
+  Future<void> addMembers(
+    int teamId,
+    List<Map<String, dynamic>> members,
+  ) => _change(
+    'add:$teamId:${members.map((m) => '${m['user_id']}${m['is_captain'] == true ? 'c' : ''}${m['is_player'] == true ? 'p' : ''}${m['is_coach'] == true ? 'o' : ''}').join(',')}',
+    () {},
+  );
+
+  @override
+  Future<List<AppUser>> searchNonMembers(
+    int teamId, {
+    String query = '',
+    List<String> sportKeys = const [],
+  }) async {
+    candidateSearches.add((team: teamId, query: query, sports: sportKeys));
+    await Future<void>.delayed(Duration.zero);
+    if (membersFail) throw const OfflineFailure();
+    return [
+      for (final u in candidates)
+        if (query.isEmpty ||
+            u.displayName.toLowerCase().contains(query.toLowerCase()))
+          u,
     ];
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/teams/teams_repository.dart';
+import 'package:racketmates/common/users/models/app_user.dart';
 
 /// The signed-in user's active teams.
 final myTeamsProvider = FutureProvider.autoDispose<List<Team>>(
@@ -39,5 +40,43 @@ final opponentTeamsProvider = FutureProvider.autoDispose
             excludeTeamId: args.exclude,
             sportKey: args.sport,
             query: args.query,
+          ),
+    );
+
+/// Members of a team, with or without the deactivated ones.
+final teamRosterProvider = FutureProvider.autoDispose
+    .family<List<TeamPlayer>, ({int teamId, bool inactive})>(
+      (ref, args) => ref
+          .watch(teamsRepositoryProvider)
+          .members(args.teamId, includeInactive: args.inactive),
+    );
+
+/// The team's ranking table for a sport, period and match type.
+final teamRankingsProvider = FutureProvider.autoDispose
+    .family<
+      List<TeamPlayer>,
+      ({int teamId, String sport, String? period, String? matchType})
+    >(
+      (ref, args) => ref
+          .watch(teamsRepositoryProvider)
+          .rankings(
+            args.teamId,
+            sportKey: args.sport,
+            period: args.period,
+            matchType: args.matchType,
+          ),
+    );
+
+/// People who could be added to a team: (team, search text).
+final teamCandidatesProvider = FutureProvider.autoDispose
+    .family<List<AppUser>, ({int teamId, String query})>(
+      (ref, args) => ref
+          .watch(teamsRepositoryProvider)
+          .searchNonMembers(
+            args.teamId,
+            query: args.query,
+            sportKeys:
+                ref.watch(teamDetailsProvider(args.teamId)).value?.sportKeys ??
+                const [],
           ),
     );

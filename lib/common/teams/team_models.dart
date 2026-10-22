@@ -1,4 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:racketmates/common/events/models/event_details.dart'
+    show AccessInfo;
 import 'package:racketmates/common/users/models/app_user.dart';
 
 part 'team_models.g.dart';
@@ -33,6 +35,12 @@ class TeamPlayer {
     this.isCoach,
     this.isPlayer,
     this.user,
+    this.inactivatedAt,
+    this.currentRank,
+    this.previousRank,
+    this.wins,
+    this.losses,
+    this.totalPoints,
   });
 
   factory TeamPlayer.fromJson(Map<String, dynamic> json) =>
@@ -46,7 +54,19 @@ class TeamPlayer {
   final bool? isPlayer;
   final AppUser? user;
 
+  /// When the member was deactivated; null for an active member.
+  final String? inactivatedAt;
+
+  /// Ranking fields, present in the member rankings answer.
+  final int? currentRank;
+  final int? previousRank;
+  final int? wins;
+  final int? losses;
+  final int? totalPoints;
+
   Map<String, dynamic> toJson() => _$TeamPlayerToJson(this);
+
+  bool get isInactive => (inactivatedAt ?? '').isNotEmpty;
 }
 
 /// Subset of the backend team the screens use. Unknown keys are ignored.
@@ -66,6 +86,7 @@ class Team {
     this.scheduleEventsCount,
     this.futureEventsCount,
     this.teamPlayers,
+    this.userPermissions,
   });
 
   factory Team.fromJson(Map<String, dynamic> json) => _$TeamFromJson(json);
@@ -83,6 +104,12 @@ class Team {
   final int? scheduleEventsCount;
   final int? futureEventsCount;
   final List<TeamPlayer>? teamPlayers;
+
+  /// What the signed-in user may do with the team, keyed like the backend
+  /// (`team.team_players.update`, `team.events.create`, ...).
+  final Map<String, AccessInfo>? userPermissions;
+
+  AccessInfo? permission(String key) => userPermissions?[key];
 
   Map<String, dynamic> toJson() => _$TeamToJson(this);
 

@@ -26,6 +26,12 @@ TeamPlayer _$TeamPlayerFromJson(Map<String, dynamic> json) => TeamPlayer(
   user: json['user'] == null
       ? null
       : AppUser.fromJson(json['user'] as Map<String, dynamic>),
+  inactivatedAt: json['inactivated_at'] as String?,
+  currentRank: (json['current_rank'] as num?)?.toInt(),
+  previousRank: (json['previous_rank'] as num?)?.toInt(),
+  wins: (json['wins'] as num?)?.toInt(),
+  losses: (json['losses'] as num?)?.toInt(),
+  totalPoints: (json['total_points'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$TeamPlayerToJson(TeamPlayer instance) =>
@@ -37,6 +43,12 @@ Map<String, dynamic> _$TeamPlayerToJson(TeamPlayer instance) =>
       'is_coach': instance.isCoach,
       'is_player': instance.isPlayer,
       'user': instance.user,
+      'inactivated_at': instance.inactivatedAt,
+      'current_rank': instance.currentRank,
+      'previous_rank': instance.previousRank,
+      'wins': instance.wins,
+      'losses': instance.losses,
+      'total_points': instance.totalPoints,
     };
 
 Team _$TeamFromJson(Map<String, dynamic> json) => Team(
@@ -57,6 +69,9 @@ Team _$TeamFromJson(Map<String, dynamic> json) => Team(
   teamPlayers: (json['team_players'] as List<dynamic>?)
       ?.map((e) => TeamPlayer.fromJson(e as Map<String, dynamic>))
       .toList(),
+  userPermissions: (json['user_permissions'] as Map<String, dynamic>?)?.map(
+    (k, e) => MapEntry(k, AccessInfo.fromJson(e as Map<String, dynamic>)),
+  ),
 );
 
 Map<String, dynamic> _$TeamToJson(Team instance) => <String, dynamic>{
@@ -73,6 +88,7 @@ Map<String, dynamic> _$TeamToJson(Team instance) => <String, dynamic>{
   'schedule_events_count': instance.scheduleEventsCount,
   'future_events_count': instance.futureEventsCount,
   'team_players': instance.teamPlayers,
+  'user_permissions': instance.userPermissions,
 };
 
 TeamsMeta _$TeamsMetaFromJson(Map<String, dynamic> json) => TeamsMeta(

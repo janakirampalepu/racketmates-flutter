@@ -48,6 +48,7 @@ abstract class ScheduleRepository {
     required int page,
     required List<String> userIds,
     required int hourFormat,
+    int? teamId,
   });
 
   Future<List<PendingAction>> pendingActions({required List<String> userIds});
@@ -117,10 +118,12 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
     required int page,
     required List<String> userIds,
     required int hourFormat,
+    int? teamId,
   }) => _guard(
     () => api.scheduledEvents(
       perPage: schedulePageSize,
       page: page,
+      teamId: teamId,
       eventsFor: tab.eventsFor,
       timePeriod: tab.timePeriod,
       userIds: userIds,

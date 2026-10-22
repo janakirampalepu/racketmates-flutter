@@ -121,7 +121,8 @@ void main() {
 
     expect(_id(TeamDetailsTestIds.root), findsOneWidget);
     expect(find.text('Sunday Smashers'), findsOneWidget);
-    expect(find.text('Sports: Tennis, Padel'), findsOneWidget);
+    expect(find.textContaining('Tennis, Padel'), findsOneWidget);
+    await _tap(tester, TeamDetailsTestIds.tabMembers);
     expect(find.text('Alex Kim'), findsOneWidget);
     expect(find.text('Captain, Player'), findsOneWidget);
     expect(find.text('Coach'), findsOneWidget);
@@ -134,6 +135,7 @@ void main() {
     await tester.pumpWidget(signedInApp(teams: teams));
     await _openTeams(tester);
     await _tap(tester, TeamsTestIds.tile(31));
+    await _tap(tester, TeamDetailsTestIds.tabMembers);
     expect(_id(TeamDetailsTestIds.membersError), findsOneWidget);
     teams.membersFail = false;
     await tester.tap(find.text('Try again'));

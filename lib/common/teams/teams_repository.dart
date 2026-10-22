@@ -4,6 +4,7 @@ import 'package:racketmates/common/auth/auth_providers.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/teams/teams_api.dart';
+import 'package:racketmates/common/users/models/app_user.dart';
 
 /// Native `AppConstants.USER_TEAMS`.
 const userTeamsQueryType = 'user_teams';
@@ -43,6 +44,43 @@ abstract class TeamsRepository {
     String query = '',
     String? role,
     String? sportKey,
+    bool includeInactive = false,
+  });
+
+  /// Members ranked for [sportKey] over [period] (`rpd_*`) and [matchType]
+  /// (`mt_singles`, `mt_doubles`, null = all).
+  Future<List<TeamPlayer>> rankings(
+    int teamId, {
+    required String sportKey,
+    String? period,
+    String? matchType,
+  });
+
+  Future<void> setMemberActive(
+    int teamId,
+    int teamPlayerId, {
+    required bool active,
+  });
+
+  Future<void> updateMemberRoles(
+    int teamId,
+    int teamPlayerId, {
+    required bool captain,
+    required bool coach,
+    required bool player,
+  });
+
+  Future<void> removeMember(int teamId, int teamPlayerId);
+
+  /// Adds people with their roles: `{user_id, is_captain, is_coach, is_player}`.
+  Future<void> addMembers(int teamId, List<Map<String, dynamic>> members);
+
+  /// People outside the team matching [query] (and playing one of
+  /// [sportKeys]).
+  Future<List<AppUser>> searchNonMembers(
+    int teamId, {
+    String query = '',
+    List<String> sportKeys = const [],
   });
 
   /// `POST teams`; returns the created team.
@@ -133,6 +171,7 @@ class TeamsRepositoryImpl implements TeamsRepository {
     String query = '',
     String? role,
     String? sportKey,
+    bool includeInactive = false,
   }) async {
     final response = await _guard(
       () => api.members(
@@ -141,11 +180,89 @@ class TeamsRepositoryImpl implements TeamsRepository {
         perPage: teamsPageSize,
         sportTypes: sportKey == null ? null : [sportKey],
         roles: role == null ? null : [role],
-        includeInactiveMembers: false,
+        includeInactiveMembers: includeInactive,
         search: query.trim(),
       ),
     );
     return response.teamPlayers?.whereType<TeamPlayer>().toList() ?? const [];
+  }
+
+  @override
+  Future<List<TeamPlayer>> rankings(
+    int teamId, {
+    required String sportKey,
+    String? period,
+    String? matchType,
+  }) async {
+    final response = await _guard(
+      () => api.memberRankings(
+        teamId,
+        page: 1,
+        perPage: teamsPageSize,
+        sportType: sportKey,
+        search: '',
+        rankingPeriod: period,
+        matchType: matchType,
+      ),
+    );
+    return response.teamPlayers?.whereType<TeamPlayer>().toList() ?? const [];
+  }
+
+  @override
+  Future<void> setMemberActive(
+    int teamId,
+    int teamPlayerId, {
+    required bool active,
+  }) => _guard(
+    () => active
+        ? api.reactivate(teamId, teamPlayerId)
+        : api.inactivate(teamId, teamPlayerId),
+  );
+
+  @override
+  Future<void> updateMemberRoles(
+    int teamId,
+    int teamPlayerId, {
+    required bool captain,
+    required bool coach,
+    required bool player,
+  }) => _guard(
+    () => api.updateRoles(teamId, teamPlayerId, {
+      'team_player': {
+        'is_captain': captain,
+        'is_coach': coach,
+        'is_player': player,
+      },
+    }),
+  );
+
+  @override
+  Future<void> removeMember(int teamId, int teamPlayerId) =>
+      _guard(() => api.removeMember(teamId, teamPlayerId));
+
+  @override
+  Future<void> addMembers(int teamId, List<Map<String, dynamic>> members) =>
+      _guard(
+        () => api.addMembers(teamId, {
+          'team': {'team_players_attributes': members},
+        }),
+      );
+
+  @override
+  Future<List<AppUser>> searchNonMembers(
+    int teamId, {
+    String query = '',
+    List<String> sportKeys = const [],
+  }) async {
+    final response = await _guard(
+      () => api.searchNonMembers(
+        search: query.trim(),
+        excludeTeamId: teamId,
+        isSignedUp: true,
+        sportTypes: sportKeys.isEmpty ? null : sportKeys,
+      ),
+    );
+    return response.users ?? const [];
   }
 
   @override

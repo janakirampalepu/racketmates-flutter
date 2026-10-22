@@ -52,3 +52,10 @@ Pagination follows the native schedule screens: `per_page=10`, `page` starts at 
 | One-to-one chat room | `POST chat_rooms {chat_room:{chat_room_type:crt_direct, uids:[own, other]}}` -> `{chat_room:{id, channel_url}}` | Android (`createChatRoomWithUserIds`) | `uids` are the users' `uid` (Sendbird user ids). |
 | Player search (1:1) | `GET users?search&exclude_user_ids[]=<me>&is_signed_up=true` | Android (`getListOfPlayers`) | |
 | Venue search with a position | `GET places?place_types[]=&latitude=&longitude=&distance=&per_page=20&search=&exclude_logged_in_user_club_ids=false[&sport_type=]` | Android (`getLocationList`) | `latitude`/`longitude`/`distance` only when the device position is known; `distance` is in the user's unit (`distance_type`), default 30. |
+| Team schedule | `GET schedule/scheduled_events?events_for=upcoming\|past&time_period=future\|past&team_id=&page&per_page=10&user_ids[]&event_roles[]&hour_format` | Android (`getScheduledEventsListV2`) | Same as the main schedule plus `team_id`. |
+| Team member rankings | `GET teams/{id}/team_players/member_rankings?page&per_page=100&sport_type&search&ranking_period&match_type` -> `team_players[]` with `current_rank, previous_rank, wins, losses, total_points` | Android (`getTeamsMemberRankingListWithFilter`) | `ranking_period` is a `ranking_period_duration` key, `match_type` `mt_singles`/`mt_doubles` or omitted. |
+| Update member roles | `PUT teams/{id}/team_players/{pid}` `{team_player:{is_captain,is_coach,is_player}}` | Android (`updateTeamMemberRoles`) | |
+| Deactivate / reactivate member | `POST teams/{id}/team_players/{pid}/inactivate` / `.../reactivate` | Android | |
+| Remove member | `DELETE teams/{id}/team_players/{pid}` | Android (`deleteTeamMember`) | |
+| Add members to a team | `PUT teams/{id}` `{team:{team_players_attributes:[{user_id,is_captain,is_player,is_coach}]}}` | Android (`inviteMembersToTeam`) | |
+| Players outside a team | `GET users?search&exclude_team_id&is_signed_up=true&sport_types[]` | Android (`getListOfPlayersForTeam`) | |

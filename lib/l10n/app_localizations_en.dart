@@ -981,6 +981,172 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teamDetailsLoadError => 'We couldn\'t load this team.';
 
   @override
+  String get teamTabSchedule => 'Schedule';
+
+  @override
+  String get teamTabRankings => 'Rankings';
+
+  @override
+  String get teamTabMembers => 'Members';
+
+  @override
+  String get teamScheduleUpcoming => 'Upcoming';
+
+  @override
+  String get teamSchedulePast => 'Past';
+
+  @override
+  String get teamScheduleEmptyUpcoming => 'The team has no upcoming events.';
+
+  @override
+  String get teamScheduleEmptyPast => 'The team has no past events.';
+
+  @override
+  String get teamScheduleLoadError => 'The team\'s events could not be loaded.';
+
+  @override
+  String get teamRankingsEmpty => 'No ranking yet for this selection.';
+
+  @override
+  String get teamRankingsLoadError => 'The ranking could not be loaded.';
+
+  @override
+  String get teamRankingsOff =>
+      'Player ranking is not turned on for this team.';
+
+  @override
+  String get teamRankingPeriod => 'Period';
+
+  @override
+  String get teamRankingMatchType => 'Match type';
+
+  @override
+  String get teamRankingAllMatches => 'All';
+
+  @override
+  String teamRankingRecord(int wins, int losses) {
+    return '${wins}W - ${losses}L';
+  }
+
+  @override
+  String teamRankingPoints(int points) {
+    return '$points pts';
+  }
+
+  @override
+  String teamRankingUp(int places) {
+    return 'Up $places';
+  }
+
+  @override
+  String teamRankingDown(int places) {
+    return 'Down $places';
+  }
+
+  @override
+  String teamRankingRank(int rank) {
+    return 'Rank $rank';
+  }
+
+  @override
+  String get teamMembersShowInactive => 'Show deactivated members';
+
+  @override
+  String get teamMemberInactive => 'Deactivated';
+
+  @override
+  String get teamMemberActions => 'Member actions';
+
+  @override
+  String get teamMemberEditRoles => 'Edit roles';
+
+  @override
+  String get teamMemberDeactivate => 'Deactivate';
+
+  @override
+  String get teamMemberReactivate => 'Reactivate';
+
+  @override
+  String get teamMemberRemove => 'Remove from team';
+
+  @override
+  String teamMemberRolesTitle(String name) {
+    return 'Roles of $name';
+  }
+
+  @override
+  String get teamMemberRolesNeedOne => 'Choose at least one role.';
+
+  @override
+  String get teamMemberOnlyCaptain =>
+      'A team needs a captain. Make someone else a captain first.';
+
+  @override
+  String get teamMemberSave => 'Save';
+
+  @override
+  String get teamMemberYes => 'Yes';
+
+  @override
+  String get teamMemberCancel => 'Cancel';
+
+  @override
+  String teamMemberDeactivateTitle(String name) {
+    return 'Deactivate $name?';
+  }
+
+  @override
+  String get teamMemberDeactivateText =>
+      'They stay in the team but are left out of new events.';
+
+  @override
+  String teamMemberReactivateTitle(String name) {
+    return 'Reactivate $name?';
+  }
+
+  @override
+  String get teamMemberReactivateText =>
+      'They will be part of new events again.';
+
+  @override
+  String teamMemberRemoveTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String get teamMemberRemoveText =>
+      'They are taken out of the team and its upcoming events.';
+
+  @override
+  String get teamMemberChangeFailed =>
+      'The change could not be saved. Please try again.';
+
+  @override
+  String get teamAddMembers => 'Add members';
+
+  @override
+  String get teamAddMembersTitle => 'Add members';
+
+  @override
+  String get teamAddMembersHint => 'Search for people and choose their roles.';
+
+  @override
+  String get teamAddMembersSave => 'Add to team';
+
+  @override
+  String get teamAddMembersFailed =>
+      'The members could not be added. Please try again.';
+
+  @override
+  String get teamAddMembersDone => 'Members added.';
+
+  @override
+  String get teamAddMembersEmpty => 'No one found.';
+
+  @override
+  String get teamAddMembersLoadError => 'The search failed.';
+
+  @override
   String get teamRoleCaptain => 'Captain';
 
   @override
