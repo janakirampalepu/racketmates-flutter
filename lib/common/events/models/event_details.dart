@@ -34,6 +34,9 @@ class EventDetails {
     this.waitingListSpotsLeft,
     this.eventParticipantsCount,
     this.withCoach,
+    this.gameType,
+    this.partnershipType,
+    this.userPermissions,
     this.eventScheduleOptions,
     this.eventParticipants,
     this.currentUserEventDetails,
@@ -53,11 +56,26 @@ class EventDetails {
   final int? waitingListSpotsLeft;
   final int? eventParticipantsCount;
   final bool? withCoach;
+  final String? gameType;
+  final String? partnershipType;
+
+  /// Event-level permissions keyed like the backend (`event.manage`, ...).
+  final Map<String, AccessInfo>? userPermissions;
   final List<EventScheduleOption>? eventScheduleOptions;
   final List<EventParticipant>? eventParticipants;
   final List<CurrentUserEventDetail>? currentUserEventDetails;
 
   Map<String, dynamic> toJson() => _$EventDetailsToJson(this);
+
+  AccessInfo? permission(String key) => userPermissions?[key];
+
+  bool get isRoundRobin => eventType == 'et_round_robin';
+
+  /// Round-robin events with mixed games or fixed partners ask each player for
+  /// partner / match-type preferences when responding (not migrated yet).
+  bool get needsPartnerPreferences =>
+      isRoundRobin &&
+      (gameType == 'egt_both' || partnershipType == 'ept_fixed');
 
   /// Participants who are players (coaches, organizers and audience excluded).
   List<EventParticipant> get players => [
@@ -160,6 +178,11 @@ class CurrentUserEventDetail {
     this.statusTitle,
     this.statusSubText,
     this.user,
+    this.primaryAction,
+    this.secondaryAction,
+    this.groupedEventScheduleOptions,
+    this.selectedScheduleOptionIds,
+    this.showRsvpStatus,
   });
 
   factory CurrentUserEventDetail.fromJson(Map<String, dynamic> json) =>
@@ -173,6 +196,80 @@ class CurrentUserEventDetail {
   final String? statusTitle;
   final String? statusSubText;
   final AppUser? user;
+  final EventAction? primaryAction;
+  final EventAction? secondaryAction;
+
+  /// The time/court options this user can respond to.
+  final List<GroupedScheduleOption>? groupedEventScheduleOptions;
+  final List<int>? selectedScheduleOptionIds;
+  final bool? showRsvpStatus;
 
   Map<String, dynamic> toJson() => _$CurrentUserEventDetailToJson(this);
+
+  /// Options still open for a response (native `confirmBtnAction`).
+  List<GroupedScheduleOption> get assignedOptions => [
+    for (final o
+        in groupedEventScheduleOptions ?? const <GroupedScheduleOption>[])
+      if (!(o.toBeScheduled ?? false) || !(o.cancelled ?? false)) o,
+  ];
+}
+
+/// `access` of a permission or action: `up_enabled`, `up_disabled`,
+/// `up_not_available` or `up_requires_subscription`.
+@JsonSerializable(fieldRename: FieldRename.snake)
+class AccessInfo {
+  const AccessInfo({this.access, this.message});
+
+  factory AccessInfo.fromJson(Map<String, dynamic> json) =>
+      _$AccessInfoFromJson(json);
+
+  final String? access;
+  final String? message;
+
+  Map<String, dynamic> toJson() => _$AccessInfoToJson(this);
+
+  bool get enabled => access == 'up_enabled';
+  bool get requiresSubscription => access == 'up_requires_subscription';
+}
+
+/// Backend-provided action for the signed-in user (`primary_action` /
+/// `secondary_action`), e.g. `event_view_action_accept`.
+@JsonSerializable(fieldRename: FieldRename.snake)
+class EventAction {
+  const EventAction({this.action, this.access, this.message});
+
+  factory EventAction.fromJson(Map<String, dynamic> json) =>
+      _$EventActionFromJson(json);
+
+  final String? action;
+  final String? access;
+  final String? message;
+
+  Map<String, dynamic> toJson() => _$EventActionToJson(this);
+
+  bool get enabled => access == 'up_enabled';
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+class GroupedScheduleOption {
+  const GroupedScheduleOption({
+    this.id,
+    this.duration,
+    this.startTime,
+    this.placeId,
+    this.cancelled,
+    this.toBeScheduled,
+  });
+
+  factory GroupedScheduleOption.fromJson(Map<String, dynamic> json) =>
+      _$GroupedScheduleOptionFromJson(json);
+
+  final int? id;
+  final int? duration;
+  final String? startTime;
+  final int? placeId;
+  final bool? cancelled;
+  final bool? toBeScheduled;
+
+  Map<String, dynamic> toJson() => _$GroupedScheduleOptionToJson(this);
 }

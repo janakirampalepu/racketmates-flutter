@@ -392,4 +392,76 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unknownPlayer => 'Player';
+
+  @override
+  String get rsvpAccept => 'Confirm';
+
+  @override
+  String get rsvpDecline => 'Decline';
+
+  @override
+  String get rsvpRejoin => 'Rejoin';
+
+  @override
+  String get rsvpLeave => 'Leave event';
+
+  @override
+  String get rsvpJoinWaitlist => 'Join waitlist';
+
+  @override
+  String get rsvpEditResponse => 'Edit response';
+
+  @override
+  String get rsvpDeclineTitle => 'Decline this event?';
+
+  @override
+  String get rsvpDeclineMessage =>
+      'The organizer will be told you cannot make it.';
+
+  @override
+  String get rsvpLeaveTitle => 'Leave this event?';
+
+  @override
+  String get rsvpLeaveMessage => 'You will be removed from the event.';
+
+  @override
+  String get rsvpDone => 'Your response was saved.';
+
+  @override
+  String get rsvpNeedsPicker =>
+      'Choosing between several times or partners is not available in this build yet.';
+
+  @override
+  String get rsvpNeedsSubscription =>
+      'A subscription is required for this action.';
+
+  @override
+  String get rsvpActionFailed => 'Could not update your response.';
+
+  @override
+  String get cancelEventAction => 'Cancel event';
+
+  @override
+  String get cancelEventTitle => 'Cancel this event?';
+
+  @override
+  String get cancelEventReasonLabel => 'Reason (optional)';
+
+  @override
+  String get cancelEventRemoveLabel => 'Also remove it from the schedule';
+
+  @override
+  String get cancelEventConfirm => 'Cancel event';
+
+  @override
+  String get cancelEventKeep => 'Keep event';
+
+  @override
+  String get cancelEventDone => 'The event was cancelled.';
+
+  @override
+  String get cancelEventFailed => 'Could not cancel the event.';
+
+  @override
+  String get moreOptionsLabel => 'More options';
 }

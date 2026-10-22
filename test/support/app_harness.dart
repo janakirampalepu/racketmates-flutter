@@ -6,6 +6,7 @@ import 'package:racketmates/common/auth/auth_providers.dart';
 import 'package:racketmates/common/auth/models/session_token.dart';
 import 'package:racketmates/common/auth/token_store.dart';
 import 'package:racketmates/common/config/config_providers.dart';
+import 'package:racketmates/common/events/event_actions_repository.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/users/user_repository.dart';
 import 'package:racketmates/screens/splash/repositories/startup_repository.dart';
@@ -17,6 +18,7 @@ import 'fakes.dart';
 Widget signedInApp({
   FakeScheduleRepository? schedule,
   FakeUserRepository? users,
+  FakeEventActionsRepository? actions,
 }) => ProviderScope(
   overrides: [
     environmentConfigProvider.overrideWithValue(testConfig),
@@ -35,6 +37,9 @@ Widget signedInApp({
     userRepositoryProvider.overrideWithValue(users ?? FakeUserRepository()),
     scheduleRepositoryProvider.overrideWithValue(
       schedule ?? FakeScheduleRepository(),
+    ),
+    eventActionsRepositoryProvider.overrideWithValue(
+      actions ?? FakeEventActionsRepository(),
     ),
     hourFormatProvider.overrideWithValue(12),
   ],

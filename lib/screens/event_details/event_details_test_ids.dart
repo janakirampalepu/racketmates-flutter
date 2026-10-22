@@ -10,5 +10,16 @@ abstract final class EventDetailsTestIds {
   static const players = 'event_details_players';
   static const retry = 'event_details_retry';
   static const back = 'event_details_back_button';
+  static const actionBar = 'event_details_action_bar';
+  static const menu = 'event_details_menu';
+  static const menuCancelEvent = 'event_details_menu_cancel_event';
+  static const confirmButton = 'event_details_confirm_button';
+  static const confirmDismissButton = 'event_details_confirm_dismiss_button';
+  static const unsupportedNote = 'event_details_unsupported_note';
+  static const cancelReason = 'event_cancel_reason_field';
+  static const cancelRemoveSwitch = 'event_cancel_remove_switch';
+  static const cancelConfirm = 'event_cancel_confirm_button';
+  static const cancelKeep = 'event_cancel_keep_button';
   static String player(int id) => 'event_details_player_$id';
+  static String action(String name) => 'event_details_action_$name';
 }

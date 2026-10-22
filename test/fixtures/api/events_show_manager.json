@@ -1,0 +1,98 @@
+{
+  "message": "ok",
+  "result": "success",
+  "event": {
+    "id": 101,
+    "event_type": "et_game",
+    "sport_type": "st_tennis",
+    "status": "es_scheduled",
+    "notes_for_event": "Bring balls",
+    "rsvp_status": "rs_open",
+    "players_limit": 4,
+    "regular_spots_left": 1,
+    "waiting_list_spots_left": 2,
+    "event_participants_count": 3,
+    "with_coach": false,
+    "event_schedule_options": [
+      {
+        "id": 900,
+        "start_time": "2026-11-03T23:00:00.000Z",
+        "end_time": "2026-11-04T00:30:00.000Z",
+        "duration": 90,
+        "place_id": 5,
+        "option_number": 1,
+        "status": "eco_confirmed",
+        "place": {
+          "id": 5,
+          "name": "Central Courts",
+          "address": "1 Main St"
+        }
+      }
+    ],
+    "event_participants": [
+      {
+        "id": 1,
+        "user_id": 7,
+        "is_player": true,
+        "is_organizer": true,
+        "status": "eus_accepted",
+        "participant_label": "Organizer",
+        "user": {
+          "id": 7,
+          "first_name": "Sam",
+          "last_name": "Lee"
+        }
+      },
+      {
+        "id": 2,
+        "user_id": 8,
+        "is_player": true,
+        "status": "eus_invited",
+        "user": {
+          "id": 8,
+          "first_name": "Alex",
+          "last_name": "Kim"
+        }
+      },
+      {
+        "id": 3,
+        "user_id": 9,
+        "is_coach": true,
+        "status": "eus_accepted",
+        "user": {
+          "id": 9,
+          "first_name": "Coach",
+          "last_name": "Pat"
+        }
+      }
+    ],
+    "current_user_event_details": [
+      {
+        "event_participant_id": 1,
+        "is_player": true,
+        "status": "eus_invited",
+        "status_title": "Invited",
+        "status_sub_text": "Please respond",
+        "grouped_event_schedule_options": [
+          {
+            "id": 900,
+            "duration": 90,
+            "place_id": 5,
+            "cancelled": false,
+            "to_be_scheduled": false
+          }
+        ],
+        "selected_schedule_option_ids": []
+      }
+    ],
+    "scoring_format": {
+      "id": 1
+    },
+    "event_matches": [],
+    "user_permissions": {
+      "event.manage": {
+        "access": "up_enabled"
+      }
+    }
+  }
+}

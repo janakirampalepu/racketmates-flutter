@@ -7,6 +7,7 @@ import 'package:racketmates/common/auth/models/phone_verification.dart';
 import 'package:racketmates/common/auth/models/session_token.dart';
 import 'package:racketmates/common/auth/phone_verification_repository.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/events/event_actions_repository.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/events/models/schedule_models.dart';
@@ -335,3 +336,67 @@ ScheduleItem scheduleItem(
   timeSlot: '6:00 PM - 7:30 PM',
   placeName: 'Central Courts',
 );
+
+class FakeEventActionsRepository implements EventActionsRepository {
+  FakeEventActionsRepository({this.response, this.failure});
+
+  /// Returned by every RSVP call.
+  EventDetailsResponse? response;
+  AppFailure? failure;
+  final List<String> calls = [];
+  final List<List<int>> optionIds = [];
+  String? cancelReason;
+  bool? cancelRemove;
+
+  Future<EventDetailsResponse> _rsvp(String name) async {
+    calls.add(name);
+    await Future<void>.delayed(Duration.zero);
+    if (failure != null) throw failure!;
+    return response ?? const EventDetailsResponse();
+  }
+
+  @override
+  Future<EventDetailsResponse> accept(
+    int eventId,
+    int participantId, {
+    List<int> scheduleOptionIds = const [],
+  }) {
+    optionIds.add(scheduleOptionIds);
+    return _rsvp('accept:$eventId:$participantId');
+  }
+
+  @override
+  Future<EventDetailsResponse> decline(int eventId, int participantId) =>
+      _rsvp('decline:$eventId:$participantId');
+
+  @override
+  Future<EventDetailsResponse> rejoin(
+    int eventId,
+    int participantId, {
+    required List<int> scheduleOptionIds,
+  }) {
+    optionIds.add(scheduleOptionIds);
+    return _rsvp('rejoin:$eventId:$participantId');
+  }
+
+  @override
+  Future<EventDetailsResponse> leave(int eventId, int participantId) =>
+      _rsvp('leave:$eventId:$participantId');
+
+  @override
+  Future<EventDetailsResponse> joinWaitlist(int eventId, int participantId) =>
+      _rsvp('waitlist:$eventId:$participantId');
+
+  @override
+  Future<void> cancelEvent(
+    int eventId, {
+    String? reason,
+    bool removeEvent = false,
+  }) async {
+    calls.add('cancel:$eventId');
+    cancelReason = reason;
+    cancelRemove = removeEvent;
+    await Future<void>.delayed(Duration.zero);
+    if (failure != null) throw failure!;
+  }
+}

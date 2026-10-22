@@ -8,6 +8,8 @@ The backend serves two generations of some read endpoints: the Android app and t
 | Pending actions | `GET current_session/pending_actions` | same | `events/schedule_list` (no dedicated endpoint) | Dedicated endpoint with a typed response. |
 | Activity summary | `GET current_session/stats_summary` | same | same | Identical on both platforms. |
 | Latest updates (player cards) | `GET current_session/player_cards` (`card_types[]=pct_player_event_result_update`) | same | same | Identical on both platforms. |
+| RSVP (accept, decline, rejoin, leave, waitlist) | `POST events/{id}/event_participants/{participantId}/{accept_invite,decline_invite,rejoin_event,leave_event,join_waitlist}` | same | `accept_invite` etc. not compared yet | Only the Android paths were read; iOS equivalents are unverified. Bodies: `event_schedule_option_ids` (accept/decline/rejoin), `{}` (waitlist), none (leave). |
+| Cancel event | `PUT events/{id}/cancel_event` `{cancellation_reason?, remove_event}` | same | iOS has `events/{id}/cancel` and `undo_cancel` | Android path used; iOS `cancel`/`undo_cancel` not compared. Confirm with backend owners. |
 | Event details | `GET events/{id}?hour_format&view_type=participant` | same | `GET events/{id}` | Identical path. |
 
 Pagination follows the native schedule screens: `per_page=10`, `page` starts at 1, and the list is finished when a page returns no items (`schedule_items` empty). Home shows `per_page=3` of upcoming/past.

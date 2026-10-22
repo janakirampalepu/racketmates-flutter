@@ -178,5 +178,28 @@
         "type": "int"
       }
     }
-  }
+  },
+  "rsvpAccept": "Confirm",
+  "rsvpDecline": "Decline",
+  "rsvpRejoin": "Rejoin",
+  "rsvpLeave": "Leave event",
+  "rsvpJoinWaitlist": "Join waitlist",
+  "rsvpEditResponse": "Edit response",
+  "rsvpDeclineTitle": "Decline this event?",
+  "rsvpDeclineMessage": "The organizer will be told you cannot make it.",
+  "rsvpLeaveTitle": "Leave this event?",
+  "rsvpLeaveMessage": "You will be removed from the event.",
+  "rsvpDone": "Your response was saved.",
+  "rsvpNeedsPicker": "Choosing between several times or partners is not available in this build yet.",
+  "rsvpNeedsSubscription": "A subscription is required for this action.",
+  "rsvpActionFailed": "Could not update your response.",
+  "cancelEventAction": "Cancel event",
+  "cancelEventTitle": "Cancel this event?",
+  "cancelEventReasonLabel": "Reason (optional)",
+  "cancelEventRemoveLabel": "Also remove it from the schedule",
+  "cancelEventConfirm": "Cancel event",
+  "cancelEventKeep": "Keep event",
+  "cancelEventDone": "The event was cancelled.",
+  "cancelEventFailed": "Could not cancel the event.",
+  "moreOptionsLabel": "More options"
 }

@@ -36,6 +36,11 @@ EventDetails _$EventDetailsFromJson(Map<String, dynamic> json) => EventDetails(
   waitingListSpotsLeft: (json['waiting_list_spots_left'] as num?)?.toInt(),
   eventParticipantsCount: (json['event_participants_count'] as num?)?.toInt(),
   withCoach: json['with_coach'] as bool?,
+  gameType: json['game_type'] as String?,
+  partnershipType: json['partnership_type'] as String?,
+  userPermissions: (json['user_permissions'] as Map<String, dynamic>?)?.map(
+    (k, e) => MapEntry(k, AccessInfo.fromJson(e as Map<String, dynamic>)),
+  ),
   eventScheduleOptions: (json['event_schedule_options'] as List<dynamic>?)
       ?.map((e) => EventScheduleOption.fromJson(e as Map<String, dynamic>))
       .toList(),
@@ -63,6 +68,9 @@ Map<String, dynamic> _$EventDetailsToJson(EventDetails instance) =>
       'waiting_list_spots_left': instance.waitingListSpotsLeft,
       'event_participants_count': instance.eventParticipantsCount,
       'with_coach': instance.withCoach,
+      'game_type': instance.gameType,
+      'partnership_type': instance.partnershipType,
+      'user_permissions': instance.userPermissions,
       'event_schedule_options': instance.eventScheduleOptions,
       'event_participants': instance.eventParticipants,
       'current_user_event_details': instance.currentUserEventDetails,
@@ -149,6 +157,23 @@ CurrentUserEventDetail _$CurrentUserEventDetailFromJson(
   user: json['user'] == null
       ? null
       : AppUser.fromJson(json['user'] as Map<String, dynamic>),
+  primaryAction: json['primary_action'] == null
+      ? null
+      : EventAction.fromJson(json['primary_action'] as Map<String, dynamic>),
+  secondaryAction: json['secondary_action'] == null
+      ? null
+      : EventAction.fromJson(json['secondary_action'] as Map<String, dynamic>),
+  groupedEventScheduleOptions:
+      (json['grouped_event_schedule_options'] as List<dynamic>?)
+          ?.map(
+            (e) => GroupedScheduleOption.fromJson(e as Map<String, dynamic>),
+          )
+          .toList(),
+  selectedScheduleOptionIds:
+      (json['selected_schedule_option_ids'] as List<dynamic>?)
+          ?.map((e) => (e as num).toInt())
+          .toList(),
+  showRsvpStatus: json['show_rsvp_status'] as bool?,
 );
 
 Map<String, dynamic> _$CurrentUserEventDetailToJson(
@@ -162,4 +187,52 @@ Map<String, dynamic> _$CurrentUserEventDetailToJson(
   'status_title': instance.statusTitle,
   'status_sub_text': instance.statusSubText,
   'user': instance.user,
+  'primary_action': instance.primaryAction,
+  'secondary_action': instance.secondaryAction,
+  'grouped_event_schedule_options': instance.groupedEventScheduleOptions,
+  'selected_schedule_option_ids': instance.selectedScheduleOptionIds,
+  'show_rsvp_status': instance.showRsvpStatus,
+};
+
+AccessInfo _$AccessInfoFromJson(Map<String, dynamic> json) => AccessInfo(
+  access: json['access'] as String?,
+  message: json['message'] as String?,
+);
+
+Map<String, dynamic> _$AccessInfoToJson(AccessInfo instance) =>
+    <String, dynamic>{'access': instance.access, 'message': instance.message};
+
+EventAction _$EventActionFromJson(Map<String, dynamic> json) => EventAction(
+  action: json['action'] as String?,
+  access: json['access'] as String?,
+  message: json['message'] as String?,
+);
+
+Map<String, dynamic> _$EventActionToJson(EventAction instance) =>
+    <String, dynamic>{
+      'action': instance.action,
+      'access': instance.access,
+      'message': instance.message,
+    };
+
+GroupedScheduleOption _$GroupedScheduleOptionFromJson(
+  Map<String, dynamic> json,
+) => GroupedScheduleOption(
+  id: (json['id'] as num?)?.toInt(),
+  duration: (json['duration'] as num?)?.toInt(),
+  startTime: json['start_time'] as String?,
+  placeId: (json['place_id'] as num?)?.toInt(),
+  cancelled: json['cancelled'] as bool?,
+  toBeScheduled: json['to_be_scheduled'] as bool?,
+);
+
+Map<String, dynamic> _$GroupedScheduleOptionToJson(
+  GroupedScheduleOption instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'duration': instance.duration,
+  'start_time': instance.startTime,
+  'place_id': instance.placeId,
+  'cancelled': instance.cancelled,
+  'to_be_scheduled': instance.toBeScheduled,
 };

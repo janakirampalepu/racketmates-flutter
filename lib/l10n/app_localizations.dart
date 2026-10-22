@@ -825,6 +825,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Player'**
   String get unknownPlayer;
+
+  /// No description provided for @rsvpAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get rsvpAccept;
+
+  /// No description provided for @rsvpDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get rsvpDecline;
+
+  /// No description provided for @rsvpRejoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejoin'**
+  String get rsvpRejoin;
+
+  /// No description provided for @rsvpLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave event'**
+  String get rsvpLeave;
+
+  /// No description provided for @rsvpJoinWaitlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Join waitlist'**
+  String get rsvpJoinWaitlist;
+
+  /// No description provided for @rsvpEditResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit response'**
+  String get rsvpEditResponse;
+
+  /// No description provided for @rsvpDeclineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline this event?'**
+  String get rsvpDeclineTitle;
+
+  /// No description provided for @rsvpDeclineMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The organizer will be told you cannot make it.'**
+  String get rsvpDeclineMessage;
+
+  /// No description provided for @rsvpLeaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave this event?'**
+  String get rsvpLeaveTitle;
+
+  /// No description provided for @rsvpLeaveMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You will be removed from the event.'**
+  String get rsvpLeaveMessage;
+
+  /// No description provided for @rsvpDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your response was saved.'**
+  String get rsvpDone;
+
+  /// No description provided for @rsvpNeedsPicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Choosing between several times or partners is not available in this build yet.'**
+  String get rsvpNeedsPicker;
+
+  /// No description provided for @rsvpNeedsSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'A subscription is required for this action.'**
+  String get rsvpNeedsSubscription;
+
+  /// No description provided for @rsvpActionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update your response.'**
+  String get rsvpActionFailed;
+
+  /// No description provided for @cancelEventAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel event'**
+  String get cancelEventAction;
+
+  /// No description provided for @cancelEventTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this event?'**
+  String get cancelEventTitle;
+
+  /// No description provided for @cancelEventReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (optional)'**
+  String get cancelEventReasonLabel;
+
+  /// No description provided for @cancelEventRemoveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Also remove it from the schedule'**
+  String get cancelEventRemoveLabel;
+
+  /// No description provided for @cancelEventConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel event'**
+  String get cancelEventConfirm;
+
+  /// No description provided for @cancelEventKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep event'**
+  String get cancelEventKeep;
+
+  /// No description provided for @cancelEventDone.
+  ///
+  /// In en, this message translates to:
+  /// **'The event was cancelled.'**
+  String get cancelEventDone;
+
+  /// No description provided for @cancelEventFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not cancel the event.'**
+  String get cancelEventFailed;
+
+  /// No description provided for @moreOptionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get moreOptionsLabel;
 }
 
 class _AppLocalizationsDelegate
