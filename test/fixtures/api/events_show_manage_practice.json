@@ -1,0 +1,58 @@
+{
+  "message": "ok",
+  "result": "success",
+  "event": {
+    "id": 101,
+    "event_type": "et_practice_drill",
+    "sport_type": "st_tennis",
+    "status": "es_scheduled",
+    "notes_for_event": "Bring balls",
+    "originator_type": "",
+    "attendance_deadline_unit": 2,
+    "attendance_deadline_unit_type": "adut_hour",
+    "allow_participants_manage_players": false,
+    "player_pool": "pp_invited_only",
+    "players_limit": 4,
+    "rsvp_limit": 6,
+    "player_acceptance_type": "pat_order_of_response",
+    "assign_type": null,
+    "no_of_courts": 1,
+    "settings_locked": false,
+    "with_coach": true,
+    "event_participants_count": 5,
+    "event_venue_courts": [{"id": 1, "place_court_id": 11, "order": 1}],
+    "event_schedule_options": [
+      {
+        "id": 900,
+        "start_time": "2030-11-03T23:00:00.000Z",
+        "end_time": "2030-11-04T00:30:00.000Z",
+        "duration": 90,
+        "place_id": 5,
+        "timezone_info_id": 14,
+        "timezone_info": {"id": 14, "utc_offset_time": -18000},
+        "option_number": 1,
+        "status": "eco_confirmed",
+        "place": {"id": 5, "name": "Central Courts", "address": "1 Main St"}
+      }
+    ],
+    "event_participants": [
+      {"id": 1, "user_id": 7, "is_player": true, "is_organizer": true, "status": "eus_confirmed",
+       "participant_label": "Organizer", "user": {"id": 7, "first_name": "Sam", "last_name": "Lee"}},
+      {"id": 2, "user_id": 8, "is_player": true, "status": "eus_to_be_confirmed",
+       "user": {"id": 8, "first_name": "Alex", "last_name": "Kim"}},
+      {"id": 3, "user_id": 9, "is_player": true, "status": "eus_invited",
+       "user": {"id": 9, "first_name": "Pat", "last_name": "Lee"}},
+      {"id": 4, "user_id": 10, "is_player": true, "status": "eus_declined",
+       "user": {"id": 10, "first_name": "Dana", "last_name": "Fox"}},
+      {"id": 5, "user_id": 11, "is_coach": true, "status": "eus_confirmed",
+       "user": {"id": 11, "first_name": "Coach", "last_name": "Cole"}}
+    ],
+    "current_user_event_details": [
+      {"event_participant_id": 1, "is_player": true, "is_manager": true, "status": "eus_confirmed"}
+    ],
+    "user_permissions": {
+      "event.manage": {"access": "up_enabled"}
+    },
+    "event_matches": []
+  }
+}

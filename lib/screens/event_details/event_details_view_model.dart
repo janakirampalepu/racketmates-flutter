@@ -32,6 +32,20 @@ class EventDetailsViewModel extends Notifier<EventDetailsState> {
     }
   }
 
+  /// Reloads the event without the loading state: manage screens keep showing
+  /// the event while it updates. A failed refresh keeps the previous data.
+  Future<void> refresh() async {
+    try {
+      final event = await ref
+          .read(scheduleRepositoryProvider)
+          .eventDetails(eventId, hourFormat: ref.read(hourFormatProvider));
+      if (ref.mounted) state = state.copyWith(event: AsyncData(event));
+    } on Object {
+      // Keep what is shown.
+    }
+    if (ref.mounted) _refreshLists();
+  }
+
   void clearFeedback() => state = state.copyWith(feedback: () => null);
 
   int? get _participantId => state
@@ -138,3 +152,8 @@ final eventDetailsViewModelProvider = NotifierProvider.autoDispose
 bool canCancelEvent(EventDetails event) =>
     (event.permission('event.manage')?.enabled ?? false) &&
     event.status != 'es_cancelled';
+
+/// Whether the signed-in user may manage this event (`event.manage`): change
+/// its settings, people, schedule and scores.
+bool canManageEvent(EventDetails event) =>
+    event.permission('event.manage')?.enabled ?? false;

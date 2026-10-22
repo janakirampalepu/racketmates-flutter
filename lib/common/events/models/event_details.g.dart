@@ -53,28 +53,71 @@ EventDetails _$EventDetailsFromJson(Map<String, dynamic> json) => EventDetails(
             (e) => CurrentUserEventDetail.fromJson(e as Map<String, dynamic>),
           )
           .toList(),
+  attendanceDeadlineUnit: (json['attendance_deadline_unit'] as num?)?.toInt(),
+  attendanceDeadlineUnitType: json['attendance_deadline_unit_type'] as String?,
+  allowParticipantsManagePlayers:
+      json['allow_participants_manage_players'] as bool?,
+  allowParticipantsToLogResults:
+      json['allow_participants_to_log_results'] as bool?,
+  considerForTeamRanking: json['consider_for_team_ranking'] as bool?,
+  playerPool: json['player_pool'] as String?,
+  rsvpLimit: (json['rsvp_limit'] as num?)?.toInt(),
+  playerAcceptanceType: json['player_acceptance_type'] as String?,
+  assignType: json['assign_type'] as String?,
+  scoringFormat: json['scoring_format'] as String?,
+  decidingSetType: json['deciding_set_type'] as String?,
+  minimumScoreToWin: (json['minimum_score_to_win'] as num?)?.toInt(),
+  noOfCourts: (json['no_of_courts'] as num?)?.toInt(),
+  originatorType: json['originator_type'] as String?,
+  originatorId: (json['originator_id'] as num?)?.toInt(),
+  settingsLocked: json['settings_locked'] as bool?,
+  eventVenueCourts: (json['event_venue_courts'] as List<dynamic>?)
+      ?.map((e) => EventVenueCourt.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  eventMatches: (json['event_matches'] as List<dynamic>?)
+      ?.map((e) => EventMatch.fromJson(e as Map<String, dynamic>))
+      .toList(),
 );
 
-Map<String, dynamic> _$EventDetailsToJson(EventDetails instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'event_type': instance.eventType,
-      'sport_type': instance.sportType,
-      'status': instance.status,
-      'notes_for_event': instance.notesForEvent,
-      'rsvp_status': instance.rsvpStatus,
-      'players_limit': instance.playersLimit,
-      'regular_spots_left': instance.regularSpotsLeft,
-      'waiting_list_spots_left': instance.waitingListSpotsLeft,
-      'event_participants_count': instance.eventParticipantsCount,
-      'with_coach': instance.withCoach,
-      'game_type': instance.gameType,
-      'partnership_type': instance.partnershipType,
-      'user_permissions': instance.userPermissions,
-      'event_schedule_options': instance.eventScheduleOptions,
-      'event_participants': instance.eventParticipants,
-      'current_user_event_details': instance.currentUserEventDetails,
-    };
+Map<String, dynamic> _$EventDetailsToJson(
+  EventDetails instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'event_type': instance.eventType,
+  'sport_type': instance.sportType,
+  'status': instance.status,
+  'notes_for_event': instance.notesForEvent,
+  'rsvp_status': instance.rsvpStatus,
+  'players_limit': instance.playersLimit,
+  'regular_spots_left': instance.regularSpotsLeft,
+  'waiting_list_spots_left': instance.waitingListSpotsLeft,
+  'event_participants_count': instance.eventParticipantsCount,
+  'with_coach': instance.withCoach,
+  'game_type': instance.gameType,
+  'partnership_type': instance.partnershipType,
+  'user_permissions': instance.userPermissions,
+  'event_schedule_options': instance.eventScheduleOptions,
+  'event_participants': instance.eventParticipants,
+  'current_user_event_details': instance.currentUserEventDetails,
+  'attendance_deadline_unit': instance.attendanceDeadlineUnit,
+  'attendance_deadline_unit_type': instance.attendanceDeadlineUnitType,
+  'allow_participants_manage_players': instance.allowParticipantsManagePlayers,
+  'allow_participants_to_log_results': instance.allowParticipantsToLogResults,
+  'consider_for_team_ranking': instance.considerForTeamRanking,
+  'player_pool': instance.playerPool,
+  'rsvp_limit': instance.rsvpLimit,
+  'player_acceptance_type': instance.playerAcceptanceType,
+  'assign_type': instance.assignType,
+  'scoring_format': instance.scoringFormat,
+  'deciding_set_type': instance.decidingSetType,
+  'minimum_score_to_win': instance.minimumScoreToWin,
+  'no_of_courts': instance.noOfCourts,
+  'originator_type': instance.originatorType,
+  'originator_id': instance.originatorId,
+  'settings_locked': instance.settingsLocked,
+  'event_venue_courts': instance.eventVenueCourts,
+  'event_matches': instance.eventMatches,
+};
 
 EventScheduleOption _$EventScheduleOptionFromJson(Map<String, dynamic> json) =>
     EventScheduleOption(
@@ -88,6 +131,12 @@ EventScheduleOption _$EventScheduleOptionFromJson(Map<String, dynamic> json) =>
           : EventPlace.fromJson(json['place'] as Map<String, dynamic>),
       optionNumber: (json['option_number'] as num?)?.toInt(),
       status: json['status'] as String?,
+      timezoneInfoId: (json['timezone_info_id'] as num?)?.toInt(),
+      timezoneInfo: json['timezone_info'] == null
+          ? null
+          : EventTimezone.fromJson(
+              json['timezone_info'] as Map<String, dynamic>,
+            ),
     );
 
 Map<String, dynamic> _$EventScheduleOptionToJson(
@@ -101,7 +150,35 @@ Map<String, dynamic> _$EventScheduleOptionToJson(
   'place': instance.place,
   'option_number': instance.optionNumber,
   'status': instance.status,
+  'timezone_info_id': instance.timezoneInfoId,
+  'timezone_info': instance.timezoneInfo,
 };
+
+EventTimezone _$EventTimezoneFromJson(Map<String, dynamic> json) =>
+    EventTimezone(
+      id: (json['id'] as num?)?.toInt(),
+      utcOffsetTime: (json['utc_offset_time'] as num?)?.toInt(),
+    );
+
+Map<String, dynamic> _$EventTimezoneToJson(EventTimezone instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'utc_offset_time': instance.utcOffsetTime,
+    };
+
+EventVenueCourt _$EventVenueCourtFromJson(Map<String, dynamic> json) =>
+    EventVenueCourt(
+      id: (json['id'] as num?)?.toInt(),
+      placeCourtId: (json['place_court_id'] as num?)?.toInt(),
+      order: (json['order'] as num?)?.toInt(),
+    );
+
+Map<String, dynamic> _$EventVenueCourtToJson(EventVenueCourt instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'place_court_id': instance.placeCourtId,
+      'order': instance.order,
+    };
 
 EventPlace _$EventPlaceFromJson(Map<String, dynamic> json) => EventPlace(
   id: (json['id'] as num?)?.toInt(),

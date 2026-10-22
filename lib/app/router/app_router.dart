@@ -18,6 +18,13 @@ import 'package:racketmates/screens/create_event_assign_type/create_event_assign
 import 'package:racketmates/screens/create_event_matches/create_event_matches_screen.dart';
 import 'package:racketmates/screens/create_event_round_robin_format/create_event_round_robin_format_screen.dart';
 import 'package:racketmates/screens/create_event_slot_picker/create_event_slot_picker_screen.dart';
+import 'package:racketmates/screens/event_manage/event_manage_screen.dart';
+import 'package:racketmates/screens/event_manage_add_people/event_manage_add_people_screen.dart';
+import 'package:racketmates/screens/event_manage_players/event_manage_players_screen.dart';
+import 'package:racketmates/screens/event_manage_schedule/event_manage_schedule_screen.dart';
+import 'package:racketmates/screens/event_manage_score_entry/event_manage_score_entry_screen.dart';
+import 'package:racketmates/screens/event_manage_scores/event_manage_scores_screen.dart';
+import 'package:racketmates/screens/event_manage_settings/event_manage_settings_screen.dart';
 import 'package:racketmates/screens/create_event_review/create_event_review_screen.dart';
 import 'package:racketmates/screens/create_event_home_away/create_event_home_away_screen.dart';
 import 'package:racketmates/screens/create_event_opponent_select/create_event_opponent_select_screen.dart';
@@ -225,6 +232,64 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             : null,
         builder: (context, state) =>
             EventDetailsScreen(eventId: int.parse(state.pathParameters['id']!)),
+        routes: [
+          GoRoute(
+            path: 'manage',
+            builder: (context, state) => EventManageScreen(
+              eventId: int.parse(state.pathParameters['id']!),
+            ),
+            routes: [
+              GoRoute(
+                path: 'settings',
+                builder: (context, state) => EventManageSettingsScreen(
+                  eventId: int.parse(state.pathParameters['id']!),
+                ),
+              ),
+              GoRoute(
+                path: 'players',
+                builder: (context, state) => EventManagePlayersScreen(
+                  eventId: int.parse(state.pathParameters['id']!),
+                ),
+              ),
+              GoRoute(
+                path: 'add-people',
+                builder: (context, state) => EventManageAddPeopleScreen(
+                  eventId: int.parse(state.pathParameters['id']!),
+                  coaches: state.uri.queryParameters['role'] == 'coach',
+                ),
+              ),
+              GoRoute(
+                path: 'schedule',
+                builder: (context, state) => EventManageScheduleScreen(
+                  eventId: int.parse(state.pathParameters['id']!),
+                ),
+              ),
+              GoRoute(
+                path: 'scores',
+                builder: (context, state) => EventManageScoresScreen(
+                  eventId: int.parse(state.pathParameters['id']!),
+                ),
+                routes: [
+                  GoRoute(
+                    path: ':matchId',
+                    // A malformed match id goes back to the list.
+                    redirect: (context, state) =>
+                        int.tryParse(state.pathParameters['matchId'] ?? '') ==
+                            null
+                        ? AppRoutes.eventManageScoresFor(
+                            int.parse(state.pathParameters['id']!),
+                          )
+                        : null,
+                    builder: (context, state) => EventManageScoreEntryScreen(
+                      eventId: int.parse(state.pathParameters['id']!),
+                      matchId: int.parse(state.pathParameters['matchId']!),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.places,

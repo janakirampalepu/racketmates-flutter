@@ -1,11 +1,11 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:racketmates/common/events/models/event_match_models.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 
 part 'event_details.g.dart';
 
-/// `GET events/{id}`. Only the fields the read-only details screen uses are
-/// modelled; the rest of the (large) event payload is ignored until the
-/// create/manage milestones need it.
+/// `GET events/{id}`. Only the fields the details and manage screens use are
+/// modelled; the rest of the (large) event payload is ignored.
 @JsonSerializable(fieldRename: FieldRename.snake)
 class EventDetailsResponse {
   const EventDetailsResponse({this.message, this.result, this.event});
@@ -40,6 +40,24 @@ class EventDetails {
     this.eventScheduleOptions,
     this.eventParticipants,
     this.currentUserEventDetails,
+    this.attendanceDeadlineUnit,
+    this.attendanceDeadlineUnitType,
+    this.allowParticipantsManagePlayers,
+    this.allowParticipantsToLogResults,
+    this.considerForTeamRanking,
+    this.playerPool,
+    this.rsvpLimit,
+    this.playerAcceptanceType,
+    this.assignType,
+    this.scoringFormat,
+    this.decidingSetType,
+    this.minimumScoreToWin,
+    this.noOfCourts,
+    this.originatorType,
+    this.originatorId,
+    this.settingsLocked,
+    this.eventVenueCourts,
+    this.eventMatches,
   });
 
   factory EventDetails.fromJson(Map<String, dynamic> json) =>
@@ -65,11 +83,45 @@ class EventDetails {
   final List<EventParticipant>? eventParticipants;
   final List<CurrentUserEventDetail>? currentUserEventDetails;
 
+  /// Settings the manage screen edits.
+  final int? attendanceDeadlineUnit;
+  final String? attendanceDeadlineUnitType;
+  final bool? allowParticipantsManagePlayers;
+  final bool? allowParticipantsToLogResults;
+  final bool? considerForTeamRanking;
+  final String? playerPool;
+  final int? rsvpLimit;
+  final String? playerAcceptanceType;
+  final String? assignType;
+  final String? scoringFormat;
+  final String? decidingSetType;
+  final int? minimumScoreToWin;
+  final int? noOfCourts;
+  final String? originatorType;
+  final int? originatorId;
+
+  /// True once the event can no longer be changed (e.g. it has been played).
+  final bool? settingsLocked;
+  final List<EventVenueCourt>? eventVenueCourts;
+  final List<EventMatch>? eventMatches;
+
   Map<String, dynamic> toJson() => _$EventDetailsToJson(this);
 
   AccessInfo? permission(String key) => userPermissions?[key];
 
   bool get isRoundRobin => eventType == 'et_round_robin';
+
+  /// Competitive and casual games are a list of scored matches.
+  bool get isGame => eventType == 'et_competitive' || eventType == 'et_casual';
+
+  bool get isTeamEvent => (originatorType ?? '').isNotEmpty;
+
+  /// Events whose single time/venue can be changed here: not the ones made of
+  /// matches (games, ball machine), which are rescheduled per match.
+  bool get hasSingleSchedule =>
+      !isGame &&
+      eventType != 'et_practice_ball' &&
+      (eventScheduleOptions?.length ?? 0) == 1;
 
   /// Round-robin events with mixed games or fixed partners ask each player for
   /// partner / match-type preferences when responding (not migrated yet).
@@ -95,6 +147,8 @@ class EventScheduleOption {
     this.place,
     this.optionNumber,
     this.status,
+    this.timezoneInfoId,
+    this.timezoneInfo,
   });
 
   factory EventScheduleOption.fromJson(Map<String, dynamic> json) =>
@@ -112,12 +166,60 @@ class EventScheduleOption {
   final EventPlace? place;
   final int? optionNumber;
   final String? status;
+  final int? timezoneInfoId;
+  final EventTimezone? timezoneInfo;
 
   Map<String, dynamic> toJson() => _$EventScheduleOptionToJson(this);
+
+  /// The start as the wall clock at the venue (the zone is not applied): the
+  /// UTC start plus the venue's offset, which is how the create flow sends it.
+  DateTime? get venueStart {
+    final utc = start?.toUtc();
+    if (utc == null) return null;
+    final shifted = utc.add(
+      Duration(seconds: timezoneInfo?.utcOffsetTime ?? 0),
+    );
+    return DateTime(
+      shifted.year,
+      shifted.month,
+      shifted.day,
+      shifted.hour,
+      shifted.minute,
+    );
+  }
 
   DateTime? get start =>
       startTime == null ? null : DateTime.tryParse(startTime!);
   DateTime? get end => endTime == null ? null : DateTime.tryParse(endTime!);
+}
+
+/// Time zone of a schedule option; `utc_offset_time` is in seconds.
+@JsonSerializable(fieldRename: FieldRename.snake)
+class EventTimezone {
+  const EventTimezone({this.id, this.utcOffsetTime});
+
+  factory EventTimezone.fromJson(Map<String, dynamic> json) =>
+      _$EventTimezoneFromJson(json);
+
+  final int? id;
+  final int? utcOffsetTime;
+
+  Map<String, dynamic> toJson() => _$EventTimezoneToJson(this);
+}
+
+/// A court booked for the event (`event_venue_courts`).
+@JsonSerializable(fieldRename: FieldRename.snake)
+class EventVenueCourt {
+  const EventVenueCourt({this.id, this.placeCourtId, this.order});
+
+  factory EventVenueCourt.fromJson(Map<String, dynamic> json) =>
+      _$EventVenueCourtFromJson(json);
+
+  final int? id;
+  final int? placeCourtId;
+  final int? order;
+
+  Map<String, dynamic> toJson() => _$EventVenueCourtToJson(this);
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)

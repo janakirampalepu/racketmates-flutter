@@ -8,10 +8,10 @@ import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/create_event/event_draft.dart';
 import 'package:racketmates/common/widgets/number_stepper.dart';
+import 'package:racketmates/common/widgets/scoring_picker.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_settings/create_event_settings_test_ids.dart';
-import 'package:racketmates/screens/create_event_settings/scoring_section.dart';
 
 /// General settings (native `GenerelSettingsFragment`): response deadline
 /// (hours 1-23 / days 1-7), whether participants can manage players and, for
@@ -135,7 +135,14 @@ class CreateEventSettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          ScoringSection(draft: draft),
+          ScoringPicker(
+            sport: draft.sport,
+            eventType: draft.eventType,
+            scoring: draft.scoring,
+            onFormat: flow.setScoringFormat,
+            onScore: flow.setMinimumScore,
+            onDecidingSet: flow.setDecidingSetType,
+          ),
         ],
       ],
     );

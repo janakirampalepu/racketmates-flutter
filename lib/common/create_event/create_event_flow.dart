@@ -33,6 +33,9 @@ class CreateEventFlow extends Notifier<EventDraft?> {
 
   void reset() => state = null;
 
+  /// Starts from an existing draft (rescheduling reuses the venue screen).
+  void seed(EventDraft draft) => state = draft;
+
   /// Games and round robins size the player limits from their matches or
   /// courts (native `setRSVPandPlayerLimit`); the invite settings step can
   /// still change them afterwards.

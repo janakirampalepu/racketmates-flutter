@@ -49,4 +49,49 @@ abstract class EventActionsApi {
     @Path('eventId') int eventId,
     @Body() Map<String, dynamic> body,
   );
+
+  // --- Manage (organizer) actions; the event is reloaded afterwards ---
+
+  @PUT('events/{eventId}/update_settings')
+  Future<void> updateSettings(
+    @Path('eventId') int eventId,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @PUT('events/{eventId}/reschedule_event')
+  Future<void> rescheduleEvent(
+    @Path('eventId') int eventId,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @POST('events/{eventId}/event_matches/{matchId}/update_scores')
+  Future<void> updateScores(
+    @Path('eventId') int eventId,
+    @Path('matchId') int matchId,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @PUT('events/{eventId}/event_matches/{matchId}/unmark_as_unfinished_match')
+  Future<void> unmarkUnfinishedMatch(
+    @Path('eventId') int eventId,
+    @Path('matchId') int matchId,
+  );
+
+  @PUT('events/{eventId}/pick_players')
+  Future<void> pickPlayers(
+    @Path('eventId') int eventId,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @PUT('events/{eventId}/remove_participants')
+  Future<void> removeParticipants(
+    @Path('eventId') int eventId,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @POST('events/{eventId}/add_participants')
+  Future<void> addParticipants(
+    @Path('eventId') int eventId,
+    @Body() Map<String, dynamic> body,
+  );
 }

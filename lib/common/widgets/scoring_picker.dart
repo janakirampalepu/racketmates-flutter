@@ -4,36 +4,53 @@ import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/content/content_controller.dart';
 import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/content/messages.dart';
-import 'package:racketmates/common/create_event/create_event_flow.dart';
-import 'package:racketmates/common/create_event/event_draft.dart';
 import 'package:racketmates/common/create_event/scoring.dart';
 import 'package:racketmates/common/create_event/scoring_formats_provider.dart';
 import 'package:racketmates/common/events/event_labels.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
 import 'package:racketmates/common/widgets/number_stepper.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
-import 'package:racketmates/screens/create_event_settings/create_event_settings_test_ids.dart';
 
 /// Scoring format of a game or round robin (native `ScoringFormatPicker`):
 /// the formats the server offers for the sport and event type, the minimum
 /// score of the chosen format and, for tennis and padel, how a tied last set
-/// is decided. The first format is chosen when the list arrives.
-class ScoringSection extends ConsumerWidget {
-  const ScoringSection({required this.draft, super.key});
+/// is decided. Shared by the create wizard and the manage settings; the
+/// automation identifiers are `<idPrefix>_scoring_format_<key>` etc.
+class ScoringPicker extends ConsumerWidget {
+  const ScoringPicker({
+    required this.sport,
+    required this.eventType,
+    required this.scoring,
+    required this.onFormat,
+    required this.onScore,
+    required this.onDecidingSet,
+    this.idPrefix = 'create_event',
+    this.selectFirstIfMissing = true,
+    super.key,
+  });
 
-  final EventDraft draft;
+  final SportKey? sport;
+  final String? eventType;
+  final ScoringChoice? scoring;
+
+  /// A format was chosen (with the server's default minimum scores).
+  final void Function(String format, Map<String, num?> minimumScores) onFormat;
+  final ValueChanged<int> onScore;
+  final ValueChanged<String> onDecidingSet;
+  final String idPrefix;
+
+  /// Choose the first offered format when none (or an unknown one) is set.
+  final bool selectFirstIfMissing;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final sport = draft.sport;
-    final type = draft.eventType;
+    final sport = this.sport;
+    final type = eventType;
     if (sport == null || type == null) return const SizedBox.shrink();
     final args = (sport: sport.key, eventType: type);
     final formats = ref.watch(scoringFormatsProvider(args));
-    final flow = ref.read(createEventFlowProvider.notifier);
     final references = ref.watch(referenceDataProvider);
-    final scoring = draft.scoring;
 
     String label(String key, String fallback) =>
         references.label(key) ?? fallback;
@@ -51,12 +68,12 @@ class ScoringSection extends ConsumerWidget {
         Text(ref.msg(MessageKeys.createScoringHint, l10n.createScoringHint)),
         const SizedBox(height: 8),
         formats.when(
-          loading: () => const Padding(
-            padding: EdgeInsets.all(12),
+          loading: () => Padding(
+            padding: const EdgeInsets.all(12),
             child: Center(
               child: TestId(
-                CreateEventSettingsTestIds.scoringLoading,
-                child: CircularProgressIndicator(),
+                '${idPrefix}_scoring_loading',
+                child: const CircularProgressIndicator(),
               ),
             ),
           ),
@@ -64,7 +81,7 @@ class ScoringSection extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TestId(
-                CreateEventSettingsTestIds.scoringError,
+                '${idPrefix}_scoring_error',
                 child: Semantics(
                   liveRegion: true,
                   child: Text(
@@ -76,7 +93,7 @@ class ScoringSection extends ConsumerWidget {
                 ),
               ),
               TestId(
-                CreateEventSettingsTestIds.scoringRetry,
+                '${idPrefix}_scoring_retry',
                 child: TextButton(
                   onPressed: () => ref.invalidate(scoringFormatsProvider(args)),
                   child: Text(l10n.retryAction),
@@ -87,25 +104,23 @@ class ScoringSection extends ConsumerWidget {
           data: (response) {
             final keys = response.scoringFormatKeys ?? const <String>[];
             final minimums = response.minimumScores ?? const <String, num?>{};
-            if (keys.isNotEmpty &&
-                (scoring == null || !keys.contains(scoring.format))) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                final current = ref.read(createEventFlowProvider)?.scoring;
-                if (current == null || !keys.contains(current.format)) {
-                  flow.setScoringFormat(keys.first, minimums);
-                }
-              });
+            if (selectFirstIfMissing &&
+                keys.isNotEmpty &&
+                (scoring == null || !keys.contains(scoring!.format))) {
+              WidgetsBinding.instance.addPostFrameCallback(
+                (_) => onFormat(keys.first, minimums),
+              );
             }
             return RadioGroup<String>(
               groupValue: scoring?.format,
               onChanged: (v) {
-                if (v != null) flow.setScoringFormat(v, minimums);
+                if (v != null) onFormat(v, minimums);
               },
               child: Column(
                 children: [
                   for (final key in keys) ...[
                     TestId(
-                      CreateEventSettingsTestIds.format(key),
+                      '${idPrefix}_scoring_format_$key',
                       child: RadioListTile<String>(
                         contentPadding: EdgeInsets.zero,
                         value: key,
@@ -120,6 +135,9 @@ class ScoringSection extends ConsumerWidget {
                         scoring: scoring!,
                         sport: sport,
                         label: label,
+                        idPrefix: idPrefix,
+                        onScore: onScore,
+                        onDecidingSet: onDecidingSet,
                       ),
                   ],
                 ],
@@ -137,16 +155,21 @@ class _FormatOptions extends ConsumerWidget {
     required this.scoring,
     required this.sport,
     required this.label,
+    required this.idPrefix,
+    required this.onScore,
+    required this.onDecidingSet,
   });
 
   final ScoringChoice scoring;
   final SportKey sport;
   final String Function(String key, String fallback) label;
+  final String idPrefix;
+  final ValueChanged<int> onScore;
+  final ValueChanged<String> onDecidingSet;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final flow = ref.read(createEventFlowProvider.notifier);
     final input = scoreInputFor(scoring.format);
     final scoreLabel = switch (scoring.format) {
       ScoringKeys.reachPoints => l10n.createScorePointsToWin,
@@ -187,18 +210,18 @@ class _FormatOptions extends ConsumerWidget {
               children: [
                 Expanded(child: Text(scoreLabel)),
                 NumberStepper(
-                  idPrefix: CreateEventSettingsTestIds.scoreIdPrefix,
+                  idPrefix: '${idPrefix}_score',
                   label: scoreLabel,
                   decreaseLabel: l10n.createDecrease,
                   increaseLabel: l10n.createIncrease,
                   value: scoring.minimumScore,
-                  onChanged: flow.setMinimumScore,
+                  onChanged: onScore,
                 ),
               ],
             ),
           if (input == ScoreInput.minutes)
             TestId(
-              CreateEventSettingsTestIds.scoreMinutes,
+              '${idPrefix}_score_minutes',
               child: DropdownButtonFormField<int>(
                 initialValue: scoring.minimumScore,
                 decoration: InputDecoration(
@@ -217,7 +240,7 @@ class _FormatOptions extends ConsumerWidget {
                     ),
                 ],
                 onChanged: (m) {
-                  if (m != null) flow.setMinimumScore(m);
+                  if (m != null) onScore(m);
                 },
               ),
             ),
@@ -231,13 +254,13 @@ class _FormatOptions extends ConsumerWidget {
                   ButtonSegment(
                     value: key,
                     label: TestId(
-                      CreateEventSettingsTestIds.decidingSet(key),
+                      '${idPrefix}_deciding_set_$key',
                       child: Text(decidingLabels[key]!),
                     ),
                   ),
               ],
               selected: {scoring.decidingSetType},
-              onSelectionChanged: (s) => flow.setDecidingSetType(s.first),
+              onSelectionChanged: (s) => onDecidingSet(s.first),
             ),
           ],
         ],

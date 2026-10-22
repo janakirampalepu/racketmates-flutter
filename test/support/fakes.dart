@@ -359,6 +359,46 @@ class FakeEventActionsRepository implements EventActionsRepository {
   String? cancelReason;
   bool? cancelRemove;
 
+  /// Organizer calls, in order: `name` with the body or ids sent.
+  final List<({String name, Object? data})> manageCalls = [];
+
+  Future<void> _manage(String name, Object? data) async {
+    manageCalls.add((name: name, data: data));
+    await Future<void>.delayed(Duration.zero);
+    if (failure != null) throw failure!;
+  }
+
+  @override
+  Future<void> updateSettings(int eventId, Map<String, dynamic> body) =>
+      _manage('updateSettings:$eventId', body);
+
+  @override
+  Future<void> reschedule(int eventId, Map<String, dynamic> body) =>
+      _manage('reschedule:$eventId', body);
+
+  @override
+  Future<void> updateScores(
+    int eventId,
+    int matchId,
+    Map<String, dynamic> body,
+  ) => _manage('updateScores:$eventId:$matchId', body);
+
+  @override
+  Future<void> clearUnfinished(int eventId, int matchId) =>
+      _manage('clearUnfinished:$eventId:$matchId', null);
+
+  @override
+  Future<void> pickPlayers(int eventId, List<int> userIds) =>
+      _manage('pickPlayers:$eventId', userIds);
+
+  @override
+  Future<void> removeParticipants(int eventId, List<int> userIds) =>
+      _manage('removeParticipants:$eventId', userIds);
+
+  @override
+  Future<void> addParticipants(int eventId, List<int> userIds, String role) =>
+      _manage('addParticipants:$eventId:$role', userIds);
+
   Future<EventDetailsResponse> _rsvp(String name) async {
     calls.add(name);
     await Future<void>.delayed(Duration.zero);

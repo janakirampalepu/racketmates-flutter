@@ -93,7 +93,7 @@
         ]
       }
     ],
-    "scoring_format": {
+    "unmodelled_object": {
       "id": 1
     },
     "event_matches": []

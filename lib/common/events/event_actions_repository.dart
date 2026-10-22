@@ -31,6 +31,30 @@ abstract class EventActionsRepository {
     String? reason,
     bool removeEvent = false,
   });
+
+  /// `PUT update_settings` with `{event: {...}}`.
+  Future<void> updateSettings(int eventId, Map<String, dynamic> body);
+
+  /// `PUT reschedule_event` with `{event: {...}}`.
+  Future<void> reschedule(int eventId, Map<String, dynamic> body);
+
+  /// `POST event_matches/{id}/update_scores` with `{event_match: {...}}`.
+  Future<void> updateScores(
+    int eventId,
+    int matchId,
+    Map<String, dynamic> body,
+  );
+
+  Future<void> clearUnfinished(int eventId, int matchId);
+
+  /// Confirms players who asked to join (`pick_players`).
+  Future<void> pickPlayers(int eventId, List<int> userIds);
+
+  /// Removes people from the event (`remove_from: event`).
+  Future<void> removeParticipants(int eventId, List<int> userIds);
+
+  /// Adds people as [role] (`ur_player`, `ur_coach`, `ur_audience`).
+  Future<void> addParticipants(int eventId, List<int> userIds, String role);
 }
 
 class EventActionsRepositoryImpl implements EventActionsRepository {
@@ -100,6 +124,46 @@ class EventActionsRepositoryImpl implements EventActionsRepository {
       'remove_event': removeEvent,
     }),
   );
+
+  @override
+  Future<void> updateSettings(int eventId, Map<String, dynamic> body) =>
+      _guard(() => api.updateSettings(eventId, body));
+
+  @override
+  Future<void> reschedule(int eventId, Map<String, dynamic> body) =>
+      _guard(() => api.rescheduleEvent(eventId, body));
+
+  @override
+  Future<void> updateScores(
+    int eventId,
+    int matchId,
+    Map<String, dynamic> body,
+  ) => _guard(() => api.updateScores(eventId, matchId, body));
+
+  @override
+  Future<void> clearUnfinished(int eventId, int matchId) =>
+      _guard(() => api.unmarkUnfinishedMatch(eventId, matchId));
+
+  @override
+  Future<void> pickPlayers(int eventId, List<int> userIds) =>
+      _guard(() => api.pickPlayers(eventId, {'user_ids': userIds}));
+
+  @override
+  Future<void> removeParticipants(int eventId, List<int> userIds) => _guard(
+    () => api.removeParticipants(eventId, {
+      'user_ids': userIds,
+      'remove_from': 'event',
+    }),
+  );
+
+  @override
+  Future<void> addParticipants(int eventId, List<int> userIds, String role) =>
+      _guard(
+        () => api.addParticipants(eventId, {
+          'user_ids': userIds,
+          'participant_role': role,
+        }),
+      );
 }
 
 final eventActionsRepositoryProvider = Provider<EventActionsRepository>(

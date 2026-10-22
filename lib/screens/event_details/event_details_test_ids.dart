@@ -12,6 +12,7 @@ abstract final class EventDetailsTestIds {
   static const back = 'event_details_back_button';
   static const actionBar = 'event_details_action_bar';
   static const menu = 'event_details_menu';
+  static const menuManageEvent = 'event_details_menu_manage_event';
   static const menuCancelEvent = 'event_details_menu_cancel_event';
   static const confirmButton = 'event_details_confirm_button';
   static const confirmDismissButton = 'event_details_confirm_dismiss_button';

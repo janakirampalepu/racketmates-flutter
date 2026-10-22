@@ -37,7 +37,7 @@
       {"event_participant_id": 1, "is_player": true, "status": "eus_accepted",
        "status_title": "You're going", "status_sub_text": "See you there"}
     ],
-    "scoring_format": {"id": 1},
+    "unmodelled_object": {"id": 1},
     "event_matches": []
   }
 }

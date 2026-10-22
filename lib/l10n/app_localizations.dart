@@ -2157,6 +2157,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose up to two coaches.'**
   String get createCoachesMaxHint;
+
+  /// No description provided for @eventManageAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage event'**
+  String get eventManageAction;
+
+  /// No description provided for @eventManageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage event'**
+  String get eventManageTitle;
+
+  /// No description provided for @eventManageSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get eventManageSettings;
+
+  /// No description provided for @eventManageSettingsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Response deadline, limits and scoring'**
+  String get eventManageSettingsHint;
+
+  /// No description provided for @eventManagePlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get eventManagePlayers;
+
+  /// No description provided for @eventManagePlayersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add, confirm or remove players and coaches'**
+  String get eventManagePlayersHint;
+
+  /// No description provided for @eventManageSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Date, time and venue'**
+  String get eventManageSchedule;
+
+  /// No description provided for @eventManageScheduleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Move the event to another time or place'**
+  String get eventManageScheduleHint;
+
+  /// No description provided for @eventManageScores.
+  ///
+  /// In en, this message translates to:
+  /// **'Scores'**
+  String get eventManageScores;
+
+  /// No description provided for @eventManageScoresHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter or correct the results of the matches'**
+  String get eventManageScoresHint;
+
+  /// No description provided for @eventManageLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'This event can no longer be changed.'**
+  String get eventManageLocked;
+
+  /// No description provided for @eventManageScheduleUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Changing the time of this event is not available in this build yet.'**
+  String get eventManageScheduleUnsupported;
+
+  /// No description provided for @eventManageSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes saved.'**
+  String get eventManageSaved;
+
+  /// No description provided for @eventManageFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t save the changes. Try again.'**
+  String get eventManageFailed;
+
+  /// No description provided for @eventManageSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get eventManageSave;
+
+  /// No description provided for @eventSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Event settings'**
+  String get eventSettingsTitle;
+
+  /// No description provided for @eventPlayersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'People in this event'**
+  String get eventPlayersTitle;
+
+  /// No description provided for @eventGroupConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get eventGroupConfirmed;
+
+  /// No description provided for @eventGroupToBeConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'To be confirmed'**
+  String get eventGroupToBeConfirmed;
+
+  /// No description provided for @eventGroupWaitlisted.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting list'**
+  String get eventGroupWaitlisted;
+
+  /// No description provided for @eventGroupInvited.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited'**
+  String get eventGroupInvited;
+
+  /// No description provided for @eventGroupDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined'**
+  String get eventGroupDeclined;
+
+  /// No description provided for @eventGroupOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Others'**
+  String get eventGroupOther;
+
+  /// No description provided for @eventGroupCoaches.
+  ///
+  /// In en, this message translates to:
+  /// **'Coaches'**
+  String get eventGroupCoaches;
+
+  /// No description provided for @eventAddPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Add players'**
+  String get eventAddPlayers;
+
+  /// No description provided for @eventAddCoaches.
+  ///
+  /// In en, this message translates to:
+  /// **'Add coaches'**
+  String get eventAddCoaches;
+
+  /// No description provided for @eventRemoveSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove selected'**
+  String get eventRemoveSelected;
+
+  /// No description provided for @eventConfirmSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm selected'**
+  String get eventConfirmSelected;
+
+  /// No description provided for @eventRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from the event?'**
+  String get eventRemoveTitle;
+
+  /// No description provided for @eventRemoveMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'They will no longer be part of this event.'**
+  String get eventRemoveMessage;
+
+  /// No description provided for @eventNoParticipants.
+  ///
+  /// In en, this message translates to:
+  /// **'No one yet.'**
+  String get eventNoParticipants;
+
+  /// No description provided for @eventAddPeopleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add people'**
+  String get eventAddPeopleTitle;
+
+  /// No description provided for @eventAddPeopleAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add selected'**
+  String get eventAddPeopleAction;
+
+  /// No description provided for @eventAddPeopleEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no one left to add.'**
+  String get eventAddPeopleEmpty;
+
+  /// No description provided for @eventScoresTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scores'**
+  String get eventScoresTitle;
+
+  /// No description provided for @eventScoreEntryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter score'**
+  String get eventScoreEntryTitle;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {number}'**
+  String eventScoreSet(int number);
+
+  /// No description provided for @eventScoreSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'Score'**
+  String get eventScoreSingle;
+
+  /// No description provided for @eventScoreUnfinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Match not finished'**
+  String get eventScoreUnfinished;
+
+  /// No description provided for @eventScoreSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save score'**
+  String get eventScoreSave;
+
+  /// No description provided for @eventScoreErrorNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a score.'**
+  String get eventScoreErrorNone;
+
+  /// No description provided for @eventScoreErrorIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter both scores of a set.'**
+  String get eventScoreErrorIncomplete;
+
+  /// No description provided for @eventScoreErrorNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Scores are whole numbers.'**
+  String get eventScoreErrorNumber;
+
+  /// No description provided for @eventScoreNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No score yet'**
+  String get eventScoreNone;
+
+  /// No description provided for @eventScoreUnfinishedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfinished'**
+  String get eventScoreUnfinishedTag;
+
+  /// No description provided for @eventScoreClearUnfinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove unfinished status'**
+  String get eventScoreClearUnfinished;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets won: {top} – {bottom}'**
+  String eventScoreWinning(int top, int bottom);
+
+  /// No description provided for @eventScoreTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Top side'**
+  String get eventScoreTop;
+
+  /// No description provided for @eventScoreBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom side'**
+  String get eventScoreBottom;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Match {number}'**
+  String eventMatchNumber(int number);
 }
 
 class _AppLocalizationsDelegate

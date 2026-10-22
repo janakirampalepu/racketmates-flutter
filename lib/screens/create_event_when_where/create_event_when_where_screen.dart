@@ -18,7 +18,20 @@ import 'package:racketmates/screens/create_event_when_where/create_event_when_wh
 /// Venue, courts, date, start time, duration and notes (native
 /// `EventCourtFragment`, single schedule option).
 class CreateEventWhenWhereScreen extends ConsumerStatefulWidget {
-  const CreateEventWhenWhereScreen({super.key});
+  const CreateEventWhenWhereScreen({
+    this.onSave,
+    this.saving = false,
+    this.footer,
+    super.key,
+  });
+
+  /// Set when the screen edits an existing event: the primary button saves
+  /// (instead of going to the next wizard step) and is labelled "Save".
+  final VoidCallback? onSave;
+  final bool saving;
+
+  /// Shown under the form (a save failure).
+  final Widget? footer;
 
   @override
   ConsumerState<CreateEventWhenWhereScreen> createState() =>
@@ -119,12 +132,19 @@ class _CreateEventWhenWhereScreenState
       rootId: CreateEventWhenWhereTestIds.root,
       titleId: CreateEventWhenWhereTestIds.title,
       title: ref.msg(MessageKeys.createDetailsTitle, l10n.createWhenWhereTitle),
-      primaryLabel: ref.msg(MessageKeys.buttonNext, l10n.nextAction),
+      primaryLabel: widget.onSave != null
+          ? l10n.eventManageSave
+          : ref.msg(MessageKeys.buttonNext, l10n.nextAction),
       primaryId: CreateEventWhenWhereTestIds.next,
+      loading: widget.saving,
       onPrimary: () {
         if (ref
             .read(whenWhereViewModelProvider.notifier)
             .validate(DateTime.now())) {
+          if (widget.onSave != null) {
+            widget.onSave!();
+            return;
+          }
           context.push(
             AppRoutes.routeForStep(flow.next(CreateEventStep.whenWhere)!),
           );
@@ -288,6 +308,7 @@ class _CreateEventWhenWhereScreenState
             onChanged: flow.setNotes,
           ),
         ),
+        ?widget.footer,
       ],
     );
   }

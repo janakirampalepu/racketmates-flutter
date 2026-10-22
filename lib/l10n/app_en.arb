@@ -475,5 +475,82 @@
   "createLessonAssignMany": "Several players",
   "createLessonAssignManyHint": "Invite players; the first to accept gets the lesson.",
   "createSinglePlayerTitle": "Choose the player",
-  "createCoachesMaxHint": "Choose up to two coaches."
+  "createCoachesMaxHint": "Choose up to two coaches.",
+  "eventManageAction": "Manage event",
+  "eventManageTitle": "Manage event",
+  "eventManageSettings": "Settings",
+  "eventManageSettingsHint": "Response deadline, limits and scoring",
+  "eventManagePlayers": "People",
+  "eventManagePlayersHint": "Add, confirm or remove players and coaches",
+  "eventManageSchedule": "Date, time and venue",
+  "eventManageScheduleHint": "Move the event to another time or place",
+  "eventManageScores": "Scores",
+  "eventManageScoresHint": "Enter or correct the results of the matches",
+  "eventManageLocked": "This event can no longer be changed.",
+  "eventManageScheduleUnsupported": "Changing the time of this event is not available in this build yet.",
+  "eventManageSaved": "Changes saved.",
+  "eventManageFailed": "We couldn't save the changes. Try again.",
+  "eventManageSave": "Save",
+  "eventSettingsTitle": "Event settings",
+  "eventPlayersTitle": "People in this event",
+  "eventGroupConfirmed": "Confirmed",
+  "eventGroupToBeConfirmed": "To be confirmed",
+  "eventGroupWaitlisted": "Waiting list",
+  "eventGroupInvited": "Invited",
+  "eventGroupDeclined": "Declined",
+  "eventGroupOther": "Others",
+  "eventGroupCoaches": "Coaches",
+  "eventAddPlayers": "Add players",
+  "eventAddCoaches": "Add coaches",
+  "eventRemoveSelected": "Remove selected",
+  "eventConfirmSelected": "Confirm selected",
+  "eventRemoveTitle": "Remove from the event?",
+  "eventRemoveMessage": "They will no longer be part of this event.",
+  "eventNoParticipants": "No one yet.",
+  "eventAddPeopleTitle": "Add people",
+  "eventAddPeopleAction": "Add selected",
+  "eventAddPeopleEmpty": "There is no one left to add.",
+  "eventScoresTitle": "Scores",
+  "eventScoreEntryTitle": "Enter score",
+  "eventScoreSet": "Set {number}",
+  "@eventScoreSet": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "eventScoreSingle": "Score",
+  "eventScoreUnfinished": "Match not finished",
+  "eventScoreSave": "Save score",
+  "eventScoreErrorNone": "Enter a score.",
+  "eventScoreErrorIncomplete": "Enter both scores of a set.",
+  "eventScoreErrorNumber": "Scores are whole numbers.",
+  "eventScoreNone": "No score yet",
+  "eventScoreUnfinishedTag": "Unfinished",
+  "eventScoreClearUnfinished": "Remove unfinished status",
+  "eventScoreWinning": "Sets won: {top} – {bottom}",
+  "@eventScoreWinning": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "top": {
+        "type": "int"
+      },
+      "bottom": {
+        "type": "int"
+      }
+    }
+  },
+  "eventScoreTop": "Top side",
+  "eventScoreBottom": "Bottom side",
+  "eventMatchNumber": "Match {number}",
+  "@eventMatchNumber": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  }
 }

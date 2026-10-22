@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/events/event_labels.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
@@ -149,21 +150,31 @@ class EventDetailsScreen extends ConsumerWidget {
           child: BackButton(onPressed: () => context.pop()),
         ),
         actions: [
-          if (event != null && canCancelEvent(event))
+          if (event != null && canManageEvent(event))
             TestId(
               EventDetailsTestIds.menu,
               child: PopupMenuButton<String>(
                 tooltip: l10n.moreOptionsLabel,
                 enabled: !state.busy,
-                onSelected: (_) => _onCancelEvent(context, ref),
+                onSelected: (value) => value == 'manage'
+                    ? context.push(AppRoutes.eventManageFor(eventId))
+                    : _onCancelEvent(context, ref),
                 itemBuilder: (_) => [
                   PopupMenuItem(
-                    value: 'cancel',
+                    value: 'manage',
                     child: TestId(
-                      EventDetailsTestIds.menuCancelEvent,
-                      child: Text(l10n.cancelEventAction),
+                      EventDetailsTestIds.menuManageEvent,
+                      child: Text(l10n.eventManageAction),
                     ),
                   ),
+                  if (canCancelEvent(event))
+                    PopupMenuItem(
+                      value: 'cancel',
+                      child: TestId(
+                        EventDetailsTestIds.menuCancelEvent,
+                        child: Text(l10n.cancelEventAction),
+                      ),
+                    ),
                 ],
               ),
             ),

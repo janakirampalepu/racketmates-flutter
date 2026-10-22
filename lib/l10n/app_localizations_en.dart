@@ -1108,4 +1108,164 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createCoachesMaxHint => 'Choose up to two coaches.';
+
+  @override
+  String get eventManageAction => 'Manage event';
+
+  @override
+  String get eventManageTitle => 'Manage event';
+
+  @override
+  String get eventManageSettings => 'Settings';
+
+  @override
+  String get eventManageSettingsHint => 'Response deadline, limits and scoring';
+
+  @override
+  String get eventManagePlayers => 'People';
+
+  @override
+  String get eventManagePlayersHint =>
+      'Add, confirm or remove players and coaches';
+
+  @override
+  String get eventManageSchedule => 'Date, time and venue';
+
+  @override
+  String get eventManageScheduleHint =>
+      'Move the event to another time or place';
+
+  @override
+  String get eventManageScores => 'Scores';
+
+  @override
+  String get eventManageScoresHint =>
+      'Enter or correct the results of the matches';
+
+  @override
+  String get eventManageLocked => 'This event can no longer be changed.';
+
+  @override
+  String get eventManageScheduleUnsupported =>
+      'Changing the time of this event is not available in this build yet.';
+
+  @override
+  String get eventManageSaved => 'Changes saved.';
+
+  @override
+  String get eventManageFailed => 'We couldn\'t save the changes. Try again.';
+
+  @override
+  String get eventManageSave => 'Save';
+
+  @override
+  String get eventSettingsTitle => 'Event settings';
+
+  @override
+  String get eventPlayersTitle => 'People in this event';
+
+  @override
+  String get eventGroupConfirmed => 'Confirmed';
+
+  @override
+  String get eventGroupToBeConfirmed => 'To be confirmed';
+
+  @override
+  String get eventGroupWaitlisted => 'Waiting list';
+
+  @override
+  String get eventGroupInvited => 'Invited';
+
+  @override
+  String get eventGroupDeclined => 'Declined';
+
+  @override
+  String get eventGroupOther => 'Others';
+
+  @override
+  String get eventGroupCoaches => 'Coaches';
+
+  @override
+  String get eventAddPlayers => 'Add players';
+
+  @override
+  String get eventAddCoaches => 'Add coaches';
+
+  @override
+  String get eventRemoveSelected => 'Remove selected';
+
+  @override
+  String get eventConfirmSelected => 'Confirm selected';
+
+  @override
+  String get eventRemoveTitle => 'Remove from the event?';
+
+  @override
+  String get eventRemoveMessage => 'They will no longer be part of this event.';
+
+  @override
+  String get eventNoParticipants => 'No one yet.';
+
+  @override
+  String get eventAddPeopleTitle => 'Add people';
+
+  @override
+  String get eventAddPeopleAction => 'Add selected';
+
+  @override
+  String get eventAddPeopleEmpty => 'There is no one left to add.';
+
+  @override
+  String get eventScoresTitle => 'Scores';
+
+  @override
+  String get eventScoreEntryTitle => 'Enter score';
+
+  @override
+  String eventScoreSet(int number) {
+    return 'Set $number';
+  }
+
+  @override
+  String get eventScoreSingle => 'Score';
+
+  @override
+  String get eventScoreUnfinished => 'Match not finished';
+
+  @override
+  String get eventScoreSave => 'Save score';
+
+  @override
+  String get eventScoreErrorNone => 'Enter a score.';
+
+  @override
+  String get eventScoreErrorIncomplete => 'Enter both scores of a set.';
+
+  @override
+  String get eventScoreErrorNumber => 'Scores are whole numbers.';
+
+  @override
+  String get eventScoreNone => 'No score yet';
+
+  @override
+  String get eventScoreUnfinishedTag => 'Unfinished';
+
+  @override
+  String get eventScoreClearUnfinished => 'Remove unfinished status';
+
+  @override
+  String eventScoreWinning(int top, int bottom) {
+    return 'Sets won: $top – $bottom';
+  }
+
+  @override
+  String get eventScoreTop => 'Top side';
+
+  @override
+  String get eventScoreBottom => 'Bottom side';
+
+  @override
+  String eventMatchNumber(int number) {
+    return 'Match $number';
+  }
 }

@@ -79,6 +79,19 @@ abstract final class AppRoutes {
         ).toString();
 
   static String eventFor(int id) => '$event/$id';
+  static String eventManageFor(int id) => '$event/$id/manage';
+  static String eventManageSettingsFor(int id) => '$event/$id/manage/settings';
+  static String eventManagePlayersFor(int id) => '$event/$id/manage/players';
+  static String eventManageScheduleFor(int id) => '$event/$id/manage/schedule';
+  static String eventManageScoresFor(int id) => '$event/$id/manage/scores';
+  static String eventManageScoreFor(int id, int matchId) =>
+      '$event/$id/manage/scores/$matchId';
+
+  /// Add people to an event: players (or attendees), or coaches.
+  static String eventManageAddPeopleFor(int id, {required bool coaches}) => Uri(
+    path: '$event/$id/manage/add-people',
+    queryParameters: {'role': coaches ? 'coach' : 'player'},
+  ).toString();
   static String teamFor(int id) => '$team/$id';
   static const appUpdate = '/app-update';
   static const phoneEntry = '/phone-entry';

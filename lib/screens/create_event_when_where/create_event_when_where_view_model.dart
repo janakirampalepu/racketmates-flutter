@@ -34,6 +34,23 @@ class WhenWhereViewModel extends Notifier<WhenWhereState> {
     if (ref.mounted) state = const WhenWhereState();
   }
 
+  /// Loads the courts and coordinates of the venue already in the draft (a
+  /// rescheduled event starts with the venue's id and name only).
+  Future<void> loadPlaceCourts() async {
+    final id = ref.read(createEventFlowProvider)?.place?.id;
+    if (id == null) return;
+    state = const WhenWhereState(loadingCourts: true);
+    try {
+      final details = await ref.read(placesRepositoryProvider).details(id);
+      if (ref.mounted) {
+        ref.read(createEventFlowProvider.notifier).setPlaceDetails(details);
+      }
+    } on AppFailure {
+      // Courts are optional; the venue stays as it is.
+    }
+    if (ref.mounted) state = const WhenWhereState();
+  }
+
   /// True when the step is valid; otherwise exposes the errors.
   bool validate(DateTime now) {
     final draft = ref.read(createEventFlowProvider);
