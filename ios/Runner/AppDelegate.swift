@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import UserNotifications
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -7,7 +8,39 @@ import UIKit
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    UNUserNotificationCenter.current().delegate = self
+    if let payload = launchOptions?[.remoteNotification] as? [AnyHashable: Any] {
+      PushChannel.launchMessage = PushChannel.message(from: payload, id: nil)
+    }
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  override func application(
+    _ application: UIApplication,
+    didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+  ) {
+    PushChannel.didRegister(deviceToken)
+    super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
+  }
+
+  // A notification arriving while the app is open: Flutter shows it in the app.
+  override func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    willPresent notification: UNNotification,
+    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+  ) {
+    PushChannel.emit("onMessage", PushChannel.message(from: notification))
+    completionHandler([])
+  }
+
+  // The user tapped a notification.
+  override func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    didReceive response: UNNotificationResponse,
+    withCompletionHandler completionHandler: @escaping () -> Void
+  ) {
+    PushChannel.emit("onOpened", PushChannel.message(from: response.notification))
+    completionHandler()
   }
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
@@ -15,6 +48,7 @@ import UIKit
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "RacketmatesPlatformChannels") {
       DeviceIntegrityChannel.register(with: registrar.messenger())
       NativeSessionChannel.register(with: registrar.messenger())
+      PushChannel.register(with: registrar.messenger())
     }
   }
 }
@@ -146,5 +180,116 @@ enum NativeSessionChannel {
 
   private static func clear() {
     SecItemDelete(query() as CFDictionary)
+  }
+}
+
+// MARK: - Push notifications
+
+/// `io.appsmaker.racketmates/push`: APNs. The backend expects the raw device
+/// token as a hex string on iOS (not an FCM token), so no Firebase is involved.
+/// Methods: initialize, permissionStatus, requestPermission, token,
+/// launchMessage, openSettings. Calls to Dart: onToken, onMessage, onOpened.
+enum PushChannel {
+  static let name = "io.appsmaker.racketmates/push"
+  private static var channel: FlutterMethodChannel?
+  private static var apnsToken: String?
+  static var launchMessage: [String: Any]?
+
+  static func register(with messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(name: name, binaryMessenger: messenger)
+    self.channel = channel
+    channel.setMethodCallHandler { call, result in
+      switch call.method {
+      case "initialize":
+        // APNs needs no configuration; registration only works once allowed.
+        registerWithApnsIfAllowed()
+        result(true)
+      case "permissionStatus":
+        status { result($0) }
+      case "requestPermission":
+        UNUserNotificationCenter.current()
+          .requestAuthorization(options: [.alert, .badge, .sound]) { _, _ in
+            registerWithApnsIfAllowed()
+            status { result($0) }
+          }
+      case "token":
+        result(apnsToken)
+      case "launchMessage":
+        result(launchMessage)
+        launchMessage = nil
+      case "openSettings":
+        DispatchQueue.main.async {
+          if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+          }
+          result(nil)
+        }
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+
+  private static func status(_ done: @escaping (String) -> Void) {
+    UNUserNotificationCenter.current().getNotificationSettings { settings in
+      let value: String
+      switch settings.authorizationStatus {
+      case .authorized, .provisional, .ephemeral: value = "granted"
+      case .denied: value = "denied"
+      default: value = "notDetermined"
+      }
+      DispatchQueue.main.async { done(value) }
+    }
+  }
+
+  static func registerWithApnsIfAllowed() {
+    UNUserNotificationCenter.current().getNotificationSettings { settings in
+      guard settings.authorizationStatus == .authorized
+        || settings.authorizationStatus == .provisional
+      else { return }
+      DispatchQueue.main.async { UIApplication.shared.registerForRemoteNotifications() }
+    }
+  }
+
+  static func didRegister(_ deviceToken: Data) {
+    let token = deviceToken.map { String(format: "%02x", $0) }.joined()
+    apnsToken = token
+    emit("onToken", token)
+  }
+
+  static func emit(_ method: String, _ argument: Any?) {
+    DispatchQueue.main.async { channel?.invokeMethod(method, arguments: argument) }
+  }
+
+  static func message(from notification: UNNotification) -> [String: Any] {
+    message(
+      from: notification.request.content.userInfo,
+      id: notification.request.identifier,
+      title: notification.request.content.title,
+      body: notification.request.content.body)
+  }
+
+  static func message(
+    from userInfo: [AnyHashable: Any], id: String?, title: String? = nil, body: String? = nil
+  ) -> [String: Any] {
+    var data: [String: String] = [:]
+    for (key, value) in userInfo {
+      guard let key = key as? String, key != "aps" else { continue }
+      if let text = value as? String {
+        data[key] = text
+      } else if JSONSerialization.isValidJSONObject(value),
+        let json = try? JSONSerialization.data(withJSONObject: value),
+        let text = String(data: json, encoding: .utf8)
+      {
+        data[key] = text
+      } else {
+        data[key] = "\(value)"
+      }
+    }
+    var message: [String: Any] = ["data": data]
+    if let id = id { message["id"] = id }
+    if let title = title, !title.isEmpty { message["title"] = title }
+    if let body = body, !body.isEmpty { message["body"] = body }
+    return message
   }
 }

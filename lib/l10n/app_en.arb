@@ -571,5 +571,81 @@
   },
   "downtimeCheckAgain": "Check again",
   "accessNeedsSubscription": "This feature needs a subscription.",
-  "accessBlocked": "This isn't available right now."
+  "accessBlocked": "This isn't available right now.",
+  "notificationViewAction": "View",
+  "settingsTitle": "Settings",
+  "settingsAccount": "Account",
+  "settingsNotifications": "Notifications",
+  "settingsNotificationsHint": "Push notifications and text messages",
+  "settingsReminders": "Event reminders",
+  "settingsRemindersHint": "When to be reminded before an event",
+  "settingsRate": "Rate the app",
+  "settingsLogout": "Log out",
+  "settingsLogoutTitle": "Log out?",
+  "settingsLogoutMessage": "You will need to sign in again to use the app.",
+  "settingsLogoutConfirm": "Log out",
+  "settingsLoggingOut": "Logging out…",
+  "settingsSubscriptionPremium": "Premium",
+  "settingsSubscriptionTrial": "{count, plural, =1{Free trial: 1 day left} other{Free trial: {count} days left}}",
+  "@settingsSubscriptionTrial": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsSubscriptionFree": "Free",
+  "homeSettingsAction": "Settings",
+  "notificationsTitle": "Notifications",
+  "notificationsPush": "Push notifications",
+  "notificationsPushOn": "On",
+  "notificationsPushOff": "Off",
+  "notificationsPushOffHint": "Turn on notifications for this app in your device settings to hear about invitations and changes to your events.",
+  "notificationsPushNotAsked": "Allow notifications to hear about invitations and changes to your events.",
+  "notificationsAllow": "Allow notifications",
+  "notificationsOpenSettings": "Open settings",
+  "notificationsPushUnavailable": "Push notifications are not available on this build.",
+  "notificationsText": "Text messages",
+  "notificationsTextHint": "Receive event updates by text message.",
+  "notificationsSaved": "Notification settings updated.",
+  "notificationsFailed": "We couldn't update your notification settings.",
+  "remindersTitle": "Event reminders",
+  "remindersHint": "You are reminded this long before each event you take part in.",
+  "remindersEmpty": "You have no reminders yet.",
+  "remindersAdd": "Add a reminder",
+  "remindersLoadError": "We couldn't load your reminders.",
+  "remindersFailed": "We couldn't update your reminders.",
+  "reminderRemove": "Remove reminder",
+  "reminderUnitMinutes": "Minutes",
+  "reminderUnitHours": "Hours",
+  "reminderUnitDays": "Days",
+  "reminderValueLabel": "How long before",
+  "reminderMinutesBefore": "{count, plural, =1{1 minute before} other{{count} minutes before}}",
+  "@reminderMinutesBefore": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reminderHoursBefore": "{count, plural, =1{1 hour before} other{{count} hours before}}",
+  "@reminderHoursBefore": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reminderDaysBefore": "{count, plural, =1{1 day before} other{{count} days before}}",
+  "@reminderDaysBefore": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

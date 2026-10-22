@@ -120,4 +120,19 @@ dependencies {
     // Reads the session the native app left in EncryptedSharedPreferences
     // (same version as the native app).
     implementation("androidx.security:security-crypto:1.1.0")
+
+    // Push notifications. Firebase only starts when google-services.json is
+    // present (CI / developer machines; never committed), see the end of this file.
+    implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
+    implementation("com.google.firebase:firebase-messaging")
+}
+
+// Applies the Google services plugin (which turns google-services.json into the
+// Firebase configuration) only when a configuration file exists, so builds
+// without one still work and simply have no push.
+val hasFirebaseConfig =
+    file("google-services.json").exists() ||
+        fileTree("src") { include("*/google-services.json") }.files.isNotEmpty()
+if (hasFirebaseConfig) {
+    apply(plugin = "com.google.gms.google-services")
 }

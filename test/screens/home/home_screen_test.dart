@@ -7,7 +7,7 @@ import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/screens/event_details/event_details_test_ids.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
 import 'package:racketmates/screens/schedule/schedule_test_ids.dart';
-import 'package:racketmates/screens/welcome/welcome_test_ids.dart';
+import 'package:racketmates/screens/settings/settings_test_ids.dart';
 
 import '../../support/app_harness.dart';
 import '../../support/fakes.dart';
@@ -158,14 +158,14 @@ void main() {
     handle.dispose();
   });
 
-  testWidgets('signing out returns to welcome', (tester) async {
+  testWidgets('settings opens from home', (tester) async {
     final handle = tester.ensureSemantics();
     useTallScreen(tester);
     await tester.pumpWidget(signedInApp());
     await tester.pumpAndSettle();
-    await tester.tap(_id(HomeTestIds.signOutButton));
+    await tester.tap(_id(HomeTestIds.settingsButton));
     await tester.pumpAndSettle();
-    expect(_id(WelcomeTestIds.root), findsOneWidget);
+    expect(_id(SettingsTestIds.root), findsOneWidget);
     handle.dispose();
   });
 

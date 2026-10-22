@@ -54,6 +54,9 @@ import 'package:racketmates/screens/schedule/schedule_screen.dart';
 import 'package:racketmates/screens/create_team/create_team_screen.dart';
 import 'package:racketmates/screens/create_team_members/create_team_members_screen.dart';
 import 'package:racketmates/screens/team_details/team_details_screen.dart';
+import 'package:racketmates/screens/event_reminders/event_reminders_screen.dart';
+import 'package:racketmates/screens/notification_settings/notification_settings_screen.dart';
+import 'package:racketmates/screens/settings/settings_screen.dart';
 import 'package:racketmates/screens/teams/teams_screen.dart';
 import 'package:racketmates/screens/otp/otp_args.dart';
 import 'package:racketmates/screens/otp/otp_screen.dart';
@@ -430,6 +433,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             : null,
         builder: (context, state) =>
             TeamDetailsScreen(teamId: int.parse(state.pathParameters['id']!)),
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        builder: (context, state) => const SettingsScreen(),
+        routes: [
+          GoRoute(
+            path: 'notifications',
+            builder: (context, state) => const NotificationSettingsScreen(),
+          ),
+          GoRoute(
+            path: 'reminders',
+            builder: (context, state) => const EventRemindersScreen(),
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.createTeam,

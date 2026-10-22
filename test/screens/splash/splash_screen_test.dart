@@ -15,6 +15,7 @@ import 'package:racketmates/screens/app_update/store_launcher.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
 import 'package:racketmates/screens/splash/repositories/startup_repository.dart';
 import 'package:racketmates/screens/splash/splash_test_ids.dart';
+import 'package:racketmates/screens/settings/settings_test_ids.dart';
 import 'package:racketmates/screens/welcome/welcome_test_ids.dart';
 
 import '../../support/fakes.dart';
@@ -87,7 +88,13 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.bySemanticsIdentifier(HomeTestIds.root), findsOneWidget);
 
-      await tester.tap(find.bySemanticsIdentifier(HomeTestIds.signOutButton));
+      await tester.tap(find.bySemanticsIdentifier(HomeTestIds.settingsButton));
+      await tester.pumpAndSettle();
+      await tester.tap(find.bySemanticsIdentifier(SettingsTestIds.logout));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.bySemanticsIdentifier(SettingsTestIds.logoutConfirm),
+      );
       await tester.pumpAndSettle();
       expect(find.bySemanticsIdentifier(WelcomeTestIds.root), findsOneWidget);
       handle.dispose();

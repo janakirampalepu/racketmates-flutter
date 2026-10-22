@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show TargetPlatform;
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:racketmates/app/config/app_environment.dart';
 import 'package:racketmates/app/config/environment_config.dart';
@@ -8,7 +11,12 @@ import 'package:racketmates/common/auth/models/phone_verification.dart';
 import 'package:racketmates/common/auth/models/session_token.dart';
 import 'package:racketmates/common/auth/native_session.dart';
 import 'package:racketmates/common/auth/phone_verification_repository.dart';
+import 'package:racketmates/common/notifications/push_models.dart';
+import 'package:racketmates/common/notifications/push_platform.dart';
+import 'package:racketmates/common/notifications/push_registrar.dart';
 import 'package:racketmates/common/security/device_integrity.dart';
+import 'package:racketmates/common/settings/settings_models.dart';
+import 'package:racketmates/common/settings/settings_repository.dart';
 import 'package:racketmates/common/session/session_info_models.dart';
 import 'package:racketmates/common/session/session_info_repository.dart';
 import 'package:racketmates/common/sign_up/sign_up_flow.dart';
@@ -542,6 +550,155 @@ class FakeDowntimeRepository implements DowntimeRepository {
   }
 }
 
+class FakePushPlatform implements PushPlatform {
+  FakePushPlatform({
+    this.available = false,
+    this.permissionState = PushPermission.granted,
+    this.currentToken = 'device-token-1',
+    this.launch,
+  });
+
+  bool available;
+  PushPermission permissionState;
+  String? currentToken;
+  PushMessage? launch;
+  int initializations = 0;
+  int permissionRequests = 0;
+  int settingsOpened = 0;
+
+  /// What the next `requestPermission` answers.
+  PushPermission answerToRequest = PushPermission.granted;
+
+  final tokenController = StreamController<String>.broadcast();
+  final foregroundController = StreamController<PushMessage>.broadcast();
+  final openedController = StreamController<PushMessage>.broadcast();
+
+  @override
+  Future<bool> initialize() async {
+    initializations++;
+    return available;
+  }
+
+  @override
+  Future<PushPermission> permission() async => permissionState;
+
+  @override
+  Future<PushPermission> requestPermission() async {
+    permissionRequests++;
+    permissionState = answerToRequest;
+    return permissionState;
+  }
+
+  @override
+  Future<String?> token() async => currentToken;
+
+  @override
+  Future<PushMessage?> launchMessage() async {
+    final message = launch;
+    launch = null;
+    return message;
+  }
+
+  @override
+  Future<void> openSettings() async => settingsOpened++;
+
+  @override
+  Stream<String> get tokens => tokenController.stream;
+
+  @override
+  Stream<PushMessage> get foregroundMessages => foregroundController.stream;
+
+  @override
+  Stream<PushMessage> get openedMessages => openedController.stream;
+}
+
+class FakeSettingsRepository implements SettingsRepository {
+  FakeSettingsRepository({List<ReminderPreference>? reminders})
+    : stored = List.of(reminders ?? const []);
+
+  List<ReminderPreference> stored;
+  AppFailure? failure;
+  bool loadFails = false;
+  int nextId = 100;
+  final List<String> calls = [];
+  final List<({String token, TargetPlatform platform, String language})>
+  registrations = [];
+  final List<String> revoked = [];
+  final List<bool> textConsents = [];
+
+  Future<void> _run(String call) async {
+    calls.add(call);
+    await Future<void>.delayed(Duration.zero);
+    if (failure != null) throw failure!;
+  }
+
+  @override
+  Future<List<ReminderPreference>> reminders(int userId) async {
+    calls.add('reminders:$userId');
+    await Future<void>.delayed(Duration.zero);
+    if (loadFails) throw const OfflineFailure();
+    return List.of(stored);
+  }
+
+  @override
+  Future<void> addReminder(
+    int userId, {
+    required int value,
+    required String unit,
+  }) async {
+    await _run('add:$userId:$value:$unit');
+    stored.add(
+      ReminderPreference(
+        id: nextId++,
+        reminderUnit: value,
+        reminderUnitType: unit,
+      ),
+    );
+  }
+
+  @override
+  Future<void> removeReminder(int userId, int reminderId) async {
+    await _run('remove:$userId:$reminderId');
+    stored.removeWhere((r) => r.id == reminderId);
+  }
+
+  @override
+  Future<void> setTextConsent({required bool consent}) async {
+    await _run('consent:$consent');
+    textConsents.add(consent);
+  }
+
+  @override
+  Future<void> registerDeviceToken(
+    String token, {
+    required TargetPlatform platform,
+    required String language,
+  }) async {
+    await _run('register:$token');
+    registrations.add((token: token, platform: platform, language: language));
+  }
+
+  @override
+  Future<void> revokeDeviceToken(String token) async {
+    await _run('revoke:$token');
+    revoked.add(token);
+  }
+}
+
+class InMemoryPushTokenStore implements PushTokenStore {
+  ({String token, int userId})? value;
+
+  @override
+  Future<({String token, int userId})?> read() async => value;
+
+  @override
+  Future<void> write(String token, int userId) async =>
+      value = (token: token, userId: userId);
+
+  @override
+  Future<void> clear() async => value = null;
+}
+
 class FakeSessionInfoRepository implements SessionInfoRepository {
   FakeSessionInfoRepository({
     this.response = const SessionInfoResponse(
@@ -587,6 +744,9 @@ List<Override> contentOverrides({
   FakeDowntimeRepository? downtime,
   FakeSessionInfoRepository? sessionInfo,
   String? deviceTimezone = 'America/New_York',
+  FakePushPlatform? push,
+  FakeSettingsRepository? settings,
+  InMemoryPushTokenStore? pushTokens,
 }) => [
   contentRepositoryProvider.overrideWithValue(
     repository ?? FakeContentRepository(),
@@ -603,6 +763,13 @@ List<Override> contentOverrides({
     sessionInfo ?? FakeSessionInfoRepository(),
   ),
   deviceTimezoneOrNullProvider.overrideWith((ref) async => deviceTimezone),
+  pushPlatformProvider.overrideWithValue(push ?? FakePushPlatform()),
+  settingsRepositoryProvider.overrideWithValue(
+    settings ?? FakeSettingsRepository(),
+  ),
+  pushTokenStoreProvider.overrideWithValue(
+    pushTokens ?? InMemoryPushTokenStore(),
+  ),
 ];
 
 class FakePlacesRepository implements PlacesRepository {

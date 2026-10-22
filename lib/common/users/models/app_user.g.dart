@@ -66,6 +66,7 @@ AppUser _$AppUserFromJson(Map<String, dynamic> json) => AppUser(
   timezoneIdentifier: json['timezone_identifier'] as String?,
   avatarFileAttachmentUrl: json['avatar_file_attachment_url'] as String?,
   thumbnailAttachmentUrl: json['thumbnail_attachment_url'] as String?,
+  consentForTextMessages: json['consent_for_text_messages'] as bool?,
 );
 
 Map<String, dynamic> _$AppUserToJson(AppUser instance) => <String, dynamic>{
@@ -84,6 +85,7 @@ Map<String, dynamic> _$AppUserToJson(AppUser instance) => <String, dynamic>{
   'timezone_identifier': instance.timezoneIdentifier,
   'avatar_file_attachment_url': instance.avatarFileAttachmentUrl,
   'thumbnail_attachment_url': instance.thumbnailAttachmentUrl,
+  'consent_for_text_messages': instance.consentForTextMessages,
 };
 
 UserDetails _$UserDetailsFromJson(Map<String, dynamic> json) => UserDetails(

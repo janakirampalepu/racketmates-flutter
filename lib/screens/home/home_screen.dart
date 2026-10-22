@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
-import 'package:racketmates/common/auth/session_controller.dart';
 import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/events/event_labels.dart';
@@ -38,14 +37,12 @@ class HomeScreen extends ConsumerWidget {
           ),
         ),
         actions: [
-          // Temporary entry point until the settings milestone owns sign-out.
           TestId(
-            HomeTestIds.signOutButton,
+            HomeTestIds.settingsButton,
             child: IconButton(
-              tooltip: l10n.signOutAction,
-              icon: const Icon(Icons.logout),
-              onPressed: () =>
-                  ref.read(sessionControllerProvider.notifier).signOut(),
+              tooltip: l10n.homeSettingsAction,
+              icon: const Icon(Icons.settings_outlined),
+              onPressed: () => context.push(AppRoutes.settings),
             ),
           ),
         ],

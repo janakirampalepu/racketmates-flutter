@@ -1296,4 +1296,175 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accessBlocked => 'This isn\'t available right now.';
+
+  @override
+  String get notificationViewAction => 'View';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsAccount => 'Account';
+
+  @override
+  String get settingsNotifications => 'Notifications';
+
+  @override
+  String get settingsNotificationsHint =>
+      'Push notifications and text messages';
+
+  @override
+  String get settingsReminders => 'Event reminders';
+
+  @override
+  String get settingsRemindersHint => 'When to be reminded before an event';
+
+  @override
+  String get settingsRate => 'Rate the app';
+
+  @override
+  String get settingsLogout => 'Log out';
+
+  @override
+  String get settingsLogoutTitle => 'Log out?';
+
+  @override
+  String get settingsLogoutMessage =>
+      'You will need to sign in again to use the app.';
+
+  @override
+  String get settingsLogoutConfirm => 'Log out';
+
+  @override
+  String get settingsLoggingOut => 'Logging out…';
+
+  @override
+  String get settingsSubscriptionPremium => 'Premium';
+
+  @override
+  String settingsSubscriptionTrial(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Free trial: $count days left',
+      one: 'Free trial: 1 day left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsSubscriptionFree => 'Free';
+
+  @override
+  String get homeSettingsAction => 'Settings';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsPush => 'Push notifications';
+
+  @override
+  String get notificationsPushOn => 'On';
+
+  @override
+  String get notificationsPushOff => 'Off';
+
+  @override
+  String get notificationsPushOffHint =>
+      'Turn on notifications for this app in your device settings to hear about invitations and changes to your events.';
+
+  @override
+  String get notificationsPushNotAsked =>
+      'Allow notifications to hear about invitations and changes to your events.';
+
+  @override
+  String get notificationsAllow => 'Allow notifications';
+
+  @override
+  String get notificationsOpenSettings => 'Open settings';
+
+  @override
+  String get notificationsPushUnavailable =>
+      'Push notifications are not available on this build.';
+
+  @override
+  String get notificationsText => 'Text messages';
+
+  @override
+  String get notificationsTextHint => 'Receive event updates by text message.';
+
+  @override
+  String get notificationsSaved => 'Notification settings updated.';
+
+  @override
+  String get notificationsFailed =>
+      'We couldn\'t update your notification settings.';
+
+  @override
+  String get remindersTitle => 'Event reminders';
+
+  @override
+  String get remindersHint =>
+      'You are reminded this long before each event you take part in.';
+
+  @override
+  String get remindersEmpty => 'You have no reminders yet.';
+
+  @override
+  String get remindersAdd => 'Add a reminder';
+
+  @override
+  String get remindersLoadError => 'We couldn\'t load your reminders.';
+
+  @override
+  String get remindersFailed => 'We couldn\'t update your reminders.';
+
+  @override
+  String get reminderRemove => 'Remove reminder';
+
+  @override
+  String get reminderUnitMinutes => 'Minutes';
+
+  @override
+  String get reminderUnitHours => 'Hours';
+
+  @override
+  String get reminderUnitDays => 'Days';
+
+  @override
+  String get reminderValueLabel => 'How long before';
+
+  @override
+  String reminderMinutesBefore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes before',
+      one: '1 minute before',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reminderHoursBefore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hours before',
+      one: '1 hour before',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reminderDaysBefore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days before',
+      one: '1 day before',
+    );
+    return '$_temp0';
+  }
 }

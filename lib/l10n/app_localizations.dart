@@ -2505,6 +2505,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This isn\'t available right now.'**
   String get accessBlocked;
+
+  /// No description provided for @notificationViewAction.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get notificationViewAction;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settingsAccount;
+
+  /// No description provided for @settingsNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotifications;
+
+  /// No description provided for @settingsNotificationsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications and text messages'**
+  String get settingsNotificationsHint;
+
+  /// No description provided for @settingsReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Event reminders'**
+  String get settingsReminders;
+
+  /// No description provided for @settingsRemindersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When to be reminded before an event'**
+  String get settingsRemindersHint;
+
+  /// No description provided for @settingsRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate the app'**
+  String get settingsRate;
+
+  /// No description provided for @settingsLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get settingsLogout;
+
+  /// No description provided for @settingsLogoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out?'**
+  String get settingsLogoutTitle;
+
+  /// No description provided for @settingsLogoutMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You will need to sign in again to use the app.'**
+  String get settingsLogoutMessage;
+
+  /// No description provided for @settingsLogoutConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get settingsLogoutConfirm;
+
+  /// No description provided for @settingsLoggingOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Logging out…'**
+  String get settingsLoggingOut;
+
+  /// No description provided for @settingsSubscriptionPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get settingsSubscriptionPremium;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Free trial: 1 day left} other{Free trial: {count} days left}}'**
+  String settingsSubscriptionTrial(int count);
+
+  /// No description provided for @settingsSubscriptionFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get settingsSubscriptionFree;
+
+  /// No description provided for @homeSettingsAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get homeSettingsAction;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsPush.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications'**
+  String get notificationsPush;
+
+  /// No description provided for @notificationsPushOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get notificationsPushOn;
+
+  /// No description provided for @notificationsPushOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get notificationsPushOff;
+
+  /// No description provided for @notificationsPushOffHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on notifications for this app in your device settings to hear about invitations and changes to your events.'**
+  String get notificationsPushOffHint;
+
+  /// No description provided for @notificationsPushNotAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications to hear about invitations and changes to your events.'**
+  String get notificationsPushNotAsked;
+
+  /// No description provided for @notificationsAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications'**
+  String get notificationsAllow;
+
+  /// No description provided for @notificationsOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get notificationsOpenSettings;
+
+  /// No description provided for @notificationsPushUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications are not available on this build.'**
+  String get notificationsPushUnavailable;
+
+  /// No description provided for @notificationsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text messages'**
+  String get notificationsText;
+
+  /// No description provided for @notificationsTextHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive event updates by text message.'**
+  String get notificationsTextHint;
+
+  /// No description provided for @notificationsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification settings updated.'**
+  String get notificationsSaved;
+
+  /// No description provided for @notificationsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t update your notification settings.'**
+  String get notificationsFailed;
+
+  /// No description provided for @remindersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Event reminders'**
+  String get remindersTitle;
+
+  /// No description provided for @remindersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You are reminded this long before each event you take part in.'**
+  String get remindersHint;
+
+  /// No description provided for @remindersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no reminders yet.'**
+  String get remindersEmpty;
+
+  /// No description provided for @remindersAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a reminder'**
+  String get remindersAdd;
+
+  /// No description provided for @remindersLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load your reminders.'**
+  String get remindersLoadError;
+
+  /// No description provided for @remindersFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t update your reminders.'**
+  String get remindersFailed;
+
+  /// No description provided for @reminderRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove reminder'**
+  String get reminderRemove;
+
+  /// No description provided for @reminderUnitMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes'**
+  String get reminderUnitMinutes;
+
+  /// No description provided for @reminderUnitHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours'**
+  String get reminderUnitHours;
+
+  /// No description provided for @reminderUnitDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get reminderUnitDays;
+
+  /// No description provided for @reminderValueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'How long before'**
+  String get reminderValueLabel;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 minute before} other{{count} minutes before}}'**
+  String reminderMinutesBefore(int count);
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hour before} other{{count} hours before}}'**
+  String reminderHoursBefore(int count);
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day before} other{{count} days before}}'**
+  String reminderDaysBefore(int count);
 }
 
 class _AppLocalizationsDelegate

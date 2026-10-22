@@ -73,6 +73,7 @@ class AppUser {
     this.timezoneIdentifier,
     this.avatarFileAttachmentUrl,
     this.thumbnailAttachmentUrl,
+    this.consentForTextMessages,
   });
 
   factory AppUser.fromJson(Map<String, dynamic> json) =>
@@ -93,6 +94,9 @@ class AppUser {
   final String? timezoneIdentifier;
   final String? avatarFileAttachmentUrl;
   final String? thumbnailAttachmentUrl;
+
+  /// Whether the user agreed to receive text messages.
+  final bool? consentForTextMessages;
 
   Map<String, dynamic> toJson() => _$AppUserToJson(this);
 

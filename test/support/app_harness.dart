@@ -34,6 +34,9 @@ Widget signedInApp({
   FakeSessionInfoRepository? sessionInfo,
   String? deviceTimezone = 'America/New_York',
   InMemoryTokenStore? tokenStore,
+  FakePushPlatform? push,
+  FakeSettingsRepository? settings,
+  InMemoryPushTokenStore? pushTokens,
 }) => ProviderScope(
   overrides: [
     environmentConfigProvider.overrideWithValue(testConfig),
@@ -71,6 +74,9 @@ Widget signedInApp({
       integrity: integrity,
       nativeSession: nativeSession,
       downtime: downtime,
+      push: push,
+      settings: settings,
+      pushTokens: pushTokens,
       sessionInfo: sessionInfo,
       deviceTimezone: deviceTimezone,
     ),
@@ -94,6 +100,9 @@ Widget signedOutApp({
   FakeDowntimeRepository? downtime,
   FakeSessionInfoRepository? sessionInfo,
   InMemoryTokenStore? tokenStore,
+  FakePushPlatform? push,
+  FakeSettingsRepository? settings,
+  InMemoryPushTokenStore? pushTokens,
 }) => ProviderScope(
   overrides: [
     environmentConfigProvider.overrideWithValue(testConfig),
@@ -108,6 +117,9 @@ Widget signedOutApp({
       integrity: integrity,
       nativeSession: nativeSession,
       downtime: downtime,
+      push: push,
+      settings: settings,
+      pushTokens: pushTokens,
       sessionInfo: sessionInfo,
     ),
   ],

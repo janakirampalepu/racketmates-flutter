@@ -11,6 +11,9 @@ abstract final class AppRoutes {
   static const teams = '/teams';
   static const event = '/event';
   static const places = '/places';
+  static const settings = '/settings';
+  static const notificationSettings = '/settings/notifications';
+  static const eventReminders = '/settings/reminders';
   static const team = '/team';
   static const createTeam = '/create-team';
   static const createTeamMembers = '/create-team/members';
@@ -140,6 +143,8 @@ abstract final class AppRoutes {
       const {home, schedule, chat, teams}.contains(location) ||
       location.startsWith('$event/') ||
       location.startsWith('$team/') ||
+      location == settings ||
+      location.startsWith('$settings/') ||
       location == createTeam ||
       location == createTeamMembers ||
       location == places ||

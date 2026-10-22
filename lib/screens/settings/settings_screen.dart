@@ -1,0 +1,179 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:racketmates/app/router/app_routes.dart';
+import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/session/session_info_controller.dart';
+import 'package:racketmates/common/settings/logout.dart';
+import 'package:racketmates/common/users/user_profile_provider.dart';
+import 'package:racketmates/l10n/app_localizations.dart';
+import 'package:racketmates/screens/app_update/store_launcher.dart';
+import 'package:racketmates/screens/settings/settings_test_ids.dart';
+
+/// Settings (native `SettingsFragment`): who is signed in, the subscription
+/// status, notification and reminder preferences, rating, and log out. The
+/// profile editor, roles, favourite venues, sharing, contact, subscription
+/// purchase and account deletion are later work.
+class SettingsScreen extends ConsumerStatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  bool _loggingOut = false;
+
+  Future<void> _logOut() async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.settingsLogoutTitle),
+        content: Text(l10n.settingsLogoutMessage),
+        actions: [
+          TestId(
+            SettingsTestIds.logoutCancel,
+            child: TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(l10n.closeAction),
+            ),
+          ),
+          TestId(
+            SettingsTestIds.logoutConfirm,
+            child: FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(l10n.settingsLogoutConfirm),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() => _loggingOut = true);
+    // The router moves to the welcome screen as soon as the session ends.
+    await ref.read(logoutProvider)();
+    if (mounted) setState(() => _loggingOut = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final profile = ref.watch(userProfileProvider).value;
+    final session = ref.watch(sessionInfoControllerProvider);
+    final user = session.user;
+    final name = [
+      profile?.firstName,
+      profile?.lastName,
+    ].whereType<String>().join(' ').trim();
+    final subscription = !session.loaded
+        ? null
+        : user!.isTrial
+        ? l10n.settingsSubscriptionTrial(user.trialRemainingDays ?? 0)
+        : user.isSubscribed
+        ? l10n.settingsSubscriptionPremium
+        : l10n.settingsSubscriptionFree;
+
+    Widget tile({
+      required String id,
+      required IconData icon,
+      required String title,
+      String? subtitle,
+      required VoidCallback onTap,
+      Color? color,
+    }) => TestId(
+      id,
+      child: ListTile(
+        leading: Icon(icon, color: color),
+        title: Text(title, style: TextStyle(color: color)),
+        subtitle: subtitle == null ? null : Text(subtitle),
+        trailing: color == null ? const Icon(Icons.chevron_right) : null,
+        onTap: _loggingOut ? null : onTap,
+      ),
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: BackButton(onPressed: () => context.pop()),
+        title: TestId(
+          SettingsTestIds.title,
+          child: Semantics(header: true, child: Text(l10n.settingsTitle)),
+        ),
+      ),
+      body: TestId(
+        SettingsTestIds.root,
+        child: Stack(
+          children: [
+            ListView(
+              children: [
+                if (name.isNotEmpty || subscription != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (name.isNotEmpty)
+                          TestId(
+                            SettingsTestIds.name,
+                            child: Text(
+                              name,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                          ),
+                        if (subscription != null)
+                          TestId(
+                            SettingsTestIds.subscription,
+                            child: Text(subscription),
+                          ),
+                      ],
+                    ),
+                  ),
+                tile(
+                  id: SettingsTestIds.notifications,
+                  icon: Icons.notifications_outlined,
+                  title: l10n.settingsNotifications,
+                  subtitle: l10n.settingsNotificationsHint,
+                  onTap: () => context.push(AppRoutes.notificationSettings),
+                ),
+                tile(
+                  id: SettingsTestIds.reminders,
+                  icon: Icons.alarm,
+                  title: l10n.settingsReminders,
+                  subtitle: l10n.settingsRemindersHint,
+                  onTap: () => context.push(AppRoutes.eventReminders),
+                ),
+                tile(
+                  id: SettingsTestIds.rate,
+                  icon: Icons.star_outline,
+                  title: l10n.settingsRate,
+                  onTap: () => ref.read(storeLauncherProvider).openStorePage(),
+                ),
+                const Divider(),
+                tile(
+                  id: SettingsTestIds.logout,
+                  icon: Icons.logout,
+                  title: l10n.settingsLogout,
+                  color: Theme.of(context).colorScheme.error,
+                  onTap: _logOut,
+                ),
+              ],
+            ),
+            if (_loggingOut)
+              Positioned.fill(
+                child: ColoredBox(
+                  color: Colors.black26,
+                  child: Center(
+                    child: Semantics(
+                      label: l10n.settingsLoggingOut,
+                      child: const CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}

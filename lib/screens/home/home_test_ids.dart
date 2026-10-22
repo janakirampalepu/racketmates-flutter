@@ -1,6 +1,6 @@
 abstract final class HomeTestIds {
   static const root = 'home_screen';
-  static const signOutButton = 'home_sign_out_button';
+  static const settingsButton = 'home_settings_button';
   static const greeting = 'home_greeting';
   static const list = 'home_list';
   static const pendingSection = 'home_pending_actions_section';
