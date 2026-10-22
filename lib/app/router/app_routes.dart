@@ -9,6 +9,8 @@ abstract final class AppRoutes {
   static const schedule = '/schedule';
   static const chat = '/chat';
   static const chatChannel = '/chat/channel';
+  static const subscription = '/subscription';
+  static const subscriptionSuccess = '/subscription/success';
   static const teams = '/teams';
   static const event = '/event';
   static const places = '/places';
@@ -147,6 +149,8 @@ abstract final class AppRoutes {
   static bool isProtected(String location) =>
       const {home, schedule, chat, teams}.contains(location) ||
       location.startsWith('$chat/') ||
+      location == subscription ||
+      location.startsWith('$subscription/') ||
       location.startsWith('$event/') ||
       location.startsWith('$team/') ||
       location == settings ||

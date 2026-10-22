@@ -47,6 +47,8 @@ import 'package:racketmates/screens/kid_form/kid_form_screen.dart';
 import 'package:racketmates/screens/kid_form/kid_form_args.dart';
 import 'package:racketmates/screens/congratulations/congratulations_screen.dart';
 import 'package:racketmates/screens/chat/chat_screen.dart';
+import 'package:racketmates/screens/subscription/subscription_screen.dart';
+import 'package:racketmates/screens/subscription/subscription_success_screen.dart';
 import 'package:racketmates/screens/chat_channel/chat_channel_screen.dart';
 import 'package:racketmates/screens/event_details/event_details_screen.dart';
 import 'package:racketmates/screens/home/home_screen.dart';
@@ -250,6 +252,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) => const TeamsScreen(),
               ),
             ],
+          ),
+        ],
+      ),
+      GoRoute(
+        path: AppRoutes.subscription,
+        builder: (context, state) => const SubscriptionScreen(),
+        routes: [
+          GoRoute(
+            path: 'success',
+            builder: (context, state) => const SubscriptionSuccessScreen(),
           ),
         ],
       ),

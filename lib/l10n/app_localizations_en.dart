@@ -1344,6 +1344,123 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsRate => 'Rate the app';
 
   @override
+  String get subscriptionTitle => 'Racketmates Pro';
+
+  @override
+  String get subscriptionBenefit1Title => 'Manage teams and events';
+
+  @override
+  String get subscriptionBenefit1Text =>
+      'Create teams, run events and keep everyone in the loop.';
+
+  @override
+  String get subscriptionBenefit2Title => 'Grow your community';
+
+  @override
+  String get subscriptionBenefit2Text =>
+      'Invite players, coaches and friends and build up your club.';
+
+  @override
+  String get subscriptionBenefit3Title => 'Priority support';
+
+  @override
+  String get subscriptionBenefit3Text =>
+      'Chat with the Racketmates team whenever you need help.';
+
+  @override
+  String get subscriptionMonthly => 'Monthly';
+
+  @override
+  String get subscriptionYearly => 'Yearly';
+
+  @override
+  String subscriptionPerMonth(String price) {
+    return '$price/month';
+  }
+
+  @override
+  String subscriptionSave(int percent) {
+    return 'Save $percent%';
+  }
+
+  @override
+  String get subscriptionUpgrade => 'Upgrade now';
+
+  @override
+  String get subscriptionRestore => 'Restore purchases';
+
+  @override
+  String get subscriptionRedeem => 'Redeem code';
+
+  @override
+  String get subscriptionTerms => 'Terms of service';
+
+  @override
+  String get subscriptionPrivacy => 'Privacy policy';
+
+  @override
+  String get subscriptionPaymentAndroid =>
+      'Payment is charged to your Google Play account. The subscription renews automatically until you cancel it in Google Play.';
+
+  @override
+  String get subscriptionPaymentIos =>
+      'Payment is charged to your Apple ID account. The subscription renews automatically until you cancel it in your account settings.';
+
+  @override
+  String get subscriptionUnavailable =>
+      'Subscriptions are not available on this device or build.';
+
+  @override
+  String get subscriptionPending =>
+      'Your purchase is waiting for approval. Access starts once it is approved.';
+
+  @override
+  String get subscriptionFailed =>
+      'The purchase did not complete. Please try again.';
+
+  @override
+  String get subscriptionLinkFailed =>
+      'Your purchase went through but could not be activated yet. We will try again; if access does not appear, restore your purchases or contact support.';
+
+  @override
+  String get subscriptionCancelled => 'The purchase was cancelled.';
+
+  @override
+  String get subscriptionRestored => 'Subscription restored.';
+
+  @override
+  String get subscriptionNothingToRestore =>
+      'No active subscription was found for this store account.';
+
+  @override
+  String get subscriptionRestoreFailed => 'Restoring failed. Please try again.';
+
+  @override
+  String get subscriptionSuccessTitle => 'You are all set';
+
+  @override
+  String get subscriptionSuccessText =>
+      'Thank you for subscribing. All features are unlocked.';
+
+  @override
+  String get subscriptionSuccessContinue => 'Continue';
+
+  @override
+  String get subscriptionClose => 'Close';
+
+  @override
+  String get settingsSubscription => 'Subscription';
+
+  @override
+  String get settingsSubscriptionManage => 'Manage in the store';
+
+  @override
+  String get settingsSubscriptionPlans => 'See plans and upgrade';
+
+  @override
+  String get accessUpgradeAction => 'See plans';
+
+  @override
   String get settingsSupport => 'Chat with support';
 
   @override

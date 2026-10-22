@@ -7,6 +7,8 @@ import 'package:racketmates/app/notifications/notification_host.dart';
 import 'package:racketmates/app/notifications/push_sync.dart';
 import 'package:racketmates/app/router/app_router.dart';
 import 'package:racketmates/app/theme/app_theme.dart';
+import 'package:racketmates/common/billing/billing_sync.dart';
+import 'package:racketmates/common/billing/subscription_prompt.dart';
 import 'package:racketmates/common/chat/chat_controller.dart';
 import 'package:racketmates/common/session/session_info_controller.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
@@ -24,7 +26,9 @@ class RacketmatesApp extends ConsumerWidget {
     ref
       ..watch(sessionInfoSyncProvider) // keeps session_info current
       ..watch(pushSyncProvider) // device registration and notifications
-      ..watch(chatSyncProvider); // Sendbird connection
+      ..watch(chatSyncProvider) // Sendbird connection
+      ..watch(billingSyncProvider) // store purchases
+      ..watch(subscriptionPromptSyncProvider); // trial reminders
     return MaterialApp.router(
       title: brand.displayName,
       theme: AppTheme.light(brand),

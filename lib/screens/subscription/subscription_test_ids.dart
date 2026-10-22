@@ -1,0 +1,20 @@
+abstract final class SubscriptionTestIds {
+  static const root = 'subscription_screen';
+  static const title = 'subscription_title';
+  static const close = 'subscription_close_button';
+  static const benefits = 'subscription_benefits';
+  static const loading = 'subscription_loading';
+  static const error = 'subscription_error';
+  static const retry = 'subscription_retry_button';
+  static const monthly = 'subscription_plan_monthly';
+  static const yearly = 'subscription_plan_yearly';
+  static const saveBadge = 'subscription_save_badge';
+  static const upgrade = 'subscription_upgrade_button';
+  static const restore = 'subscription_restore_button';
+  static const redeem = 'subscription_redeem_button';
+  static const terms = 'subscription_terms_link';
+  static const privacy = 'subscription_privacy_link';
+  static const message = 'subscription_message';
+  static const successRoot = 'subscription_success_screen';
+  static const successContinue = 'subscription_success_continue_button';
+}

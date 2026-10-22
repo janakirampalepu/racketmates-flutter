@@ -8,5 +8,6 @@ abstract final class TeamsTestIds {
   /// `team_tile_<id>`.
   static String tile(int id) => 'team_tile_$id';
   static const accessDialog = 'teams_access_dialog';
+  static const accessDialogUpgrade = 'teams_access_dialog_upgrade_button';
   static const accessDialogClose = 'teams_access_dialog_close';
 }

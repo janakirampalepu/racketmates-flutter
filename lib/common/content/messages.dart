@@ -55,6 +55,28 @@ abstract final class MessageKeys {
   static const homeUpdatesTitle = 'home_page.latest_updates_title';
   static const homeUpdatesEmpty = 'home_page.latest_updates_no_updates_title';
 
+  // settings.subscription
+  static const subProTitle = 'settings.subscription.pro_text';
+  static const subUpgrade = 'settings.subscription.upgrade_now_button';
+  static const subRestore = 'settings.subscription.restore_purchase_link';
+  static const subRedeem = 'settings.subscription.redeem_code_link';
+  static const subTerms = 'settings.subscription.terms_of_service_link';
+  static const subPrivacy = 'settings.subscription.privacy_link';
+  static const subPaymentAndroid =
+      'settings.subscription.payment_sub_text_android';
+  static const subBenefit1Title =
+      'settings.subscription.carousel_item_teams_title';
+  static const subBenefit1Text =
+      'settings.subscription.carousel_item_teams_sub_text';
+  static const subBenefit2Title =
+      'settings.subscription.carousel_item_premium_title';
+  static const subBenefit2Text =
+      'settings.subscription.carousel_item_premium_sub_text';
+  static const subBenefit3Title =
+      'settings.subscription.carousel_item_support_title';
+  static const subBenefit3Text =
+      'settings.subscription.carousel_item_support_sub_text';
+
   static const scheduleTitle = 'schedule.nav_title';
   static const scheduleUpcomingTab = 'schedule.events_title';
   static const schedulePastTab = 'schedule.past_events_title';

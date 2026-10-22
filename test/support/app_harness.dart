@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:racketmates/app/app.dart';
+import 'package:racketmates/app/config/app_environment.dart';
 import 'package:racketmates/common/auth/auth_providers.dart';
 import 'package:racketmates/common/auth/models/session_token.dart';
 import 'package:racketmates/common/auth/token_store.dart';
@@ -40,13 +41,16 @@ Widget signedInApp({
   FakeChatClient? chat,
   FakeChatRepository? chatRepository,
   FakeChatUi? chatUi,
+  FakeBillingPlatform? billing,
+  FakeSubscriptionRepository? subscriptions,
+  FakeExternalLinks? links,
+  InMemoryPromptStore? promptStore,
   String? sendbirdAppId,
+  AppEnvironment? environment,
 }) => ProviderScope(
   overrides: [
     environmentConfigProvider.overrideWithValue(
-      sendbirdAppId == null
-          ? testConfig
-          : testConfigWith(sendbirdAppId: sendbirdAppId),
+      testConfigWith(sendbirdAppId: sendbirdAppId, environment: environment),
     ),
     appVersionProvider.overrideWithValue('1.0.0'),
     tokenStoreProvider.overrideWithValue(
@@ -55,7 +59,7 @@ Widget signedInApp({
             const SessionToken(
               accessToken: 'a',
               refreshToken: 'r',
-              user: SessionTokenUser(id: 7, uid: 'uid-7'),
+              user: SessionTokenUser(id: 7, uid: 'uid-7', uuid: 'uuid-7'),
             ),
           ),
     ),
@@ -88,6 +92,10 @@ Widget signedInApp({
       chat: chat,
       chatRepository: chatRepository,
       chatUi: chatUi,
+      billing: billing,
+      subscriptions: subscriptions,
+      links: links,
+      promptStore: promptStore,
       sessionInfo: sessionInfo,
       deviceTimezone: deviceTimezone,
     ),
@@ -117,6 +125,10 @@ Widget signedOutApp({
   FakeChatClient? chat,
   FakeChatRepository? chatRepository,
   FakeChatUi? chatUi,
+  FakeBillingPlatform? billing,
+  FakeSubscriptionRepository? subscriptions,
+  FakeExternalLinks? links,
+  InMemoryPromptStore? promptStore,
 }) => ProviderScope(
   overrides: [
     environmentConfigProvider.overrideWithValue(testConfig),
@@ -137,6 +149,10 @@ Widget signedOutApp({
       chat: chat,
       chatRepository: chatRepository,
       chatUi: chatUi,
+      billing: billing,
+      subscriptions: subscriptions,
+      links: links,
+      promptStore: promptStore,
       sessionInfo: sessionInfo,
     ),
   ],

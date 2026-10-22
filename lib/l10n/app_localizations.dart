@@ -2578,6 +2578,210 @@ abstract class AppLocalizations {
   /// **'Rate the app'**
   String get settingsRate;
 
+  /// No description provided for @subscriptionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Racketmates Pro'**
+  String get subscriptionTitle;
+
+  /// No description provided for @subscriptionBenefit1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage teams and events'**
+  String get subscriptionBenefit1Title;
+
+  /// No description provided for @subscriptionBenefit1Text.
+  ///
+  /// In en, this message translates to:
+  /// **'Create teams, run events and keep everyone in the loop.'**
+  String get subscriptionBenefit1Text;
+
+  /// No description provided for @subscriptionBenefit2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Grow your community'**
+  String get subscriptionBenefit2Title;
+
+  /// No description provided for @subscriptionBenefit2Text.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite players, coaches and friends and build up your club.'**
+  String get subscriptionBenefit2Text;
+
+  /// No description provided for @subscriptionBenefit3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority support'**
+  String get subscriptionBenefit3Title;
+
+  /// No description provided for @subscriptionBenefit3Text.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat with the Racketmates team whenever you need help.'**
+  String get subscriptionBenefit3Text;
+
+  /// No description provided for @subscriptionMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get subscriptionMonthly;
+
+  /// No description provided for @subscriptionYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get subscriptionYearly;
+
+  /// No description provided for @subscriptionPerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{price}/month'**
+  String subscriptionPerMonth(String price);
+
+  /// No description provided for @subscriptionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save {percent}%'**
+  String subscriptionSave(int percent);
+
+  /// No description provided for @subscriptionUpgrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade now'**
+  String get subscriptionUpgrade;
+
+  /// No description provided for @subscriptionRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get subscriptionRestore;
+
+  /// No description provided for @subscriptionRedeem.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeem code'**
+  String get subscriptionRedeem;
+
+  /// No description provided for @subscriptionTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of service'**
+  String get subscriptionTerms;
+
+  /// No description provided for @subscriptionPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get subscriptionPrivacy;
+
+  /// No description provided for @subscriptionPaymentAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment is charged to your Google Play account. The subscription renews automatically until you cancel it in Google Play.'**
+  String get subscriptionPaymentAndroid;
+
+  /// No description provided for @subscriptionPaymentIos.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment is charged to your Apple ID account. The subscription renews automatically until you cancel it in your account settings.'**
+  String get subscriptionPaymentIos;
+
+  /// No description provided for @subscriptionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions are not available on this device or build.'**
+  String get subscriptionUnavailable;
+
+  /// No description provided for @subscriptionPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Your purchase is waiting for approval. Access starts once it is approved.'**
+  String get subscriptionPending;
+
+  /// No description provided for @subscriptionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase did not complete. Please try again.'**
+  String get subscriptionFailed;
+
+  /// No description provided for @subscriptionLinkFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your purchase went through but could not be activated yet. We will try again; if access does not appear, restore your purchases or contact support.'**
+  String get subscriptionLinkFailed;
+
+  /// No description provided for @subscriptionCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase was cancelled.'**
+  String get subscriptionCancelled;
+
+  /// No description provided for @subscriptionRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription restored.'**
+  String get subscriptionRestored;
+
+  /// No description provided for @subscriptionNothingToRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'No active subscription was found for this store account.'**
+  String get subscriptionNothingToRestore;
+
+  /// No description provided for @subscriptionRestoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring failed. Please try again.'**
+  String get subscriptionRestoreFailed;
+
+  /// No description provided for @subscriptionSuccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are all set'**
+  String get subscriptionSuccessTitle;
+
+  /// No description provided for @subscriptionSuccessText.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for subscribing. All features are unlocked.'**
+  String get subscriptionSuccessText;
+
+  /// No description provided for @subscriptionSuccessContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get subscriptionSuccessContinue;
+
+  /// No description provided for @subscriptionClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get subscriptionClose;
+
+  /// No description provided for @settingsSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get settingsSubscription;
+
+  /// No description provided for @settingsSubscriptionManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage in the store'**
+  String get settingsSubscriptionManage;
+
+  /// No description provided for @settingsSubscriptionPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'See plans and upgrade'**
+  String get settingsSubscriptionPlans;
+
+  /// No description provided for @accessUpgradeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'See plans'**
+  String get accessUpgradeAction;
+
   /// No description provided for @settingsSupport.
   ///
   /// In en, this message translates to:

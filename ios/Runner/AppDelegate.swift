@@ -1,4 +1,5 @@
 import Flutter
+import StoreKit
 import UIKit
 import UserNotifications
 
@@ -49,6 +50,7 @@ import UserNotifications
       DeviceIntegrityChannel.register(with: registrar.messenger())
       NativeSessionChannel.register(with: registrar.messenger())
       PushChannel.register(with: registrar.messenger())
+      BillingChannel.register(with: registrar.messenger())
     }
   }
 }
@@ -291,5 +293,165 @@ enum PushChannel {
     if let title = title, !title.isEmpty { message["title"] = title }
     if let body = body, !body.isEmpty { message["body"] = body }
     return message
+  }
+}
+
+// MARK: - Subscriptions (StoreKit 2)
+
+/// `io.appsmaker.racketmates/billing`: the App Store subscription, as the
+/// native `PurchaseManager`: products by id, purchase with the user's uuid as
+/// `appAccountToken`, transaction updates, restore through `AppStore.sync()`,
+/// and the transaction's own JSON (`jsonRepresentation`), which is what the
+/// backend's `link_appstore_subscription` expects.
+/// Methods: isAvailable, queryProducts{ids}, purchase{id, accountId},
+/// activePurchases, restore, complete{id}, redeemCode. Call to Dart:
+/// onPurchase{status, purchase?, message?}.
+enum BillingChannel {
+  static let name = "io.appsmaker.racketmates/billing"
+  private static var channel: FlutterMethodChannel?
+  private static var products: [String: Product] = [:]
+  /// Transactions the app has been told about and has not finished yet.
+  private static var open: [String: Transaction] = [:]
+  private static var updatesTask: Task<Void, Never>?
+
+  static func register(with messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(name: name, binaryMessenger: messenger)
+    self.channel = channel
+    startListeningForUpdates()
+    channel.setMethodCallHandler { call, result in
+      let args = call.arguments as? [String: Any]
+      switch call.method {
+      case "isAvailable":
+        result(AppStore.canMakePayments)
+      case "queryProducts":
+        let ids = args?["ids"] as? [String] ?? []
+        Task { result(await queryProducts(ids)) }
+      case "purchase":
+        let id = args?["id"] as? String ?? ""
+        let account = args?["accountId"] as? String ?? ""
+        Task { await purchase(id: id, accountId: account, result: result) }
+      case "activePurchases":
+        Task { result(await activePurchases()) }
+      case "restore":
+        Task {
+          try? await AppStore.sync()
+          result(await activePurchases())
+        }
+      case "complete":
+        let id = args?["id"] as? String ?? ""
+        Task {
+          if let transaction = open[id] {
+            await transaction.finish()
+            open[id] = nil
+          }
+          result(true)
+        }
+      case "redeemCode":
+        DispatchQueue.main.async {
+          SKPaymentQueue.default().presentCodeRedemptionSheet()
+          result(nil)
+        }
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+
+  private static func queryProducts(_ ids: [String]) async -> [[String: Any]] {
+    guard let found = try? await Product.products(for: ids) else { return [] }
+    var list: [[String: Any]] = []
+    for product in found {
+      products[product.id] = product
+      let micros = NSDecimalNumber(decimal: product.price * 1_000_000).intValue
+      let unit = product.subscription?.subscriptionPeriod.unit
+      list.append([
+        "id": product.id,
+        "title": product.displayName,
+        "price": product.displayPrice,
+        "priceMicros": micros,
+        "currency": product.priceFormatStyle.currencyCode,
+        "period": unit == .year ? "year" : "month",
+      ])
+    }
+    return list
+  }
+
+  private static func purchase(id: String, accountId: String, result: @escaping FlutterResult) async {
+    guard let product = products[id] else {
+      result(FlutterError(code: "unknown_product", message: "Product \(id) is not loaded", details: nil))
+      return
+    }
+    var options: Set<Product.PurchaseOption> = []
+    if let token = UUID(uuidString: accountId) {
+      options.insert(.appAccountToken(token))
+    }
+    do {
+      switch try await product.purchase(options: options) {
+      case .success(.verified(let transaction)):
+        open[String(transaction.id)] = transaction
+        emit("purchased", record(transaction))
+      case .success(.unverified):
+        emit("failed", nil, "The purchase could not be verified")
+      case .pending:
+        emit("pending", nil)
+      case .userCancelled:
+        emit("cancelled", nil)
+      @unknown default:
+        emit("failed", nil)
+      }
+      result(nil)
+    } catch {
+      emit("failed", nil, error.localizedDescription)
+      result(nil)
+    }
+  }
+
+  /// Valid means not expired, revoked or replaced by an upgrade (native
+  /// `updatePurchasedProducts`).
+  private static func isActive(_ transaction: Transaction) -> Bool {
+    if transaction.revocationDate != nil || transaction.isUpgraded { return false }
+    if let expiry = transaction.expirationDate, expiry < Date() { return false }
+    return true
+  }
+
+  /// Oldest expiry first, so the last one is the latest subscription.
+  private static func activePurchases() async -> [[String: Any]] {
+    var active: [Transaction] = []
+    for await entitlement in Transaction.currentEntitlements {
+      if case .verified(let transaction) = entitlement, isActive(transaction) {
+        active.append(transaction)
+      }
+    }
+    active.sort { ($0.expirationDate ?? .distantPast) < ($1.expirationDate ?? .distantPast) }
+    for transaction in active { open[String(transaction.id)] = transaction }
+    return active.map(record)
+  }
+
+  private static func startListeningForUpdates() {
+    updatesTask?.cancel()
+    updatesTask = Task(priority: .background) {
+      for await update in Transaction.updates {
+        guard case .verified(let transaction) = update, isActive(transaction) else { continue }
+        open[String(transaction.id)] = transaction
+        emit("purchased", record(transaction))
+      }
+    }
+  }
+
+  private static func record(_ transaction: Transaction) -> [String: Any] {
+    [
+      "platform": "ios",
+      "productId": transaction.productID,
+      "originalTransactionId": String(transaction.originalID),
+      "transactionId": String(transaction.id),
+      "json": String(data: transaction.jsonRepresentation, encoding: .utf8) ?? "",
+    ]
+  }
+
+  private static func emit(_ status: String, _ purchase: [String: Any]?, _ message: String? = nil) {
+    var args: [String: Any] = ["status": status]
+    if let purchase = purchase { args["purchase"] = purchase }
+    if let message = message { args["message"] = message }
+    DispatchQueue.main.async { channel?.invokeMethod("onPurchase", arguments: args) }
   }
 }

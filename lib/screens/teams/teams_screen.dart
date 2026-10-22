@@ -12,6 +12,7 @@ import 'package:racketmates/common/teams/create_team_flow.dart';
 import 'package:racketmates/common/teams/team_labels.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
+import 'package:racketmates/common/billing/billing_sync.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/teams/teams_test_ids.dart';
 
@@ -46,6 +47,17 @@ class TeamsScreen extends ConsumerWidget {
           builder: (dialogContext) => AlertDialog(
             content: TestId(TeamsTestIds.accessDialog, child: Text(text)),
             actions: [
+              if (needsSubscription && ref.read(billingSupportedProvider))
+                TestId(
+                  TeamsTestIds.accessDialogUpgrade,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                      unawaited(context.push(AppRoutes.subscription));
+                    },
+                    child: Text(l10n.accessUpgradeAction),
+                  ),
+                ),
               TestId(
                 TeamsTestIds.accessDialogClose,
                 child: TextButton(

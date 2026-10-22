@@ -125,6 +125,9 @@ dependencies {
     // present (CI / developer machines; never committed), see the end of this file.
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
     implementation("com.google.firebase:firebase-messaging")
+
+    // Google Play Billing for the subscription (same version as the native app).
+    implementation("com.android.billingclient:billing:9.1.0")
 }
 
 // Applies the Google services plugin (which turns google-services.json into the

@@ -38,6 +38,11 @@ import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/events/models/schedule_models.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
+import 'package:racketmates/common/billing/billing_models.dart';
+import 'package:racketmates/common/billing/billing_platform.dart';
+import 'package:racketmates/common/billing/subscription_prompt.dart';
+import 'package:racketmates/common/billing/subscription_repository.dart';
+import 'package:racketmates/common/links/external_links.dart';
 import 'package:racketmates/common/chat/chat_client.dart';
 import 'package:racketmates/common/chat/chat_repository.dart';
 import 'package:racketmates/common/chat/chat_ui.dart';
@@ -56,15 +61,17 @@ const testConfig = EnvironmentConfig(
 );
 
 /// [testConfig] with another Sendbird application id.
-EnvironmentConfig testConfigWith({required String sendbirdAppId}) =>
-    EnvironmentConfig(
-      environment: testConfig.environment,
-      apiBaseUrl: testConfig.apiBaseUrl,
-      apiVersion: testConfig.apiVersion,
-      oauthClientId: testConfig.oauthClientId,
-      oauthClientSecret: testConfig.oauthClientSecret,
-      sendbirdAppId: sendbirdAppId,
-    );
+EnvironmentConfig testConfigWith({
+  String? sendbirdAppId,
+  AppEnvironment? environment,
+}) => EnvironmentConfig(
+  environment: environment ?? testConfig.environment,
+  apiBaseUrl: testConfig.apiBaseUrl,
+  apiVersion: testConfig.apiVersion,
+  oauthClientId: testConfig.oauthClientId,
+  oauthClientSecret: testConfig.oauthClientSecret,
+  sendbirdAppId: sendbirdAppId ?? testConfig.sendbirdAppId,
+);
 
 SessionToken token({
   String access = 'access-1',
@@ -766,6 +773,10 @@ List<Override> contentOverrides({
   FakeChatClient? chat,
   FakeChatRepository? chatRepository,
   FakeChatUi? chatUi,
+  FakeBillingPlatform? billing,
+  FakeSubscriptionRepository? subscriptions,
+  FakeExternalLinks? links,
+  InMemoryPromptStore? promptStore,
 }) => [
   contentRepositoryProvider.overrideWithValue(
     repository ?? FakeContentRepository(),
@@ -794,6 +805,14 @@ List<Override> contentOverrides({
     chatRepository ?? FakeChatRepository(),
   ),
   chatUiProvider.overrideWithValue(chatUi ?? FakeChatUi()),
+  billingPlatformProvider.overrideWithValue(billing ?? FakeBillingPlatform()),
+  subscriptionRepositoryProvider.overrideWithValue(
+    subscriptions ?? FakeSubscriptionRepository(),
+  ),
+  externalLinksProvider.overrideWithValue(links ?? FakeExternalLinks()),
+  subscriptionPromptStoreProvider.overrideWithValue(
+    promptStore ?? InMemoryPromptStore(),
+  ),
 ];
 
 class FakePlacesRepository implements PlacesRepository {
@@ -1136,4 +1155,145 @@ class FakeChatUi implements ChatUi {
   @override
   Widget channel(BuildContext context, {required String channelUrl}) =>
       Scaffold(body: Text('fake channel $channelUrl'));
+}
+
+const monthlyPlan = StorePlan(
+  id: 'qa.monthly',
+  period: PlanPeriod.monthly,
+  title: 'Monthly',
+  price: r'$4.99',
+  priceMicros: 4990000,
+  currencyCode: 'USD',
+);
+
+const yearlyPlan = StorePlan(
+  id: 'qa.yearly',
+  period: PlanPeriod.yearly,
+  title: 'Yearly',
+  price: r'$39.99',
+  priceMicros: 39990000,
+  currencyCode: 'USD',
+);
+
+PurchaseRecord androidPurchase({
+  String token = 'tok-1',
+  bool acknowledged = false,
+  String productId = 'qa.yearly',
+}) => PurchaseRecord.fromMap({
+  'platform': 'android',
+  'orderId': 'GPA.1',
+  'packageName': 'io.appsmaker.racketmates.qa',
+  'productId': productId,
+  'purchaseTime': 1700000000000,
+  'purchaseState': 1,
+  'purchaseToken': token,
+  'autoRenewing': true,
+  'acknowledged': acknowledged,
+});
+
+PurchaseRecord applePurchase({String original = 'orig-1'}) =>
+    PurchaseRecord.fromMap({
+      'platform': 'ios',
+      'productId': 'qayearly',
+      'originalTransactionId': original,
+      'transactionId': 'tx-1',
+      'json': '{"originalTransactionId":"$original","productId":"qayearly"}',
+    });
+
+class FakeBillingPlatform implements BillingPlatform {
+  FakeBillingPlatform({
+    this.available = true,
+    this.plansToOffer = const [monthlyPlan, yearlyPlan],
+    this.active = const [],
+  });
+
+  bool available;
+  List<StorePlan> plansToOffer;
+  List<PurchaseRecord> active;
+  List<PurchaseRecord> restorable = const [];
+  bool completeOk = true;
+  final List<String> purchased = [];
+  final List<String> accountIds = [];
+  final List<String> completed = [];
+  List<String> requestedIds = [];
+  int redeemed = 0;
+  int restores = 0;
+
+  /// What `purchase` reports (default: the sheet opens and nothing happens
+  /// until a test pushes an update).
+  void Function(String id)? onPurchase;
+  final updatesController = StreamController<PurchaseUpdate>.broadcast();
+
+  @override
+  Future<bool> isAvailable() async => available;
+
+  @override
+  Future<List<StorePlan>> plans(List<String> ids) async {
+    requestedIds = ids;
+    return plansToOffer;
+  }
+
+  @override
+  Future<void> purchase(String productId, {required String accountId}) async {
+    purchased.add(productId);
+    accountIds.add(accountId);
+    onPurchase?.call(productId);
+  }
+
+  @override
+  Future<List<PurchaseRecord>> activePurchases() async => active;
+
+  @override
+  Future<List<PurchaseRecord>> restore() async {
+    restores++;
+    return restorable;
+  }
+
+  @override
+  Future<bool> complete(PurchaseRecord record) async {
+    completed.add(record.key);
+    return completeOk;
+  }
+
+  @override
+  Future<void> redeemCode() async => redeemed++;
+
+  @override
+  Stream<PurchaseUpdate> get updates => updatesController.stream;
+}
+
+class FakeSubscriptionRepository implements SubscriptionRepository {
+  AppFailure? failure;
+  final List<PurchaseRecord> linked = [];
+
+  @override
+  Future<void> link(PurchaseRecord purchase) async {
+    await Future<void>.delayed(Duration.zero);
+    if (failure != null) throw failure!;
+    linked.add(purchase);
+  }
+}
+
+class FakeExternalLinks implements ExternalLinks {
+  final List<Uri> opened = [];
+
+  @override
+  Future<void> open(Uri uri) async => opened.add(uri);
+}
+
+class InMemoryPromptStore implements SubscriptionPromptStore {
+  /// [allSeen] (the default for app tests) means no reminder is ever due, so a
+  /// test about something else is not interrupted by the subscription screen.
+  InMemoryPromptStore({this.allSeen = true});
+
+  final bool allSeen;
+  final Set<String> seenKeys = {};
+
+  @override
+  Future<bool> seen(SubscriptionPromptKind kind, int userId) async =>
+      allSeen || seenKeys.contains('${kind.name}:$userId');
+
+  @override
+  Future<void> markSeen(SubscriptionPromptKind kind, int userId) async =>
+      seenKeys.add('${kind.name}:$userId');
 }

@@ -1,8 +1,11 @@
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/billing/billing_sync.dart';
+import 'package:racketmates/common/links/external_links.dart';
 import 'package:racketmates/common/session/session_info_controller.dart';
 import 'package:racketmates/common/settings/logout.dart';
 import 'package:racketmates/common/users/user_profile_provider.dart';
@@ -63,6 +66,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final session = ref.watch(sessionInfoControllerProvider);
     final user = session.user;
     final supportChannel = user?.supportChatRoomUrl;
+    // Bought in a store (a trial has no store subscription yet).
+    final paid = (user?.subscribedDeviceType ?? '').isNotEmpty;
     final name = [
       profile?.firstName,
       profile?.lastName,
@@ -129,6 +134,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                       ],
                     ),
+                  ),
+                if (ref.watch(billingSupportedProvider))
+                  tile(
+                    id: SettingsTestIds.subscriptionTile,
+                    icon: Icons.workspace_premium_outlined,
+                    title: l10n.settingsSubscription,
+                    subtitle: paid
+                        ? l10n.settingsSubscriptionManage
+                        : l10n.settingsSubscriptionPlans,
+                    onTap: () => paid
+                        ? ref
+                              .read(externalLinksProvider)
+                              .open(
+                                defaultTargetPlatform == TargetPlatform.iOS
+                                    ? SubscriptionLinks.manageApple
+                                    : SubscriptionLinks.manageAndroid,
+                              )
+                        : context.push(AppRoutes.subscription),
                   ),
                 tile(
                   id: SettingsTestIds.notifications,
