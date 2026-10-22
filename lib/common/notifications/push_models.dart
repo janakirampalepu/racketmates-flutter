@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 /// Notification permission as the platform reports it.
 enum PushPermission { granted, denied, notDetermined }
 
@@ -53,12 +55,30 @@ class OpenTeams extends NotificationRoute {
   const OpenTeams();
 }
 
-/// A chat message (Sendbird payload): the chat tab until the chat milestone
-/// can open the channel.
+/// A chat message (Sendbird payload): the conversation, or the chat tab when
+/// the payload names no channel.
 class OpenChat extends NotificationRoute {
   const OpenChat({this.channelUrl});
 
   final String? channelUrl;
+}
+
+/// The channel a Sendbird push belongs to: `channel.channel_url` inside the
+/// JSON `sendbird` value, or a plain `channel_url`.
+String? _sendbirdChannelUrl(Map<String, String> data) {
+  try {
+    final payload = jsonDecode(data['sendbird'] ?? '');
+    if (payload is Map) {
+      final channel = payload['channel'];
+      if (channel is Map && channel['channel_url'] is String) {
+        return channel['channel_url'] as String;
+      }
+    }
+  } on FormatException {
+    // Not JSON: fall through to the plain key.
+  }
+  final plain = data['channel_url'];
+  return plain == null || plain.isEmpty ? null : plain;
 }
 
 /// Maps a payload to a destination. Never fails: anything unknown or
@@ -71,7 +91,7 @@ class OpenChat extends NotificationRoute {
 /// (leagues are not part of this app yet) home.
 NotificationRoute routeForNotification(Map<String, String> data) {
   if (data.containsKey('sendbird')) {
-    return OpenChat(channelUrl: data['channel_url']);
+    return OpenChat(channelUrl: _sendbirdChannelUrl(data));
   }
   switch (data['navigation_page']) {
     case 'nnp_event_details_page' ||

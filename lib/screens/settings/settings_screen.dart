@@ -62,6 +62,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final profile = ref.watch(userProfileProvider).value;
     final session = ref.watch(sessionInfoControllerProvider);
     final user = session.user;
+    final supportChannel = user?.supportChatRoomUrl;
     final name = [
       profile?.firstName,
       profile?.lastName,
@@ -143,6 +144,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   subtitle: l10n.settingsRemindersHint,
                   onTap: () => context.push(AppRoutes.eventReminders),
                 ),
+                if (supportChannel != null && supportChannel.isNotEmpty)
+                  tile(
+                    id: SettingsTestIds.support,
+                    icon: Icons.support_agent,
+                    title: l10n.settingsSupport,
+                    subtitle: l10n.settingsSupportHint,
+                    onTap: () =>
+                        context.push(AppRoutes.chatChannelFor(supportChannel)),
+                  ),
                 tile(
                   id: SettingsTestIds.rate,
                   icon: Icons.star_outline,

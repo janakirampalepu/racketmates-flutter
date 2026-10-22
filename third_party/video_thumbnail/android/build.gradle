@@ -1,0 +1,21 @@
+group 'xyz.justsoft.video_thumbnail'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdk 36
+    namespace 'xyz.justsoft.video_thumbnail'
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    defaultConfig {
+        minSdk 21
+    }
+    lint {
+        disable 'InvalidPackage'
+    }
+}

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:racketmates/screens/chat/chat_screen.dart';
+import 'package:racketmates/screens/chat/chat_test_ids.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
 import 'package:racketmates/screens/main_shell/main_shell_test_ids.dart';
 import 'package:racketmates/screens/schedule/schedule_test_ids.dart';
@@ -25,11 +25,7 @@ void main() {
 
       await tester.tap(_id(MainShellTestIds.navChat));
       await tester.pumpAndSettle();
-      expect(_id(ChatScreen.testId), findsOneWidget);
-      expect(
-        find.text('This section is not available in this build yet.'),
-        findsOneWidget,
-      );
+      expect(_id(ChatTestIds.root), findsOneWidget);
 
       await tester.tap(_id(MainShellTestIds.navTeams));
       await tester.pumpAndSettle();

@@ -598,6 +598,30 @@ abstract class AppLocalizations {
   /// **'Chat'**
   String get navChat;
 
+  /// No description provided for @chatConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting to chat'**
+  String get chatConnecting;
+
+  /// No description provided for @chatFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat could not connect. Check your connection and try again.'**
+  String get chatFailed;
+
+  /// No description provided for @chatUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat is not available on this build.'**
+  String get chatUnavailable;
+
+  /// Spoken label of the chat tab badge.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 unread message} other{{count} unread messages}}'**
+  String navChatUnread(int count);
+
   /// No description provided for @navTeams.
   ///
   /// In en, this message translates to:
@@ -2553,6 +2577,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rate the app'**
   String get settingsRate;
+
+  /// No description provided for @settingsSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat with support'**
+  String get settingsSupport;
+
+  /// No description provided for @settingsSupportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the Racketmates team for help'**
+  String get settingsSupportHint;
 
   /// No description provided for @settingsLogout.
   ///

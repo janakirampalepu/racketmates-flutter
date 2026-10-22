@@ -43,3 +43,5 @@ Pagination follows the native schedule screens: `per_page=10`, `page` starts at 
 | Text consent | `PUT current_session/update_text_consent?text_consent=<bool>` | Android | |
 | Register device token | `POST current_session/register_device_token` — Android: form-encoded `device_token` (FCM), `platform=android`, `preferred_language`; iOS: JSON `{device_token (raw APNs hex), platform: ios, preferred_language}` | Android + iOS (they differ) | Sent only when the token or user changes. |
 | Revoke device token | `POST current_session/revoke_device_token {device_token}` | Android + iOS | Before the session is revoked on log out; failure does not block log out. |
+| Sendbird token | `GET current_session/sendbird_token` -> `{token, expires_at}` (a `data` wrapper is tolerated) | Android + iOS | Sendbird user id is the session user's `uid`. Refetched when Sendbird rejects the token. |
+| Default chat rooms | `POST current_session/setup_default_chat_rooms` | Android | Called after each successful chat connection (creates the support room). |

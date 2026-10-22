@@ -47,6 +47,7 @@ import 'package:racketmates/screens/kid_form/kid_form_screen.dart';
 import 'package:racketmates/screens/kid_form/kid_form_args.dart';
 import 'package:racketmates/screens/congratulations/congratulations_screen.dart';
 import 'package:racketmates/screens/chat/chat_screen.dart';
+import 'package:racketmates/screens/chat_channel/chat_channel_screen.dart';
 import 'package:racketmates/screens/event_details/event_details_screen.dart';
 import 'package:racketmates/screens/home/home_screen.dart';
 import 'package:racketmates/screens/main_shell/main_shell_screen.dart';
@@ -251,6 +252,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.chatChannel,
+        // Without a channel there is nothing to show: back to the chat tab.
+        redirect: (context, state) =>
+            (state.uri.queryParameters['url'] ?? '').isEmpty
+            ? AppRoutes.chat
+            : null,
+        builder: (context, state) =>
+            ChatChannelScreen(channelUrl: state.uri.queryParameters['url']!),
       ),
       GoRoute(
         path: '${AppRoutes.event}/:id',

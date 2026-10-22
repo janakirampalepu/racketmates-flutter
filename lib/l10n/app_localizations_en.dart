@@ -275,6 +275,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navChat => 'Chat';
 
   @override
+  String get chatConnecting => 'Connecting to chat';
+
+  @override
+  String get chatFailed =>
+      'Chat could not connect. Check your connection and try again.';
+
+  @override
+  String get chatUnavailable => 'Chat is not available on this build.';
+
+  @override
+  String navChatUnread(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count unread messages',
+      one: '1 unread message',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get navTeams => 'Teams';
 
   @override
@@ -1321,6 +1342,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsRate => 'Rate the app';
+
+  @override
+  String get settingsSupport => 'Chat with support';
+
+  @override
+  String get settingsSupportHint => 'Ask the Racketmates team for help';
 
   @override
   String get settingsLogout => 'Log out';

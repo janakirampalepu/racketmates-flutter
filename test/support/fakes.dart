@@ -1,7 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart' show TargetPlatform;
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:racketmates/app/config/app_environment.dart';
 import 'package:racketmates/app/config/environment_config.dart';
@@ -37,6 +38,9 @@ import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/events/models/schedule_models.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
+import 'package:racketmates/common/chat/chat_client.dart';
+import 'package:racketmates/common/chat/chat_repository.dart';
+import 'package:racketmates/common/chat/chat_ui.dart';
 import 'package:racketmates/common/media/image_picker_service.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/common/users/user_repository.dart';
@@ -48,7 +52,19 @@ const testConfig = EnvironmentConfig(
   apiVersion: 'application/vnd.test',
   oauthClientId: 'client-id',
   oauthClientSecret: 'client-secret',
+  sendbirdAppId: 'sendbird-test-app',
 );
+
+/// [testConfig] with another Sendbird application id.
+EnvironmentConfig testConfigWith({required String sendbirdAppId}) =>
+    EnvironmentConfig(
+      environment: testConfig.environment,
+      apiBaseUrl: testConfig.apiBaseUrl,
+      apiVersion: testConfig.apiVersion,
+      oauthClientId: testConfig.oauthClientId,
+      oauthClientSecret: testConfig.oauthClientSecret,
+      sendbirdAppId: sendbirdAppId,
+    );
 
 SessionToken token({
   String access = 'access-1',
@@ -747,6 +763,9 @@ List<Override> contentOverrides({
   FakePushPlatform? push,
   FakeSettingsRepository? settings,
   InMemoryPushTokenStore? pushTokens,
+  FakeChatClient? chat,
+  FakeChatRepository? chatRepository,
+  FakeChatUi? chatUi,
 }) => [
   contentRepositoryProvider.overrideWithValue(
     repository ?? FakeContentRepository(),
@@ -770,6 +789,11 @@ List<Override> contentOverrides({
   pushTokenStoreProvider.overrideWithValue(
     pushTokens ?? InMemoryPushTokenStore(),
   ),
+  chatClientProvider.overrideWithValue(chat ?? FakeChatClient()),
+  chatRepositoryProvider.overrideWithValue(
+    chatRepository ?? FakeChatRepository(),
+  ),
+  chatUiProvider.overrideWithValue(chatUi ?? FakeChatUi()),
 ];
 
 class FakePlacesRepository implements PlacesRepository {
@@ -1013,4 +1037,103 @@ class FakeCreateEventRepository implements CreateEventRepository {
     required double longitude,
     required String time,
   }) async => timezone;
+}
+
+class FakeChatRepository implements ChatRepository {
+  FakeChatRepository({this.tokens = const ['sb-token-1']});
+
+  /// Tokens handed out in turn (the last one repeats).
+  List<String> tokens;
+  AppFailure? tokenFailure;
+  AppFailure? setupFailure;
+  int tokenRequests = 0;
+  int setups = 0;
+
+  @override
+  Future<String> sendbirdToken() async {
+    final i = tokenRequests++;
+    await Future<void>.delayed(Duration.zero);
+    if (tokenFailure != null) throw tokenFailure!;
+    return tokens[i < tokens.length ? i : tokens.length - 1];
+  }
+
+  @override
+  Future<void> setupDefaultRooms() async {
+    setups++;
+    if (setupFailure != null) throw setupFailure!;
+  }
+}
+
+class FakeChatClient implements ChatClient {
+  FakeChatClient({this.initOk = true});
+
+  bool initOk;
+
+  /// Results of successive `connect` calls (the last one repeats).
+  List<ChatConnectResult> results = [ChatConnectResult.connected];
+  final List<({String userId, String token})> connects = [];
+  final List<String> registered = [];
+  final List<String> unregistered = [];
+  int inits = 0;
+  int disconnects = 0;
+  final unread = StreamController<int>.broadcast();
+  int unreadNow = 0;
+
+  @override
+  Future<bool> init(String appId) async {
+    inits++;
+    return initOk;
+  }
+
+  @override
+  Future<ChatConnectResult> connect({
+    required String userId,
+    required String token,
+  }) async {
+    final i = connects.length;
+    connects.add((userId: userId, token: token));
+    await Future<void>.delayed(Duration.zero);
+    return results[i < results.length ? i : results.length - 1];
+  }
+
+  @override
+  Future<void> disconnect() async => disconnects++;
+
+  @override
+  Future<void> registerPushToken(String token, {required bool apns}) async =>
+      registered.add(token);
+
+  @override
+  Future<void> unregisterPushToken(String token, {required bool apns}) async =>
+      unregistered.add(token);
+
+  @override
+  Stream<int> unreadCount() async* {
+    yield unreadNow;
+    yield* unread.stream;
+  }
+}
+
+/// Stands in for the Sendbird screens; shows the url and lets a test "tap" a
+/// channel.
+class FakeChatUi implements ChatUi {
+  @override
+  Widget channelList(
+    BuildContext context, {
+    required void Function(String url) onOpen,
+  }) => Scaffold(
+    body: Column(
+      children: [
+        const Text('fake channel list'),
+        TextButton(
+          onPressed: () => onOpen('channel-1'),
+          child: const Text('open channel-1'),
+        ),
+      ],
+    ),
+  );
+
+  @override
+  Widget channel(BuildContext context, {required String channelUrl}) =>
+      Scaffold(body: Text('fake channel $channelUrl'));
 }

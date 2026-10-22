@@ -37,9 +37,17 @@ Widget signedInApp({
   FakePushPlatform? push,
   FakeSettingsRepository? settings,
   InMemoryPushTokenStore? pushTokens,
+  FakeChatClient? chat,
+  FakeChatRepository? chatRepository,
+  FakeChatUi? chatUi,
+  String? sendbirdAppId,
 }) => ProviderScope(
   overrides: [
-    environmentConfigProvider.overrideWithValue(testConfig),
+    environmentConfigProvider.overrideWithValue(
+      sendbirdAppId == null
+          ? testConfig
+          : testConfigWith(sendbirdAppId: sendbirdAppId),
+    ),
     appVersionProvider.overrideWithValue('1.0.0'),
     tokenStoreProvider.overrideWithValue(
       tokenStore ??
@@ -47,7 +55,7 @@ Widget signedInApp({
             const SessionToken(
               accessToken: 'a',
               refreshToken: 'r',
-              user: SessionTokenUser(id: 7),
+              user: SessionTokenUser(id: 7, uid: 'uid-7'),
             ),
           ),
     ),
@@ -77,6 +85,9 @@ Widget signedInApp({
       push: push,
       settings: settings,
       pushTokens: pushTokens,
+      chat: chat,
+      chatRepository: chatRepository,
+      chatUi: chatUi,
       sessionInfo: sessionInfo,
       deviceTimezone: deviceTimezone,
     ),
@@ -103,6 +114,9 @@ Widget signedOutApp({
   FakePushPlatform? push,
   FakeSettingsRepository? settings,
   InMemoryPushTokenStore? pushTokens,
+  FakeChatClient? chat,
+  FakeChatRepository? chatRepository,
+  FakeChatUi? chatUi,
 }) => ProviderScope(
   overrides: [
     environmentConfigProvider.overrideWithValue(testConfig),
@@ -120,6 +134,9 @@ Widget signedOutApp({
       push: push,
       settings: settings,
       pushTokens: pushTokens,
+      chat: chat,
+      chatRepository: chatRepository,
+      chatUi: chatUi,
       sessionInfo: sessionInfo,
     ),
   ],

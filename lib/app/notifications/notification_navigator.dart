@@ -90,8 +90,11 @@ class NotificationNavigator {
           ..push(AppRoutes.teamFor(teamId));
       case OpenTeams():
         router.go(AppRoutes.teams);
-      case OpenChat():
+      case OpenChat(:final channelUrl):
         router.go(AppRoutes.chat);
+        if (channelUrl != null) {
+          router.push(AppRoutes.chatChannelFor(channelUrl));
+        }
     }
   }
 }
