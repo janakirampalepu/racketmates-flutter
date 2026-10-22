@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
-import 'package:racketmates/screens/phone_entry/phone_entry_args.dart';
 import 'package:racketmates/screens/welcome/welcome_test_ids.dart';
 
 /// Signed-out landing (native AppLanding + OnboardOptions). The marketing
@@ -47,10 +46,8 @@ class WelcomeScreen extends StatelessWidget {
                 TestId(
                   WelcomeTestIds.signInButton,
                   child: FilledButton(
-                    onPressed: () => context.push(
-                      AppRoutes.phoneEntry,
-                      extra: PhoneEntryMode.signIn,
-                    ),
+                    onPressed: () =>
+                        context.push(AppRoutes.phoneEntryFor('signIn')),
                     child: Text(l10n.signInAction),
                   ),
                 ),
@@ -58,10 +55,8 @@ class WelcomeScreen extends StatelessWidget {
                 TestId(
                   WelcomeTestIds.signUpButton,
                   child: OutlinedButton(
-                    onPressed: () => context.push(
-                      AppRoutes.phoneEntry,
-                      extra: PhoneEntryMode.signUp,
-                    ),
+                    onPressed: () =>
+                        context.push(AppRoutes.phoneEntryFor('signUp')),
                     child: Text(l10n.signUpAction),
                   ),
                 ),

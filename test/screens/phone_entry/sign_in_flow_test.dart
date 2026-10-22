@@ -8,11 +8,12 @@ import 'package:racketmates/common/auth/phone_verification_repository.dart';
 import 'package:racketmates/common/auth/token_store.dart';
 import 'package:racketmates/common/config/config_providers.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/sign_up/sign_up_flow.dart';
 import 'package:racketmates/screens/country_picker/country_picker_test_ids.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
 import 'package:racketmates/screens/otp/otp_test_ids.dart';
 import 'package:racketmates/screens/phone_entry/phone_entry_test_ids.dart';
-import 'package:racketmates/screens/sign_up/sign_up_test_ids.dart';
+import 'package:racketmates/screens/sign_up_details/sign_up_details_test_ids.dart';
 import 'package:racketmates/screens/splash/repositories/startup_repository.dart';
 import 'package:racketmates/screens/welcome/welcome_test_ids.dart';
 
@@ -27,6 +28,7 @@ Widget _app(FakePhoneVerificationRepository repo, InMemoryTokenStore store) =>
         authApiProvider.overrideWithValue(FakeAuthApi()),
         startupRepositoryProvider.overrideWithValue(FakeStartupRepository()),
         phoneVerificationRepositoryProvider.overrideWithValue(repo),
+        deviceTimezoneProvider.overrideWith((ref) async => 'UTC'),
       ],
       child: const RacketmatesApp(),
     );
@@ -113,9 +115,7 @@ void main() {
     handle.dispose();
   });
 
-  testWidgets('new number after OTP lands on the sign-up placeholder', (
-    tester,
-  ) async {
+  testWidgets('new number after OTP lands on sign-up details', (tester) async {
     final handle = tester.ensureSemantics();
     final repo = FakePhoneVerificationRepository(
       status: const MobileNumberStatus(userExist: false, isSignedUp: false),
@@ -130,7 +130,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), '123456');
     await tester.pumpAndSettle();
-    expect(_id(SignUpTestIds.root), findsOneWidget);
+    expect(_id(SignUpDetailsTestIds.root), findsOneWidget);
     handle.dispose();
   });
 

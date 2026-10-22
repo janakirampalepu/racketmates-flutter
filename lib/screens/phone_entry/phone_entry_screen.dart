@@ -53,14 +53,12 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
     final state = ref.read(phoneEntryViewModelProvider(widget.mode));
     switch (result) {
       case CodeSent(mode: final mode):
-        await context.push(
-          AppRoutes.otp,
-          extra: OtpArgs(
-            phone: state.parts,
-            country: state.country!,
-            mode: mode,
-          ),
-        );
+        ref
+            .read(pendingOtpArgsProvider.notifier)
+            .set(
+              OtpArgs(phone: state.parts, country: state.country!, mode: mode),
+            );
+        await context.push(AppRoutes.otp);
       case ModeMismatch(suggestedMode: final suggested):
         final accepted = await _confirmSwitch(suggested);
         if (accepted != true || !mounted) return;

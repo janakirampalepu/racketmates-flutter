@@ -127,4 +127,141 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signUpPlaceholder => 'Sign-up is not available in this build yet.';
+
+  @override
+  String get nextAction => 'Next';
+
+  @override
+  String get saveAction => 'Save';
+
+  @override
+  String get skipForNowAction => 'I\'ll do this later';
+
+  @override
+  String get removeAction => 'Remove';
+
+  @override
+  String get editAction => 'Edit';
+
+  @override
+  String get signUpDetailsTitle => 'Tell us about you';
+
+  @override
+  String get firstNameLabel => 'First name';
+
+  @override
+  String get lastNameLabel => 'Last name';
+
+  @override
+  String get emailLabel => 'Email (optional)';
+
+  @override
+  String get firstNameRequiredError => 'Enter your first name.';
+
+  @override
+  String get lastNameRequiredError => 'Enter your last name.';
+
+  @override
+  String get emailInvalidError => 'Enter a valid email address.';
+
+  @override
+  String get emailTakenError => 'This email is already in use.';
+
+  @override
+  String get roleSelectionTitle => 'How will you use Racketmates?';
+
+  @override
+  String get rolePlayer => 'Player';
+
+  @override
+  String get roleCoach => 'Coach';
+
+  @override
+  String get roleParent => 'Parent';
+
+  @override
+  String get roleRequiredError => 'Select at least one role.';
+
+  @override
+  String get sportsPlayerTitle => 'Which sports do you play?';
+
+  @override
+  String get sportsCoachTitle => 'Which sports do you coach?';
+
+  @override
+  String get sportBadminton => 'Badminton';
+
+  @override
+  String get sportPadel => 'Padel';
+
+  @override
+  String get sportPickleball => 'Pickleball';
+
+  @override
+  String get sportTennis => 'Tennis';
+
+  @override
+  String get sportRequiredError => 'Select at least one sport.';
+
+  @override
+  String get kidsTitle => 'Your kids';
+
+  @override
+  String get addKidAction => 'Add a kid';
+
+  @override
+  String get kidsMaxReached => 'You can add up to 2 kids.';
+
+  @override
+  String get kidFormTitle => 'Add a kid';
+
+  @override
+  String get kidMobileLabel => 'Kid\'s mobile number (optional)';
+
+  @override
+  String get kidMobileInvalidError => 'Enter a valid mobile number.';
+
+  @override
+  String get kidMobileTakenError => 'This number is already registered.';
+
+  @override
+  String get creatingAccountMessage => 'Creating your account...';
+
+  @override
+  String get profilePictureTitle => 'Add a profile picture';
+
+  @override
+  String get profilePictureHint => 'Help others recognize you.';
+
+  @override
+  String get takePhotoAction => 'Take a photo';
+
+  @override
+  String get chooseFromGalleryAction => 'Choose from gallery';
+
+  @override
+  String get uploadPhotoAction => 'Upload photo';
+
+  @override
+  String get congratulationsTitle => 'You\'re all set!';
+
+  @override
+  String congratulationsGreeting(String name) {
+    return 'Welcome, $name.';
+  }
+
+  @override
+  String get goToHomeAction => 'Take me to home';
+
+  @override
+  String get addFirstEventAction => 'Add my first event';
+
+  @override
+  String get profilePictureUploadError =>
+      'Could not upload the photo. Try again.';
+
+  @override
+  String homeGreeting(String name) {
+    return 'Hi, $name';
+  }
 }

@@ -7,6 +7,9 @@ import 'package:racketmates/common/auth/models/phone_verification.dart';
 import 'package:racketmates/common/auth/models/session_token.dart';
 import 'package:racketmates/common/auth/phone_verification_repository.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/media/image_picker_service.dart';
+import 'package:racketmates/common/users/models/app_user.dart';
+import 'package:racketmates/common/users/user_repository.dart';
 import 'package:racketmates/screens/splash/repositories/startup_repository.dart';
 
 const testConfig = EnvironmentConfig(
@@ -150,6 +153,88 @@ class FakePhoneVerificationRepository implements PhoneVerificationRepository {
     String verificationCode,
   ) async {
     signInCodes.add(verificationCode);
-    return token(access: 'signed-in');
+    return SessionToken(
+      accessToken: 'signed-in',
+      refreshToken: 'refresh-signed-in',
+      createdAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      expiresIn: 7200,
+      user: const SessionTokenUser(id: 7),
+    );
+  }
+}
+
+class FakeUserRepository implements UserRepository {
+  FakeUserRepository({
+    this.emailTaken = false,
+    this.profile = const UserDetails(
+      user: AppUser(id: 7, firstName: 'Sam', lastName: 'Lee'),
+    ),
+    this.failure,
+  });
+
+  bool emailTaken;
+  UserDetails profile;
+  AppFailure? failure;
+  final List<({String email, String displayName, int? userId})>
+  duplicateChecks = [];
+  final List<FormData> created = [];
+  final List<(int, FormData)> updated = [];
+  final List<(int, String)> avatars = [];
+
+  @override
+  Future<UserDetails> fetchUser(int id) async {
+    if (failure != null) throw failure!;
+    return profile;
+  }
+
+  @override
+  Future<bool> isEmailTaken({
+    required String email,
+    required String displayName,
+    int? userId,
+  }) async {
+    duplicateChecks.add((
+      email: email,
+      displayName: displayName,
+      userId: userId,
+    ));
+    if (failure != null) throw failure!;
+    return emailTaken;
+  }
+
+  @override
+  Future<UserDetails> createAccount(FormData form) async {
+    created.add(form);
+    if (failure != null) throw failure!;
+    return const UserDetails(
+      user: AppUser(id: 7, firstName: 'Sam', mobileNumber: '5551234567'),
+    );
+  }
+
+  @override
+  Future<UserDetails> updateUser(int id, FormData form) async {
+    updated.add((id, form));
+    if (failure != null) throw failure!;
+    return profile;
+  }
+
+  @override
+  Future<UserDetails> uploadAvatar(int id, String filePath) async {
+    avatars.add((id, filePath));
+    if (failure != null) throw failure!;
+    return profile;
+  }
+}
+
+class FakePhotoPicker implements PhotoPicker {
+  FakePhotoPicker([this.path]);
+
+  String? path;
+  final List<PhotoSource> requests = [];
+
+  @override
+  Future<String?> pick(PhotoSource source) async {
+    requests.add(source);
+    return path;
   }
 }

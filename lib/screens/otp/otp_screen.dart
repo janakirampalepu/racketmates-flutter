@@ -53,7 +53,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       stream: vm.events,
       onEvent: (event) {
         if (event is OtpSignUpNeeded) {
-          context.push(AppRoutes.signUp, extra: event.resume);
+          context.push(AppRoutes.signUp);
         }
       },
       child: Scaffold(

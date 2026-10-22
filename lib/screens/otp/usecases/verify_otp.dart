@@ -12,12 +12,19 @@ class OtpSignedIn extends OtpOutcome {
   final SessionToken token;
 }
 
-/// Verified but sign-up must be completed ([resume] = account already exists
-/// and sign-up was left unfinished). Handled by the sign-up milestone.
+/// Verified but sign-up must be completed. [resume] = the account already
+/// exists with sign-up unfinished: then [token] is the OAuth token to use for
+/// updating it. [verificationCode] is sent again with the sign-up request.
 class OtpSignUpRequired extends OtpOutcome {
-  const OtpSignUpRequired({required this.resume});
+  const OtpSignUpRequired({
+    required this.resume,
+    required this.verificationCode,
+    this.token,
+  });
 
   final bool resume;
+  final String verificationCode;
+  final SessionToken? token;
 }
 
 class OtpInvalidCode extends OtpOutcome {
@@ -35,16 +42,21 @@ class VerifyOtpUseCase {
   Future<OtpOutcome> call(PhoneNumberParts phone, String code) async {
     final response = await _repository.verifySmsCode(phone, code);
     if (response.valid != true) return const OtpInvalidCode();
+    final verificationCode = response.verificationCode ?? '';
     if (response.playerExist != true) {
-      return const OtpSignUpRequired(resume: false);
+      return OtpSignUpRequired(
+        resume: false,
+        verificationCode: verificationCode,
+      );
     }
+    final token = await _repository.signIn(phone, verificationCode);
     if (response.isSignedUp != true) {
-      return const OtpSignUpRequired(resume: true);
+      return OtpSignUpRequired(
+        resume: true,
+        verificationCode: verificationCode,
+        token: token,
+      );
     }
-    final token = await _repository.signIn(
-      phone,
-      response.verificationCode ?? '',
-    );
     return OtpSignedIn(token);
   }
 }

@@ -61,5 +61,65 @@
         "type": "int"
       }
     }
+  },
+  "nextAction": "Next",
+  "saveAction": "Save",
+  "skipForNowAction": "I'll do this later",
+  "removeAction": "Remove",
+  "editAction": "Edit",
+  "signUpDetailsTitle": "Tell us about you",
+  "firstNameLabel": "First name",
+  "lastNameLabel": "Last name",
+  "emailLabel": "Email (optional)",
+  "firstNameRequiredError": "Enter your first name.",
+  "lastNameRequiredError": "Enter your last name.",
+  "emailInvalidError": "Enter a valid email address.",
+  "emailTakenError": "This email is already in use.",
+  "roleSelectionTitle": "How will you use Racketmates?",
+  "rolePlayer": "Player",
+  "roleCoach": "Coach",
+  "roleParent": "Parent",
+  "roleRequiredError": "Select at least one role.",
+  "sportsPlayerTitle": "Which sports do you play?",
+  "sportsCoachTitle": "Which sports do you coach?",
+  "sportBadminton": "Badminton",
+  "sportPadel": "Padel",
+  "sportPickleball": "Pickleball",
+  "sportTennis": "Tennis",
+  "sportRequiredError": "Select at least one sport.",
+  "kidsTitle": "Your kids",
+  "addKidAction": "Add a kid",
+  "kidsMaxReached": "You can add up to 2 kids.",
+  "kidFormTitle": "Add a kid",
+  "kidMobileLabel": "Kid's mobile number (optional)",
+  "kidMobileInvalidError": "Enter a valid mobile number.",
+  "kidMobileTakenError": "This number is already registered.",
+  "creatingAccountMessage": "Creating your account...",
+  "profilePictureTitle": "Add a profile picture",
+  "profilePictureHint": "Help others recognize you.",
+  "takePhotoAction": "Take a photo",
+  "chooseFromGalleryAction": "Choose from gallery",
+  "uploadPhotoAction": "Upload photo",
+  "congratulationsTitle": "You're all set!",
+  "congratulationsGreeting": "Welcome, {name}.",
+  "goToHomeAction": "Take me to home",
+  "addFirstEventAction": "Add my first event",
+  "profilePictureUploadError": "Could not upload the photo. Try again.",
+  "@congratulationsGreeting": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreeting": "Hi, {name}",
+  "@homeGreeting": {
+    "description": "Placeholder greeting until the real home screen is migrated.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

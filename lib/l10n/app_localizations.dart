@@ -315,6 +315,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign-up is not available in this build yet.'**
   String get signUpPlaceholder;
+
+  /// No description provided for @nextAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get nextAction;
+
+  /// No description provided for @saveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveAction;
+
+  /// No description provided for @skipForNowAction.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ll do this later'**
+  String get skipForNowAction;
+
+  /// No description provided for @removeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get removeAction;
+
+  /// No description provided for @editAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get editAction;
+
+  /// No description provided for @signUpDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us about you'**
+  String get signUpDetailsTitle;
+
+  /// No description provided for @firstNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get firstNameLabel;
+
+  /// No description provided for @lastNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get lastNameLabel;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email (optional)'**
+  String get emailLabel;
+
+  /// No description provided for @firstNameRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your first name.'**
+  String get firstNameRequiredError;
+
+  /// No description provided for @lastNameRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your last name.'**
+  String get lastNameRequiredError;
+
+  /// No description provided for @emailInvalidError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get emailInvalidError;
+
+  /// No description provided for @emailTakenError.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already in use.'**
+  String get emailTakenError;
+
+  /// No description provided for @roleSelectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How will you use Racketmates?'**
+  String get roleSelectionTitle;
+
+  /// No description provided for @rolePlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Player'**
+  String get rolePlayer;
+
+  /// No description provided for @roleCoach.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach'**
+  String get roleCoach;
+
+  /// No description provided for @roleParent.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent'**
+  String get roleParent;
+
+  /// No description provided for @roleRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least one role.'**
+  String get roleRequiredError;
+
+  /// No description provided for @sportsPlayerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Which sports do you play?'**
+  String get sportsPlayerTitle;
+
+  /// No description provided for @sportsCoachTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Which sports do you coach?'**
+  String get sportsCoachTitle;
+
+  /// No description provided for @sportBadminton.
+  ///
+  /// In en, this message translates to:
+  /// **'Badminton'**
+  String get sportBadminton;
+
+  /// No description provided for @sportPadel.
+  ///
+  /// In en, this message translates to:
+  /// **'Padel'**
+  String get sportPadel;
+
+  /// No description provided for @sportPickleball.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickleball'**
+  String get sportPickleball;
+
+  /// No description provided for @sportTennis.
+  ///
+  /// In en, this message translates to:
+  /// **'Tennis'**
+  String get sportTennis;
+
+  /// No description provided for @sportRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least one sport.'**
+  String get sportRequiredError;
+
+  /// No description provided for @kidsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your kids'**
+  String get kidsTitle;
+
+  /// No description provided for @addKidAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a kid'**
+  String get addKidAction;
+
+  /// No description provided for @kidsMaxReached.
+  ///
+  /// In en, this message translates to:
+  /// **'You can add up to 2 kids.'**
+  String get kidsMaxReached;
+
+  /// No description provided for @kidFormTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a kid'**
+  String get kidFormTitle;
+
+  /// No description provided for @kidMobileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Kid\'s mobile number (optional)'**
+  String get kidMobileLabel;
+
+  /// No description provided for @kidMobileInvalidError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid mobile number.'**
+  String get kidMobileInvalidError;
+
+  /// No description provided for @kidMobileTakenError.
+  ///
+  /// In en, this message translates to:
+  /// **'This number is already registered.'**
+  String get kidMobileTakenError;
+
+  /// No description provided for @creatingAccountMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating your account...'**
+  String get creatingAccountMessage;
+
+  /// No description provided for @profilePictureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a profile picture'**
+  String get profilePictureTitle;
+
+  /// No description provided for @profilePictureHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Help others recognize you.'**
+  String get profilePictureHint;
+
+  /// No description provided for @takePhotoAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get takePhotoAction;
+
+  /// No description provided for @chooseFromGalleryAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get chooseFromGalleryAction;
+
+  /// No description provided for @uploadPhotoAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload photo'**
+  String get uploadPhotoAction;
+
+  /// No description provided for @congratulationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all set!'**
+  String get congratulationsTitle;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome, {name}.'**
+  String congratulationsGreeting(String name);
+
+  /// No description provided for @goToHomeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Take me to home'**
+  String get goToHomeAction;
+
+  /// No description provided for @addFirstEventAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add my first event'**
+  String get addFirstEventAction;
+
+  /// No description provided for @profilePictureUploadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload the photo. Try again.'**
+  String get profilePictureUploadError;
+
+  /// Placeholder greeting until the real home screen is migrated.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi, {name}'**
+  String homeGreeting(String name);
 }
 
 class _AppLocalizationsDelegate

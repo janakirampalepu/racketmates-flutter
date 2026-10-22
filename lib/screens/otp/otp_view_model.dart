@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:racketmates/common/auth/phone_verification_repository.dart';
 import 'package:racketmates/common/auth/session_controller.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/sign_up/sign_up_flow.dart';
 import 'package:racketmates/screens/otp/otp_args.dart';
 import 'package:racketmates/screens/otp/otp_state.dart';
 import 'package:racketmates/screens/otp/usecases/verify_otp.dart';
@@ -72,7 +73,26 @@ class OtpViewModel extends Notifier<OtpState> {
           // The router redirects to home once the session is signed in.
           await ref.read(sessionControllerProvider.notifier).signedIn(token);
           state = state.copyWith(loading: false);
-        case OtpSignUpRequired(resume: final resume):
+        case OtpSignUpRequired(
+          resume: final resume,
+          verificationCode: final verificationCode,
+          token: final token,
+        ):
+          final timezone = await ref.read(deviceTimezoneProvider.future);
+          // Start the flow BEFORE persisting a resumed session so the router
+          // keeps the user in the sign-up screens.
+          ref
+              .read(signUpFlowProvider.notifier)
+              .start(
+                phone: args.phone,
+                verificationCode: verificationCode,
+                resume: resume,
+                userId: token?.user?.id,
+                timezone: timezone,
+              );
+          if (token != null) {
+            await ref.read(sessionControllerProvider.notifier).signedIn(token);
+          }
           state = state.copyWith(loading: false, code: '');
           _events.add(OtpSignUpNeeded(resume: resume));
         case OtpInvalidCode():

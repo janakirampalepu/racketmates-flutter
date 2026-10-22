@@ -33,15 +33,21 @@ void main() {
 
   test('valid code for a new number requires sign-up', () async {
     final repo = FakePhoneVerificationRepository(
-      verifyResult: const SmsCodePayload(valid: true, playerExist: false),
+      verifyResult: const SmsCodePayload(
+        valid: true,
+        playerExist: false,
+        verificationCode: 'new',
+      ),
     );
     final outcome = await VerifyOtpUseCase(repo)(_phone, '123456');
-    expect((outcome as OtpSignUpRequired).resume, isFalse);
+    final required = outcome as OtpSignUpRequired;
+    expect(required.resume, isFalse);
+    expect(required.token, isNull);
     expect(repo.signInCodes, isEmpty);
   });
 
   test(
-    'existing player who never finished sign-up resumes it, without signing in',
+    'existing player who never finished sign-up resumes it with a fresh token',
     () async {
       final repo = FakePhoneVerificationRepository(
         verifyResult: const SmsCodePayload(
@@ -52,8 +58,11 @@ void main() {
         ),
       );
       final outcome = await VerifyOtpUseCase(repo)(_phone, '123456');
-      expect((outcome as OtpSignUpRequired).resume, isTrue);
-      expect(repo.signInCodes, isEmpty);
+      final required = outcome as OtpSignUpRequired;
+      expect(required.resume, isTrue);
+      expect(required.verificationCode, 'v');
+      expect(required.token?.accessToken, 'signed-in');
+      expect(repo.signInCodes, ['v']);
     },
   );
 }
