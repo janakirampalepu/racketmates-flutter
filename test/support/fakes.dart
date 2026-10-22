@@ -43,6 +43,8 @@ import 'package:racketmates/common/billing/billing_platform.dart';
 import 'package:racketmates/common/billing/subscription_prompt.dart';
 import 'package:racketmates/common/billing/subscription_repository.dart';
 import 'package:racketmates/common/links/external_links.dart';
+import 'package:racketmates/common/share/share_service.dart';
+import 'package:racketmates/common/support/support_repository.dart';
 import 'package:racketmates/common/location/location_platform.dart';
 import 'package:racketmates/common/location/user_location.dart';
 import 'package:racketmates/common/chat/chat_client.dart';
@@ -279,6 +281,91 @@ class FakeUserRepository implements UserRepository {
     if (failure != null) throw failure!;
     return profile;
   }
+
+  final List<(int, Map<String, dynamic>)> profileUpdates = [];
+  final List<int> removedAvatars = [];
+
+  AppUser _with(AppUser u, {String? first, String? last, String? email}) =>
+      AppUser(
+        id: u.id,
+        uid: u.uid,
+        uuid: u.uuid,
+        firstName: first ?? u.firstName,
+        lastName: last ?? u.lastName,
+        mobileNumber: u.mobileNumber,
+        email: email ?? u.email,
+        roles: u.roles,
+        userRoles: u.userRoles,
+        country: u.country,
+        // No photo once removed: tests set avatarFileAttachmentUrl up front.
+        avatarFileAttachmentUrl: u.avatarFileAttachmentUrl,
+        thumbnailAttachmentUrl: u.thumbnailAttachmentUrl,
+      );
+
+  @override
+  Future<UserDetails> updateProfile(int id, Map<String, dynamic> body) async {
+    profileUpdates.add((id, body));
+    if (failure != null) throw failure!;
+    final user = body['user'] as Map<String, dynamic>;
+    profile = UserDetails(
+      user: _with(
+        profile.user!,
+        first: user['first_name'] as String?,
+        last: user['last_name'] as String?,
+        email: user['email'] as String?,
+      ),
+    );
+    return profile;
+  }
+
+  @override
+  Future<void> removeAvatar(int id) async {
+    removedAvatars.add(id);
+    if (failure != null) throw failure!;
+    final u = profile.user!;
+    profile = UserDetails(
+      user: AppUser(
+        id: u.id,
+        uid: u.uid,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        mobileNumber: u.mobileNumber,
+        email: u.email,
+      ),
+    );
+  }
+}
+
+class FakeSupportRepository implements SupportRepository {
+  AppFailure? failure;
+  final List<
+    ({String email, String subject, String feedback, String? mobileNumber})
+  >
+  sent = [];
+
+  @override
+  Future<void> sendFeedback({
+    required String email,
+    required String subject,
+    required String feedback,
+    String? mobileNumber,
+  }) async {
+    await Future<void>.delayed(Duration.zero);
+    if (failure != null) throw failure!;
+    sent.add((
+      email: email,
+      subject: subject,
+      feedback: feedback,
+      mobileNumber: mobileNumber,
+    ));
+  }
+}
+
+class FakeShareService implements ShareService {
+  final List<String> shared = [];
+
+  @override
+  Future<void> shareText(String text) async => shared.add(text);
 }
 
 class FakePhotoPicker implements PhotoPicker {
@@ -784,6 +871,9 @@ List<Override> contentOverrides({
   InMemoryPromptStore? promptStore,
   FakeLocationPlatform? location,
   InMemoryDistanceStore? distanceStore,
+  FakeSupportRepository? support,
+  FakeShareService? share,
+  FakePhotoPicker? photoPicker,
 }) => [
   contentRepositoryProvider.overrideWithValue(
     repository ?? FakeContentRepository(),
@@ -826,6 +916,11 @@ List<Override> contentOverrides({
   distanceFilterStoreProvider.overrideWithValue(
     distanceStore ?? InMemoryDistanceStore(),
   ),
+  supportRepositoryProvider.overrideWithValue(
+    support ?? FakeSupportRepository(),
+  ),
+  shareServiceProvider.overrideWithValue(share ?? FakeShareService()),
+  if (photoPicker != null) photoPickerProvider.overrideWithValue(photoPicker),
 ];
 
 class FakePlacesRepository implements PlacesRepository {

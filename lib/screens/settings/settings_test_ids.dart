@@ -5,6 +5,10 @@ abstract final class SettingsTestIds {
   static const subscription = 'settings_subscription_status';
   static const subscriptionTile = 'settings_subscription_tile';
   static const locations = 'settings_locations_tile';
+  static const profile = 'settings_profile_tile';
+  static const share = 'settings_share_tile';
+  static const contact = 'settings_contact_tile';
+  static const deleteAccount = 'settings_delete_account_tile';
   static const notifications = 'settings_notifications_tile';
   static const reminders = 'settings_reminders_tile';
   static const rate = 'settings_rate_tile';

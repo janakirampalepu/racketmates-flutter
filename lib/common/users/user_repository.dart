@@ -20,6 +20,12 @@ abstract class UserRepository {
 
   /// `PUT users/{id}` with the multipart field `user[avatar_file]`.
   Future<UserDetails> uploadAvatar(int id, String filePath);
+
+  /// `PUT users/{id}` with the profile body of `buildProfileUpdateBody`.
+  Future<UserDetails> updateProfile(int id, Map<String, dynamic> body);
+
+  /// `DELETE users/{id}/destroy_profile_image`.
+  Future<void> removeAvatar(int id);
 }
 
 class UserRepositoryImpl implements UserRepository {
@@ -59,6 +65,13 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<UserDetails> updateUser(int id, FormData form) =>
       _guard(() => api.updateUser(id, form));
+
+  @override
+  Future<UserDetails> updateProfile(int id, Map<String, dynamic> body) =>
+      _guard(() => api.updateProfile(id, body));
+
+  @override
+  Future<void> removeAvatar(int id) => _guard(() => api.removeAvatar(id));
 
   @override
   Future<UserDetails> uploadAvatar(int id, String filePath) async {

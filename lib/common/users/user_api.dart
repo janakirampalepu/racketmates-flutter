@@ -34,4 +34,15 @@ abstract class UserApi {
   @PUT('users/{id}')
   @MultiPart()
   Future<UserDetails> updateUser(@Path('id') int id, @Body() FormData form);
+
+  /// `PUT users/{id}` with a JSON body (name, email, roles) as the native
+  /// profile editor sends it.
+  @PUT('users/{id}')
+  Future<UserDetails> updateProfile(
+    @Path('id') int id,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @DELETE('users/{id}/destroy_profile_image')
+  Future<void> removeAvatar(@Path('id') int id);
 }

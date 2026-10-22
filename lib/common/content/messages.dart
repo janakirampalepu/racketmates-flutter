@@ -55,6 +55,17 @@ abstract final class MessageKeys {
   static const homeUpdatesTitle = 'home_page.latest_updates_title';
   static const homeUpdatesEmpty = 'home_page.latest_updates_no_updates_title';
 
+  // settings.share_with_friends_strings
+  static const shareTitle = 'settings.share_with_friends_strings.title';
+  static const shareText = 'settings.share_with_friends_strings.sub_text';
+  static const shareAction = 'settings.share_with_friends_strings.share_button';
+  static const shareCopy =
+      'settings.share_with_friends_strings.copy_link_button';
+  static const shareCopied =
+      'settings.share_with_friends_strings.copied_link_message';
+  static const shareMessage =
+      'settings.share_with_friends_strings.share_message_text';
+
   // settings.subscription
   static const subProTitle = 'settings.subscription.pro_text';
   static const subUpgrade = 'settings.subscription.upgrade_now_button';

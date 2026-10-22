@@ -64,7 +64,11 @@ import 'package:racketmates/screens/team_details/team_details_screen.dart';
 import 'package:racketmates/screens/team_settings/team_settings_screen.dart';
 import 'package:racketmates/screens/event_reminders/event_reminders_screen.dart';
 import 'package:racketmates/screens/notification_settings/notification_settings_screen.dart';
+import 'package:racketmates/screens/contact_us/contact_us_screen.dart';
+import 'package:racketmates/screens/delete_account/delete_account_screen.dart';
+import 'package:racketmates/screens/profile/profile_screen.dart';
 import 'package:racketmates/screens/settings/settings_screen.dart';
+import 'package:racketmates/screens/share/share_screen.dart';
 import 'package:racketmates/screens/teams/teams_screen.dart';
 import 'package:racketmates/screens/otp/otp_args.dart';
 import 'package:racketmates/screens/otp/otp_screen.dart';
@@ -499,6 +503,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.settings,
         builder: (context, state) => const SettingsScreen(),
         routes: [
+          GoRoute(
+            path: 'profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: 'share',
+            builder: (context, state) => const ShareScreen(),
+          ),
+          GoRoute(
+            path: 'contact',
+            builder: (context, state) => const ContactUsScreen(),
+          ),
+          GoRoute(
+            path: 'delete-account',
+            builder: (context, state) => const DeleteAccountScreen(),
+          ),
           GoRoute(
             path: 'notifications',
             builder: (context, state) => const NotificationSettingsScreen(),

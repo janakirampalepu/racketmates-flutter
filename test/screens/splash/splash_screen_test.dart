@@ -18,6 +18,7 @@ import 'package:racketmates/screens/splash/splash_test_ids.dart';
 import 'package:racketmates/screens/settings/settings_test_ids.dart';
 import 'package:racketmates/screens/welcome/welcome_test_ids.dart';
 
+import '../../support/app_harness.dart' show useTallScreen;
 import '../../support/fakes.dart';
 
 class _FakeLauncher implements StoreLauncher {
@@ -84,6 +85,7 @@ void main() {
     'persisted session: splash resolves to home, sign out returns to welcome',
     (tester) async {
       final handle = tester.ensureSemantics();
+      useTallScreen(tester); // the settings list is longer than a phone
       await tester.pumpWidget(_app(store: InMemoryTokenStore(token())));
       await tester.pumpAndSettle();
       expect(find.bySemanticsIdentifier(HomeTestIds.root), findsOneWidget);

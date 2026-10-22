@@ -1628,6 +1628,185 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsRemindersHint => 'When to be reminded before an event';
 
   @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get profileFirstName => 'First name';
+
+  @override
+  String get profileLastName => 'Last name';
+
+  @override
+  String get profileEmail => 'Email (optional)';
+
+  @override
+  String get profilePhone => 'Mobile number';
+
+  @override
+  String get profilePhoneHint => 'To change your number, contact support.';
+
+  @override
+  String get profileFirstNameRequired => 'Enter your first name.';
+
+  @override
+  String get profileLastNameRequired => 'Enter your last name.';
+
+  @override
+  String get profileEmailInvalid => 'Enter a valid email address.';
+
+  @override
+  String get profileEmailTaken => 'This email is already in use.';
+
+  @override
+  String get profileSave => 'Save';
+
+  @override
+  String get profileSaved => 'Profile updated.';
+
+  @override
+  String get profileSaveFailed =>
+      'The profile could not be saved. Please try again.';
+
+  @override
+  String get profilePhotoChange => 'Change photo';
+
+  @override
+  String get profilePhotoAdd => 'Add photo';
+
+  @override
+  String get profilePhotoRemove => 'Remove photo';
+
+  @override
+  String get profilePhotoCamera => 'Take a photo';
+
+  @override
+  String get profilePhotoGallery => 'Choose from gallery';
+
+  @override
+  String get profilePhotoUpdated => 'Photo updated.';
+
+  @override
+  String get profilePhotoRemoved => 'Photo removed.';
+
+  @override
+  String get profilePhotoFailed =>
+      'The photo could not be updated. Please try again.';
+
+  @override
+  String get profileLoadError => 'Your profile could not be loaded.';
+
+  @override
+  String get settingsProfile => 'Profile';
+
+  @override
+  String get settingsProfileHint => 'Your name, email and photo';
+
+  @override
+  String get settingsShare => 'Share with friends';
+
+  @override
+  String get settingsShareHint => 'Invite friends to Racketmates';
+
+  @override
+  String get settingsContact => 'Contact us';
+
+  @override
+  String get settingsContactHint => 'Send a message to the Racketmates team';
+
+  @override
+  String get settingsDeleteAccount => 'Delete account';
+
+  @override
+  String get settingsDeleteAccountHint => 'Ask for your account to be deleted';
+
+  @override
+  String get shareTitle => 'Invite your friends';
+
+  @override
+  String get shareText =>
+      'Racketmates is better with friends. Share the app and play together.';
+
+  @override
+  String get shareAction => 'Share';
+
+  @override
+  String get shareCopy => 'Copy link';
+
+  @override
+  String get shareCopied => 'Link copied.';
+
+  @override
+  String get shareMessage => 'Join me on Racketmates:';
+
+  @override
+  String get contactTitle => 'Contact us';
+
+  @override
+  String get contactEmail => 'Email';
+
+  @override
+  String get contactSubject => 'Subject';
+
+  @override
+  String get contactQuestion => 'Your question';
+
+  @override
+  String get contactSubmit => 'Send';
+
+  @override
+  String get contactSent => 'Thank you. We will get back to you.';
+
+  @override
+  String get contactFailed =>
+      'Your message could not be sent. Please try again.';
+
+  @override
+  String get contactEmailRequired => 'Enter your email address.';
+
+  @override
+  String get contactEmailInvalid => 'Enter a valid email address.';
+
+  @override
+  String get contactSubjectRequired => 'Enter a subject.';
+
+  @override
+  String get contactQuestionRequired => 'Write your question.';
+
+  @override
+  String get deleteTitle => 'Delete account';
+
+  @override
+  String get deleteText =>
+      'Deleting your account removes your profile and your data. This cannot be undone.';
+
+  @override
+  String get deleteSubscription =>
+      'You have an active subscription. Deleting your account does not cancel it: manage it in the store first.';
+
+  @override
+  String get deleteManageSubscription => 'Manage subscription';
+
+  @override
+  String get deleteAction => 'Delete my account';
+
+  @override
+  String get deleteConfirmText =>
+      'Are you sure you want to delete your account?';
+
+  @override
+  String get deleteCancel => 'Cancel';
+
+  @override
+  String get deleteProcessing =>
+      'Your request was sent. We will delete your account and you will be signed out.';
+
+  @override
+  String get deleteOk => 'OK';
+
+  @override
+  String get deleteFailed => 'The request could not be sent. Please try again.';
+
+  @override
   String get settingsRate => 'Rate the app';
 
   @override

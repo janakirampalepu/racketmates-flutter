@@ -3070,6 +3070,348 @@ abstract class AppLocalizations {
   /// **'When to be reminded before an event'**
   String get settingsRemindersHint;
 
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
+
+  /// No description provided for @profileFirstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get profileFirstName;
+
+  /// No description provided for @profileLastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get profileLastName;
+
+  /// No description provided for @profileEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email (optional)'**
+  String get profileEmail;
+
+  /// No description provided for @profilePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number'**
+  String get profilePhone;
+
+  /// No description provided for @profilePhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'To change your number, contact support.'**
+  String get profilePhoneHint;
+
+  /// No description provided for @profileFirstNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your first name.'**
+  String get profileFirstNameRequired;
+
+  /// No description provided for @profileLastNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your last name.'**
+  String get profileLastNameRequired;
+
+  /// No description provided for @profileEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get profileEmailInvalid;
+
+  /// No description provided for @profileEmailTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already in use.'**
+  String get profileEmailTaken;
+
+  /// No description provided for @profileSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get profileSave;
+
+  /// No description provided for @profileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated.'**
+  String get profileSaved;
+
+  /// No description provided for @profileSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The profile could not be saved. Please try again.'**
+  String get profileSaveFailed;
+
+  /// No description provided for @profilePhotoChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change photo'**
+  String get profilePhotoChange;
+
+  /// No description provided for @profilePhotoAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add photo'**
+  String get profilePhotoAdd;
+
+  /// No description provided for @profilePhotoRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove photo'**
+  String get profilePhotoRemove;
+
+  /// No description provided for @profilePhotoCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get profilePhotoCamera;
+
+  /// No description provided for @profilePhotoGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get profilePhotoGallery;
+
+  /// No description provided for @profilePhotoUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo updated.'**
+  String get profilePhotoUpdated;
+
+  /// No description provided for @profilePhotoRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo removed.'**
+  String get profilePhotoRemoved;
+
+  /// No description provided for @profilePhotoFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo could not be updated. Please try again.'**
+  String get profilePhotoFailed;
+
+  /// No description provided for @profileLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile could not be loaded.'**
+  String get profileLoadError;
+
+  /// No description provided for @settingsProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get settingsProfile;
+
+  /// No description provided for @settingsProfileHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name, email and photo'**
+  String get settingsProfileHint;
+
+  /// No description provided for @settingsShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share with friends'**
+  String get settingsShare;
+
+  /// No description provided for @settingsShareHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite friends to Racketmates'**
+  String get settingsShareHint;
+
+  /// No description provided for @settingsContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact us'**
+  String get settingsContact;
+
+  /// No description provided for @settingsContactHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a message to the Racketmates team'**
+  String get settingsContactHint;
+
+  /// No description provided for @settingsDeleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get settingsDeleteAccount;
+
+  /// No description provided for @settingsDeleteAccountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for your account to be deleted'**
+  String get settingsDeleteAccountHint;
+
+  /// No description provided for @shareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite your friends'**
+  String get shareTitle;
+
+  /// No description provided for @shareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Racketmates is better with friends. Share the app and play together.'**
+  String get shareText;
+
+  /// No description provided for @shareAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareAction;
+
+  /// No description provided for @shareCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get shareCopy;
+
+  /// No description provided for @shareCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied.'**
+  String get shareCopied;
+
+  /// No description provided for @shareMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Join me on Racketmates:'**
+  String get shareMessage;
+
+  /// No description provided for @contactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact us'**
+  String get contactTitle;
+
+  /// No description provided for @contactEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get contactEmail;
+
+  /// No description provided for @contactSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get contactSubject;
+
+  /// No description provided for @contactQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Your question'**
+  String get contactQuestion;
+
+  /// No description provided for @contactSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get contactSubmit;
+
+  /// No description provided for @contactSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you. We will get back to you.'**
+  String get contactSent;
+
+  /// No description provided for @contactFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your message could not be sent. Please try again.'**
+  String get contactFailed;
+
+  /// No description provided for @contactEmailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address.'**
+  String get contactEmailRequired;
+
+  /// No description provided for @contactEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get contactEmailInvalid;
+
+  /// No description provided for @contactSubjectRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a subject.'**
+  String get contactSubjectRequired;
+
+  /// No description provided for @contactQuestionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your question.'**
+  String get contactQuestionRequired;
+
+  /// No description provided for @deleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get deleteTitle;
+
+  /// No description provided for @deleteText.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting your account removes your profile and your data. This cannot be undone.'**
+  String get deleteText;
+
+  /// No description provided for @deleteSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'You have an active subscription. Deleting your account does not cancel it: manage it in the store first.'**
+  String get deleteSubscription;
+
+  /// No description provided for @deleteManageSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage subscription'**
+  String get deleteManageSubscription;
+
+  /// No description provided for @deleteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get deleteAction;
+
+  /// No description provided for @deleteConfirmText.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete your account?'**
+  String get deleteConfirmText;
+
+  /// No description provided for @deleteCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get deleteCancel;
+
+  /// No description provided for @deleteProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Your request was sent. We will delete your account and you will be signed out.'**
+  String get deleteProcessing;
+
+  /// No description provided for @deleteOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get deleteOk;
+
+  /// No description provided for @deleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The request could not be sent. Please try again.'**
+  String get deleteFailed;
+
   /// No description provided for @settingsRate.
   ///
   /// In en, this message translates to:

@@ -161,6 +161,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   onTap: () => context.push(AppRoutes.locations),
                 ),
                 tile(
+                  id: SettingsTestIds.profile,
+                  icon: Icons.person_outline,
+                  title: l10n.settingsProfile,
+                  subtitle: l10n.settingsProfileHint,
+                  onTap: () => context.push(AppRoutes.profile),
+                ),
+                tile(
                   id: SettingsTestIds.notifications,
                   icon: Icons.notifications_outlined,
                   title: l10n.settingsNotifications,
@@ -184,12 +191,34 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         context.push(AppRoutes.chatChannelFor(supportChannel)),
                   ),
                 tile(
+                  id: SettingsTestIds.share,
+                  icon: Icons.ios_share,
+                  title: l10n.settingsShare,
+                  subtitle: l10n.settingsShareHint,
+                  onTap: () => context.push(AppRoutes.shareWithFriends),
+                ),
+                if (supportChannel == null || supportChannel.isEmpty)
+                  tile(
+                    id: SettingsTestIds.contact,
+                    icon: Icons.mail_outline,
+                    title: l10n.settingsContact,
+                    subtitle: l10n.settingsContactHint,
+                    onTap: () => context.push(AppRoutes.contactUs),
+                  ),
+                tile(
                   id: SettingsTestIds.rate,
                   icon: Icons.star_outline,
                   title: l10n.settingsRate,
                   onTap: () => ref.read(storeLauncherProvider).openStorePage(),
                 ),
                 const Divider(),
+                tile(
+                  id: SettingsTestIds.deleteAccount,
+                  icon: Icons.delete_forever_outlined,
+                  title: l10n.settingsDeleteAccount,
+                  subtitle: l10n.settingsDeleteAccountHint,
+                  onTap: () => context.push(AppRoutes.deleteAccount),
+                ),
                 tile(
                   id: SettingsTestIds.logout,
                   icon: Icons.logout,

@@ -19,6 +19,10 @@ abstract final class AppRoutes {
   static const settings = '/settings';
   static const notificationSettings = '/settings/notifications';
   static const eventReminders = '/settings/reminders';
+  static const profile = '/settings/profile';
+  static const shareWithFriends = '/settings/share';
+  static const contactUs = '/settings/contact';
+  static const deleteAccount = '/settings/delete-account';
   static const team = '/team';
   static const createTeam = '/create-team';
   static const createTeamMembers = '/create-team/members';
