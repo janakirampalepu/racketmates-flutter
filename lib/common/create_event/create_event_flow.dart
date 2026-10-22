@@ -7,6 +7,7 @@ import 'package:racketmates/common/create_event/scoring.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
+import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 
 enum WhenWhereError { venueRequired, startRequired, startInPast }
@@ -61,9 +62,23 @@ class CreateEventFlow extends Notifier<EventDraft?> {
     _draft.eventType,
     current,
     assignNow: _draft.assignNow,
+    forTeam: _draft.forTeam ?? false,
   );
 
   void setSport(SportKey sport) => state = _fresh(_draft.eventType, sport);
+
+  // --- Team events ---------------------------------------------------------
+
+  /// Choosing "not a team event" forgets a team picked earlier.
+  void setForTeam({required bool value}) {
+    final d = _draft;
+    state = d.copyWith(forTeam: () => value, team: value ? null : () => null);
+  }
+
+  void setTeam(Team team) => state = _draft.copyWith(team: () => team);
+
+  void setConsiderForTeamRanking({required bool value}) =>
+      state = _draft.copyWith(considerForTeamRanking: value);
 
   void setAttendanceType(String type) =>
       state = _draft.copyWith(attendanceUnitType: type, attendanceUnit: 1);

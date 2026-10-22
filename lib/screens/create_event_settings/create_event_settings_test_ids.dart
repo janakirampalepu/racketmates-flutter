@@ -23,4 +23,5 @@ abstract final class CreateEventSettingsTestIds {
 
   /// `create_event_deciding_set_<key>`.
   static String decidingSet(String key) => 'create_event_deciding_set_$key';
+  static const considerRanking = 'create_event_consider_ranking_switch';
 }

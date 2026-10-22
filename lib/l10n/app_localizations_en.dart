@@ -875,4 +875,152 @@ class AppLocalizationsEn extends AppLocalizations {
   String createReviewMatchLine(int number, String type) {
     return 'Match $number: $type';
   }
+
+  @override
+  String get teamsEmptyTitle => 'No teams yet';
+
+  @override
+  String get teamsEmptyBody =>
+      'Create a team to organize events with your players.';
+
+  @override
+  String get teamsLoadError => 'We couldn\'t load your teams.';
+
+  @override
+  String get createTeamAction => 'Create team';
+
+  @override
+  String teamMembersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count members',
+      one: '1 member',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teamTypeCasual => 'Casual';
+
+  @override
+  String get teamTypeCompetitive => 'Competitive';
+
+  @override
+  String get teamDetailsMembers => 'Members';
+
+  @override
+  String get teamMembersEmpty => 'No members yet.';
+
+  @override
+  String get teamMembersLoadError => 'We couldn\'t load the members.';
+
+  @override
+  String get teamDetailsLoadError => 'We couldn\'t load this team.';
+
+  @override
+  String get teamRoleCaptain => 'Captain';
+
+  @override
+  String get teamRolePlayer => 'Player';
+
+  @override
+  String get teamRoleCoach => 'Coach';
+
+  @override
+  String get teamDetailsSports => 'Sports';
+
+  @override
+  String get teamDetailsType => 'Type';
+
+  @override
+  String get createTeamTitle => 'New team';
+
+  @override
+  String get createTeamNameLabel => 'Team name';
+
+  @override
+  String get createTeamNameRequired => 'Enter a team name.';
+
+  @override
+  String get createTeamTypeLabel => 'Team type';
+
+  @override
+  String get createTeamTypeRequired => 'Choose a team type.';
+
+  @override
+  String get createTeamSportsLabel => 'Sports';
+
+  @override
+  String get createTeamSportRequired => 'Choose at least one sport.';
+
+  @override
+  String get createTeamRankingLabel => 'Player ranking';
+
+  @override
+  String get createTeamRankingHint =>
+      'Rank players by their results in team events.';
+
+  @override
+  String get createTeamParticipatingLabel => 'You take part as';
+
+  @override
+  String get createTeamParticipatingHint =>
+      'You are the team captain. You can also play or coach.';
+
+  @override
+  String get createTeamMembersTitle => 'Add team members';
+
+  @override
+  String get createTeamMembersHint =>
+      'Search people and choose their role in the team.';
+
+  @override
+  String get createTeamMembersSearchHint => 'Search people';
+
+  @override
+  String get createTeamMembersEmpty => 'No people found.';
+
+  @override
+  String get createTeamSubmitAction => 'Create team';
+
+  @override
+  String get createTeamFailed => 'We couldn\'t create the team. Try again.';
+
+  @override
+  String get createTeamCreated => 'Team created.';
+
+  @override
+  String get createTeamChoiceTitle => 'Is this a team event?';
+
+  @override
+  String get createTeamChoiceNonTeam => 'Not a team event';
+
+  @override
+  String get createTeamChoiceNonTeamHint => 'Invite players yourself.';
+
+  @override
+  String get createTeamChoiceTeam => 'Team event';
+
+  @override
+  String get createTeamChoiceTeamHint => 'Invite members of one of your teams.';
+
+  @override
+  String get createTeamSelectTitle => 'Which team?';
+
+  @override
+  String get createTeamSelectRequired => 'Choose a team.';
+
+  @override
+  String get createTeamSelectEmpty =>
+      'You are not the captain of a team that plays this sport.';
+
+  @override
+  String get createTeamSelectCreate => 'Create a team';
+
+  @override
+  String get createReviewTeam => 'Team';
+
+  @override
+  String get createRankingLabel => 'Count towards team ranking';
 }

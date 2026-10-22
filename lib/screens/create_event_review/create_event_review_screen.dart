@@ -71,6 +71,12 @@ class CreateEventReviewScreen extends ConsumerWidget {
             l10n.createReviewSport,
             sportLabel(l10n, draft.sport!),
           ),
+        if (draft.forTeam == true && draft.team != null)
+          _Row(
+            CreateEventReviewTestIds.summaryTeam,
+            l10n.createReviewTeam,
+            draft.team?.name ?? '',
+          ),
         _Row(CreateEventReviewTestIds.summaryWhen, l10n.createDateLabel, when),
         _Row(
           CreateEventReviewTestIds.summaryWhere,

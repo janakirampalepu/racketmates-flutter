@@ -2,6 +2,7 @@ import 'package:racketmates/common/create_event/match_draft.dart';
 import 'package:racketmates/common/create_event/scoring.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
+import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 
 /// How an event type is built in the wizard (native `eventTypeHasMatches`,
@@ -71,6 +72,8 @@ final supportedEventTypes = eventTypeSpecs.keys.toSet();
 enum CreateEventStep {
   type,
   sport,
+  teamChoice,
+  teamSelect,
   settings,
   coaches,
   players,
@@ -89,6 +92,25 @@ enum CreateEventStep {
 List<CreateEventStep> createEventStepsFor(
   String? eventType, {
   bool assignNow = false,
+  bool forTeam = false,
+}) {
+  // The team choice follows the sport (or the type when there is no sport).
+  final steps = _stepsWithoutTeam(eventType, assignNow: assignNow);
+  final after = steps.contains(CreateEventStep.sport)
+      ? CreateEventStep.sport
+      : CreateEventStep.type;
+  final at = steps.indexOf(after) + 1;
+  return [
+    ...steps.take(at),
+    CreateEventStep.teamChoice,
+    if (forTeam) CreateEventStep.teamSelect,
+    ...steps.skip(at),
+  ];
+}
+
+List<CreateEventStep> _stepsWithoutTeam(
+  String? eventType, {
+  required bool assignNow,
 }) {
   final spec = eventTypeSpecs[eventType];
   if (spec != null && spec.hasMatches) {
@@ -138,8 +160,13 @@ CreateEventStep? nextCreateEventStep(
   String? eventType,
   CreateEventStep current, {
   bool assignNow = false,
+  bool forTeam = false,
 }) {
-  final steps = createEventStepsFor(eventType, assignNow: assignNow);
+  final steps = createEventStepsFor(
+    eventType,
+    assignNow: assignNow,
+    forTeam: forTeam,
+  );
   final i = steps.indexOf(current);
   return (i < 0 || i + 1 >= steps.length) ? null : steps[i + 1];
 }
@@ -185,6 +212,9 @@ class EventDraft {
     this.gameType = MatchKeys.gameDoubles,
     this.partnershipType = MatchKeys.partnersRotating,
     this.eventSubType,
+    this.forTeam,
+    this.team,
+    this.considerForTeamRanking = true,
   });
 
   final String? eventType;
@@ -237,6 +267,15 @@ class EventDraft {
   /// `est_manual`).
   final String? eventSubType;
 
+  /// Team or non-team event; null until chosen.
+  final bool? forTeam;
+
+  /// The team (one the user captains) a team event is for.
+  final Team? team;
+
+  /// Round robins of a team can count towards its player ranking.
+  final bool considerForTeamRanking;
+
   EventDraft copyWith({
     String? eventType,
     SportKey? sport,
@@ -262,6 +301,9 @@ class EventDraft {
     String? gameType,
     String? Function()? partnershipType,
     String? Function()? eventSubType,
+    bool? Function()? forTeam,
+    Team? Function()? team,
+    bool? considerForTeamRanking,
   }) => EventDraft(
     eventType: eventType ?? this.eventType,
     sport: sport ?? this.sport,
@@ -293,6 +335,10 @@ class EventDraft {
         ? partnershipType()
         : this.partnershipType,
     eventSubType: eventSubType != null ? eventSubType() : this.eventSubType,
+    forTeam: forTeam != null ? forTeam() : this.forTeam,
+    team: team != null ? team() : this.team,
+    considerForTeamRanking:
+        considerForTeamRanking ?? this.considerForTeamRanking,
   );
 
   EventTypeSpec? get spec => eventTypeSpecs[eventType];

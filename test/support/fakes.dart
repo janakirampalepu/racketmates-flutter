@@ -12,6 +12,8 @@ import 'package:racketmates/common/content/content_controller.dart';
 import 'package:racketmates/common/content/content_repository.dart';
 import 'package:racketmates/common/content/reference_data.dart';
 import 'package:racketmates/common/create_event/create_event_api.dart';
+import 'package:racketmates/common/teams/team_models.dart';
+import 'package:racketmates/common/teams/teams_repository.dart';
 import 'package:racketmates/common/create_event/create_event_repository.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/places/place_models.dart';
@@ -521,6 +523,90 @@ class FakePlacesRepository implements PlacesRepository {
   }
 }
 
+class FakeTeamsRepository implements TeamsRepository {
+  FakeTeamsRepository({
+    this.teams = const [],
+    this.captain = const [],
+    this.membersByTeam = const {},
+  });
+
+  List<Team> teams;
+  List<Team> captain;
+  Map<int, List<TeamPlayer>> membersByTeam;
+  bool failing = false;
+  bool membersFail = false;
+  AppFailure? createFailure;
+  Map<String, dynamic>? created;
+  int createdId = 900;
+  final List<List<String>> myTeamsRequests = [];
+  final List<({String? sport, List<String> userIds})> captainRequests = [];
+  final List<({int team, String query, String? role, String? sport})>
+  memberSearches = [];
+
+  @override
+  Future<List<Team>> myTeams({required List<String> userIds}) async {
+    myTeamsRequests.add(userIds);
+    await Future<void>.delayed(Duration.zero);
+    if (failing) throw const OfflineFailure();
+    return teams;
+  }
+
+  @override
+  Future<List<Team>> captainTeams({
+    required List<String> userIds,
+    String? sportKey,
+    String query = '',
+  }) async {
+    captainRequests.add((sport: sportKey, userIds: userIds));
+    await Future<void>.delayed(Duration.zero);
+    if (failing) throw const OfflineFailure();
+    return captain;
+  }
+
+  @override
+  Future<Team> details(int id) async {
+    await Future<void>.delayed(Duration.zero);
+    if (failing) throw const OfflineFailure();
+    return [...teams, ...captain].firstWhere((t) => t.id == id);
+  }
+
+  @override
+  Future<List<TeamPlayer>> members(
+    int teamId, {
+    String query = '',
+    String? role,
+    String? sportKey,
+  }) async {
+    memberSearches.add((
+      team: teamId,
+      query: query,
+      role: role,
+      sport: sportKey,
+    ));
+    await Future<void>.delayed(Duration.zero);
+    if (membersFail) throw const OfflineFailure();
+    return [
+      for (final m in membersByTeam[teamId] ?? const <TeamPlayer>[])
+        if ((query.isEmpty ||
+                (m.user?.displayName ?? '').toLowerCase().contains(
+                  query.toLowerCase(),
+                )) &&
+            (role == null ||
+                (role == 'ur_player' && (m.isPlayer ?? false)) ||
+                (role == 'ur_coach' && (m.isCoach ?? false))))
+          m,
+    ];
+  }
+
+  @override
+  Future<Team> create(Map<String, dynamic> body) async {
+    await Future<void>.delayed(Duration.zero);
+    if (createFailure != null) throw createFailure!;
+    created = body;
+    return Team(id: createdId);
+  }
+}
+
 class FakeCreateEventRepository implements CreateEventRepository {
   FakeCreateEventRepository({
     this.players = const [],
@@ -560,6 +646,7 @@ class FakeCreateEventRepository implements CreateEventRepository {
     required String query,
     String? role,
     String? sportKey,
+    List<String>? sportKeys,
   }) async {
     searches.add((query: query, role: role, sport: sportKey));
     await Future<void>.delayed(Duration.zero);

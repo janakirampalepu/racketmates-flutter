@@ -395,5 +395,58 @@
         "type": "String"
       }
     }
-  }
+  },
+  "teamsEmptyTitle": "No teams yet",
+  "teamsEmptyBody": "Create a team to organize events with your players.",
+  "teamsLoadError": "We couldn't load your teams.",
+  "createTeamAction": "Create team",
+  "teamMembersCount": "{count, plural, =1{1 member} other{{count} members}}",
+  "@teamMembersCount": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teamTypeCasual": "Casual",
+  "teamTypeCompetitive": "Competitive",
+  "teamDetailsMembers": "Members",
+  "teamMembersEmpty": "No members yet.",
+  "teamMembersLoadError": "We couldn't load the members.",
+  "teamDetailsLoadError": "We couldn't load this team.",
+  "teamRoleCaptain": "Captain",
+  "teamRolePlayer": "Player",
+  "teamRoleCoach": "Coach",
+  "teamDetailsSports": "Sports",
+  "teamDetailsType": "Type",
+  "createTeamTitle": "New team",
+  "createTeamNameLabel": "Team name",
+  "createTeamNameRequired": "Enter a team name.",
+  "createTeamTypeLabel": "Team type",
+  "createTeamTypeRequired": "Choose a team type.",
+  "createTeamSportsLabel": "Sports",
+  "createTeamSportRequired": "Choose at least one sport.",
+  "createTeamRankingLabel": "Player ranking",
+  "createTeamRankingHint": "Rank players by their results in team events.",
+  "createTeamParticipatingLabel": "You take part as",
+  "createTeamParticipatingHint": "You are the team captain. You can also play or coach.",
+  "createTeamMembersTitle": "Add team members",
+  "createTeamMembersHint": "Search people and choose their role in the team.",
+  "createTeamMembersSearchHint": "Search people",
+  "createTeamMembersEmpty": "No people found.",
+  "createTeamSubmitAction": "Create team",
+  "createTeamFailed": "We couldn't create the team. Try again.",
+  "createTeamCreated": "Team created.",
+  "createTeamChoiceTitle": "Is this a team event?",
+  "createTeamChoiceNonTeam": "Not a team event",
+  "createTeamChoiceNonTeamHint": "Invite players yourself.",
+  "createTeamChoiceTeam": "Team event",
+  "createTeamChoiceTeamHint": "Invite members of one of your teams.",
+  "createTeamSelectTitle": "Which team?",
+  "createTeamSelectRequired": "Choose a team.",
+  "createTeamSelectEmpty": "You are not the captain of a team that plays this sport.",
+  "createTeamSelectCreate": "Create a team",
+  "createReviewTeam": "Team",
+  "createRankingLabel": "Count towards team ranking"
 }

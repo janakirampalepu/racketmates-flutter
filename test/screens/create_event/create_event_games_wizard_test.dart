@@ -14,6 +14,7 @@ import 'package:racketmates/screens/create_event_round_robin_format/create_event
 import 'package:racketmates/screens/create_event_settings/create_event_settings_test_ids.dart';
 import 'package:racketmates/screens/create_event_slot_picker/create_event_slot_picker_test_ids.dart';
 import 'package:racketmates/screens/create_event_sport/create_event_sport_test_ids.dart';
+import 'package:racketmates/screens/create_event_team_choice/create_event_team_choice_test_ids.dart';
 import 'package:racketmates/screens/create_event_success/create_event_success_test_ids.dart';
 import 'package:racketmates/screens/create_event_type/create_event_type_test_ids.dart';
 import 'package:racketmates/screens/create_event_when_where/create_event_when_where_test_ids.dart';
@@ -97,9 +98,15 @@ Future<void> _openWizard(WidgetTester tester, String type) async {
   await _tap(tester, CreateEventTypeTestIds.type(type));
 }
 
+Future<void> _throughTeamChoice(WidgetTester tester) async {
+  await _tap(tester, CreateEventTeamChoiceTestIds.nonTeam);
+  await _tap(tester, CreateEventTeamChoiceTestIds.next);
+}
+
 Future<void> _throughSport(WidgetTester tester) async {
   await _tap(tester, CreateEventSportTestIds.sport('st_tennis'));
   await _tap(tester, CreateEventSportTestIds.next);
+  await _throughTeamChoice(tester);
 }
 
 Future<void> _throughWhenWhere(
@@ -193,6 +200,7 @@ void main() {
     await _openWizard(tester, 'et_competitive');
     await _tap(tester, CreateEventSportTestIds.sport('st_pickleball'));
     await _tap(tester, CreateEventSportTestIds.next);
+    await _throughTeamChoice(tester);
     expect(
       _id(CreateEventSettingsTestIds.decidingSet('dst_tie_break')),
       findsNothing,

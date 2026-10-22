@@ -19,6 +19,8 @@ import 'package:racketmates/screens/create_event_matches/create_event_matches_sc
 import 'package:racketmates/screens/create_event_round_robin_format/create_event_round_robin_format_screen.dart';
 import 'package:racketmates/screens/create_event_slot_picker/create_event_slot_picker_screen.dart';
 import 'package:racketmates/screens/create_event_review/create_event_review_screen.dart';
+import 'package:racketmates/screens/create_event_team_choice/create_event_team_choice_screen.dart';
+import 'package:racketmates/screens/create_event_team_select/create_event_team_select_screen.dart';
 import 'package:racketmates/screens/create_event_invite_settings/create_event_invite_settings_screen.dart';
 import 'package:racketmates/screens/create_event_when_where/create_event_when_where_screen.dart';
 import 'package:racketmates/screens/create_event_coaches/create_event_coaches_screen.dart';
@@ -39,6 +41,9 @@ import 'package:racketmates/screens/event_details/event_details_screen.dart';
 import 'package:racketmates/screens/home/home_screen.dart';
 import 'package:racketmates/screens/main_shell/main_shell_screen.dart';
 import 'package:racketmates/screens/schedule/schedule_screen.dart';
+import 'package:racketmates/screens/create_team/create_team_screen.dart';
+import 'package:racketmates/screens/create_team_members/create_team_members_screen.dart';
+import 'package:racketmates/screens/team_details/team_details_screen.dart';
 import 'package:racketmates/screens/teams/teams_screen.dart';
 import 'package:racketmates/screens/otp/otp_args.dart';
 import 'package:racketmates/screens/otp/otp_screen.dart';
@@ -236,6 +241,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const CreateEventSportScreen(),
           ),
           GoRoute(
+            path: 'team-choice',
+            builder: (context, state) => const CreateEventTeamChoiceScreen(),
+          ),
+          GoRoute(
+            path: 'team-select',
+            builder: (context, state) => const CreateEventTeamSelectScreen(),
+          ),
+          GoRoute(
             path: 'settings',
             builder: (context, state) => const CreateEventSettingsScreen(),
           ),
@@ -298,6 +311,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => CreateEventSuccessScreen(
               eventId: int.tryParse(state.uri.queryParameters['eventId'] ?? ''),
             ),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '${AppRoutes.team}/:id',
+        // A malformed id (e.g. from a bad deep link) falls back to the teams tab.
+        redirect: (context, state) =>
+            int.tryParse(state.pathParameters['id'] ?? '') == null
+            ? AppRoutes.teams
+            : null,
+        builder: (context, state) =>
+            TeamDetailsScreen(teamId: int.parse(state.pathParameters['id']!)),
+      ),
+      GoRoute(
+        path: AppRoutes.createTeam,
+        builder: (context, state) => const CreateTeamScreen(),
+        routes: [
+          GoRoute(
+            path: 'members',
+            builder: (context, state) => const CreateTeamMembersScreen(),
           ),
         ],
       ),

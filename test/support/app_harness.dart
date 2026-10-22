@@ -10,6 +10,7 @@ import 'package:racketmates/common/config/config_providers.dart';
 import 'package:racketmates/common/create_event/create_event_repository.dart';
 import 'package:racketmates/common/events/event_actions_repository.dart';
 import 'package:racketmates/common/places/places_repository.dart';
+import 'package:racketmates/common/teams/teams_repository.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/users/user_repository.dart';
 import 'package:racketmates/screens/splash/repositories/startup_repository.dart';
@@ -26,6 +27,7 @@ Widget signedInApp({
   InMemoryContentCache? contentCache,
   FakePlacesRepository? places,
   FakeCreateEventRepository? createEvent,
+  FakeTeamsRepository? teams,
 }) => ProviderScope(
   overrides: [
     environmentConfigProvider.overrideWithValue(testConfig),
@@ -55,6 +57,7 @@ Widget signedInApp({
     createEventRepositoryProvider.overrideWithValue(
       createEvent ?? FakeCreateEventRepository(),
     ),
+    teamsRepositoryProvider.overrideWithValue(teams ?? FakeTeamsRepository()),
     ...contentOverrides(repository: content, cache: contentCache),
   ],
   child: const RacketmatesApp(),

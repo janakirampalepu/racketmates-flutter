@@ -113,6 +113,16 @@ class CreateEventSettingsScreen extends ConsumerWidget {
             onChanged: (v) => flow.setAllowManage(value: v),
           ),
         ),
+        if (draft.forTeam == true && (draft.spec?.isRoundRobin ?? false))
+          TestId(
+            CreateEventSettingsTestIds.considerRanking,
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.createRankingLabel),
+              value: draft.considerForTeamRanking,
+              onChanged: (v) => flow.setConsiderForTeamRanking(value: v),
+            ),
+          ),
         if (scored) ...[
           TestId(
             CreateEventSettingsTestIds.allowLogResults,

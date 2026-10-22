@@ -16,6 +16,7 @@ import 'package:racketmates/screens/create_event_players/create_event_players_te
 import 'package:racketmates/screens/create_event_review/create_event_review_test_ids.dart';
 import 'package:racketmates/screens/create_event_settings/create_event_settings_test_ids.dart';
 import 'package:racketmates/screens/create_event_sport/create_event_sport_test_ids.dart';
+import 'package:racketmates/screens/create_event_team_choice/create_event_team_choice_test_ids.dart';
 import 'package:racketmates/screens/create_event_success/create_event_success_test_ids.dart';
 import 'package:racketmates/screens/create_event_type/create_event_type_test_ids.dart';
 import 'package:racketmates/screens/create_event_when_where/create_event_when_where_test_ids.dart';
@@ -134,6 +135,13 @@ Future<void> _openWizard(WidgetTester tester) async {
   expect(_id(CreateEventTypeTestIds.root), findsOneWidget);
 }
 
+Future<void> _throughTeamChoice(WidgetTester tester) async {
+  await tester.tap(_id(CreateEventTeamChoiceTestIds.nonTeam));
+  await tester.pumpAndSettle();
+  await tester.tap(_id(CreateEventTeamChoiceTestIds.next));
+  await tester.pumpAndSettle();
+}
+
 Future<void> _throughSport(WidgetTester tester) async {
   await tester.tap(_id(CreateEventTypeTestIds.type('et_practice_drill')));
   await tester.pumpAndSettle();
@@ -141,6 +149,7 @@ Future<void> _throughSport(WidgetTester tester) async {
   await tester.pumpAndSettle();
   await tester.tap(_id(CreateEventSportTestIds.next));
   await tester.pumpAndSettle();
+  await _throughTeamChoice(tester);
 }
 
 Future<void> _throughSettings(WidgetTester tester) async {
@@ -553,6 +562,8 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(_id(CreateEventSportTestIds.next));
         await tester.pumpAndSettle();
+        await check(); // team choice
+        await _throughTeamChoice(tester);
         await check(); // settings
         await _throughSettings(tester);
         await check(); // players
@@ -581,6 +592,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(_id(CreateEventSportTestIds.next));
       await tester.pumpAndSettle();
+      await _throughTeamChoice(tester);
       await _throughSettings(tester);
 
       expect(_id(CreateEventCoachesTestIds.root), findsOneWidget);
@@ -610,6 +622,8 @@ void main() {
     await tester.tap(_id(CreateEventTypeTestIds.type('et_casual_meeting')));
     await tester.pumpAndSettle();
     expect(_id(CreateEventSportTestIds.root), findsNothing);
+    expect(_id(CreateEventTeamChoiceTestIds.root), findsOneWidget);
+    await _throughTeamChoice(tester);
     expect(_id(CreateEventSettingsTestIds.next), findsOneWidget);
     await _throughSettings(tester);
 

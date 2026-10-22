@@ -6,6 +6,7 @@ import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/create_event/create_event_flow.dart';
+import 'package:racketmates/common/create_event/event_draft.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
 import 'package:racketmates/common/sign_up/sport_labels.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
@@ -28,7 +29,13 @@ class CreateEventSportScreen extends ConsumerWidget {
       primaryId: CreateEventSportTestIds.next,
       onPrimary: selected == null
           ? null
-          : () => context.push(AppRoutes.createEventSettings),
+          : () => context.push(
+              AppRoutes.routeForStep(
+                ref
+                    .read(createEventFlowProvider.notifier)
+                    .next(CreateEventStep.sport)!,
+              ),
+            ),
       onBack: () => context.pop(),
       children: [
         RadioGroup<SportKey>(

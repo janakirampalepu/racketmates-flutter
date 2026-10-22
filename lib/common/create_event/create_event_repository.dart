@@ -11,11 +11,13 @@ abstract class CreateEventRepository {
   Future<EventDetailsResponse> create(Map<String, dynamic> body);
 
   /// Users matching [query] with role [role] (`ur_player`, `ur_coach`; null =
-  /// any), limited to those who play [sportKey] (`st_tennis`) when given.
+  /// any), limited to those who play [sportKey] (`st_tennis`) and any of
+  /// [sportKeys] when given.
   Future<List<AppUser>> searchUsers({
     required String query,
     String? role,
     String? sportKey,
+    List<String>? sportKeys,
   });
 
   /// Scoring formats a sport offers for an event type.
@@ -57,15 +59,18 @@ class CreateEventRepositoryImpl implements CreateEventRepository {
     required String query,
     String? role,
     String? sportKey,
-  }) async =>
-      (await _guard(
-        () => api.searchUsers(
-          search: query.trim(),
-          roles: role == null ? null : [role],
-          sportTypes: sportKey == null ? null : [sportKey],
-        ),
-      )).users ??
-      const [];
+    List<String>? sportKeys,
+  }) async {
+    final sports = [?sportKey, ...?sportKeys];
+    final response = await _guard(
+      () => api.searchUsers(
+        search: query.trim(),
+        roles: role == null ? null : [role],
+        sportTypes: sports.isEmpty ? null : sports,
+      ),
+    );
+    return response.users ?? const [];
+  }
 
   @override
   Future<ScoringFormatsResponse> scoringFormats({

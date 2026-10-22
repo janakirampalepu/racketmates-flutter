@@ -1,0 +1,10 @@
+{
+  "team": {
+    "id": 31,
+    "name": "Sunday Smashers",
+    "team_type": "tt_competitive",
+    "team_players_count": 12,
+    "team_sports": [{ "id": 1, "sport_type": "st_tennis" }]
+  },
+  "is_captain": true
+}

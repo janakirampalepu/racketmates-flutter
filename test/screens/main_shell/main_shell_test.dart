@@ -3,7 +3,7 @@ import 'package:racketmates/screens/chat/chat_screen.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
 import 'package:racketmates/screens/main_shell/main_shell_test_ids.dart';
 import 'package:racketmates/screens/schedule/schedule_test_ids.dart';
-import 'package:racketmates/screens/teams/teams_screen.dart';
+import 'package:racketmates/screens/teams/teams_test_ids.dart';
 
 import '../../support/app_harness.dart';
 
@@ -33,7 +33,7 @@ void main() {
 
       await tester.tap(_id(MainShellTestIds.navTeams));
       await tester.pumpAndSettle();
-      expect(_id(TeamsScreen.testId), findsOneWidget);
+      expect(_id(TeamsTestIds.root), findsOneWidget);
 
       await tester.tap(_id(MainShellTestIds.navHome));
       await tester.pumpAndSettle();

@@ -1,0 +1,28 @@
+{
+  "teams": [
+    {
+      "id": 31,
+      "name": "Sunday Smashers",
+      "team_type": "tt_competitive",
+      "archived": false,
+      "captain_name": "Alex Kim",
+      "team_players_count": 12,
+      "team_sports": [
+        { "id": 1, "sport_type": "st_tennis" },
+        { "id": 2, "sport_type": "st_padel" }
+      ],
+      "enable_player_ranking": true,
+      "future_events_count": 2,
+      "unknown_new_field": "ignored"
+    },
+    null,
+    {
+      "id": 32,
+      "name": "Friday Casuals",
+      "team_type": "tt_casual",
+      "member_count": 1,
+      "team_sports": [{ "id": 3, "sport_type": "st_pickleball" }]
+    }
+  ],
+  "meta": { "total": 2, "archived_count": 0 }
+}

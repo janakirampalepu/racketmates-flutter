@@ -64,6 +64,7 @@ class _FakeCreateEventRepository implements CreateEventRepository {
     required String query,
     String? role,
     String? sportKey,
+    List<String>? sportKeys,
   }) async => const [];
 
   @override
@@ -393,6 +394,7 @@ void main() {
       expect(createEventStepsFor('et_practice_drill'), [
         CreateEventStep.type,
         CreateEventStep.sport,
+        CreateEventStep.teamChoice,
         CreateEventStep.settings,
         CreateEventStep.players,
         CreateEventStep.whenWhere,
@@ -423,6 +425,10 @@ void main() {
     test('next step skips what the type does not need', () {
       expect(
         nextCreateEventStep('et_casual_meeting', CreateEventStep.type),
+        CreateEventStep.teamChoice,
+      );
+      expect(
+        nextCreateEventStep('et_casual_meeting', CreateEventStep.teamChoice),
         CreateEventStep.settings,
       );
       expect(

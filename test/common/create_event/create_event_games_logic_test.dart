@@ -83,6 +83,7 @@ void main() {
       expect(createEventStepsFor('et_competitive'), [
         CreateEventStep.type,
         CreateEventStep.sport,
+        CreateEventStep.teamChoice,
         CreateEventStep.settings,
         CreateEventStep.matches,
         CreateEventStep.whenWhere,
@@ -94,6 +95,7 @@ void main() {
       expect(createEventStepsFor('et_casual', assignNow: true), [
         CreateEventStep.type,
         CreateEventStep.sport,
+        CreateEventStep.teamChoice,
         CreateEventStep.settings,
         CreateEventStep.matches,
         CreateEventStep.whenWhere,
@@ -107,6 +109,7 @@ void main() {
       expect(createEventStepsFor('et_round_robin'), [
         CreateEventStep.type,
         CreateEventStep.sport,
+        CreateEventStep.teamChoice,
         CreateEventStep.settings,
         CreateEventStep.matches,
         CreateEventStep.roundRobinFormat,
@@ -314,7 +317,7 @@ void main() {
       ]);
       expect(
         event['screen_flow_path'],
-        'es_event_type_selection##es_sports_type##es_general_settings##'
+        'es_event_type_selection##es_sports_type##es_team_non_team##es_general_settings##'
         'es_courts_addition##es_court_options##es_court_player_assign_type##'
         'es_invite_player_settings##es_invite_players_mgmt##es_review',
       );

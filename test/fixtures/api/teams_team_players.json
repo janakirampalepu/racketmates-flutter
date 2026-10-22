@@ -1,0 +1,21 @@
+{
+  "team_players": [
+    {
+      "id": 501,
+      "user_id": 8,
+      "status": "active",
+      "is_captain": true,
+      "is_player": true,
+      "is_coach": false,
+      "user": { "id": 8, "first_name": "Alex", "last_name": "Kim" }
+    },
+    {
+      "id": 502,
+      "user_id": 9,
+      "is_captain": false,
+      "is_player": false,
+      "is_coach": true,
+      "user": { "id": 9, "first_name": "Pat", "last_name": "Lee" }
+    }
+  ]
+}

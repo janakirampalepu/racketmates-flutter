@@ -1725,6 +1725,276 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Match {number}: {type}'**
   String createReviewMatchLine(int number, String type);
+
+  /// No description provided for @teamsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No teams yet'**
+  String get teamsEmptyTitle;
+
+  /// No description provided for @teamsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a team to organize events with your players.'**
+  String get teamsEmptyBody;
+
+  /// No description provided for @teamsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load your teams.'**
+  String get teamsLoadError;
+
+  /// No description provided for @createTeamAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create team'**
+  String get createTeamAction;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 member} other{{count} members}}'**
+  String teamMembersCount(int count);
+
+  /// No description provided for @teamTypeCasual.
+  ///
+  /// In en, this message translates to:
+  /// **'Casual'**
+  String get teamTypeCasual;
+
+  /// No description provided for @teamTypeCompetitive.
+  ///
+  /// In en, this message translates to:
+  /// **'Competitive'**
+  String get teamTypeCompetitive;
+
+  /// No description provided for @teamDetailsMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get teamDetailsMembers;
+
+  /// No description provided for @teamMembersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No members yet.'**
+  String get teamMembersEmpty;
+
+  /// No description provided for @teamMembersLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load the members.'**
+  String get teamMembersLoadError;
+
+  /// No description provided for @teamDetailsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load this team.'**
+  String get teamDetailsLoadError;
+
+  /// No description provided for @teamRoleCaptain.
+  ///
+  /// In en, this message translates to:
+  /// **'Captain'**
+  String get teamRoleCaptain;
+
+  /// No description provided for @teamRolePlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Player'**
+  String get teamRolePlayer;
+
+  /// No description provided for @teamRoleCoach.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach'**
+  String get teamRoleCoach;
+
+  /// No description provided for @teamDetailsSports.
+  ///
+  /// In en, this message translates to:
+  /// **'Sports'**
+  String get teamDetailsSports;
+
+  /// No description provided for @teamDetailsType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get teamDetailsType;
+
+  /// No description provided for @createTeamTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New team'**
+  String get createTeamTitle;
+
+  /// No description provided for @createTeamNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Team name'**
+  String get createTeamNameLabel;
+
+  /// No description provided for @createTeamNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a team name.'**
+  String get createTeamNameRequired;
+
+  /// No description provided for @createTeamTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Team type'**
+  String get createTeamTypeLabel;
+
+  /// No description provided for @createTeamTypeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a team type.'**
+  String get createTeamTypeRequired;
+
+  /// No description provided for @createTeamSportsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sports'**
+  String get createTeamSportsLabel;
+
+  /// No description provided for @createTeamSportRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least one sport.'**
+  String get createTeamSportRequired;
+
+  /// No description provided for @createTeamRankingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Player ranking'**
+  String get createTeamRankingLabel;
+
+  /// No description provided for @createTeamRankingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank players by their results in team events.'**
+  String get createTeamRankingHint;
+
+  /// No description provided for @createTeamParticipatingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'You take part as'**
+  String get createTeamParticipatingLabel;
+
+  /// No description provided for @createTeamParticipatingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the team captain. You can also play or coach.'**
+  String get createTeamParticipatingHint;
+
+  /// No description provided for @createTeamMembersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add team members'**
+  String get createTeamMembersTitle;
+
+  /// No description provided for @createTeamMembersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search people and choose their role in the team.'**
+  String get createTeamMembersHint;
+
+  /// No description provided for @createTeamMembersSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search people'**
+  String get createTeamMembersSearchHint;
+
+  /// No description provided for @createTeamMembersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No people found.'**
+  String get createTeamMembersEmpty;
+
+  /// No description provided for @createTeamSubmitAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create team'**
+  String get createTeamSubmitAction;
+
+  /// No description provided for @createTeamFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t create the team. Try again.'**
+  String get createTeamFailed;
+
+  /// No description provided for @createTeamCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Team created.'**
+  String get createTeamCreated;
+
+  /// No description provided for @createTeamChoiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Is this a team event?'**
+  String get createTeamChoiceTitle;
+
+  /// No description provided for @createTeamChoiceNonTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a team event'**
+  String get createTeamChoiceNonTeam;
+
+  /// No description provided for @createTeamChoiceNonTeamHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite players yourself.'**
+  String get createTeamChoiceNonTeamHint;
+
+  /// No description provided for @createTeamChoiceTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Team event'**
+  String get createTeamChoiceTeam;
+
+  /// No description provided for @createTeamChoiceTeamHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite members of one of your teams.'**
+  String get createTeamChoiceTeamHint;
+
+  /// No description provided for @createTeamSelectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Which team?'**
+  String get createTeamSelectTitle;
+
+  /// No description provided for @createTeamSelectRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a team.'**
+  String get createTeamSelectRequired;
+
+  /// No description provided for @createTeamSelectEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not the captain of a team that plays this sport.'**
+  String get createTeamSelectEmpty;
+
+  /// No description provided for @createTeamSelectCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a team'**
+  String get createTeamSelectCreate;
+
+  /// No description provided for @createReviewTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Team'**
+  String get createReviewTeam;
+
+  /// No description provided for @createRankingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Count towards team ranking'**
+  String get createRankingLabel;
 }
 
 class _AppLocalizationsDelegate

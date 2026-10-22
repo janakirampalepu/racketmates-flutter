@@ -9,8 +9,13 @@ abstract final class AppRoutes {
   static const teams = '/teams';
   static const event = '/event';
   static const places = '/places';
+  static const team = '/team';
+  static const createTeam = '/create-team';
+  static const createTeamMembers = '/create-team/members';
   static const createEvent = '/create-event';
   static const createEventSport = '/create-event/sport';
+  static const createEventTeamChoice = '/create-event/team-choice';
+  static const createEventTeamSelect = '/create-event/team-select';
   static const createEventSettings = '/create-event/settings';
   static const createEventCoaches = '/create-event/coaches';
   static const createEventPlayers = '/create-event/players';
@@ -28,6 +33,8 @@ abstract final class AppRoutes {
   static String routeForStep(CreateEventStep step) => switch (step) {
     CreateEventStep.type => createEvent,
     CreateEventStep.sport => createEventSport,
+    CreateEventStep.teamChoice => createEventTeamChoice,
+    CreateEventStep.teamSelect => createEventTeamSelect,
     CreateEventStep.settings => createEventSettings,
     CreateEventStep.coaches => createEventCoaches,
     CreateEventStep.players => createEventPlayers,
@@ -66,6 +73,7 @@ abstract final class AppRoutes {
         ).toString();
 
   static String eventFor(int id) => '$event/$id';
+  static String teamFor(int id) => '$team/$id';
   static const appUpdate = '/app-update';
   static const phoneEntry = '/phone-entry';
   static const countryPicker = '/country-picker';
@@ -110,6 +118,9 @@ abstract final class AppRoutes {
   static bool isProtected(String location) =>
       const {home, schedule, chat, teams}.contains(location) ||
       location.startsWith('$event/') ||
+      location.startsWith('$team/') ||
+      location == createTeam ||
+      location == createTeamMembers ||
       location == places ||
       isCreateEvent(location);
 }

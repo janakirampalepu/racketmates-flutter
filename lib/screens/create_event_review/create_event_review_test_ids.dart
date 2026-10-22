@@ -13,4 +13,5 @@ abstract final class CreateEventReviewTestIds {
 
   /// `create_event_summary_match_<index>` (0-based).
   static String summaryMatch(int index) => 'create_event_review_match_$index';
+  static const summaryTeam = 'create_event_review_team';
 }

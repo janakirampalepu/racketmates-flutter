@@ -5,6 +5,7 @@ import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/create_event/create_event_repository.dart';
 import 'package:racketmates/common/create_event/people_kind.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/teams/teams_repository.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 
 class PeopleSearchState {
@@ -39,7 +40,8 @@ const playerSearchDebounce = Duration(milliseconds: 400);
 
 /// Searches users for a people step (native `getListOfEventPlayers`:
 /// `users?search=&roles[]=<role>&sport_types[]=<sport>`), shared by the coach
-/// and player/attendee screens.
+/// and player/attendee screens. Team events search the team's members
+/// (`teams/{id}/team_players`) instead.
 class PeopleSearchViewModel extends Notifier<PeopleSearchState> {
   PeopleSearchViewModel(this.kind);
 
@@ -66,13 +68,26 @@ class PeopleSearchViewModel extends Notifier<PeopleSearchState> {
     final token = ++_token;
     state = state.copyWith(loading: true, failure: () => null);
     try {
-      final users = await ref
-          .read(createEventRepositoryProvider)
-          .searchUsers(
-            query: state.query,
-            role: kind.roleFor(draft),
-            sportKey: kind.sportFor(draft),
-          );
+      final role = kind.roleFor(draft);
+      final sport = kind.sportFor(draft);
+      final teamId = draft.forTeam == true ? draft.team?.id : null;
+      // A team event invites from the team's members, not everyone.
+      final users = teamId != null
+          ? [
+              for (final m
+                  in await ref
+                      .read(teamsRepositoryProvider)
+                      .members(
+                        teamId,
+                        query: state.query,
+                        role: role,
+                        sportKey: sport,
+                      ))
+                ?m.user,
+            ]
+          : await ref
+                .read(createEventRepositoryProvider)
+                .searchUsers(query: state.query, role: role, sportKey: sport);
       if (!ref.mounted || token != _token) return;
       state = state.copyWith(results: users, loading: false);
     } on AppFailure catch (failure) {
