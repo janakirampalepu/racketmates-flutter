@@ -2115,6 +2115,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The opponent team assigns its own players.'**
   String get createOpponentSideNote;
+
+  /// No description provided for @createLessonAssignTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is the lesson for?'**
+  String get createLessonAssignTitle;
+
+  /// No description provided for @createLessonAssignOne.
+  ///
+  /// In en, this message translates to:
+  /// **'One player'**
+  String get createLessonAssignOne;
+
+  /// No description provided for @createLessonAssignOneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the player now.'**
+  String get createLessonAssignOneHint;
+
+  /// No description provided for @createLessonAssignMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Several players'**
+  String get createLessonAssignMany;
+
+  /// No description provided for @createLessonAssignManyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite players; the first to accept gets the lesson.'**
+  String get createLessonAssignManyHint;
+
+  /// No description provided for @createSinglePlayerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the player'**
+  String get createSinglePlayerTitle;
+
+  /// No description provided for @createCoachesMaxHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose up to two coaches.'**
+  String get createCoachesMaxHint;
 }
 
 class _AppLocalizationsDelegate

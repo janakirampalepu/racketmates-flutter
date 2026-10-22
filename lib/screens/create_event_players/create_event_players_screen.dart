@@ -18,14 +18,16 @@ class CreateEventPlayersScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final audience =
-        ref.watch(createEventFlowProvider)?.spec?.participantsAreAudience ??
-        false;
+    final draft = ref.watch(createEventFlowProvider);
+    final audience = draft?.spec?.participantsAreAudience ?? false;
+    final single = draft?.maxInvitees == 1;
     return PeopleStep(
       kind: PeopleKind.players,
       ids: CreateEventPlayersTestIds.ids,
       title: audience
           ? l10n.createPeopleTitle
+          : single
+          ? l10n.createSinglePlayerTitle
           : ref.msg(MessageKeys.createPlayersTitle, l10n.createPlayersTitle),
       searchHint: l10n.createPlayersSearchHint,
       emptyText: l10n.createPlayersEmpty,

@@ -33,6 +33,7 @@ class _CreateEventAssignTypeScreenState
     final draft = ref.watch(createEventFlowProvider) ?? const EventDraft();
     final flow = ref.read(createEventFlowProvider.notifier);
     final scheme = Theme.of(context).colorScheme;
+    final lesson = draft.spec?.individualLesson ?? false;
 
     Widget option({
       required String id,
@@ -67,7 +68,7 @@ class _CreateEventAssignTypeScreenState
     return StepScaffold(
       rootId: CreateEventAssignTypeTestIds.root,
       titleId: CreateEventAssignTypeTestIds.title,
-      title: l10n.createAssignTypeTitle,
+      title: lesson ? l10n.createLessonAssignTitle : l10n.createAssignTypeTitle,
       primaryLabel: ref.msg(MessageKeys.buttonNext, l10n.nextAction),
       primaryId: CreateEventAssignTypeTestIds.next,
       onPrimary: () {
@@ -86,15 +87,19 @@ class _CreateEventAssignTypeScreenState
       children: [
         option(
           id: CreateEventAssignTypeTestIds.assignNow,
-          title: l10n.createAssignNow,
-          subtitle: l10n.createAssignNowHint,
+          title: lesson ? l10n.createLessonAssignOne : l10n.createAssignNow,
+          subtitle: lesson
+              ? l10n.createLessonAssignOneHint
+              : l10n.createAssignNowHint,
           selected: draft.assignNow,
           onTap: () => flow.setAssignNow(value: true),
         ),
         option(
           id: CreateEventAssignTypeTestIds.assignLater,
-          title: l10n.createAssignLater,
-          subtitle: l10n.createAssignLaterHint,
+          title: lesson ? l10n.createLessonAssignMany : l10n.createAssignLater,
+          subtitle: lesson
+              ? l10n.createLessonAssignManyHint
+              : l10n.createAssignLaterHint,
           selected: !draft.assignNow,
           onTap: () => flow.setAssignNow(value: false),
         ),

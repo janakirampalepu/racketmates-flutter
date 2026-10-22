@@ -390,6 +390,8 @@ void main() {
         'et_competitive',
         'et_casual',
         'et_round_robin',
+        'et_individual_lesson',
+        'et_practice_ball',
       });
       expect(createEventStepsFor('et_practice_drill'), [
         CreateEventStep.type,

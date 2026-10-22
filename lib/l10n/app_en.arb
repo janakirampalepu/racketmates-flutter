@@ -468,5 +468,12 @@
   "createSwapTeams": "Swap home and visiting team",
   "createHomeNotDecided": "Home team not decided yet",
   "createReviewOpponent": "Opponent",
-  "createOpponentSideNote": "The opponent team assigns its own players."
+  "createOpponentSideNote": "The opponent team assigns its own players.",
+  "createLessonAssignTitle": "Who is the lesson for?",
+  "createLessonAssignOne": "One player",
+  "createLessonAssignOneHint": "Choose the player now.",
+  "createLessonAssignMany": "Several players",
+  "createLessonAssignManyHint": "Invite players; the first to accept gets the lesson.",
+  "createSinglePlayerTitle": "Choose the player",
+  "createCoachesMaxHint": "Choose up to two coaches."
 }

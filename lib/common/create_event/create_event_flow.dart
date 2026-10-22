@@ -132,31 +132,27 @@ class CreateEventFlow extends Notifier<EventDraft?> {
   void setAllowManage({required bool value}) =>
       state = _draft.copyWith(allowParticipantsManagePlayers: value);
 
-  void toggleCoach(AppUser user) {
-    final d = _draft;
-    final exists = d.coaches.any((u) => u.id == user.id);
-    state = d.copyWith(
-      coaches: exists
-          ? [
-              for (final u in d.coaches)
-                if (u.id != user.id) u,
-            ]
-          : [...d.coaches, user],
-    );
+  /// Adds or removes [user] from [list]. At [max] a single choice is replaced
+  /// by the new one, a larger list ignores further additions.
+  List<AppUser> _toggled(List<AppUser> list, AppUser user, int? max) {
+    if (list.any((u) => u.id == user.id)) {
+      return [
+        for (final u in list)
+          if (u.id != user.id) u,
+      ];
+    }
+    if (max == 1) return [user];
+    if (max != null && list.length >= max) return list;
+    return [...list, user];
   }
 
-  void toggleInvitee(AppUser user) {
-    final d = _draft;
-    final exists = d.invitees.any((u) => u.id == user.id);
-    state = d.copyWith(
-      invitees: exists
-          ? [
-              for (final u in d.invitees)
-                if (u.id != user.id) u,
-            ]
-          : [...d.invitees, user],
-    );
-  }
+  void toggleCoach(AppUser user) => state = _draft.copyWith(
+    coaches: _toggled(_draft.coaches, user, _draft.maxCoaches),
+  );
+
+  void toggleInvitee(AppUser user) => state = _draft.copyWith(
+    invitees: _toggled(_draft.invitees, user, _draft.maxInvitees),
+  );
 
   /// A new venue clears the court selection and the resolved timezone.
   void setPlace(PlaceItem place) => state = _draft.copyWith(
@@ -237,8 +233,17 @@ class CreateEventFlow extends Notifier<EventDraft?> {
 
   /// "Assign players now" or "invite and assign later". Players already put
   /// into matches are kept but only sent while assigning now.
-  void setAssignNow({required bool value}) =>
-      state = _draft.copyWith(assignNow: value);
+  ///
+  /// A lesson forgets its invited players when the choice changes (native
+  /// `AssignTypeFragment.clearAllInvitedPlayers`): one player now, several later.
+  void setAssignNow({required bool value}) {
+    final d = _draft;
+    final lesson = d.spec?.individualLesson ?? false;
+    state = d.copyWith(
+      assignNow: value,
+      invitees: lesson && value != d.assignNow ? const [] : null,
+    );
+  }
 
   // --- Round robin ---------------------------------------------------------
 

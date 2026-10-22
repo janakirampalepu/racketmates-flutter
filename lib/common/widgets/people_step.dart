@@ -39,6 +39,7 @@ class PeopleStep extends ConsumerStatefulWidget {
     required this.requiredError,
     required this.nextLabel,
     required this.onContinue,
+    this.hint,
     super.key,
   });
 
@@ -50,6 +51,9 @@ class PeopleStep extends ConsumerStatefulWidget {
   final String requiredError;
   final String nextLabel;
   final VoidCallback onContinue;
+
+  /// Optional line under the title (a selection limit).
+  final String? hint;
 
   @override
   ConsumerState<PeopleStep> createState() => _PeopleStepState();
@@ -140,6 +144,14 @@ class _PeopleStepState extends ConsumerState<PeopleStep> {
                   ),
                 ),
               ),
+              if (widget.hint != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(widget.hint!),
+                  ),
+                ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: TestId(

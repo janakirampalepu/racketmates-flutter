@@ -35,7 +35,7 @@ const _stepScreens = {
 /// `EventCreateScreens` naming. Games and round robins list the screens they
 /// went through; the other types keep the path of the first wizard version.
 String _flowPath(EventDraft draft, EventTypeSpec spec) {
-  if (spec.usesScoring) {
+  if (spec.usesScoring || spec.individualLesson || spec.ballMachine) {
     return [
       for (final step in createEventStepsFor(
         spec.key,
@@ -87,13 +87,15 @@ List<Map<String, dynamic>> _eventTeams(EventDraft draft, int teamId) {
 
 List<Map<String, dynamic>> _matchBodies(
   EventDraft draft,
+  List<MatchDraft> matches,
   List<int> courts,
   int? teamId,
-  int? opponentTeamId,
-) => [
-  for (var i = 0; i < draft.matches.length; i++)
+  int? opponentTeamId, {
+  required bool withPlayers,
+}) => [
+  for (var i = 0; i < matches.length; i++)
     {
-      'match_type': draft.matches[i].matchType,
+      'match_type': matches[i].matchType,
       'order': i + 1,
       if (i < courts.length) 'place_court_id': courts[i],
       'event_match_sides_attributes': [
@@ -106,8 +108,8 @@ List<Map<String, dynamic>> _matchBodies(
                 : teamId),
             'side': side,
             'event_participants': [
-              if (draft.assignNow)
-                for (final e in draft.matches[i].players.entries)
+              if (withPlayers)
+                for (final e in matches[i].players.entries)
                   if (e.key.side == side)
                     {'user_id': e.value.id, 'position': e.key.position},
             ],
@@ -148,8 +150,21 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
       throw StateError('incomplete event draft');
     }
   }
+  // A ball machine is one singles match on one court with one player.
+  if (spec.ballMachine && draft.invitees.isEmpty) {
+    throw StateError('incomplete event draft');
+  }
   final courts = draft.courtIds.take(draft.courtCap).toList();
   final scoring = draft.scoring;
+  final ballMatches = [
+    MatchDraft(
+      matchType: MatchKeys.singles,
+      players: {
+        const MatchSlot(MatchKeys.sideTop, MatchKeys.positionCenter):
+            ?draft.invitees.firstOrNull,
+      },
+    ),
+  ];
   // Players put into matches now are not event participants (native keeps
   // only coaches in that case) and the invite settings step is skipped.
   final assignNow = spec.hasMatches && draft.assignNow;
@@ -157,8 +172,10 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
     'event': {
       'event_type': spec.key,
       if (spec.needsSport) 'sport_type': draft.sport!.key,
-      // Non-team ("global") event: native sends an empty originator type.
-      'originator_type': team == null ? '' : originatorTypeTeam,
+      // Non-team ("global") event: native sends an empty originator type;
+      // lessons for one player and ball machines never ask, so send none.
+      if (!spec.noTeam)
+        'originator_type': team == null ? '' : originatorTypeTeam,
       if (team != null) ...{
         'originator_id': team.id,
         'event_teams_attributes': _eventTeams(draft, team.id!),
@@ -176,15 +193,25 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
       'with_coach': spec.needsCoaches,
       'with_audience': false,
       'request_save_as_draft': false,
-      'allow_participants_manage_players': draft.allowParticipantsManagePlayers,
-      'attendance_deadline_unit': draft.attendanceUnit,
-      'attendance_deadline_unit_type': draft.attendanceUnitType,
-      'player_pool': playerPoolInvitedOnly,
-      'players_limit': draft.playersLimit,
-      'rsvp_limit': draft.rsvpLimit,
-      'player_acceptance_type': assignNow
+      // A ball machine skips the settings and invite steps, so those fields
+      // are not sent.
+      if (!spec.ballMachine) ...{
+        'allow_participants_manage_players':
+            draft.allowParticipantsManagePlayers,
+        'attendance_deadline_unit': draft.attendanceUnit,
+        'attendance_deadline_unit_type': draft.attendanceUnitType,
+        'player_pool': playerPoolInvitedOnly,
+      },
+      'players_limit': spec.ballMachine ? 1 : draft.playersLimit,
+      'rsvp_limit': spec.ballMachine ? 1 : draft.rsvpLimit,
+      'player_acceptance_type': draft.playersSetDirectly
           ? acceptPickManually
           : draft.acceptanceType,
+      if (spec.individualLesson)
+        'assign_type': draft.assignNow
+            ? MatchKeys.assignNow
+            : MatchKeys.assignLater,
+      if (spec.ballMachine) 'assign_type': MatchKeys.assignNow,
       if (spec.usesScoring) ...{
         'scoring_format': scoring!.format,
         'deciding_set_type': scoring.decidingSetType,
@@ -201,24 +228,26 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
           'partnership_type': draft.partnershipType,
         'event_sub_type': draft.eventSubType,
       },
-      if (spec.usesCourts && !spec.hasMatches) 'no_of_courts': draft.courtCount,
+      if (spec.usesCourts && !spec.hasMatches && !spec.ballMachine)
+        'no_of_courts': draft.courtCount,
       if (draft.notes.trim().isNotEmpty) 'notes_for_event': draft.notes.trim(),
-      'event_participants_attributes': [
-        for (final user in draft.coaches)
-          {
-            'user_id': user.id,
-            'is_player': false,
-            'is_coach': true,
-            'is_audience': false,
-          },
-        for (final user in assignNow ? const <AppUser>[] : draft.invitees)
-          {
-            'user_id': user.id,
-            'is_player': !spec.participantsAreAudience,
-            'is_coach': false,
-            'is_audience': spec.participantsAreAudience,
-          },
-      ],
+      if (!spec.ballMachine)
+        'event_participants_attributes': [
+          for (final user in draft.coaches)
+            {
+              'user_id': user.id,
+              'is_player': false,
+              'is_coach': true,
+              'is_audience': false,
+            },
+          for (final user in assignNow ? const <AppUser>[] : draft.invitees)
+            {
+              'user_id': user.id,
+              'is_player': !spec.participantsAreAudience,
+              'is_coach': false,
+              'is_audience': spec.participantsAreAudience,
+            },
+        ],
       'event_schedule_options_attributes': [
         {
           'place_id': place!.id,
@@ -228,12 +257,14 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
             'timezone_info_id': draft.timezoneInfoId,
         },
       ],
-      if (spec.hasMatches) ...{
+      if (spec.hasMatches || spec.ballMachine) ...{
         'event_matches_attributes': _matchBodies(
           draft,
+          spec.ballMachine ? ballMatches : draft.matches,
           courts,
           team?.id,
           draft.opponentTeam?.id,
+          withPlayers: spec.ballMachine || draft.assignNow,
         ),
         // Native sends an empty list: each match carries its own court.
         'event_venue_courts_attributes': const <Map<String, dynamic>>[],

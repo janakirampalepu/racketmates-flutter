@@ -22,6 +22,9 @@ class CreateEventCoachesScreen extends ConsumerWidget {
       kind: PeopleKind.coaches,
       ids: CreateEventCoachesTestIds.ids,
       title: l10n.createCoachesTitle,
+      hint: ref.watch(createEventFlowProvider)?.maxCoaches == null
+          ? null
+          : l10n.createCoachesMaxHint,
       searchHint: l10n.createCoachesSearchHint,
       emptyText: l10n.createCoachesEmpty,
       requiredError: l10n.createCoachesRequired,

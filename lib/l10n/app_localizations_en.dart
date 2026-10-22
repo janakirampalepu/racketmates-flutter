@@ -1086,4 +1086,26 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get createOpponentSideNote =>
       'The opponent team assigns its own players.';
+
+  @override
+  String get createLessonAssignTitle => 'Who is the lesson for?';
+
+  @override
+  String get createLessonAssignOne => 'One player';
+
+  @override
+  String get createLessonAssignOneHint => 'Choose the player now.';
+
+  @override
+  String get createLessonAssignMany => 'Several players';
+
+  @override
+  String get createLessonAssignManyHint =>
+      'Invite players; the first to accept gets the lesson.';
+
+  @override
+  String get createSinglePlayerTitle => 'Choose the player';
+
+  @override
+  String get createCoachesMaxHint => 'Choose up to two coaches.';
 }

@@ -16,6 +16,8 @@ class EventTypeSpec {
     this.participantsAreAudience = false,
     this.hasMatches = false,
     this.isRoundRobin = false,
+    this.individualLesson = false,
+    this.ballMachine = false,
   });
 
   final String key;
@@ -39,17 +41,32 @@ class EventTypeSpec {
   /// Round robins book courts and a format; the rounds are generated later.
   final bool isRoundRobin;
 
+  /// One student per lesson: up to two coaches, a court, and either one player
+  /// chosen now or several invited with the first to accept getting the slot.
+  final bool individualLesson;
+
+  /// A ball machine booking: one court and one player, no settings step.
+  final bool ballMachine;
+
+  /// These two are always personal events (native goes from the sport straight
+  /// on, without asking team or non-team).
+  bool get noTeam => individualLesson || ballMachine;
+
   /// Games and round robins are scored (native `isNonPracticeMatch` /
   /// `isRoundRobinEvent`).
   bool get usesScoring => hasMatches || isRoundRobin;
 
-  /// Practice and lessons choose how many courts to book on the venue step;
+  /// Practice and group lessons choose how many courts to book on the venue step;
   /// games take one court per match and round robins choose on their own step.
-  bool get courtCountOnWhenWhere => usesCourts && !hasMatches && !isRoundRobin;
+  bool get courtCountOnWhenWhere =>
+      usesCourts &&
+      !hasMatches &&
+      !isRoundRobin &&
+      !individualLesson &&
+      !ballMachine;
 }
 
-/// Event types the wizard can create in this build. Individual lessons, ball
-/// machines and team events are later work.
+/// Event types the wizard can create.
 const eventTypeSpecs = {
   'et_practice_drill': EventTypeSpec(key: 'et_practice_drill'),
   'et_group_lesson': EventTypeSpec(key: 'et_group_lesson', needsCoaches: true),
@@ -62,6 +79,12 @@ const eventTypeSpecs = {
   'et_competitive': EventTypeSpec(key: 'et_competitive', hasMatches: true),
   'et_casual': EventTypeSpec(key: 'et_casual', hasMatches: true),
   'et_round_robin': EventTypeSpec(key: 'et_round_robin', isRoundRobin: true),
+  'et_individual_lesson': EventTypeSpec(
+    key: 'et_individual_lesson',
+    needsCoaches: true,
+    individualLesson: true,
+  ),
+  'et_practice_ball': EventTypeSpec(key: 'et_practice_ball', ballMachine: true),
 };
 
 final supportedEventTypes = eventTypeSpecs.keys.toSet();
@@ -116,6 +139,7 @@ List<CreateEventStep> createEventStepsFor(
 }) {
   // The team choice follows the sport (or the type when there is no sport).
   final steps = _stepsWithoutTeam(eventType, assignNow: assignNow);
+  if (eventTypeSpecs[eventType]?.noTeam ?? false) return steps;
   final after = steps.contains(CreateEventStep.sport)
       ? CreateEventStep.sport
       : CreateEventStep.type;
@@ -142,6 +166,28 @@ List<CreateEventStep> _stepsWithoutTeam(
   required bool assignNow,
 }) {
   final spec = eventTypeSpecs[eventType];
+  if (spec != null && spec.ballMachine) {
+    return [
+      CreateEventStep.type,
+      CreateEventStep.sport,
+      CreateEventStep.whenWhere,
+      CreateEventStep.players,
+      CreateEventStep.review,
+    ];
+  }
+  if (spec != null && spec.individualLesson) {
+    return [
+      CreateEventStep.type,
+      CreateEventStep.sport,
+      CreateEventStep.settings,
+      CreateEventStep.coaches,
+      CreateEventStep.whenWhere,
+      CreateEventStep.assignType,
+      if (!assignNow) CreateEventStep.inviteSettings,
+      CreateEventStep.players,
+      CreateEventStep.review,
+    ];
+  }
   if (spec != null && spec.hasMatches) {
     return [
       CreateEventStep.type,
@@ -409,6 +455,24 @@ class EventDraft {
       (spec?.hasMatches ?? false) &&
       (opponent == OpponentKind.selectTeam ||
           opponent == OpponentKind.namedTeam);
+
+  /// Most coaches (two for an individual lesson).
+  int? get maxCoaches => (spec?.individualLesson ?? false) ? 2 : null;
+
+  /// Most invited players: the one player of a ball machine or of a lesson
+  /// assigned now.
+  int? get maxInvitees =>
+      (spec?.ballMachine ?? false) ||
+          ((spec?.individualLesson ?? false) && assignNow)
+      ? 1
+      : null;
+
+  /// The invite settings step is skipped and players are set directly: games
+  /// and lessons assigned now, and ball machines.
+  bool get playersSetDirectly =>
+      (spec?.ballMachine ?? false) ||
+      assignNow &&
+          ((spec?.hasMatches ?? false) || (spec?.individualLesson ?? false));
 
   /// Most courts that can be picked: one per match for games, else the chosen
   /// court count.

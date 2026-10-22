@@ -104,15 +104,16 @@ class CreateEventSettingsScreen extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 24),
-        TestId(
-          CreateEventSettingsTestIds.allowManage,
-          child: SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(l10n.createAllowManageLabel),
-            value: draft.allowParticipantsManagePlayers,
-            onChanged: (v) => flow.setAllowManage(value: v),
+        if (!(draft.spec?.individualLesson ?? false))
+          TestId(
+            CreateEventSettingsTestIds.allowManage,
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.createAllowManageLabel),
+              value: draft.allowParticipantsManagePlayers,
+              onChanged: (v) => flow.setAllowManage(value: v),
+            ),
           ),
-        ),
         if (draft.forTeam == true && (draft.spec?.isRoundRobin ?? false))
           TestId(
             CreateEventSettingsTestIds.considerRanking,

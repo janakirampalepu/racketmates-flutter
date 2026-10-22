@@ -42,14 +42,23 @@ class CreateEventInviteSettingsScreen extends ConsumerWidget {
             MessageKeys.createMaxPlayersLabel,
             l10n.createMaxPlayersLabel,
           ),
-          stepper: NumberStepper(
-            idPrefix: CreateEventInviteSettingsTestIds.playersPrefix,
-            label: l10n.createMaxPlayersLabel,
-            decreaseLabel: l10n.createDecrease,
-            increaseLabel: l10n.createIncrease,
-            value: draft.playersLimit,
-            onChanged: flow.setPlayersLimit,
-          ),
+          // One student per lesson: the limit is fixed at one.
+          stepper: (draft.spec?.individualLesson ?? false)
+              ? TestId(
+                  '${CreateEventInviteSettingsTestIds.playersPrefix}_value',
+                  child: Text(
+                    '${draft.playersLimit}',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                )
+              : NumberStepper(
+                  idPrefix: CreateEventInviteSettingsTestIds.playersPrefix,
+                  label: l10n.createMaxPlayersLabel,
+                  decreaseLabel: l10n.createDecrease,
+                  increaseLabel: l10n.createIncrease,
+                  value: draft.playersLimit,
+                  onChanged: flow.setPlayersLimit,
+                ),
         ),
         _LimitRow(
           label: ref.msg(
