@@ -1,0 +1,3 @@
+// Environment: hotfix. Mirrors racketmates-ios Configurations/Hotfix.xcconfig
+BUNDLE_IDENTIFIER = io.appsmaker.racketmates.hotfix
+APP_DISPLAY_NAME = RM-Hotfix

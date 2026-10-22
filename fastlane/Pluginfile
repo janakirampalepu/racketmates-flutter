@@ -1,0 +1,2 @@
+# Add fastlane plugins here (e.g. firebase_app_distribution, new_relic). Keep
+# them in sync with the native repos' fastlane/Pluginfile when a lane needs them.

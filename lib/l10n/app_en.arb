@@ -1,0 +1,7 @@
+{
+  "@@locale": "en",
+  "loadingLabel": "Loading",
+  "@loadingLabel": {
+    "description": "Offline fallback screen-reader label for loading indicators. User-facing copy is server-driven; ARB only holds fallbacks."
+  }
+}

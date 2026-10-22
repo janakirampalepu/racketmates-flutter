@@ -1,0 +1,3 @@
+// Environment: production. Mirrors racketmates-ios Configurations/Production.xcconfig
+BUNDLE_IDENTIFIER = io.appsmaker.racketmates
+APP_DISPLAY_NAME = Racketmates

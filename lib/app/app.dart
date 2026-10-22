@@ -1,0 +1,34 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:racketmates/app/config/brand_config.dart';
+import 'package:racketmates/app/router/app_router.dart';
+import 'package:racketmates/app/theme/app_theme.dart';
+import 'package:racketmates/l10n/app_localizations.dart';
+
+final brandConfigProvider = Provider<BrandConfig>(
+  (ref) => BrandConfig.racketmates,
+);
+
+class RacketmatesApp extends ConsumerWidget {
+  const RacketmatesApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final brand = ref.watch(brandConfigProvider);
+    return MaterialApp.router(
+      title: brand.displayName,
+      theme: AppTheme.light(brand),
+      darkTheme: AppTheme.dark(brand),
+      themeMode: ThemeMode.system,
+      routerConfig: ref.watch(appRouterProvider),
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+    );
+  }
+}

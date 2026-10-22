@@ -1,0 +1,3 @@
+// Environment: regression. Mirrors racketmates-ios Configurations/Regression.xcconfig
+BUNDLE_IDENTIFIER = io.appsmaker.racketmates.regression
+APP_DISPLAY_NAME = RM-Regression

@@ -1,0 +1,3 @@
+// Environment: dev. Mirrors racketmates-ios Configurations/Dev.xcconfig
+BUNDLE_IDENTIFIER = io.appsmaker.racketmates.dev
+APP_DISPLAY_NAME = RM-Dev

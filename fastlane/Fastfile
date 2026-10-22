@@ -1,0 +1,144 @@
+# Fastlane entry point for the Racketmates Flutter app (Android + iOS).
+#
+# Environments mirror the native apps: production, hotfix, qa, regression,
+# staging, dev, local. Pass `env:<name>` to every lane. Secrets and
+# per-environment values come from the environment / env/<env>.json (written
+# by CI from its secret store) -- never from git.
+#
+# Examples:
+#   bundle exec fastlane android build env:qa
+#   bundle exec fastlane android deploy env:qa
+#   bundle exec fastlane android qa_automation env:regression
+#   bundle exec fastlane ios build env:qa
+#   bundle exec fastlane quality
+
+ENVIRONMENTS = %w[production hotfix qa regression staging dev local].freeze
+FLUTTER = ENV.fetch("FLUTTER_BIN", "flutter")
+
+ANDROID_PACKAGES = {
+  "production" => "io.appsmaker.racketmates",
+  "hotfix" => "io.appsmaker.racketmates.hotfix",
+  "qa" => "io.appsmaker.racketmates.qa",
+  "regression" => "io.appsmaker.racketmates.regression",
+  "staging" => "io.appsmaker.racketmates.staging",
+  "dev" => "io.appsmaker.racketmates.dev",
+  "local" => "io.appsmaker.racketmates.local",
+}.freeze
+
+def resolve_env!(options)
+  env = options[:env].to_s.strip
+  UI.user_error!("Pass env:<#{ENVIRONMENTS.join('|')}>") unless ENVIRONMENTS.include?(env)
+  env
+end
+
+# Common flutter arguments for a flavor. Defines file is optional locally but
+# required in CI (it carries API_VERSION, OAuth client values, etc.).
+def flutter_args(env, build_number: nil)
+  args = ["--flavor", env, "-t", "lib/main_#{env}.dart"]
+  defines = "env/#{env}.json"
+  if File.exist?(defines)
+    args += ["--dart-define-from-file=#{defines}"]
+  else
+    UI.important("#{defines} not found; the app will fail startup validation without API_VERSION/OAUTH_* defines.")
+  end
+  args += ["--build-number", build_number.to_s] if build_number
+  args
+end
+
+desc "Format check, static analysis and tests with coverage"
+lane :quality do
+  sh("cd .. && #{FLUTTER} pub get")
+  sh("cd .. && dart format --output=none --set-exit-if-changed lib test")
+  sh("cd .. && tool/verify_ssl_pins.sh")
+  sh("cd .. && #{FLUTTER} analyze")
+  sh("cd .. && #{FLUTTER} test --coverage")
+end
+
+platform :android do
+  desc "Next version code = latest Play internal-track code + 1 (same rule as the native lane)"
+  private_lane :next_version_code do |options|
+    codes = google_play_track_version_codes(
+      package_name: ANDROID_PACKAGES.fetch(options[:env]),
+      track: "internal",
+      json_key: ENV.fetch("GOOGLE_PLAY_JSON_KEY_PATH"),
+    )
+    (codes.max || 0) + 1
+  end
+
+  desc "Build a release App Bundle for env:<name> (set build_number:<n> to skip the Play lookup)"
+  lane :build do |options|
+    env = resolve_env!(options)
+    number = options[:build_number] || next_version_code(env: env)
+    sh("cd .. && #{FLUTTER} build appbundle --release #{flutter_args(env, build_number: number).join(' ')}")
+    number
+  end
+
+  desc "Build and upload env:<name> to the Play internal track"
+  lane :deploy do |options|
+    env = resolve_env!(options)
+    build(env: env, build_number: options[:build_number])
+    upload_to_play_store(
+      package_name: ANDROID_PACKAGES.fetch(env),
+      track: "internal",
+      json_key: ENV.fetch("GOOGLE_PLAY_JSON_KEY_PATH"),
+      aab: "../build/app/outputs/bundle/#{env}Release/app-#{env}-release.aab",
+      skip_upload_apk: true,
+    )
+  end
+
+  desc "Installable build for Appium / QA automation (APK)"
+  lane :qa_automation do |options|
+    env = resolve_env!(options)
+    sh("cd .. && #{FLUTTER} build apk --release #{flutter_args(env, build_number: options[:build_number]).join(' ')}")
+    UI.success("APK: build/app/outputs/flutter-apk/app-#{env}-release.apk")
+  end
+end
+
+platform :ios do
+  # iOS flavors (schemes/configurations per environment) are created in
+  # ios/Runner.xcodeproj; until then these lanes refuse to run.
+  def ensure_ios_flavor!(env)
+    scheme = File.expand_path("../ios/Runner.xcodeproj/xcshareddata/xcschemes/#{env}.xcscheme", __dir__)
+    UI.user_error!("iOS scheme '#{env}' is missing. Create the iOS flavors first (see CLAUDE.md).") unless File.exist?(scheme)
+  end
+
+  def app_store_api_key
+    app_store_connect_api_key(
+      key_id: ENV.fetch("APP_STORE_CONNECT_KEY_ID"),
+      issuer_id: ENV.fetch("APP_STORE_CONNECT_ISSUER_ID"),
+      key_filepath: ENV.fetch("APP_STORE_CONNECT_KEY_PATH"),
+    )
+  end
+
+  desc "Signed IPA for env:<name> (match: appstore for production, adhoc otherwise)"
+  lane :build do |options|
+    env = resolve_env!(options)
+    ensure_ios_flavor!(env)
+    api_key = app_store_api_key
+    type = env == "production" ? "appstore" : "adhoc"
+    match(type: type, readonly: true, api_key: api_key)
+    sh("cd .. && #{FLUTTER} build ipa --release #{flutter_args(env, build_number: options[:build_number]).join(' ')} --export-method #{type == 'appstore' ? 'app-store' : 'ad-hoc'}")
+  end
+
+  desc "Build and upload env:<name> to TestFlight"
+  lane :deploy do |options|
+    env = resolve_env!(options)
+    build(env: env, build_number: options[:build_number])
+    upload_to_testflight(
+      skip_submission: true,
+      skip_waiting_for_build_processing: true,
+      ipa: Dir["../build/ios/ipa/*.ipa"].first,
+      api_key: app_store_api_key,
+    )
+  end
+
+  desc "Unsigned simulator .app zipped for Appium / QA automation"
+  lane :qa_simulator do |options|
+    env = resolve_env!(options)
+    ensure_ios_flavor!(env)
+    sh("cd .. && #{FLUTTER} build ios --simulator --debug #{flutter_args(env, build_number: options[:build_number]).join(' ')}")
+    app = Dir["../build/ios/iphonesimulator/*.app"].first
+    UI.user_error!("Simulator .app not found") unless app
+    zip(path: app, output_path: "build/Racketmates-#{env}-simulator.zip")
+  end
+end

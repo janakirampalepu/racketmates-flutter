@@ -1,0 +1,3 @@
+// Environment: qa. Mirrors racketmates-ios Configurations/Qa.xcconfig
+BUNDLE_IDENTIFIER = io.appsmaker.racketmates.qa
+APP_DISPLAY_NAME = RM-QA
