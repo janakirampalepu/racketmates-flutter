@@ -56,7 +56,7 @@ void main() {
     });
 
     test('a team event adds the team selection', () {
-      expect(createEventStepsFor('et_competitive', forTeam: true).take(5), [
+      expect(createEventStepsFor('et_practice_drill', forTeam: true).take(5), [
         CreateEventStep.type,
         CreateEventStep.sport,
         CreateEventStep.teamChoice,
@@ -150,6 +150,7 @@ void main() {
       _start(c, 'et_competitive')
         ..setForTeam(value: true)
         ..setTeam(_team)
+        ..setOpponent(OpponentKind.withinTeam)
         ..setScoringFormat('sf_single_set', const {'sf_single_set': 6})
         ..setMatchType(0, MatchKeys.singles);
       final event = _event(_timed(_read(c)));

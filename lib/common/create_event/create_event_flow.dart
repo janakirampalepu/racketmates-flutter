@@ -63,19 +63,60 @@ class CreateEventFlow extends Notifier<EventDraft?> {
     current,
     assignNow: _draft.assignNow,
     forTeam: _draft.forTeam ?? false,
+    opponent: _draft.opponent,
   );
 
   void setSport(SportKey sport) => state = _fresh(_draft.eventType, sport);
 
   // --- Team events ---------------------------------------------------------
 
+  /// Everything chosen about the opponent, forgotten when the team changes.
+  EventDraft _withoutOpponent(EventDraft d) => d.copyWith(
+    opponent: () => null,
+    opponentTeam: () => null,
+    opponentName: '',
+    opponentIsHome: false,
+    homeTeamNotDecided: false,
+  );
+
   /// Choosing "not a team event" forgets a team picked earlier.
   void setForTeam({required bool value}) {
     final d = _draft;
-    state = d.copyWith(forTeam: () => value, team: value ? null : () => null);
+    state = _synced(
+      _withoutOpponent(
+        d.copyWith(forTeam: () => value, team: value ? null : () => null),
+      ),
+    );
   }
 
-  void setTeam(Team team) => state = _draft.copyWith(team: () => team);
+  void setTeam(Team team) =>
+      state = _synced(_withoutOpponent(_draft.copyWith(team: () => team)));
+
+  /// Who a team game is played against. Details of the other choices are
+  /// dropped (native `EventDynamicsFragment.getSelectedOption`).
+  void setOpponent(OpponentKind kind) {
+    final d = _draft;
+    state = _synced(
+      d.copyWith(
+        opponent: () => kind,
+        opponentTeam: kind == OpponentKind.selectTeam ? null : () => null,
+        opponentName: kind == OpponentKind.namedTeam ? null : '',
+      ),
+    );
+  }
+
+  void setOpponentTeam(Team team) =>
+      state = _draft.copyWith(opponentTeam: () => team);
+
+  void setOpponentName(String name) =>
+      state = _draft.copyWith(opponentName: name);
+
+  /// Swaps which team is home (native swipe button).
+  void swapHomeAway() =>
+      state = _draft.copyWith(opponentIsHome: !_draft.opponentIsHome);
+
+  void setHomeTeamNotDecided({required bool value}) =>
+      state = _draft.copyWith(homeTeamNotDecided: value);
 
   void setConsiderForTeamRanking({required bool value}) =>
       state = _draft.copyWith(considerForTeamRanking: value);

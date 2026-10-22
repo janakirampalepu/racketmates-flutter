@@ -16,6 +16,9 @@ abstract final class AppRoutes {
   static const createEventSport = '/create-event/sport';
   static const createEventTeamChoice = '/create-event/team-choice';
   static const createEventTeamSelect = '/create-event/team-select';
+  static const createEventTeamDynamics = '/create-event/team-dynamics';
+  static const createEventOpponentSelect = '/create-event/opponent-select';
+  static const createEventHomeAway = '/create-event/home-away';
   static const createEventSettings = '/create-event/settings';
   static const createEventCoaches = '/create-event/coaches';
   static const createEventPlayers = '/create-event/players';
@@ -35,6 +38,9 @@ abstract final class AppRoutes {
     CreateEventStep.sport => createEventSport,
     CreateEventStep.teamChoice => createEventTeamChoice,
     CreateEventStep.teamSelect => createEventTeamSelect,
+    CreateEventStep.teamDynamics => createEventTeamDynamics,
+    CreateEventStep.opponentSelect => createEventOpponentSelect,
+    CreateEventStep.homeAway => createEventHomeAway,
     CreateEventStep.settings => createEventSettings,
     CreateEventStep.coaches => createEventCoaches,
     CreateEventStep.players => createEventPlayers,

@@ -16,6 +16,9 @@ const _stepScreens = {
   CreateEventStep.sport: 'es_sports_type',
   CreateEventStep.teamChoice: 'es_team_non_team',
   CreateEventStep.teamSelect: 'es_self_team',
+  CreateEventStep.teamDynamics: 'es_event_dynamics_selection',
+  CreateEventStep.opponentSelect: 'es_team_opponent_selection',
+  CreateEventStep.homeAway: 'es_event_team_home_away_selection',
   CreateEventStep.settings: 'es_general_settings',
   CreateEventStep.coaches: 'es_coaches_assign',
   CreateEventStep.matches: 'es_courts_addition',
@@ -38,6 +41,7 @@ String _flowPath(EventDraft draft, EventTypeSpec spec) {
         spec.key,
         assignNow: draft.assignNow,
         forTeam: draft.forTeam ?? false,
+        opponent: draft.opponent,
       ))
         _stepScreens[step]!,
     ].join('##');
@@ -56,10 +60,36 @@ String _flowPath(EventDraft draft, EventTypeSpec spec) {
   ].join('##');
 }
 
+/// Teams of a team event (native `eventTeamsAttributes`): the user's team,
+/// plus the opponent in a team game against another team. Home or visiting
+/// is left out while the home team is undecided.
+List<Map<String, dynamic>> _eventTeams(EventDraft draft, int teamId) {
+  String? side({required bool opponentSide}) {
+    if (!draft.isMultiTeam) return 'ett_home';
+    if (draft.homeTeamNotDecided) return null;
+    return opponentSide == draft.opponentIsHome ? 'ett_home' : 'ett_visiting';
+  }
+
+  return [
+    {
+      'team_id': teamId,
+      'event_team_type': ?side(opponentSide: false),
+      'logged_in_user_belongs_to_team': true,
+    },
+    if (draft.isMultiTeam)
+      {
+        'team_id': ?draft.opponentTeam?.id,
+        'event_team_type': ?side(opponentSide: true),
+        'logged_in_user_belongs_to_team': false,
+      },
+  ];
+}
+
 List<Map<String, dynamic>> _matchBodies(
   EventDraft draft,
   List<int> courts,
   int? teamId,
+  int? opponentTeamId,
 ) => [
   for (var i = 0; i < draft.matches.length; i++)
     {
@@ -69,8 +99,11 @@ List<Map<String, dynamic>> _matchBodies(
       'event_match_sides_attributes': [
         for (final side in const [MatchKeys.sideTop, MatchKeys.sideBottom])
           {
-            // Both sides play for the user's team in a within-team event.
-            'team_id': ?teamId,
+            // Within the team both sides are the user's team; against another
+            // team the bottom side is the opponent (no id when only named).
+            'team_id': ?(side == MatchKeys.sideBottom && draft.isMultiTeam
+                ? opponentTeamId
+                : teamId),
             'side': side,
             'event_participants': [
               if (draft.assignNow)
@@ -104,6 +137,17 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
   if (draft.forTeam == true && team?.id == null) {
     throw StateError('incomplete event draft');
   }
+  // A team game says who it is played against.
+  if (team != null && spec.hasMatches) {
+    final opponent = draft.opponent;
+    if (opponent == null ||
+        (opponent == OpponentKind.selectTeam &&
+            draft.opponentTeam?.id == null) ||
+        (opponent == OpponentKind.namedTeam &&
+            draft.opponentName.trim().isEmpty)) {
+      throw StateError('incomplete event draft');
+    }
+  }
   final courts = draft.courtIds.take(draft.courtCap).toList();
   final scoring = draft.scoring;
   // Players put into matches now are not event participants (native keeps
@@ -117,14 +161,15 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
       'originator_type': team == null ? '' : originatorTypeTeam,
       if (team != null) ...{
         'originator_id': team.id,
-        'event_teams_attributes': [
-          {
-            'team_id': team.id,
-            'event_team_type': 'ett_home',
-            'logged_in_user_belongs_to_team': true,
-          },
-        ],
-        'opponent_team_type': 'ott_within_team',
+        'event_teams_attributes': _eventTeams(draft, team.id!),
+        'opponent_team_type': spec.hasMatches
+            ? draft.opponent!.key
+            : OpponentKind.withinTeam.key,
+        if (draft.isMultiTeam) ...{
+          if (draft.opponent == OpponentKind.namedTeam)
+            'opponent_team_name': draft.opponentName.trim(),
+          'home_team_not_decided': draft.homeTeamNotDecided,
+        },
         if (spec.isRoundRobin)
           'consider_for_team_ranking': draft.considerForTeamRanking,
       },
@@ -184,7 +229,12 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
         },
       ],
       if (spec.hasMatches) ...{
-        'event_matches_attributes': _matchBodies(draft, courts, team?.id),
+        'event_matches_attributes': _matchBodies(
+          draft,
+          courts,
+          team?.id,
+          draft.opponentTeam?.id,
+        ),
         // Native sends an empty list: each match carries its own court.
         'event_venue_courts_attributes': const <Map<String, dynamic>>[],
       } else if (spec.usesCourts)

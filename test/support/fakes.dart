@@ -533,6 +533,9 @@ class FakeTeamsRepository implements TeamsRepository {
   List<Team> teams;
   List<Team> captain;
   Map<int, List<TeamPlayer>> membersByTeam;
+
+  /// Teams a team can play against.
+  List<Team> opponents = const [];
   bool failing = false;
   bool membersFail = false;
   AppFailure? createFailure;
@@ -540,6 +543,8 @@ class FakeTeamsRepository implements TeamsRepository {
   int createdId = 900;
   final List<List<String>> myTeamsRequests = [];
   final List<({String? sport, List<String> userIds})> captainRequests = [];
+  final List<({int exclude, String? sport, String query})> opponentRequests =
+      [];
   final List<({int team, String query, String? role, String? sport})>
   memberSearches = [];
 
@@ -561,6 +566,28 @@ class FakeTeamsRepository implements TeamsRepository {
     await Future<void>.delayed(Duration.zero);
     if (failing) throw const OfflineFailure();
     return captain;
+  }
+
+  @override
+  Future<List<Team>> opponentTeams({
+    required int excludeTeamId,
+    String? sportKey,
+    String query = '',
+  }) async {
+    opponentRequests.add((
+      exclude: excludeTeamId,
+      sport: sportKey,
+      query: query,
+    ));
+    await Future<void>.delayed(Duration.zero);
+    if (failing) throw const OfflineFailure();
+    return [
+      for (final t in opponents)
+        if (t.id != excludeTeamId &&
+            (query.isEmpty ||
+                (t.name ?? '').toLowerCase().contains(query.toLowerCase())))
+          t,
+    ];
   }
 
   @override

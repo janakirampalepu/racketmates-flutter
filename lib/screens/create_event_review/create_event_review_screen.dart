@@ -77,6 +77,12 @@ class CreateEventReviewScreen extends ConsumerWidget {
             l10n.createReviewTeam,
             draft.team?.name ?? '',
           ),
+        if (draft.isMultiTeam)
+          _Row(
+            CreateEventReviewTestIds.summaryOpponent,
+            l10n.createReviewOpponent,
+            _opponentText(l10n, draft),
+          ),
         _Row(CreateEventReviewTestIds.summaryWhen, l10n.createDateLabel, when),
         _Row(
           CreateEventReviewTestIds.summaryWhere,
@@ -134,6 +140,15 @@ class CreateEventReviewScreen extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// "Eagles (home)" for the opponent of a team game.
+String _opponentText(AppLocalizations l10n, EventDraft draft) {
+  final name = draft.opponent == OpponentKind.selectTeam
+      ? draft.opponentTeam?.name ?? ''
+      : draft.opponentName.trim();
+  if (draft.homeTeamNotDecided) return name;
+  return '$name (${draft.opponentIsHome ? l10n.createHomeTeamLabel : l10n.createAwayTeamLabel})';
 }
 
 String _scoringText(WidgetRef ref, EventDraft draft) {

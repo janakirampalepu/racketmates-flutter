@@ -16,6 +16,7 @@ abstract class TeamsApi {
     @Query('page') int? page,
     @Query('per_page') int? perPage,
     @Query('search_query') String? searchQuery,
+    @Query('exclude_team_id') int? excludeTeamId,
     @Query('user_ids[]') List<String>? userIds,
     @Query('captain_teams') bool? captainTeams,
     @Query('sport_types[]') List<String>? sportTypes,

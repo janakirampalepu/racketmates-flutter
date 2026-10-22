@@ -77,8 +77,17 @@ class MatchDraft {
   /// counts an undecided match as doubles).
   int get playerCount => matchType == MatchKeys.singles ? 2 : 4;
 
-  bool get allSlotsFilled =>
-      slots.isNotEmpty && slots.every((s) => players.containsKey(s));
+  bool get allSlotsFilled => filled(multiTeam: false);
+
+  /// Every spot has a player. Against another team only the user's own side
+  /// (the top) is filled here; the opponent team assigns its own players.
+  bool filled({required bool multiTeam}) {
+    final own = [
+      for (final s in slots)
+        if (!multiTeam || s.side == MatchKeys.sideTop) s,
+    ];
+    return own.isNotEmpty && own.every(players.containsKey);
+  }
 
   /// Changing the match type clears the players (native
   /// `updateSelectedMatchType`).

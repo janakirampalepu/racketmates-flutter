@@ -19,7 +19,10 @@ import 'package:racketmates/screens/create_event_matches/create_event_matches_sc
 import 'package:racketmates/screens/create_event_round_robin_format/create_event_round_robin_format_screen.dart';
 import 'package:racketmates/screens/create_event_slot_picker/create_event_slot_picker_screen.dart';
 import 'package:racketmates/screens/create_event_review/create_event_review_screen.dart';
+import 'package:racketmates/screens/create_event_home_away/create_event_home_away_screen.dart';
+import 'package:racketmates/screens/create_event_opponent_select/create_event_opponent_select_screen.dart';
 import 'package:racketmates/screens/create_event_team_choice/create_event_team_choice_screen.dart';
+import 'package:racketmates/screens/create_event_team_dynamics/create_event_team_dynamics_screen.dart';
 import 'package:racketmates/screens/create_event_team_select/create_event_team_select_screen.dart';
 import 'package:racketmates/screens/create_event_invite_settings/create_event_invite_settings_screen.dart';
 import 'package:racketmates/screens/create_event_when_where/create_event_when_where_screen.dart';
@@ -247,6 +250,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'team-select',
             builder: (context, state) => const CreateEventTeamSelectScreen(),
+          ),
+          GoRoute(
+            path: 'team-dynamics',
+            builder: (context, state) => const CreateEventTeamDynamicsScreen(),
+          ),
+          GoRoute(
+            path: 'opponent-select',
+            builder: (context, state) =>
+                const CreateEventOpponentSelectScreen(),
+          ),
+          GoRoute(
+            path: 'home-away',
+            builder: (context, state) => const CreateEventHomeAwayScreen(),
           ),
           GoRoute(
             path: 'settings',

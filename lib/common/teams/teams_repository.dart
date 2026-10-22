@@ -8,6 +8,9 @@ import 'package:racketmates/common/teams/teams_api.dart';
 /// Native `AppConstants.USER_TEAMS`.
 const userTeamsQueryType = 'user_teams';
 
+/// Native `AppConstants.NON_LEAGUE_TEAMS`: every team outside a league.
+const nonLeagueTeamsQueryType = 'non_league_teams';
+
 /// Teams are loaded in one page (native `VALUE_HUNDRED`).
 const teamsPageSize = 100;
 
@@ -19,6 +22,14 @@ abstract class TeamsRepository {
   /// playing [sportKey] when given, matching [query].
   Future<List<Team>> captainTeams({
     required List<String> userIds,
+    String? sportKey,
+    String query = '',
+  });
+
+  /// Teams a team can play against: every non-league team except
+  /// [excludeTeamId], playing [sportKey] when given, matching [query].
+  Future<List<Team>> opponentTeams({
+    required int excludeTeamId,
     String? sportKey,
     String query = '',
   });
@@ -82,6 +93,27 @@ class TeamsRepositoryImpl implements TeamsRepository {
         searchQuery: query.trim(),
         userIds: userIds,
         captainTeams: true,
+        sportTypes: sportKey == null ? null : [sportKey],
+      ),
+    );
+    return response.teams?.whereType<Team>().toList() ?? const [];
+  }
+
+  @override
+  Future<List<Team>> opponentTeams({
+    required int excludeTeamId,
+    String? sportKey,
+    String query = '',
+  }) async {
+    final response = await _guard(
+      () => api.list(
+        archived: false,
+        queryType: nonLeagueTeamsQueryType,
+        page: 1,
+        perPage: teamsPageSize,
+        searchQuery: query.trim(),
+        excludeTeamId: excludeTeamId,
+        captainTeams: false,
         sportTypes: sportKey == null ? null : [sportKey],
       ),
     );

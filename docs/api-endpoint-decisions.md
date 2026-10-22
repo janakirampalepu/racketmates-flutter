@@ -26,6 +26,7 @@ Pagination follows the native schedule screens: `per_page=10`, `page` starts at 
 | Scoring formats | `GET reference_data/scoring_formats?sport_type=&event_type=` -> `scoring_format_keys[]`, `minimum_scores{}` | Android (`getSportScoringFormats`) | Labels come from `reference_data` (`scoring_format`, `deciding_set_type`). |
 | Teams list | `GET teams?query_type=user_teams&page=1&per_page=100&user_ids[]=&captain_teams=false` | Android (`getUserAllTeams`) | One page only (native `VALUE_HUNDRED`). Active teams (no `archived` flag). |
 | Captained teams (event creation) | `GET teams?archived=false&query_type=user_teams&captain_teams=true&sport_types[]=&search_query=&user_ids[]=` | Android (`getTeamsListWithUserIds`) | Sport filter omitted for sport-less events. |
+| Opponent teams (event creation) | `GET teams?archived=false&query_type=non_league_teams&captain_teams=false&exclude_team_id=<own team>&sport_types[]=&search_query=` | Android (`getTeamsListWithUserIds`, opponent mode) | No `user_ids[]`; one page of 100. |
 | Team details | `GET teams/{id}` -> `{team, is_captain, ...}` | Android (`getTeamDetails`) | |
 | Team members | `GET teams/{id}/team_players?roles[]=&sport_types[]=&search=&include_inactive_members=false&page=1&per_page=100` | Android (`getTeamsMemberListWithFilter`) | Used for the roster page and team-event player search. |
 | Create team | `POST teams` `{team:{name, team_type, enable_player_ranking, team_sports_attributes[], team_players_attributes[]}}` | Android (`createTeam`) | iOS `Teams` endpoints not compared yet. |

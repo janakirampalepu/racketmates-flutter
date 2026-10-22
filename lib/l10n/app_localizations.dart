@@ -1995,6 +1995,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Count towards team ranking'**
   String get createRankingLabel;
+
+  /// No description provided for @createDynamicsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who are you playing?'**
+  String get createDynamicsTitle;
+
+  /// No description provided for @createDynamicsWithin.
+  ///
+  /// In en, this message translates to:
+  /// **'Within my team'**
+  String get createDynamicsWithin;
+
+  /// No description provided for @createDynamicsWithinHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Members of your team play each other.'**
+  String get createDynamicsWithinHint;
+
+  /// No description provided for @createDynamicsOpponent.
+  ///
+  /// In en, this message translates to:
+  /// **'Another team'**
+  String get createDynamicsOpponent;
+
+  /// No description provided for @createDynamicsOpponentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a team that is in the app.'**
+  String get createDynamicsOpponentHint;
+
+  /// No description provided for @createDynamicsNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'A team by name'**
+  String get createDynamicsNamed;
+
+  /// No description provided for @createDynamicsNamedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the name of a team that is not in the app.'**
+  String get createDynamicsNamedHint;
+
+  /// No description provided for @createOpponentNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Opponent team name'**
+  String get createOpponentNameLabel;
+
+  /// No description provided for @createOpponentNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the opponent team name.'**
+  String get createOpponentNameRequired;
+
+  /// No description provided for @createOpponentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the opponent team'**
+  String get createOpponentTitle;
+
+  /// No description provided for @createOpponentSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search teams'**
+  String get createOpponentSearchHint;
+
+  /// No description provided for @createOpponentRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the opponent team.'**
+  String get createOpponentRequired;
+
+  /// No description provided for @createOpponentEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No teams found.'**
+  String get createOpponentEmpty;
+
+  /// No description provided for @createHomeAwayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Which team is home?'**
+  String get createHomeAwayTitle;
+
+  /// No description provided for @createHomeTeamLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Home team'**
+  String get createHomeTeamLabel;
+
+  /// No description provided for @createAwayTeamLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Visiting team'**
+  String get createAwayTeamLabel;
+
+  /// No description provided for @createSwapTeams.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap home and visiting team'**
+  String get createSwapTeams;
+
+  /// No description provided for @createHomeNotDecided.
+  ///
+  /// In en, this message translates to:
+  /// **'Home team not decided yet'**
+  String get createHomeNotDecided;
+
+  /// No description provided for @createReviewOpponent.
+  ///
+  /// In en, this message translates to:
+  /// **'Opponent'**
+  String get createReviewOpponent;
+
+  /// No description provided for @createOpponentSideNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The opponent team assigns its own players.'**
+  String get createOpponentSideNote;
 }
 
 class _AppLocalizationsDelegate

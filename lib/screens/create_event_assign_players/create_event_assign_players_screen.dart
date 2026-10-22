@@ -47,7 +47,9 @@ class _CreateEventAssignPlayersScreenState
       primaryLabel: ref.msg(MessageKeys.buttonNext, l10n.nextAction),
       primaryId: CreateEventAssignPlayersTestIds.next,
       onPrimary: () {
-        if (!draft.matches.every((m) => m.allSlotsFilled)) {
+        if (!draft.matches.every(
+          (m) => m.filled(multiTeam: draft.isMultiTeam),
+        )) {
           setState(() => _showError = true);
           return;
         }
@@ -82,15 +84,21 @@ class _CreateEventAssignPlayersScreenState
                       sideLabel(side),
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
-                    for (final slot in draft.matches[i].slots.where(
-                      (s) => s.side == side,
-                    ))
-                      _SlotTile(
-                        match: i,
-                        slot: slot,
-                        player: draft.matches[i].players[slot],
-                        onClear: () => flow.clearSlot(i, slot),
-                      ),
+                    if (side == MatchKeys.sideBottom && draft.isMultiTeam)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(l10n.createOpponentSideNote),
+                      )
+                    else
+                      for (final slot in draft.matches[i].slots.where(
+                        (s) => s.side == side,
+                      ))
+                        _SlotTile(
+                          match: i,
+                          slot: slot,
+                          player: draft.matches[i].players[slot],
+                          onClear: () => flow.clearSlot(i, slot),
+                        ),
                   ],
                 ],
               ),

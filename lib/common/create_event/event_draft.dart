@@ -66,6 +66,22 @@ const eventTypeSpecs = {
 
 final supportedEventTypes = eventTypeSpecs.keys.toSet();
 
+/// Who a team game is played against (`opponent_team_type`).
+enum OpponentKind {
+  /// Members of the user's own team play each other.
+  withinTeam('ott_within_team'),
+
+  /// Another team that exists in the app.
+  selectTeam('ott_specific_team'),
+
+  /// A team that is only known by name.
+  namedTeam('ott_unknown_team_with_name');
+
+  const OpponentKind(this.key);
+
+  final String key;
+}
+
 /// Wizard screens. The order depends on the event type (see
 /// [createEventStepsFor]); [CreateEventStep.sport], [CreateEventStep.coaches]
 /// and the match/round-robin screens only exist for the types that need them.
@@ -74,6 +90,9 @@ enum CreateEventStep {
   sport,
   teamChoice,
   teamSelect,
+  teamDynamics,
+  opponentSelect,
+  homeAway,
   settings,
   coaches,
   players,
@@ -93,6 +112,7 @@ List<CreateEventStep> createEventStepsFor(
   String? eventType, {
   bool assignNow = false,
   bool forTeam = false,
+  OpponentKind? opponent,
 }) {
   // The team choice follows the sport (or the type when there is no sport).
   final steps = _stepsWithoutTeam(eventType, assignNow: assignNow);
@@ -100,10 +120,19 @@ List<CreateEventStep> createEventStepsFor(
       ? CreateEventStep.sport
       : CreateEventStep.type;
   final at = steps.indexOf(after) + 1;
+  // Only games can be played against another team.
+  final hasOpponent =
+      forTeam && (eventTypeSpecs[eventType]?.hasMatches ?? false);
   return [
     ...steps.take(at),
     CreateEventStep.teamChoice,
     if (forTeam) CreateEventStep.teamSelect,
+    if (hasOpponent) ...[
+      CreateEventStep.teamDynamics,
+      if (opponent == OpponentKind.selectTeam) CreateEventStep.opponentSelect,
+      if (opponent != null && opponent != OpponentKind.withinTeam)
+        CreateEventStep.homeAway,
+    ],
     ...steps.skip(at),
   ];
 }
@@ -161,11 +190,13 @@ CreateEventStep? nextCreateEventStep(
   CreateEventStep current, {
   bool assignNow = false,
   bool forTeam = false,
+  OpponentKind? opponent,
 }) {
   final steps = createEventStepsFor(
     eventType,
     assignNow: assignNow,
     forTeam: forTeam,
+    opponent: opponent,
   );
   final i = steps.indexOf(current);
   return (i < 0 || i + 1 >= steps.length) ? null : steps[i + 1];
@@ -215,6 +246,11 @@ class EventDraft {
     this.forTeam,
     this.team,
     this.considerForTeamRanking = true,
+    this.opponent,
+    this.opponentTeam,
+    this.opponentName = '',
+    this.opponentIsHome = false,
+    this.homeTeamNotDecided = false,
   });
 
   final String? eventType;
@@ -276,6 +312,19 @@ class EventDraft {
   /// Round robins of a team can count towards its player ranking.
   final bool considerForTeamRanking;
 
+  /// Team games: who the team plays. Null until chosen.
+  final OpponentKind? opponent;
+
+  /// The opponent when it is an existing team.
+  final Team? opponentTeam;
+
+  /// The opponent when it is only known by name.
+  final String opponentName;
+
+  /// Which team is the home team (default: the user's team).
+  final bool opponentIsHome;
+  final bool homeTeamNotDecided;
+
   EventDraft copyWith({
     String? eventType,
     SportKey? sport,
@@ -304,6 +353,11 @@ class EventDraft {
     bool? Function()? forTeam,
     Team? Function()? team,
     bool? considerForTeamRanking,
+    OpponentKind? Function()? opponent,
+    Team? Function()? opponentTeam,
+    String? opponentName,
+    bool? opponentIsHome,
+    bool? homeTeamNotDecided,
   }) => EventDraft(
     eventType: eventType ?? this.eventType,
     sport: sport ?? this.sport,
@@ -339,9 +393,22 @@ class EventDraft {
     team: team != null ? team() : this.team,
     considerForTeamRanking:
         considerForTeamRanking ?? this.considerForTeamRanking,
+    opponent: opponent != null ? opponent() : this.opponent,
+    opponentTeam: opponentTeam != null ? opponentTeam() : this.opponentTeam,
+    opponentName: opponentName ?? this.opponentName,
+    opponentIsHome: opponentIsHome ?? this.opponentIsHome,
+    homeTeamNotDecided: homeTeamNotDecided ?? this.homeTeamNotDecided,
   );
 
   EventTypeSpec? get spec => eventTypeSpecs[eventType];
+
+  /// A team game against another team: two teams in the event, so each match
+  /// takes half the players from the user's team (native `isMultiTeamEvent`).
+  bool get isMultiTeam =>
+      forTeam == true &&
+      (spec?.hasMatches ?? false) &&
+      (opponent == OpponentKind.selectTeam ||
+          opponent == OpponentKind.namedTeam);
 
   /// Most courts that can be picked: one per match for games, else the chosen
   /// court count.
@@ -353,7 +420,10 @@ class EventDraft {
     final spec = this.spec;
     if (spec == null) return null;
     final total = spec.hasMatches
-        ? matches.fold(0, (sum, m) => sum + m.playerCount)
+        ? matches.fold(
+            0,
+            (sum, m) => sum + m.playerCount ~/ (isMultiTeam ? 2 : 1),
+          )
         : spec.isRoundRobin
         ? courtCount * (gameType == MatchKeys.gameSingles ? 2 : 4)
         : null;

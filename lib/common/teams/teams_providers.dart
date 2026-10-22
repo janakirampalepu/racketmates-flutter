@@ -29,3 +29,15 @@ final teamMembersProvider = FutureProvider.autoDispose
     .family<List<TeamPlayer>, int>(
       (ref, id) => ref.watch(teamsRepositoryProvider).members(id),
     );
+
+/// Teams to play against: (sport, the user's team to leave out, search text).
+final opponentTeamsProvider = FutureProvider.autoDispose
+    .family<List<Team>, ({String? sport, int exclude, String query})>(
+      (ref, args) => ref
+          .watch(teamsRepositoryProvider)
+          .opponentTeams(
+            excludeTeamId: args.exclude,
+            sportKey: args.sport,
+            query: args.query,
+          ),
+    );

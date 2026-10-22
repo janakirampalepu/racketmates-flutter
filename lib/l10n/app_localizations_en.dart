@@ -1023,4 +1023,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createRankingLabel => 'Count towards team ranking';
+
+  @override
+  String get createDynamicsTitle => 'Who are you playing?';
+
+  @override
+  String get createDynamicsWithin => 'Within my team';
+
+  @override
+  String get createDynamicsWithinHint =>
+      'Members of your team play each other.';
+
+  @override
+  String get createDynamicsOpponent => 'Another team';
+
+  @override
+  String get createDynamicsOpponentHint => 'Choose a team that is in the app.';
+
+  @override
+  String get createDynamicsNamed => 'A team by name';
+
+  @override
+  String get createDynamicsNamedHint =>
+      'Enter the name of a team that is not in the app.';
+
+  @override
+  String get createOpponentNameLabel => 'Opponent team name';
+
+  @override
+  String get createOpponentNameRequired => 'Enter the opponent team name.';
+
+  @override
+  String get createOpponentTitle => 'Choose the opponent team';
+
+  @override
+  String get createOpponentSearchHint => 'Search teams';
+
+  @override
+  String get createOpponentRequired => 'Choose the opponent team.';
+
+  @override
+  String get createOpponentEmpty => 'No teams found.';
+
+  @override
+  String get createHomeAwayTitle => 'Which team is home?';
+
+  @override
+  String get createHomeTeamLabel => 'Home team';
+
+  @override
+  String get createAwayTeamLabel => 'Visiting team';
+
+  @override
+  String get createSwapTeams => 'Swap home and visiting team';
+
+  @override
+  String get createHomeNotDecided => 'Home team not decided yet';
+
+  @override
+  String get createReviewOpponent => 'Opponent';
+
+  @override
+  String get createOpponentSideNote =>
+      'The opponent team assigns its own players.';
 }
