@@ -552,5 +552,22 @@
         "type": "int"
       }
     }
-  }
+  },
+  "deviceBlockedTitle": "Security Warning",
+  "deviceBlockedMessage": "This device appears to be rooted or jailbroken. That exposes your device to malware and keyloggers.\n\nWe do not recommend using our app on such a device. It is strongly recommended that you access your account on another device or reset this device to its original settings.",
+  "downtimeFallbackTitle": "We'll be right back",
+  "downtimeFallbackMessage": "The service is unavailable right now. Please try again in a little while.",
+  "downtimeBackBefore": "We will be back before {time} {date}.",
+  "@downtimeBackBefore": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "downtimeCheckAgain": "Check again"
 }

@@ -6,7 +6,10 @@ import 'package:racketmates/common/auth/auth_api.dart';
 import 'package:racketmates/common/auth/models/app_metadata.dart';
 import 'package:racketmates/common/auth/models/phone_verification.dart';
 import 'package:racketmates/common/auth/models/session_token.dart';
+import 'package:racketmates/common/auth/native_session.dart';
 import 'package:racketmates/common/auth/phone_verification_repository.dart';
+import 'package:racketmates/common/security/device_integrity.dart';
+import 'package:racketmates/common/startup/downtime.dart';
 import 'package:racketmates/common/content/content_cache.dart';
 import 'package:racketmates/common/content/content_controller.dart';
 import 'package:racketmates/common/content/content_repository.dart';
@@ -490,16 +493,74 @@ class FakeContentRepository implements ContentRepository {
   }
 }
 
-/// Provider overrides that keep content (strings / reference data) offline and
-/// deterministic in widget tests.
+class FakeDeviceIntegrity implements DeviceIntegrity {
+  FakeDeviceIntegrity({this.compromised = false});
+
+  bool compromised;
+  final List<bool> checks = [];
+
+  @override
+  Future<bool> isCompromised({required bool allowSimulator}) async {
+    checks.add(allowSimulator);
+    return compromised;
+  }
+}
+
+class FakeNativeSessionSource implements NativeSessionSource {
+  FakeNativeSessionSource([this.raw]);
+
+  String? raw;
+  int reads = 0;
+  int clears = 0;
+
+  @override
+  Future<String?> read() async {
+    reads++;
+    return raw;
+  }
+
+  @override
+  Future<void> clear() async {
+    clears++;
+    raw = null;
+  }
+}
+
+class FakeDowntimeRepository implements DowntimeRepository {
+  FakeDowntimeRepository([this.incident]);
+
+  Incident? incident;
+  int checks = 0;
+
+  @override
+  Future<Incident?> currentIncident() async {
+    checks++;
+    return incident;
+  }
+}
+
+/// Provider overrides that keep content (strings / reference data) and the
+/// startup checks (device integrity, native session, downtime) offline and
+/// deterministic in widget tests: an unmocked platform channel never answers
+/// in a widget test, so the real ones would hang startup.
 List<Override> contentOverrides({
   FakeContentRepository? repository,
   InMemoryContentCache? cache,
+  FakeDeviceIntegrity? integrity,
+  FakeNativeSessionSource? nativeSession,
+  FakeDowntimeRepository? downtime,
 }) => [
   contentRepositoryProvider.overrideWithValue(
     repository ?? FakeContentRepository(),
   ),
   contentCacheProvider.overrideWithValue(cache ?? InMemoryContentCache()),
+  deviceIntegrityProvider.overrideWithValue(integrity ?? FakeDeviceIntegrity()),
+  nativeSessionSourceProvider.overrideWithValue(
+    nativeSession ?? FakeNativeSessionSource(),
+  ),
+  downtimeRepositoryProvider.overrideWithValue(
+    downtime ?? FakeDowntimeRepository(),
+  ),
 ];
 
 class FakePlacesRepository implements PlacesRepository {

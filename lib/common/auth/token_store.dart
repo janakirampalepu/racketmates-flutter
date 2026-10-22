@@ -12,9 +12,8 @@ abstract class TokenStore {
 
 /// Keychain (iOS) / EncryptedSharedPreferences-backed (Android) store.
 ///
-/// Native upgrade: the native apps keep the same JSON in the Keychain
-/// (iOS) and SharedPreferences `SESSION_TOKEN` (Android). Reading those for a
-/// seamless upgrade is a separate, explicit migration step (CLAUDE.md section 10).
+/// Native upgrade: the native apps keep their own copy of the session (see
+/// `native_session.dart`); `SessionController.restore` imports it once.
 class SecureTokenStore implements TokenStore {
   SecureTokenStore([FlutterSecureStorage? storage])
     : _storage = storage ?? const FlutterSecureStorage();

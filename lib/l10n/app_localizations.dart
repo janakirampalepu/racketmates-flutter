@@ -2457,6 +2457,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Match {number}'**
   String eventMatchNumber(int number);
+
+  /// No description provided for @deviceBlockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Warning'**
+  String get deviceBlockedTitle;
+
+  /// No description provided for @deviceBlockedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This device appears to be rooted or jailbroken. That exposes your device to malware and keyloggers.\n\nWe do not recommend using our app on such a device. It is strongly recommended that you access your account on another device or reset this device to its original settings.'**
+  String get deviceBlockedMessage;
+
+  /// No description provided for @downtimeFallbackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll be right back'**
+  String get downtimeFallbackTitle;
+
+  /// No description provided for @downtimeFallbackMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The service is unavailable right now. Please try again in a little while.'**
+  String get downtimeFallbackMessage;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'We will be back before {time} {date}.'**
+  String downtimeBackBefore(String time, String date);
+
+  /// No description provided for @downtimeCheckAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get downtimeCheckAgain;
 }
 
 class _AppLocalizationsDelegate

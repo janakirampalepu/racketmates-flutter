@@ -70,5 +70,9 @@
 	<string>We need access to your camera to let you capture new photos for your profile and to upload images directly within the app.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to allow you to select existing photos to use for your profile or to upload within the app.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>cydia</string>
+	</array>
 </dict>
 </plist>

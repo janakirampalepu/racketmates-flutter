@@ -3,5 +3,8 @@
   "API_VERSION": "<Accept header value for this environment>",
   "OAUTH_CLIENT_ID": "<from the environment's secret store>",
   "OAUTH_CLIENT_SECRET": "<from the environment's secret store>",
-  "SENDBIRD_APP_ID": "<from the environment's secret store>"
+  "SENDBIRD_APP_ID": "<from the environment's secret store>",
+  "STATUS_PAGE_ID": "<Statuspage page id; optional, leave out to disable the downtime check>",
+  "STATUS_PAGE_API_KEY": "<Statuspage API key; optional>",
+  "STATUS_PAGE_COMPONENT": "Racketmates API"
 }

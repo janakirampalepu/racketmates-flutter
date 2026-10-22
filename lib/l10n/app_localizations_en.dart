@@ -1268,4 +1268,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String eventMatchNumber(int number) {
     return 'Match $number';
   }
+
+  @override
+  String get deviceBlockedTitle => 'Security Warning';
+
+  @override
+  String get deviceBlockedMessage =>
+      'This device appears to be rooted or jailbroken. That exposes your device to malware and keyloggers.\n\nWe do not recommend using our app on such a device. It is strongly recommended that you access your account on another device or reset this device to its original settings.';
+
+  @override
+  String get downtimeFallbackTitle => 'We\'ll be right back';
+
+  @override
+  String get downtimeFallbackMessage =>
+      'The service is unavailable right now. Please try again in a little while.';
+
+  @override
+  String downtimeBackBefore(String time, String date) {
+    return 'We will be back before $time $date.';
+  }
+
+  @override
+  String get downtimeCheckAgain => 'Check again';
 }

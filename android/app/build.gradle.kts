@@ -115,3 +115,9 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Reads the session the native app left in EncryptedSharedPreferences
+    // (same version as the native app).
+    implementation("androidx.security:security-crypto:1.1.0")
+}

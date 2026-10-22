@@ -28,18 +28,23 @@ Widget signedInApp({
   FakePlacesRepository? places,
   FakeCreateEventRepository? createEvent,
   FakeTeamsRepository? teams,
+  FakeDeviceIntegrity? integrity,
+  FakeNativeSessionSource? nativeSession,
+  FakeDowntimeRepository? downtime,
+  InMemoryTokenStore? tokenStore,
 }) => ProviderScope(
   overrides: [
     environmentConfigProvider.overrideWithValue(testConfig),
     appVersionProvider.overrideWithValue('1.0.0'),
     tokenStoreProvider.overrideWithValue(
-      InMemoryTokenStore(
-        const SessionToken(
-          accessToken: 'a',
-          refreshToken: 'r',
-          user: SessionTokenUser(id: 7),
-        ),
-      ),
+      tokenStore ??
+          InMemoryTokenStore(
+            const SessionToken(
+              accessToken: 'a',
+              refreshToken: 'r',
+              user: SessionTokenUser(id: 7),
+            ),
+          ),
     ),
     authApiProvider.overrideWithValue(FakeAuthApi()),
     startupRepositoryProvider.overrideWithValue(FakeStartupRepository()),
@@ -58,7 +63,13 @@ Widget signedInApp({
       createEvent ?? FakeCreateEventRepository(),
     ),
     teamsRepositoryProvider.overrideWithValue(teams ?? FakeTeamsRepository()),
-    ...contentOverrides(repository: content, cache: contentCache),
+    ...contentOverrides(
+      repository: content,
+      cache: contentCache,
+      integrity: integrity,
+      nativeSession: nativeSession,
+      downtime: downtime,
+    ),
   ],
   child: const RacketmatesApp(),
 );
@@ -74,15 +85,25 @@ void useTallScreen(WidgetTester tester, {double height = 4000}) {
 Widget signedOutApp({
   FakeContentRepository? content,
   InMemoryContentCache? contentCache,
+  FakeDeviceIntegrity? integrity,
+  FakeNativeSessionSource? nativeSession,
+  FakeDowntimeRepository? downtime,
+  InMemoryTokenStore? tokenStore,
 }) => ProviderScope(
   overrides: [
     environmentConfigProvider.overrideWithValue(testConfig),
     appVersionProvider.overrideWithValue('1.0.0'),
-    tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
+    tokenStoreProvider.overrideWithValue(tokenStore ?? InMemoryTokenStore()),
     authApiProvider.overrideWithValue(FakeAuthApi()),
     startupRepositoryProvider.overrideWithValue(FakeStartupRepository()),
     scheduleRepositoryProvider.overrideWithValue(FakeScheduleRepository()),
-    ...contentOverrides(repository: content, cache: contentCache),
+    ...contentOverrides(
+      repository: content,
+      cache: contentCache,
+      integrity: integrity,
+      nativeSession: nativeSession,
+      downtime: downtime,
+    ),
   ],
   child: const RacketmatesApp(),
 );

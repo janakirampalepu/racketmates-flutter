@@ -59,10 +59,14 @@ import 'package:racketmates/screens/otp/otp_args.dart';
 import 'package:racketmates/screens/otp/otp_screen.dart';
 import 'package:racketmates/screens/phone_entry/phone_entry_args.dart';
 import 'package:racketmates/screens/phone_entry/phone_entry_screen.dart';
+import 'package:racketmates/common/startup/app_gate.dart';
+import 'package:racketmates/screens/device_blocked/device_blocked_screen.dart';
+import 'package:racketmates/screens/downtime/downtime_screen.dart';
 import 'package:racketmates/screens/splash/splash_screen.dart';
 import 'package:racketmates/screens/welcome/welcome_screen.dart';
 
 /// Pure redirect rules (unit-testable). Order matters:
+/// 0. a blocked device or a downtime locks everything to its screen;
 /// 1. mandatory upgrade locks everything to the update screen;
 /// 2. while the session is being restored only the splash may show;
 /// 3. signed-out users cannot open protected routes; signed-in users skip welcome.
@@ -71,7 +75,19 @@ String? computeRedirect({
   required SessionState session,
   required bool mandatoryUpgrade,
   bool signUpInProgress = false,
+  AppGate? gate,
 }) {
+  // A blocked device or a downtime comes first: nothing else may show.
+  switch (gate) {
+    case DeviceBlocked():
+      return location == AppRoutes.deviceBlocked
+          ? null
+          : AppRoutes.deviceBlocked;
+    case Downtime():
+      return location == AppRoutes.downtime ? null : AppRoutes.downtime;
+    case null:
+      break;
+  }
   if (mandatoryUpgrade) {
     return location == AppRoutes.appUpdate ? null : AppRoutes.appUpdate;
   }
@@ -104,6 +120,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   ref
     ..listen(sessionControllerProvider, (_, _) => refresh.ping())
     ..listen(pendingUpgradeProvider, (_, _) => refresh.ping())
+    ..listen(appGateProvider, (_, _) => refresh.ping())
     ..listen(signUpFlowProvider, (_, _) => refresh.ping())
     ..onDispose(refresh.dispose);
 
@@ -115,12 +132,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       session: ref.read(sessionControllerProvider),
       mandatoryUpgrade: ref.read(pendingUpgradeProvider)?.isMandatory ?? false,
       signUpInProgress: ref.read(signUpFlowProvider) != null,
+      gate: ref.read(appGateProvider),
     ),
     errorBuilder: (context, state) => const SplashScreen(),
     routes: [
       GoRoute(
         path: AppRoutes.splash,
         builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.deviceBlocked,
+        builder: (context, state) => const DeviceBlockedScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.downtime,
+        builder: (context, state) => const DowntimeScreen(),
       ),
       GoRoute(
         path: AppRoutes.welcome,

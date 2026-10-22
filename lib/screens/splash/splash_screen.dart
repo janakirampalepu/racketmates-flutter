@@ -17,6 +17,8 @@ class SplashScreen extends ConsumerWidget {
     ref.listen(splashViewModelProvider, (_, next) {
       next.whenData((destination) {
         context.go(switch (destination) {
+          StartupDestination.blocked => AppRoutes.deviceBlocked,
+          StartupDestination.downtime => AppRoutes.downtime,
           StartupDestination.appUpdate => AppRoutes.appUpdate,
           StartupDestination.home => AppRoutes.home,
           StartupDestination.welcome => AppRoutes.welcome,

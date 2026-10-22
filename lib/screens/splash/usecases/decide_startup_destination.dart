@@ -1,6 +1,8 @@
 import 'package:racketmates/common/auth/models/app_upgrade_check.dart';
 
-enum StartupDestination { appUpdate, home, welcome }
+/// Where startup ends. [blocked] and [downtime] come from the device and
+/// status checks, which run before everything else.
+enum StartupDestination { blocked, downtime, appUpdate, home, welcome }
 
 /// Whether to show the upgrade screen. Native rule (`AppController.getMetaDataInfo`):
 /// `upgrade_required` and either the upgrade is `mandatory`, or the offered

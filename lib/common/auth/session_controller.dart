@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:racketmates/common/auth/auth_providers.dart';
 import 'package:racketmates/common/auth/models/session_token.dart';
+import 'package:racketmates/common/auth/native_session.dart';
 import 'package:racketmates/common/auth/session_state.dart';
 import 'package:racketmates/common/config/config_providers.dart';
 
@@ -13,7 +14,14 @@ class SessionController extends Notifier<SessionState> {
 
   /// Reads the persisted session (cold start).
   Future<void> restore() async {
-    final token = await ref.read(tokenStoreProvider).read();
+    final store = ref.read(tokenStoreProvider);
+    var token = await store.read();
+    if (token == null) {
+      // First launch after updating from the native app: keep the user signed
+      // in by importing the session it left behind.
+      token = await ref.read(nativeSessionImporterProvider).import();
+      if (token != null) await store.write(token);
+    }
     state = (token != null && token.hasRefreshToken)
         ? SignedIn(token)
         : const SignedOut();

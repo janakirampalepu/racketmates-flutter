@@ -20,6 +20,10 @@ class EnvironmentConfig {
     required this.oauthClientId,
     required this.oauthClientSecret,
     this.sendbirdAppId = '',
+    this.statusPageId = '',
+    this.statusPageApiKey = '',
+    this.statusPageComponent = 'Racketmates API',
+    this.statusPageBaseUrl = 'https://api.statuspage.io/v1/',
   });
 
   /// Reads compile-time defines. Call [validate] before use.
@@ -35,6 +39,12 @@ class EnvironmentConfig {
       oauthClientId: const String.fromEnvironment('OAUTH_CLIENT_ID'),
       oauthClientSecret: const String.fromEnvironment('OAUTH_CLIENT_SECRET'),
       sendbirdAppId: const String.fromEnvironment('SENDBIRD_APP_ID'),
+      statusPageId: const String.fromEnvironment('STATUS_PAGE_ID'),
+      statusPageApiKey: const String.fromEnvironment('STATUS_PAGE_API_KEY'),
+      statusPageComponent: const String.fromEnvironment(
+        'STATUS_PAGE_COMPONENT',
+        defaultValue: 'Racketmates API',
+      ),
     );
   }
 
@@ -44,6 +54,21 @@ class EnvironmentConfig {
   final String oauthClientId;
   final String oauthClientSecret;
   final String sendbirdAppId;
+
+  /// Atlassian Statuspage used for the downtime gate (native
+  /// `SERVER_STATUS_PAGE_ID` / `SERVER_STATUS_AUTH_KEY`). Optional: without a
+  /// page id and key the downtime check is off. The key is bundled in the app
+  /// like in the native apps, so it must be a read-only key for a public page.
+  final String statusPageId;
+  final String statusPageApiKey;
+
+  /// Component whose incidents take the app down (native
+  /// `statuspage_api_component_name`).
+  final String statusPageComponent;
+  final String statusPageBaseUrl;
+
+  bool get downtimeCheckEnabled =>
+      statusPageId.isNotEmpty && statusPageApiKey.isNotEmpty;
 
   /// Returns the list of problems; empty when the configuration is usable.
   List<String> problems() {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:racketmates/app/config/brand_config.dart';
+import 'package:racketmates/app/app_resume_gate.dart';
 import 'package:racketmates/app/router/app_router.dart';
 import 'package:racketmates/app/theme/app_theme.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
@@ -22,6 +23,8 @@ class RacketmatesApp extends ConsumerWidget {
       darkTheme: AppTheme.dark(brand),
       themeMode: ThemeMode.system,
       routerConfig: ref.watch(appRouterProvider),
+      builder: (context, child) =>
+          AppResumeGate(child: child ?? const SizedBox()),
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

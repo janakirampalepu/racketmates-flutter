@@ -2,6 +2,8 @@ import 'package:racketmates/common/create_event/event_draft.dart';
 
 abstract final class AppRoutes {
   static const splash = '/';
+  static const deviceBlocked = '/device-blocked';
+  static const downtime = '/downtime';
   static const welcome = '/welcome';
   static const home = '/home';
   static const schedule = '/schedule';
