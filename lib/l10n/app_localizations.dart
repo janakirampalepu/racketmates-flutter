@@ -1365,6 +1365,366 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose up to {count} courts.'**
   String createCourtsHint(int count);
+
+  /// No description provided for @createScoringTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scoring format'**
+  String get createScoringTitle;
+
+  /// No description provided for @createScoringHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how matches are scored.'**
+  String get createScoringHint;
+
+  /// No description provided for @createScoringLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load the scoring formats.'**
+  String get createScoringLoadError;
+
+  /// No description provided for @createScoreGamesToWin.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum games to win'**
+  String get createScoreGamesToWin;
+
+  /// No description provided for @createScorePointsToWin.
+  ///
+  /// In en, this message translates to:
+  /// **'Points to win'**
+  String get createScorePointsToWin;
+
+  /// No description provided for @createScoreMinimumPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum points to win'**
+  String get createScoreMinimumPoints;
+
+  /// No description provided for @createScoreTotalPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Total points'**
+  String get createScoreTotalPoints;
+
+  /// No description provided for @createScoreDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Round duration'**
+  String get createScoreDuration;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} mins'**
+  String createScoreMinutes(int minutes);
+
+  /// No description provided for @createDecidingSetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'If the last set is tied'**
+  String get createDecidingSetLabel;
+
+  /// No description provided for @createDecidingRegular.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular set'**
+  String get createDecidingRegular;
+
+  /// No description provided for @createDecidingTieBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Tie-break'**
+  String get createDecidingTieBreak;
+
+  /// No description provided for @createDecidingLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Decide later'**
+  String get createDecidingLater;
+
+  /// No description provided for @createLogResultsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Players can log results'**
+  String get createLogResultsLabel;
+
+  /// No description provided for @createMatchesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches'**
+  String get createMatchesTitle;
+
+  /// No description provided for @createMatchesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the matches you will play. You can leave singles or doubles open.'**
+  String get createMatchesHint;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Match {number}'**
+  String createMatchNumber(int number);
+
+  /// No description provided for @createAddMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Add another match'**
+  String get createAddMatch;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove match {number}'**
+  String createRemoveMatch(int number);
+
+  /// No description provided for @createMatchSingles.
+  ///
+  /// In en, this message translates to:
+  /// **'Singles'**
+  String get createMatchSingles;
+
+  /// No description provided for @createMatchDoubles.
+  ///
+  /// In en, this message translates to:
+  /// **'Doubles'**
+  String get createMatchDoubles;
+
+  /// No description provided for @createMatchUndecided.
+  ///
+  /// In en, this message translates to:
+  /// **'Decide later'**
+  String get createMatchUndecided;
+
+  /// No description provided for @createRoundRobinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Round robin'**
+  String get createRoundRobinTitle;
+
+  /// No description provided for @createRoundRobinCourtsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How many courts will be used?'**
+  String get createRoundRobinCourtsHint;
+
+  /// No description provided for @createRoundRobinPlayersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Players'**
+  String get createRoundRobinPlayersLabel;
+
+  /// No description provided for @createGameSingles.
+  ///
+  /// In en, this message translates to:
+  /// **'Singles'**
+  String get createGameSingles;
+
+  /// No description provided for @createGameDoubles.
+  ///
+  /// In en, this message translates to:
+  /// **'Doubles'**
+  String get createGameDoubles;
+
+  /// No description provided for @createGameBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'Both'**
+  String get createGameBoth;
+
+  /// No description provided for @createPartnersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Partners'**
+  String get createPartnersLabel;
+
+  /// No description provided for @createPartnersRotating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotating'**
+  String get createPartnersRotating;
+
+  /// No description provided for @createPartnersRotatingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Partners change every round'**
+  String get createPartnersRotatingHint;
+
+  /// No description provided for @createPartnersFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed'**
+  String get createPartnersFixed;
+
+  /// No description provided for @createPartnersFixedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairs stay the same for the entire event'**
+  String get createPartnersFixedHint;
+
+  /// No description provided for @createRoundRobinFormatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the type of your round robin'**
+  String get createRoundRobinFormatTitle;
+
+  /// No description provided for @createFormatClassic.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic'**
+  String get createFormatClassic;
+
+  /// No description provided for @createFormatKing.
+  ///
+  /// In en, this message translates to:
+  /// **'King of the court'**
+  String get createFormatKing;
+
+  /// No description provided for @createFormatManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get createFormatManual;
+
+  /// No description provided for @createFormatClassicSingles.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate opponents each match, ensuring everyone competes against every player.'**
+  String get createFormatClassicSingles;
+
+  /// No description provided for @createFormatClassicRotating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate partners and opponents each match, ensuring everyone plays with and against everyone.'**
+  String get createFormatClassicRotating;
+
+  /// No description provided for @createFormatClassicFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the same partner throughout the event while rotating opponents each match.'**
+  String get createFormatClassicFixed;
+
+  /// No description provided for @createFormatKingSingles.
+  ///
+  /// In en, this message translates to:
+  /// **'Players battle to stay on the main court, rotating challengers each round.'**
+  String get createFormatKingSingles;
+
+  /// No description provided for @createFormatKingRotating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate partners and opponents while players compete to hold the winning court.'**
+  String get createFormatKingRotating;
+
+  /// No description provided for @createFormatKingFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed pairs battle to stay on the main court, rotating challengers each round.'**
+  String get createFormatKingFixed;
+
+  /// No description provided for @createFormatManualHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Build your round robin from scratch, choosing the structure and match setup yourself.'**
+  String get createFormatManualHint;
+
+  /// No description provided for @createAssignTypeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How do you want to add players?'**
+  String get createAssignTypeTitle;
+
+  /// No description provided for @createAssignNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign players to matches now'**
+  String get createAssignNow;
+
+  /// No description provided for @createAssignNowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick who plays in each match.'**
+  String get createAssignNowHint;
+
+  /// No description provided for @createAssignLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite players and assign later'**
+  String get createAssignLater;
+
+  /// No description provided for @createAssignLaterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite players first and set the matches afterwards.'**
+  String get createAssignLaterHint;
+
+  /// No description provided for @createAssignUndecided.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose singles or doubles for every match to assign players now.'**
+  String get createAssignUndecided;
+
+  /// No description provided for @createAssignPlayersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign players'**
+  String get createAssignPlayersTitle;
+
+  /// No description provided for @createSideTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Side A'**
+  String get createSideTop;
+
+  /// No description provided for @createSideBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'Side B'**
+  String get createSideBottom;
+
+  /// No description provided for @createAddPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Add player'**
+  String get createAddPlayer;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}'**
+  String createRemovePlayer(String name);
+
+  /// No description provided for @createAssignIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill every spot to continue.'**
+  String get createAssignIncomplete;
+
+  /// No description provided for @createSlotPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a player'**
+  String get createSlotPickerTitle;
+
+  /// No description provided for @createReviewScoring.
+  ///
+  /// In en, this message translates to:
+  /// **'Scoring'**
+  String get createReviewScoring;
+
+  /// No description provided for @createReviewMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches'**
+  String get createReviewMatches;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Match {number}: {type}'**
+  String createReviewMatchLine(int number, String type);
 }
 
 class _AppLocalizationsDelegate

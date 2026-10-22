@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:racketmates/common/create_event/create_event_repository.dart';
 import 'package:racketmates/common/create_event/event_draft.dart';
 import 'package:racketmates/common/create_event/event_request.dart';
+import 'package:racketmates/common/create_event/match_draft.dart';
+import 'package:racketmates/common/create_event/scoring.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
@@ -30,17 +32,38 @@ class CreateEventFlow extends Notifier<EventDraft?> {
 
   void reset() => state = null;
 
-  /// Changing the type or sport invalidates everything that depends on it.
-  void setEventType(String type) => state = EventDraft(eventType: type);
-
-  /// Next wizard step for the current event type.
-  CreateEventStep? next(CreateEventStep current) =>
-      nextCreateEventStep(_draft.eventType, current);
-
-  void setSport(SportKey sport) {
-    final d = _draft;
-    state = EventDraft(eventType: d.eventType, sport: sport);
+  /// Games and round robins size the player limits from their matches or
+  /// courts (native `setRSVPandPlayerLimit`); the invite settings step can
+  /// still change them afterwards.
+  EventDraft _synced(EventDraft d) {
+    final capacity = d.courtPlayerCapacity;
+    return capacity == null
+        ? d
+        : d.copyWith(playersLimit: capacity, rsvpLimit: capacity);
   }
+
+  EventDraft _fresh(String? type, SportKey? sport) {
+    final spec = eventTypeSpecs[type];
+    return _synced(
+      EventDraft(
+        eventType: type,
+        sport: sport,
+        matches: (spec?.hasMatches ?? false) ? const [MatchDraft()] : const [],
+      ),
+    );
+  }
+
+  /// Changing the type or sport invalidates everything that depends on it.
+  void setEventType(String type) => state = _fresh(type, null);
+
+  /// Next wizard step for the current event type and assignment choice.
+  CreateEventStep? next(CreateEventStep current) => nextCreateEventStep(
+    _draft.eventType,
+    current,
+    assignNow: _draft.assignNow,
+  );
+
+  void setSport(SportKey sport) => state = _fresh(_draft.eventType, sport);
 
   void setAttendanceType(String type) =>
       state = _draft.copyWith(attendanceUnitType: type, attendanceUnit: 1);
@@ -103,7 +126,7 @@ class CreateEventFlow extends Notifier<EventDraft?> {
             if (c != courtId) c,
         ],
       );
-    } else if (d.courtIds.length < d.courtCount) {
+    } else if (d.courtIds.length < d.courtCap) {
       state = d.copyWith(courtIds: [...d.courtIds, courtId]);
     }
   }
@@ -112,11 +135,108 @@ class CreateEventFlow extends Notifier<EventDraft?> {
   void setCourtCount(int count) {
     final d = _draft;
     final next = count < 1 ? 1 : count;
-    state = d.copyWith(
-      courtCount: next,
-      courtIds: d.courtIds.take(next).toList(),
+    state = _synced(
+      d.copyWith(courtCount: next, courtIds: d.courtIds.take(next).toList()),
     );
   }
+
+  // --- Games: matches and the players in them ---------------------------
+
+  void _setMatches(List<MatchDraft> matches) {
+    final d = _draft;
+    state = _synced(
+      d.copyWith(
+        matches: matches,
+        courtIds: d.courtIds.take(matches.length).toList(),
+      ),
+    );
+  }
+
+  void addMatch() => _setMatches([..._draft.matches, const MatchDraft()]);
+
+  /// A game keeps at least one match.
+  void removeMatch(int index) {
+    final matches = _draft.matches;
+    if (matches.length <= 1 || index < 0 || index >= matches.length) return;
+    _setMatches([
+      for (var i = 0; i < matches.length; i++)
+        if (i != index) matches[i],
+    ]);
+  }
+
+  void setMatchType(int index, String type) => _setMatches([
+    for (var i = 0; i < _draft.matches.length; i++)
+      i == index ? _draft.matches[i].withType(type) : _draft.matches[i],
+  ]);
+
+  void assignPlayer(int index, MatchSlot slot, AppUser user) => _setMatches([
+    for (var i = 0; i < _draft.matches.length; i++)
+      i == index ? _draft.matches[i].withPlayer(slot, user) : _draft.matches[i],
+  ]);
+
+  void clearSlot(int index, MatchSlot slot) => _setMatches([
+    for (var i = 0; i < _draft.matches.length; i++)
+      i == index ? _draft.matches[i].withoutPlayer(slot) : _draft.matches[i],
+  ]);
+
+  /// "Assign players now" or "invite and assign later". Players already put
+  /// into matches are kept but only sent while assigning now.
+  void setAssignNow({required bool value}) =>
+      state = _draft.copyWith(assignNow: value);
+
+  // --- Round robin ---------------------------------------------------------
+
+  /// Singles has no partners; doubles (or both) default to rotating partners
+  /// (native `updateSelectedGameType`).
+  void setGameType(String type) {
+    final d = _draft;
+    state = _synced(
+      d.copyWith(
+        gameType: type,
+        partnershipType: () => type == MatchKeys.gameSingles
+            ? null
+            : (d.partnershipType ?? MatchKeys.partnersRotating),
+        eventSubType: () => null,
+      ),
+    );
+  }
+
+  void setPartnership(String type) => state = _draft.copyWith(
+    partnershipType: () => type,
+    eventSubType: () => null,
+  );
+
+  void setEventSubType(String type) =>
+      state = _draft.copyWith(eventSubType: () => type);
+
+  // --- Scoring ----------------------------------------------------------
+
+  /// Choosing a format resets the minimum score to its default and the
+  /// deciding set to "decide later" (native scoring format picker).
+  void setScoringFormat(String format, Map<String, num?> minimumScores) =>
+      state = _draft.copyWith(
+        scoring: ScoringChoice(
+          format: format,
+          minimumScore: defaultMinimumScore(format, minimumScores),
+        ),
+      );
+
+  void setMinimumScore(int score) {
+    final scoring = _draft.scoring;
+    if (scoring == null) return;
+    state = _draft.copyWith(
+      scoring: scoring.copyWith(minimumScore: score < 1 ? 1 : score),
+    );
+  }
+
+  void setDecidingSetType(String type) {
+    final scoring = _draft.scoring;
+    if (scoring == null) return;
+    state = _draft.copyWith(scoring: scoring.copyWith(decidingSetType: type));
+  }
+
+  void setAllowLogResults({required bool value}) =>
+      state = _draft.copyWith(allowParticipantsToLogResults: value);
 
   void setStart(DateTime? start) =>
       state = _draft.copyWith(start: () => start, timezoneInfoId: () => null);

@@ -33,8 +33,13 @@ class CreateEventPlayersScreen extends ConsumerWidget {
           ? l10n.createPeopleRequired
           : l10n.createPlayersRequired,
       nextLabel: ref.msg(MessageKeys.buttonNext, l10n.nextAction),
-      onContinue: () =>
-          context.push(AppRoutes.routeForStep(CreateEventStep.whenWhere)),
+      onContinue: () => context.push(
+        AppRoutes.routeForStep(
+          ref
+              .read(createEventFlowProvider.notifier)
+              .next(CreateEventStep.players)!,
+        ),
+      ),
     );
   }
 }

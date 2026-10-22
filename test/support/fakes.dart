@@ -11,6 +11,7 @@ import 'package:racketmates/common/content/content_cache.dart';
 import 'package:racketmates/common/content/content_controller.dart';
 import 'package:racketmates/common/content/content_repository.dart';
 import 'package:racketmates/common/content/reference_data.dart';
+import 'package:racketmates/common/create_event/create_event_api.dart';
 import 'package:racketmates/common/create_event/create_event_repository.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/places/place_models.dart';
@@ -521,7 +522,22 @@ class FakePlacesRepository implements PlacesRepository {
 }
 
 class FakeCreateEventRepository implements CreateEventRepository {
-  FakeCreateEventRepository({this.players = const [], this.createdId = 321});
+  FakeCreateEventRepository({
+    this.players = const [],
+    this.createdId = 321,
+    this.scoring = const ScoringFormatsResponse(
+      scoringFormatKeys: [
+        'sf_best_of_3_sets',
+        'sf_single_set',
+        'sf_time_based',
+      ],
+      minimumScores: {'sf_best_of_3_sets': 2, 'sf_single_set': 6},
+    ),
+  });
+
+  ScoringFormatsResponse scoring;
+  bool scoringFails = false;
+  final List<({String sport, String eventType})> scoringRequests = [];
 
   List<AppUser> players;
   int? createdId;
@@ -554,6 +570,17 @@ class FakeCreateEventRepository implements CreateEventRepository {
             p.displayName.toLowerCase().contains(query.toLowerCase()))
           p,
     ];
+  }
+
+  @override
+  Future<ScoringFormatsResponse> scoringFormats({
+    required String sportKey,
+    required String eventType,
+  }) async {
+    scoringRequests.add((sport: sportKey, eventType: eventType));
+    await Future<void>.delayed(Duration.zero);
+    if (scoringFails) throw const OfflineFailure();
+    return scoring;
   }
 
   @override

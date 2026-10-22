@@ -32,7 +32,9 @@ class CreateEventInviteSettingsScreen extends ConsumerWidget {
       ),
       primaryLabel: ref.msg(MessageKeys.buttonNext, l10n.nextAction),
       primaryId: CreateEventInviteSettingsTestIds.next,
-      onPrimary: () => context.push(AppRoutes.createEventReview),
+      onPrimary: () => context.push(
+        AppRoutes.routeForStep(flow.next(CreateEventStep.inviteSettings)!),
+      ),
       onBack: () => context.pop(),
       children: [
         _LimitRow(

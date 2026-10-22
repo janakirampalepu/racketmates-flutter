@@ -9,4 +9,8 @@ abstract final class CreateEventReviewTestIds {
   static const summaryWhere = 'create_event_review_where';
   static const summaryCoaches = 'create_event_review_coaches';
   static const summaryInvited = 'create_event_review_invited';
+  static const summaryScoring = 'create_event_review_scoring';
+
+  /// `create_event_summary_match_<index>` (0-based).
+  static String summaryMatch(int index) => 'create_event_review_match_$index';
 }

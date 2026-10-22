@@ -94,6 +94,16 @@ abstract final class MessageKeys {
       'events.create.player_pool_settings_acceptance_type_label';
   static const createPlayersTitle = 'events.create.players_list_title';
   static const createSelectVenueButton = 'events.create.select_venue_button';
+  static const createMatchesTitle = 'events.create.matches_title';
+  static const createAddMatchButton = 'events.create.add_another_match_button';
+  static const createScoringTitle =
+      'events.create.settings_scoring_format_title';
+  static const createScoringHint =
+      'events.create.settings_scoring_format_sub_text';
+  static const createScoreGamesToWin =
+      'events.create.settings_scoring_format_min_games_to_win';
+  static const createScoreMinimumPoints =
+      'events.create.settings_scoring_format_min_points_to_win';
   static const createdTitle = 'events.created.title';
   static const createdGoToSchedule = 'events.created.go_to_schedule_button';
   static const createdSeeDetails = 'events.created.see_event_details_button';

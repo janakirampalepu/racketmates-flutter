@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:racketmates/common/create_event/create_event_flow.dart';
+import 'package:racketmates/common/create_event/create_event_api.dart';
 import 'package:racketmates/common/create_event/create_event_repository.dart';
 import 'package:racketmates/common/create_event/event_draft.dart';
 import 'package:racketmates/common/create_event/event_request.dart';
@@ -64,6 +65,12 @@ class _FakeCreateEventRepository implements CreateEventRepository {
     String? role,
     String? sportKey,
   }) async => const [];
+
+  @override
+  Future<ScoringFormatsResponse> scoringFormats({
+    required String sportKey,
+    required String eventType,
+  }) async => const ScoringFormatsResponse();
 
   @override
   Future<int?> timezoneInfoId({
@@ -379,6 +386,9 @@ void main() {
         'et_practice_drill',
         'et_group_lesson',
         'et_casual_meeting',
+        'et_competitive',
+        'et_casual',
+        'et_round_robin',
       });
       expect(createEventStepsFor('et_practice_drill'), [
         CreateEventStep.type,

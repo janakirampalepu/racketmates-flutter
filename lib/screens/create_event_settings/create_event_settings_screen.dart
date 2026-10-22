@@ -11,10 +11,12 @@ import 'package:racketmates/common/widgets/number_stepper.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_settings/create_event_settings_test_ids.dart';
+import 'package:racketmates/screens/create_event_settings/scoring_section.dart';
 
-/// General settings (native `GenerelSettingsFragment`, practice drill):
-/// response deadline (hours 1-23 / days 1-7) and whether participants can
-/// manage players. Coaches, audience and scoring options do not apply here.
+/// General settings (native `GenerelSettingsFragment`): response deadline
+/// (hours 1-23 / days 1-7), whether participants can manage players and, for
+/// games and round robins, whether players can log results and the scoring
+/// format. Coach and audience switches do not apply to the types built so far.
 class CreateEventSettingsScreen extends ConsumerWidget {
   const CreateEventSettingsScreen({super.key});
 
@@ -27,16 +29,20 @@ class CreateEventSettingsScreen extends ConsumerWidget {
     final unitLabel = hours
         ? ref.refLabel(attendanceUnitHours, l10n.createUnitHours)
         : ref.refLabel(attendanceUnitDays, l10n.createUnitDays);
+    final scored = draft.spec?.usesScoring ?? false;
     return StepScaffold(
       rootId: CreateEventSettingsTestIds.root,
       titleId: CreateEventSettingsTestIds.title,
       title: ref.msg(MessageKeys.createSettingsTitle, l10n.createSettingsTitle),
       primaryLabel: ref.msg(MessageKeys.buttonNext, l10n.nextAction),
       primaryId: CreateEventSettingsTestIds.next,
-      onPrimary: () {
-        final next = flow.next(CreateEventStep.settings)!;
-        context.push(AppRoutes.routeForStep(next));
-      },
+      // Scored events need a scoring format before they can continue.
+      onPrimary: scored && draft.scoring == null
+          ? null
+          : () {
+              final next = flow.next(CreateEventStep.settings)!;
+              context.push(AppRoutes.routeForStep(next));
+            },
       onBack: () => context.pop(),
       children: [
         Semantics(
@@ -107,6 +113,19 @@ class CreateEventSettingsScreen extends ConsumerWidget {
             onChanged: (v) => flow.setAllowManage(value: v),
           ),
         ),
+        if (scored) ...[
+          TestId(
+            CreateEventSettingsTestIds.allowLogResults,
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.createLogResultsLabel),
+              value: draft.allowParticipantsToLogResults,
+              onChanged: (v) => flow.setAllowLogResults(value: v),
+            ),
+          ),
+          const SizedBox(height: 16),
+          ScoringSection(draft: draft),
+        ],
       ],
     );
   }

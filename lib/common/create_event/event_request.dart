@@ -1,26 +1,76 @@
 import 'package:intl/intl.dart';
 import 'package:racketmates/common/create_event/event_draft.dart';
+import 'package:racketmates/common/create_event/match_draft.dart';
+import 'package:racketmates/common/users/models/app_user.dart';
 
 /// Native `YYYY_MM_DD_T_HH_MM_SS` = `yyyy-MM-dd'T'HH:mm'Z'`: the venue's local
 /// wall time with a literal `Z` (the zone travels in `timezone_info_id`).
 String formatStartTime(DateTime start) =>
     "${DateFormat('yyyy-MM-dd').format(start)}T${DateFormat('HH:mm').format(start)}Z";
 
-/// `screen_flow_path`: the screens opened for this event type, in native
-/// `EventCreateScreens` naming (event-type specific).
-String _flowPath(EventTypeSpec spec) => [
-  'es_event_type_selection',
-  if (spec.needsSport) 'es_sports_type',
-  'es_general_settings',
-  if (spec.needsCoaches) 'es_coaches_assign',
-  'es_invite_players_mgmt',
-  if (spec.usesCourts) 'es_courts_addition',
-  'es_invite_player_settings',
-  'es_review',
-].join('##');
+const _stepScreens = {
+  CreateEventStep.type: 'es_event_type_selection',
+  CreateEventStep.sport: 'es_sports_type',
+  CreateEventStep.settings: 'es_general_settings',
+  CreateEventStep.coaches: 'es_coaches_assign',
+  CreateEventStep.matches: 'es_courts_addition',
+  CreateEventStep.roundRobinFormat: 'es_round_robin_format_selection',
+  CreateEventStep.whenWhere: 'es_court_options',
+  CreateEventStep.assignType: 'es_court_player_assign_type',
+  CreateEventStep.assignPlayers: 'es_court_player_assignment',
+  CreateEventStep.inviteSettings: 'es_invite_player_settings',
+  CreateEventStep.players: 'es_invite_players_mgmt',
+  CreateEventStep.review: 'es_review',
+};
 
-/// Body of `POST events` for events without matches or teams (practice drill,
-/// group lesson, casual meetup), built from the fields the native
+/// `screen_flow_path`: the screens opened for this event, in native
+/// `EventCreateScreens` naming. Games and round robins list the screens they
+/// went through; the other types keep the path of the first wizard version.
+String _flowPath(EventDraft draft, EventTypeSpec spec) {
+  if (spec.usesScoring) {
+    return [
+      for (final step in createEventStepsFor(
+        spec.key,
+        assignNow: draft.assignNow,
+      ))
+        _stepScreens[step]!,
+    ].join('##');
+  }
+  return [
+    'es_event_type_selection',
+    if (spec.needsSport) 'es_sports_type',
+    'es_general_settings',
+    if (spec.needsCoaches) 'es_coaches_assign',
+    'es_invite_players_mgmt',
+    if (spec.usesCourts) 'es_courts_addition',
+    'es_invite_player_settings',
+    'es_review',
+  ].join('##');
+}
+
+List<Map<String, dynamic>> _matchBodies(EventDraft draft, List<int> courts) => [
+  for (var i = 0; i < draft.matches.length; i++)
+    {
+      'match_type': draft.matches[i].matchType,
+      'order': i + 1,
+      if (i < courts.length) 'place_court_id': courts[i],
+      'event_match_sides_attributes': [
+        for (final side in const [MatchKeys.sideTop, MatchKeys.sideBottom])
+          {
+            'side': side,
+            'event_participants': [
+              if (draft.assignNow)
+                for (final e in draft.matches[i].players.entries)
+                  if (e.key.side == side)
+                    {'user_id': e.value.id, 'position': e.key.position},
+            ],
+          },
+      ],
+    },
+];
+
+/// Body of `POST events` for non-team events (practice drill, group lesson,
+/// casual meetup, competitive/casual game, round robin), built from the fields the native
 /// `getCreateEventInfo()` sends. Throws [StateError] when the draft is
 /// incomplete (screens validate first).
 Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
@@ -33,7 +83,14 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
       place?.id == null) {
     throw StateError('incomplete event draft');
   }
-  final courts = draft.courtIds.take(draft.courtCount).toList();
+  if (spec.usesScoring && draft.scoring == null) {
+    throw StateError('incomplete event draft');
+  }
+  final courts = draft.courtIds.take(draft.courtCap).toList();
+  final scoring = draft.scoring;
+  // Players put into matches now are not event participants (native keeps
+  // only coaches in that case) and the invite settings step is skipped.
+  final assignNow = spec.hasMatches && draft.assignNow;
   return {
     'event': {
       'event_type': spec.key,
@@ -49,8 +106,26 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
       'player_pool': playerPoolInvitedOnly,
       'players_limit': draft.playersLimit,
       'rsvp_limit': draft.rsvpLimit,
-      'player_acceptance_type': draft.acceptanceType,
-      if (spec.usesCourts) 'no_of_courts': draft.courtCount,
+      'player_acceptance_type': assignNow
+          ? acceptPickManually
+          : draft.acceptanceType,
+      if (spec.usesScoring) ...{
+        'scoring_format': scoring!.format,
+        'deciding_set_type': scoring.decidingSetType,
+        'minimum_score_to_win': scoring.minimumScore,
+        'allow_participants_to_log_results':
+            draft.allowParticipantsToLogResults,
+        'assign_type': assignNow ? MatchKeys.assignNow : MatchKeys.assignLater,
+        'all_courts_different_schedule_options': false,
+      },
+      if (spec.isRoundRobin) ...{
+        'game_type': draft.gameType,
+        if (draft.partnershipType != null &&
+            draft.gameType != MatchKeys.gameSingles)
+          'partnership_type': draft.partnershipType,
+        'event_sub_type': draft.eventSubType,
+      },
+      if (spec.usesCourts && !spec.hasMatches) 'no_of_courts': draft.courtCount,
       if (draft.notes.trim().isNotEmpty) 'notes_for_event': draft.notes.trim(),
       'event_participants_attributes': [
         for (final user in draft.coaches)
@@ -60,7 +135,7 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
             'is_coach': true,
             'is_audience': false,
           },
-        for (final user in draft.invitees)
+        for (final user in assignNow ? const <AppUser>[] : draft.invitees)
           {
             'user_id': user.id,
             'is_player': !spec.participantsAreAudience,
@@ -77,13 +152,17 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
             'timezone_info_id': draft.timezoneInfoId,
         },
       ],
-      if (spec.usesCourts)
+      if (spec.hasMatches) ...{
+        'event_matches_attributes': _matchBodies(draft, courts),
+        // Native sends an empty list: each match carries its own court.
+        'event_venue_courts_attributes': const <Map<String, dynamic>>[],
+      } else if (spec.usesCourts)
         'event_venue_courts_attributes': [
           for (var i = 0; i < courts.length; i++)
             {'place_court_id': courts[i], 'order': i + 1},
         ],
       'event_screen': 'es_review',
-      'screen_flow_path': _flowPath(spec),
+      'screen_flow_path': _flowPath(draft, spec),
     },
   };
 }

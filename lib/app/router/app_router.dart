@@ -12,6 +12,12 @@ import 'package:racketmates/screens/app_update/app_update_screen.dart';
 import 'package:racketmates/screens/country_picker/country_picker_screen.dart';
 import 'package:racketmates/screens/place_picker/place_picker_screen.dart';
 import 'package:racketmates/screens/create_event_success/create_event_success_screen.dart';
+import 'package:racketmates/common/create_event/match_draft.dart';
+import 'package:racketmates/screens/create_event_assign_players/create_event_assign_players_screen.dart';
+import 'package:racketmates/screens/create_event_assign_type/create_event_assign_type_screen.dart';
+import 'package:racketmates/screens/create_event_matches/create_event_matches_screen.dart';
+import 'package:racketmates/screens/create_event_round_robin_format/create_event_round_robin_format_screen.dart';
+import 'package:racketmates/screens/create_event_slot_picker/create_event_slot_picker_screen.dart';
 import 'package:racketmates/screens/create_event_review/create_event_review_screen.dart';
 import 'package:racketmates/screens/create_event_invite_settings/create_event_invite_settings_screen.dart';
 import 'package:racketmates/screens/create_event_when_where/create_event_when_where_screen.dart';
@@ -240,6 +246,38 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'players',
             builder: (context, state) => const CreateEventPlayersScreen(),
+          ),
+          GoRoute(
+            path: 'matches',
+            builder: (context, state) => const CreateEventMatchesScreen(),
+          ),
+          GoRoute(
+            path: 'round-robin-format',
+            builder: (context, state) =>
+                const CreateEventRoundRobinFormatScreen(),
+          ),
+          GoRoute(
+            path: 'assign-type',
+            builder: (context, state) => const CreateEventAssignTypeScreen(),
+          ),
+          GoRoute(
+            path: 'assign-players',
+            builder: (context, state) => const CreateEventAssignPlayersScreen(),
+            routes: [
+              GoRoute(
+                path: 'pick',
+                builder: (context, state) {
+                  final q = state.uri.queryParameters;
+                  return CreateEventSlotPickerScreen(
+                    match: int.tryParse(q['match'] ?? '') ?? 0,
+                    slot: MatchSlot(
+                      q['side'] ?? MatchKeys.sideTop,
+                      q['position'] ?? MatchKeys.positionCenter,
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
           GoRoute(
             path: 'when-where',

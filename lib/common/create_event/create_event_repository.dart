@@ -18,6 +18,12 @@ abstract class CreateEventRepository {
     String? sportKey,
   });
 
+  /// Scoring formats a sport offers for an event type.
+  Future<ScoringFormatsResponse> scoringFormats({
+    required String sportKey,
+    required String eventType,
+  });
+
   /// `timezone_info_id` for a venue at [latitude]/[longitude] and local [time]
   /// (`yyyy-MM-dd'T'HH:mm'Z'`), or null when it cannot be resolved.
   Future<int?> timezoneInfoId({
@@ -60,6 +66,14 @@ class CreateEventRepositoryImpl implements CreateEventRepository {
         ),
       )).users ??
       const [];
+
+  @override
+  Future<ScoringFormatsResponse> scoringFormats({
+    required String sportKey,
+    required String eventType,
+  }) => _guard(
+    () => api.scoringFormats(sportType: sportKey, eventType: eventType),
+  );
 
   @override
   Future<int?> timezoneInfoId({

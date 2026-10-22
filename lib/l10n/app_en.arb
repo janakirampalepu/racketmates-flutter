@@ -292,5 +292,108 @@
         "type": "int"
       }
     }
+  },
+  "createScoringTitle": "Scoring format",
+  "createScoringHint": "Choose how matches are scored.",
+  "createScoringLoadError": "We couldn't load the scoring formats.",
+  "createScoreGamesToWin": "Minimum games to win",
+  "createScorePointsToWin": "Points to win",
+  "createScoreMinimumPoints": "Minimum points to win",
+  "createScoreTotalPoints": "Total points",
+  "createScoreDuration": "Round duration",
+  "createScoreMinutes": "{minutes} mins",
+  "@createScoreMinutes": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "createDecidingSetLabel": "If the last set is tied",
+  "createDecidingRegular": "Regular set",
+  "createDecidingTieBreak": "Tie-break",
+  "createDecidingLater": "Decide later",
+  "createLogResultsLabel": "Players can log results",
+  "createMatchesTitle": "Matches",
+  "createMatchesHint": "Add the matches you will play. You can leave singles or doubles open.",
+  "createMatchNumber": "Match {number}",
+  "@createMatchNumber": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "createAddMatch": "Add another match",
+  "createRemoveMatch": "Remove match {number}",
+  "@createRemoveMatch": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "createMatchSingles": "Singles",
+  "createMatchDoubles": "Doubles",
+  "createMatchUndecided": "Decide later",
+  "createRoundRobinTitle": "Round robin",
+  "createRoundRobinCourtsHint": "How many courts will be used?",
+  "createRoundRobinPlayersLabel": "Players",
+  "createGameSingles": "Singles",
+  "createGameDoubles": "Doubles",
+  "createGameBoth": "Both",
+  "createPartnersLabel": "Partners",
+  "createPartnersRotating": "Rotating",
+  "createPartnersRotatingHint": "Partners change every round",
+  "createPartnersFixed": "Fixed",
+  "createPartnersFixedHint": "Pairs stay the same for the entire event",
+  "createRoundRobinFormatTitle": "Select the type of your round robin",
+  "createFormatClassic": "Classic",
+  "createFormatKing": "King of the court",
+  "createFormatManual": "Manual",
+  "createFormatClassicSingles": "Rotate opponents each match, ensuring everyone competes against every player.",
+  "createFormatClassicRotating": "Rotate partners and opponents each match, ensuring everyone plays with and against everyone.",
+  "createFormatClassicFixed": "Keep the same partner throughout the event while rotating opponents each match.",
+  "createFormatKingSingles": "Players battle to stay on the main court, rotating challengers each round.",
+  "createFormatKingRotating": "Rotate partners and opponents while players compete to hold the winning court.",
+  "createFormatKingFixed": "Fixed pairs battle to stay on the main court, rotating challengers each round.",
+  "createFormatManualHint": "Build your round robin from scratch, choosing the structure and match setup yourself.",
+  "createAssignTypeTitle": "How do you want to add players?",
+  "createAssignNow": "Assign players to matches now",
+  "createAssignNowHint": "Pick who plays in each match.",
+  "createAssignLater": "Invite players and assign later",
+  "createAssignLaterHint": "Invite players first and set the matches afterwards.",
+  "createAssignUndecided": "Choose singles or doubles for every match to assign players now.",
+  "createAssignPlayersTitle": "Assign players",
+  "createSideTop": "Side A",
+  "createSideBottom": "Side B",
+  "createAddPlayer": "Add player",
+  "createRemovePlayer": "Remove {name}",
+  "@createRemovePlayer": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "createAssignIncomplete": "Fill every spot to continue.",
+  "createSlotPickerTitle": "Choose a player",
+  "createReviewScoring": "Scoring",
+  "createReviewMatches": "Matches",
+  "createReviewMatchLine": "Match {number}: {type}",
+  "@createReviewMatchLine": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "type": {
+        "type": "String"
+      }
+    }
   }
 }

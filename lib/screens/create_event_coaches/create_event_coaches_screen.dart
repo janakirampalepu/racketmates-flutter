@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/content/messages.dart';
+import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/create_event/event_draft.dart';
 import 'package:racketmates/common/create_event/people_kind.dart';
 import 'package:racketmates/common/widgets/people_step.dart';
@@ -25,8 +26,13 @@ class CreateEventCoachesScreen extends ConsumerWidget {
       emptyText: l10n.createCoachesEmpty,
       requiredError: l10n.createCoachesRequired,
       nextLabel: ref.msg(MessageKeys.buttonNext, l10n.nextAction),
-      onContinue: () =>
-          context.push(AppRoutes.routeForStep(CreateEventStep.players)),
+      onContinue: () => context.push(
+        AppRoutes.routeForStep(
+          ref
+              .read(createEventFlowProvider.notifier)
+              .next(CreateEventStep.coaches)!,
+        ),
+      ),
     );
   }
 }

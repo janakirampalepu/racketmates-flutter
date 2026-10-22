@@ -8,4 +8,19 @@ abstract final class CreateEventSettingsTestIds {
   static const deadlineDecrease = 'create_event_deadline_decrease';
   static const deadlineIncrease = 'create_event_deadline_increase';
   static const allowManage = 'create_event_allow_manage_switch';
+  static const allowLogResults = 'create_event_allow_log_results_switch';
+  static const scoringError = 'create_event_scoring_error';
+  static const scoringRetry = 'create_event_scoring_retry';
+  static const scoringLoading = 'create_event_scoring_loading';
+  static const scoreDecrease = 'create_event_score_decrease';
+  static const scoreValue = 'create_event_score_value';
+  static const scoreIncrease = 'create_event_score_increase';
+  static const scoreMinutes = 'create_event_score_minutes';
+  static const scoreIdPrefix = 'create_event_score';
+
+  /// `create_event_scoring_format_<key>`.
+  static String format(String key) => 'create_event_scoring_format_$key';
+
+  /// `create_event_deciding_set_<key>`.
+  static String decidingSet(String key) => 'create_event_deciding_set_$key';
 }

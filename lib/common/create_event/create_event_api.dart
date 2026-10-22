@@ -19,6 +19,21 @@ class UserSearchResponse {
   Map<String, dynamic> toJson() => _$UserSearchResponseToJson(this);
 }
 
+/// `GET reference_data/scoring_formats` response: the formats a sport offers
+/// for an event type and the default minimum score of each.
+@JsonSerializable(fieldRename: FieldRename.snake)
+class ScoringFormatsResponse {
+  const ScoringFormatsResponse({this.scoringFormatKeys, this.minimumScores});
+
+  factory ScoringFormatsResponse.fromJson(Map<String, dynamic> json) =>
+      _$ScoringFormatsResponseFromJson(json);
+
+  final List<String>? scoringFormatKeys;
+  final Map<String, num?>? minimumScores;
+
+  Map<String, dynamic> toJson() => _$ScoringFormatsResponseToJson(this);
+}
+
 /// `GET timezone_infos/lookup` response.
 @JsonSerializable(fieldRename: FieldRename.snake)
 class TimezoneLookupResponse {
@@ -66,6 +81,12 @@ abstract class CreateEventApi {
     @Query('sport_types[]') List<String>? sportTypes,
     @Query('include_user_ids[]') List<int>? includeUserIds,
     @Query('exclude_user_ids[]') List<int>? excludeUserIds,
+  });
+
+  @GET('reference_data/scoring_formats')
+  Future<ScoringFormatsResponse> scoringFormats({
+    @Query('sport_type') String? sportType,
+    @Query('event_type') String? eventType,
   });
 
   @GET('timezone_infos/lookup')

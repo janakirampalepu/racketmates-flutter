@@ -673,4 +673,206 @@ class AppLocalizationsEn extends AppLocalizations {
   String createCourtsHint(int count) {
     return 'Choose up to $count courts.';
   }
+
+  @override
+  String get createScoringTitle => 'Scoring format';
+
+  @override
+  String get createScoringHint => 'Choose how matches are scored.';
+
+  @override
+  String get createScoringLoadError => 'We couldn\'t load the scoring formats.';
+
+  @override
+  String get createScoreGamesToWin => 'Minimum games to win';
+
+  @override
+  String get createScorePointsToWin => 'Points to win';
+
+  @override
+  String get createScoreMinimumPoints => 'Minimum points to win';
+
+  @override
+  String get createScoreTotalPoints => 'Total points';
+
+  @override
+  String get createScoreDuration => 'Round duration';
+
+  @override
+  String createScoreMinutes(int minutes) {
+    return '$minutes mins';
+  }
+
+  @override
+  String get createDecidingSetLabel => 'If the last set is tied';
+
+  @override
+  String get createDecidingRegular => 'Regular set';
+
+  @override
+  String get createDecidingTieBreak => 'Tie-break';
+
+  @override
+  String get createDecidingLater => 'Decide later';
+
+  @override
+  String get createLogResultsLabel => 'Players can log results';
+
+  @override
+  String get createMatchesTitle => 'Matches';
+
+  @override
+  String get createMatchesHint =>
+      'Add the matches you will play. You can leave singles or doubles open.';
+
+  @override
+  String createMatchNumber(int number) {
+    return 'Match $number';
+  }
+
+  @override
+  String get createAddMatch => 'Add another match';
+
+  @override
+  String createRemoveMatch(int number) {
+    return 'Remove match $number';
+  }
+
+  @override
+  String get createMatchSingles => 'Singles';
+
+  @override
+  String get createMatchDoubles => 'Doubles';
+
+  @override
+  String get createMatchUndecided => 'Decide later';
+
+  @override
+  String get createRoundRobinTitle => 'Round robin';
+
+  @override
+  String get createRoundRobinCourtsHint => 'How many courts will be used?';
+
+  @override
+  String get createRoundRobinPlayersLabel => 'Players';
+
+  @override
+  String get createGameSingles => 'Singles';
+
+  @override
+  String get createGameDoubles => 'Doubles';
+
+  @override
+  String get createGameBoth => 'Both';
+
+  @override
+  String get createPartnersLabel => 'Partners';
+
+  @override
+  String get createPartnersRotating => 'Rotating';
+
+  @override
+  String get createPartnersRotatingHint => 'Partners change every round';
+
+  @override
+  String get createPartnersFixed => 'Fixed';
+
+  @override
+  String get createPartnersFixedHint =>
+      'Pairs stay the same for the entire event';
+
+  @override
+  String get createRoundRobinFormatTitle =>
+      'Select the type of your round robin';
+
+  @override
+  String get createFormatClassic => 'Classic';
+
+  @override
+  String get createFormatKing => 'King of the court';
+
+  @override
+  String get createFormatManual => 'Manual';
+
+  @override
+  String get createFormatClassicSingles =>
+      'Rotate opponents each match, ensuring everyone competes against every player.';
+
+  @override
+  String get createFormatClassicRotating =>
+      'Rotate partners and opponents each match, ensuring everyone plays with and against everyone.';
+
+  @override
+  String get createFormatClassicFixed =>
+      'Keep the same partner throughout the event while rotating opponents each match.';
+
+  @override
+  String get createFormatKingSingles =>
+      'Players battle to stay on the main court, rotating challengers each round.';
+
+  @override
+  String get createFormatKingRotating =>
+      'Rotate partners and opponents while players compete to hold the winning court.';
+
+  @override
+  String get createFormatKingFixed =>
+      'Fixed pairs battle to stay on the main court, rotating challengers each round.';
+
+  @override
+  String get createFormatManualHint =>
+      'Build your round robin from scratch, choosing the structure and match setup yourself.';
+
+  @override
+  String get createAssignTypeTitle => 'How do you want to add players?';
+
+  @override
+  String get createAssignNow => 'Assign players to matches now';
+
+  @override
+  String get createAssignNowHint => 'Pick who plays in each match.';
+
+  @override
+  String get createAssignLater => 'Invite players and assign later';
+
+  @override
+  String get createAssignLaterHint =>
+      'Invite players first and set the matches afterwards.';
+
+  @override
+  String get createAssignUndecided =>
+      'Choose singles or doubles for every match to assign players now.';
+
+  @override
+  String get createAssignPlayersTitle => 'Assign players';
+
+  @override
+  String get createSideTop => 'Side A';
+
+  @override
+  String get createSideBottom => 'Side B';
+
+  @override
+  String get createAddPlayer => 'Add player';
+
+  @override
+  String createRemovePlayer(String name) {
+    return 'Remove $name';
+  }
+
+  @override
+  String get createAssignIncomplete => 'Fill every spot to continue.';
+
+  @override
+  String get createSlotPickerTitle => 'Choose a player';
+
+  @override
+  String get createReviewScoring => 'Scoring';
+
+  @override
+  String get createReviewMatches => 'Matches';
+
+  @override
+  String createReviewMatchLine(int number, String type) {
+    return 'Match $number: $type';
+  }
 }

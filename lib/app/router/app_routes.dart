@@ -14,6 +14,11 @@ abstract final class AppRoutes {
   static const createEventSettings = '/create-event/settings';
   static const createEventCoaches = '/create-event/coaches';
   static const createEventPlayers = '/create-event/players';
+  static const createEventMatches = '/create-event/matches';
+  static const createEventRoundRobinFormat = '/create-event/round-robin-format';
+  static const createEventAssignType = '/create-event/assign-type';
+  static const createEventAssignPlayers = '/create-event/assign-players';
+  static const createEventSlotPicker = '/create-event/assign-players/pick';
   static const createEventWhenWhere = '/create-event/when-where';
   static const createEventInviteSettings = '/create-event/invite-settings';
   static const createEventReview = '/create-event/review';
@@ -26,6 +31,10 @@ abstract final class AppRoutes {
     CreateEventStep.settings => createEventSettings,
     CreateEventStep.coaches => createEventCoaches,
     CreateEventStep.players => createEventPlayers,
+    CreateEventStep.matches => createEventMatches,
+    CreateEventStep.roundRobinFormat => createEventRoundRobinFormat,
+    CreateEventStep.assignType => createEventAssignType,
+    CreateEventStep.assignPlayers => createEventAssignPlayers,
     CreateEventStep.whenWhere => createEventWhenWhere,
     CreateEventStep.inviteSettings => createEventInviteSettings,
     CreateEventStep.review => createEventReview,
@@ -38,6 +47,16 @@ abstract final class AppRoutes {
   static String placesFor({String? sport}) => sport == null
       ? places
       : Uri(path: places, queryParameters: {'sport': sport}).toString();
+
+  /// Player picker for one slot of one match.
+  static String slotPickerFor({
+    required int match,
+    required String side,
+    required String position,
+  }) => Uri(
+    path: createEventSlotPicker,
+    queryParameters: {'match': '$match', 'side': side, 'position': position},
+  ).toString();
 
   static String createEventSuccessFor(int? eventId) => eventId == null
       ? createEventSuccess

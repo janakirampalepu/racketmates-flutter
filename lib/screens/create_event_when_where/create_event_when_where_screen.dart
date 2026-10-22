@@ -125,7 +125,9 @@ class _CreateEventWhenWhereScreenState
         if (ref
             .read(whenWhereViewModelProvider.notifier)
             .validate(DateTime.now())) {
-          context.push(AppRoutes.createEventInviteSettings);
+          context.push(
+            AppRoutes.routeForStep(flow.next(CreateEventStep.whenWhere)!),
+          );
         }
       },
       onBack: () => context.pop(),
@@ -166,26 +168,27 @@ class _CreateEventWhenWhereScreenState
               child: Text(l10n.createNoCourts),
             )
           else ...[
-            Row(
-              children: [
-                Expanded(
-                  child: Semantics(
-                    header: true,
-                    child: Text(l10n.createCourtCountLabel),
+            if (draft.spec?.courtCountOnWhenWhere ?? true)
+              Row(
+                children: [
+                  Expanded(
+                    child: Semantics(
+                      header: true,
+                      child: Text(l10n.createCourtCountLabel),
+                    ),
                   ),
-                ),
-                NumberStepper(
-                  idPrefix: CreateEventWhenWhereTestIds.courtCountPrefix,
-                  label: l10n.createCourtCountLabel,
-                  decreaseLabel: l10n.createDecrease,
-                  increaseLabel: l10n.createIncrease,
-                  value: draft.courtCount,
-                  max: courts.length,
-                  onChanged: flow.setCourtCount,
-                ),
-              ],
-            ),
-            Text(l10n.createCourtsHint(draft.courtCount)),
+                  NumberStepper(
+                    idPrefix: CreateEventWhenWhereTestIds.courtCountPrefix,
+                    label: l10n.createCourtCountLabel,
+                    decreaseLabel: l10n.createDecrease,
+                    increaseLabel: l10n.createIncrease,
+                    value: draft.courtCount,
+                    max: courts.length,
+                    onChanged: flow.setCourtCount,
+                  ),
+                ],
+              ),
+            Text(l10n.createCourtsHint(draft.courtCap)),
             for (final court in courts)
               TestId(
                 CreateEventWhenWhereTestIds.court(court.id!),

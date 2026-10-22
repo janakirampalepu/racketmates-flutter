@@ -8,6 +8,8 @@ import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/create_event/event_draft.dart';
+import 'package:racketmates/common/create_event/match_draft.dart';
+import 'package:racketmates/common/create_event/scoring.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/events/event_labels.dart';
 import 'package:racketmates/common/sign_up/sport_labels.dart';
@@ -81,11 +83,33 @@ class CreateEventReviewScreen extends ConsumerWidget {
             l10n.createReviewCoaches,
             draft.coaches.map((u) => u.displayName).join(', '),
           ),
-        _Row(
-          CreateEventReviewTestIds.summaryInvited,
-          l10n.createReviewInvited,
-          draft.invitees.map((u) => u.displayName).join(', '),
-        ),
+        if (draft.spec?.usesScoring ?? false)
+          _Row(
+            CreateEventReviewTestIds.summaryScoring,
+            l10n.createReviewScoring,
+            _scoringText(ref, draft),
+          ),
+        if (draft.spec?.hasMatches ?? false)
+          for (var i = 0; i < draft.matches.length; i++)
+            _Row(
+              CreateEventReviewTestIds.summaryMatch(i),
+              l10n.createReviewMatchLine(
+                i + 1,
+                ref.refLabel(
+                  draft.matches[i].matchType,
+                  humanizeKey(draft.matches[i].matchType),
+                ),
+              ),
+              draft.assignNow
+                  ? _sides(draft.matches[i])
+                  : l10n.createAssignLater,
+            ),
+        if (!draft.assignNow)
+          _Row(
+            CreateEventReviewTestIds.summaryInvited,
+            l10n.createReviewInvited,
+            draft.invitees.map((u) => u.displayName).join(', '),
+          ),
         if (submission.failure != null)
           Padding(
             padding: const EdgeInsets.only(top: 16),
@@ -104,6 +128,24 @@ class CreateEventReviewScreen extends ConsumerWidget {
       ],
     );
   }
+}
+
+String _scoringText(WidgetRef ref, EventDraft draft) {
+  final scoring = draft.scoring;
+  if (scoring == null) return '';
+  final label = ref.refLabel(scoring.format, humanizeKey(scoring.format));
+  return scoreInputFor(scoring.format) == ScoreInput.none
+      ? label
+      : '$label (${scoring.minimumScore})';
+}
+
+/// "Alex, Pat vs Sam, Lee" for a match with players in its spots.
+String _sides(MatchDraft match) {
+  String side(String key) => [
+    for (final slot in match.slots)
+      if (slot.side == key) match.players[slot]?.displayName ?? '?',
+  ].join(', ');
+  return '${side(MatchKeys.sideTop)} vs ${side(MatchKeys.sideBottom)}';
 }
 
 class _Row extends StatelessWidget {

@@ -1,3 +1,5 @@
+import 'package:racketmates/common/create_event/match_draft.dart';
+import 'package:racketmates/common/create_event/scoring.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
@@ -11,6 +13,8 @@ class EventTypeSpec {
     this.needsCoaches = false,
     this.usesCourts = true,
     this.participantsAreAudience = false,
+    this.hasMatches = false,
+    this.isRoundRobin = false,
   });
 
   final String key;
@@ -26,11 +30,25 @@ class EventTypeSpec {
 
   /// Meetup attendees are `is_audience` participants, not players.
   final bool participantsAreAudience;
+
+  /// Competitive and casual games are a list of matches (native
+  /// `eventTypeHasMatches`).
+  final bool hasMatches;
+
+  /// Round robins book courts and a format; the rounds are generated later.
+  final bool isRoundRobin;
+
+  /// Games and round robins are scored (native `isNonPracticeMatch` /
+  /// `isRoundRobinEvent`).
+  bool get usesScoring => hasMatches || isRoundRobin;
+
+  /// Practice and lessons choose how many courts to book on the venue step;
+  /// games take one court per match and round robins choose on their own step.
+  bool get courtCountOnWhenWhere => usesCourts && !hasMatches && !isRoundRobin;
 }
 
-/// Event types the wizard can create in this build: events without matches,
-/// teams or scoring. Competitive/casual games, round robin, individual lessons,
-/// ball machine and team events are later work.
+/// Event types the wizard can create in this build. Individual lessons, ball
+/// machines and team events are later work.
 const eventTypeSpecs = {
   'et_practice_drill': EventTypeSpec(key: 'et_practice_drill'),
   'et_group_lesson': EventTypeSpec(key: 'et_group_lesson', needsCoaches: true),
@@ -40,25 +58,69 @@ const eventTypeSpecs = {
     usesCourts: false,
     participantsAreAudience: true,
   ),
+  'et_competitive': EventTypeSpec(key: 'et_competitive', hasMatches: true),
+  'et_casual': EventTypeSpec(key: 'et_casual', hasMatches: true),
+  'et_round_robin': EventTypeSpec(key: 'et_round_robin', isRoundRobin: true),
 };
 
 final supportedEventTypes = eventTypeSpecs.keys.toSet();
 
-/// Wizard screens, in order. [CreateEventStep.sport] and
-/// [CreateEventStep.coaches] are skipped for types that do not need them.
+/// Wizard screens. The order depends on the event type (see
+/// [createEventStepsFor]); [CreateEventStep.sport], [CreateEventStep.coaches]
+/// and the match/round-robin screens only exist for the types that need them.
 enum CreateEventStep {
   type,
   sport,
   settings,
   coaches,
   players,
+  matches,
+  roundRobinFormat,
+  assignType,
+  assignPlayers,
   whenWhere,
   inviteSettings,
   review,
 }
 
-List<CreateEventStep> createEventStepsFor(String? eventType) {
+/// Screens of an event type in order. [assignNow] is the games choice to put
+/// players into matches now (no invite settings or invite list afterwards)
+/// rather than inviting players and assigning later.
+List<CreateEventStep> createEventStepsFor(
+  String? eventType, {
+  bool assignNow = false,
+}) {
   final spec = eventTypeSpecs[eventType];
+  if (spec != null && spec.hasMatches) {
+    return [
+      CreateEventStep.type,
+      CreateEventStep.sport,
+      CreateEventStep.settings,
+      CreateEventStep.matches,
+      CreateEventStep.whenWhere,
+      CreateEventStep.assignType,
+      if (assignNow)
+        CreateEventStep.assignPlayers
+      else ...[
+        CreateEventStep.inviteSettings,
+        CreateEventStep.players,
+      ],
+      CreateEventStep.review,
+    ];
+  }
+  if (spec != null && spec.isRoundRobin) {
+    return [
+      CreateEventStep.type,
+      CreateEventStep.sport,
+      CreateEventStep.settings,
+      CreateEventStep.matches,
+      CreateEventStep.roundRobinFormat,
+      CreateEventStep.whenWhere,
+      CreateEventStep.inviteSettings,
+      CreateEventStep.players,
+      CreateEventStep.review,
+    ];
+  }
   return [
     CreateEventStep.type,
     if (spec?.needsSport ?? true) CreateEventStep.sport,
@@ -74,9 +136,10 @@ List<CreateEventStep> createEventStepsFor(String? eventType) {
 /// The step after [current] for this event type (null after the last).
 CreateEventStep? nextCreateEventStep(
   String? eventType,
-  CreateEventStep current,
-) {
-  final steps = createEventStepsFor(eventType);
+  CreateEventStep current, {
+  bool assignNow = false,
+}) {
+  final steps = createEventStepsFor(eventType, assignNow: assignNow);
   final i = steps.indexOf(current);
   return (i < 0 || i + 1 >= steps.length) ? null : steps[i + 1];
 }
@@ -115,6 +178,13 @@ class EventDraft {
     this.playersLimit = 1,
     this.rsvpLimit = 1,
     this.acceptanceType = acceptOrderOfResponse,
+    this.matches = const [],
+    this.assignNow = false,
+    this.scoring,
+    this.allowParticipantsToLogResults = false,
+    this.gameType = MatchKeys.gameDoubles,
+    this.partnershipType = MatchKeys.partnersRotating,
+    this.eventSubType,
   });
 
   final String? eventType;
@@ -148,6 +218,25 @@ class EventDraft {
   final int rsvpLimit;
   final String acceptanceType;
 
+  /// Matches of a competitive/casual game.
+  final List<MatchDraft> matches;
+
+  /// Games: put players into matches now instead of inviting and assigning
+  /// later (`assign_type`).
+  final bool assignNow;
+
+  /// Scoring of games and round robins.
+  final ScoringChoice? scoring;
+  final bool allowParticipantsToLogResults;
+
+  /// Round robin: singles, doubles or both, and how doubles partners work.
+  final String gameType;
+  final String? partnershipType;
+
+  /// Round robin format (`est_classic`, `est_king_of_the_court`,
+  /// `est_manual`).
+  final String? eventSubType;
+
   EventDraft copyWith({
     String? eventType,
     SportKey? sport,
@@ -166,6 +255,13 @@ class EventDraft {
     int? playersLimit,
     int? rsvpLimit,
     String? acceptanceType,
+    List<MatchDraft>? matches,
+    bool? assignNow,
+    ScoringChoice? scoring,
+    bool? allowParticipantsToLogResults,
+    String? gameType,
+    String? Function()? partnershipType,
+    String? Function()? eventSubType,
   }) => EventDraft(
     eventType: eventType ?? this.eventType,
     sport: sport ?? this.sport,
@@ -187,9 +283,48 @@ class EventDraft {
     playersLimit: playersLimit ?? this.playersLimit,
     rsvpLimit: rsvpLimit ?? this.rsvpLimit,
     acceptanceType: acceptanceType ?? this.acceptanceType,
+    matches: matches ?? this.matches,
+    assignNow: assignNow ?? this.assignNow,
+    scoring: scoring ?? this.scoring,
+    allowParticipantsToLogResults:
+        allowParticipantsToLogResults ?? this.allowParticipantsToLogResults,
+    gameType: gameType ?? this.gameType,
+    partnershipType: partnershipType != null
+        ? partnershipType()
+        : this.partnershipType,
+    eventSubType: eventSubType != null ? eventSubType() : this.eventSubType,
   );
 
   EventTypeSpec? get spec => eventTypeSpecs[eventType];
+
+  /// Most courts that can be picked: one per match for games, else the chosen
+  /// court count.
+  int get courtCap => (spec?.hasMatches ?? false) ? matches.length : courtCount;
+
+  /// Players the courts hold, from native `setRSVPandPlayerLimit` (non-team):
+  /// singles 2 and doubles 4 per match or court; null for other event types.
+  int? get courtPlayerCapacity {
+    final spec = this.spec;
+    if (spec == null) return null;
+    final total = spec.hasMatches
+        ? matches.fold(0, (sum, m) => sum + m.playerCount)
+        : spec.isRoundRobin
+        ? courtCount * (gameType == MatchKeys.gameSingles ? 2 : 4)
+        : null;
+    if (total == null) return null;
+    return total == 0 ? 1 : total;
+  }
+
+  /// Players assigned to matches, once each.
+  List<AppUser> get assignedPlayers {
+    final byId = <int?, AppUser>{};
+    for (final m in matches) {
+      for (final u in m.players.values) {
+        byId[u.id] = u;
+      }
+    }
+    return byId.values.toList();
+  }
 
   int get maxAttendanceUnit => attendanceUnitType == attendanceUnitDays
       ? maxAttendanceDays

@@ -16,6 +16,24 @@ UserSearchResponse _$UserSearchResponseFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$UserSearchResponseToJson(UserSearchResponse instance) =>
     <String, dynamic>{'users': instance.users};
 
+ScoringFormatsResponse _$ScoringFormatsResponseFromJson(
+  Map<String, dynamic> json,
+) => ScoringFormatsResponse(
+  scoringFormatKeys: (json['scoring_format_keys'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
+  minimumScores: (json['minimum_scores'] as Map<String, dynamic>?)?.map(
+    (k, e) => MapEntry(k, e as num?),
+  ),
+);
+
+Map<String, dynamic> _$ScoringFormatsResponseToJson(
+  ScoringFormatsResponse instance,
+) => <String, dynamic>{
+  'scoring_format_keys': instance.scoringFormatKeys,
+  'minimum_scores': instance.minimumScores,
+};
+
 TimezoneLookupResponse _$TimezoneLookupResponseFromJson(
   Map<String, dynamic> json,
 ) => TimezoneLookupResponse(
@@ -122,6 +140,40 @@ class _CreateEventApi implements CreateEventApi {
     late UserSearchResponse _value;
     try {
       _value = UserSearchResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ScoringFormatsResponse> scoringFormats({
+    String? sportType,
+    String? eventType,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'sport_type': sportType,
+      r'event_type': eventType,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<ScoringFormatsResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            'reference_data/scoring_formats',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ScoringFormatsResponse _value;
+    try {
+      _value = ScoringFormatsResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;

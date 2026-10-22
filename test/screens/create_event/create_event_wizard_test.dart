@@ -43,14 +43,14 @@ InMemoryContentCache _content() => InMemoryContentCache()
       {
         'id': 2,
         'data_type': 'event_type',
-        'key': 'et_casual',
-        'localized_label': 'Casual game',
+        'key': 'et_individual_lesson',
+        'localized_label': 'Private lesson',
       },
       {
         'id': 3,
         'data_type': 'event_type',
-        'key': 'et_round_robin',
-        'localized_label': 'Round robin',
+        'key': 'et_practice_ball',
+        'localized_label': 'Ball machine',
       },
       {
         'id': 4,
@@ -63,6 +63,24 @@ InMemoryContentCache _content() => InMemoryContentCache()
         'data_type': 'event_type',
         'key': 'et_casual_meeting',
         'localized_label': 'Casual meetup',
+      },
+      {
+        'id': 6,
+        'data_type': 'event_type',
+        'key': 'et_competitive',
+        'localized_label': 'Competitive game',
+      },
+      {
+        'id': 7,
+        'data_type': 'event_type',
+        'key': 'et_casual',
+        'localized_label': 'Casual game',
+      },
+      {
+        'id': 8,
+        'data_type': 'event_type',
+        'key': 'et_round_robin',
+        'localized_label': 'Round robin',
       },
     ],
   );
@@ -164,10 +182,12 @@ void main() {
 
       expect(find.text('Practice drill'), findsOneWidget);
       expect(find.text('Work on skills'), findsOneWidget);
-      expect(find.text('Casual game'), findsOneWidget);
+      expect(find.text('Private lesson'), findsOneWidget);
       expect(find.text('Not available in this build yet.'), findsNWidgets(2));
       // Unsupported types do nothing when tapped.
-      await tester.tap(_id(CreateEventTypeTestIds.type('et_casual')));
+      await tester.tap(
+        _id(CreateEventTypeTestIds.type('et_individual_lesson')),
+      );
       await tester.pumpAndSettle();
       expect(_id(CreateEventTypeTestIds.root), findsOneWidget);
       handle.dispose();
