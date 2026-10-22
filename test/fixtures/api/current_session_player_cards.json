@@ -1,0 +1,16 @@
+{
+  "player_cards": [
+    {
+      "id": 55,
+      "title": "Game result",
+      "message": "You won 6-4, 6-3",
+      "event_id": 98,
+      "play_outcome": "win",
+      "created_at": "2026-10-20T10:00:00Z",
+      "sport_type": "st_tennis",
+      "player_card_type": {"id": 1, "card_type": "pct_player_event_result_update", "indicate_seen": true},
+      "users": [{"id": 7, "first_name": "Sam", "last_name": "Lee"}],
+      "card_data": {"event_time": "2026-10-19T17:00:00Z", "won": true}
+    }
+  ]
+}

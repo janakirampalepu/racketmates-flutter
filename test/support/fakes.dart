@@ -7,6 +7,10 @@ import 'package:racketmates/common/auth/models/phone_verification.dart';
 import 'package:racketmates/common/auth/models/session_token.dart';
 import 'package:racketmates/common/auth/phone_verification_repository.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/events/models/event_details.dart';
+import 'package:racketmates/common/events/models/home_models.dart';
+import 'package:racketmates/common/events/models/schedule_models.dart';
+import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/media/image_picker_service.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/common/users/user_repository.dart';
@@ -238,3 +242,96 @@ class FakePhotoPicker implements PhotoPicker {
     return path;
   }
 }
+
+class FakeScheduleRepository implements ScheduleRepository {
+  FakeScheduleRepository({
+    this.upcoming = const [],
+    this.past = const [],
+    this.pending = const [],
+    this.activity = const [],
+    this.updates = const [],
+    this.event,
+    Map<ScheduleTab, List<List<ScheduleItem>>>? pages,
+  }) : pages = pages ?? {};
+
+  List<ScheduleItem> upcoming;
+  List<ScheduleItem> past;
+  List<PendingAction> pending;
+  List<HomePageStats> activity;
+  List<PlayerCard> updates;
+  EventDetails? event;
+
+  /// Pages served by `schedulePage` per tab (index = page - 1); missing = empty.
+  final Map<ScheduleTab, List<List<ScheduleItem>>> pages;
+
+  /// Sections / calls that fail with this failure.
+  final Set<String> failing = {};
+  AppFailure failure = const OfflineFailure();
+  final List<String> calls = [];
+  final List<int> requestedPages = [];
+
+  Future<T> _run<T>(String name, T Function() value) async {
+    calls.add(name);
+    await Future<void>.delayed(Duration.zero);
+    if (failing.contains(name)) throw failure;
+    return value();
+  }
+
+  @override
+  Future<List<ScheduleItem>> homeUpcoming({
+    required List<String> userIds,
+    required int hourFormat,
+  }) => _run('upcoming', () => upcoming);
+
+  @override
+  Future<List<ScheduleItem>> homePast({
+    required List<String> userIds,
+    required int hourFormat,
+  }) => _run('past', () => past);
+
+  @override
+  Future<ScheduleListResponse> schedulePage({
+    required ScheduleTab tab,
+    required int page,
+    required List<String> userIds,
+    required int hourFormat,
+  }) {
+    requestedPages.add(page);
+    return _run('page-${tab.name}', () {
+      final list = pages[tab] ?? const [];
+      return ScheduleListResponse(
+        scheduleItems: page - 1 < list.length ? list[page - 1] : const [],
+      );
+    });
+  }
+
+  @override
+  Future<List<PendingAction>> pendingActions({required List<String> userIds}) =>
+      _run('pending', () => pending);
+
+  @override
+  Future<List<HomePageStats>> activitySummary({
+    required List<String> userIds,
+  }) => _run('activity', () => activity);
+
+  @override
+  Future<List<PlayerCard>> latestUpdates({required List<String> userIds}) =>
+      _run('updates', () => updates);
+
+  @override
+  Future<EventDetails> eventDetails(int id, {required int hourFormat}) =>
+      _run('event-$id', () => event ?? (throw const ParseFailure()));
+}
+
+ScheduleItem scheduleItem(
+  int id, {
+  String date = '2026-11-03',
+  String type = 'et_game',
+}) => ScheduleItem(
+  eventId: id,
+  eventDate: date,
+  eventType: type,
+  eventStatusLabel: 'Scheduled',
+  timeSlot: '6:00 PM - 7:30 PM',
+  placeName: 'Central Courts',
+);

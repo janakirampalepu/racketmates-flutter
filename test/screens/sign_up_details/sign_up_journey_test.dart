@@ -7,6 +7,7 @@ import 'package:racketmates/common/auth/models/phone_verification.dart';
 import 'package:racketmates/common/auth/phone_verification_repository.dart';
 import 'package:racketmates/common/auth/token_store.dart';
 import 'package:racketmates/common/config/config_providers.dart';
+import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/media/image_picker_service.dart';
 import 'package:racketmates/common/sign_up/sign_up_flow.dart';
@@ -56,6 +57,7 @@ class _Harness {
       appVersionProvider.overrideWithValue('1.0.0'),
       tokenStoreProvider.overrideWithValue(store),
       authApiProvider.overrideWithValue(FakeAuthApi()),
+      scheduleRepositoryProvider.overrideWithValue(FakeScheduleRepository()),
       startupRepositoryProvider.overrideWithValue(FakeStartupRepository()),
       phoneVerificationRepositoryProvider.overrideWithValue(phone),
       preLoginUserRepositoryProvider.overrideWithValue(users),

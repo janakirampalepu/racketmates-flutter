@@ -7,6 +7,7 @@ import 'package:racketmates/common/auth/models/phone_verification.dart';
 import 'package:racketmates/common/auth/phone_verification_repository.dart';
 import 'package:racketmates/common/auth/token_store.dart';
 import 'package:racketmates/common/config/config_providers.dart';
+import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/sign_up/sign_up_flow.dart';
 import 'package:racketmates/screens/country_picker/country_picker_test_ids.dart';
@@ -26,6 +27,7 @@ Widget _app(FakePhoneVerificationRepository repo, InMemoryTokenStore store) =>
         appVersionProvider.overrideWithValue('1.0.0'),
         tokenStoreProvider.overrideWithValue(store),
         authApiProvider.overrideWithValue(FakeAuthApi()),
+        scheduleRepositoryProvider.overrideWithValue(FakeScheduleRepository()),
         startupRepositoryProvider.overrideWithValue(FakeStartupRepository()),
         phoneVerificationRepositoryProvider.overrideWithValue(repo),
         deviceTimezoneProvider.overrideWith((ref) async => 'UTC'),

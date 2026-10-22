@@ -264,4 +264,132 @@ class AppLocalizationsEn extends AppLocalizations {
   String homeGreeting(String name) {
     return 'Hi, $name';
   }
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navSchedule => 'Schedule';
+
+  @override
+  String get navChat => 'Chat';
+
+  @override
+  String get navTeams => 'Teams';
+
+  @override
+  String get homePendingActions => 'Pending actions';
+
+  @override
+  String get homeUpcoming => 'Upcoming';
+
+  @override
+  String get homeLatestUpdates => 'Latest updates';
+
+  @override
+  String get homeActivity => 'Activity';
+
+  @override
+  String get homePast => 'Recent games';
+
+  @override
+  String get seeAllAction => 'See all';
+
+  @override
+  String get retryAction => 'Try again';
+
+  @override
+  String get emptyPendingActions => 'Nothing needs your attention.';
+
+  @override
+  String get emptyUpcoming => 'No upcoming events.';
+
+  @override
+  String get emptyLatestUpdates => 'No updates yet.';
+
+  @override
+  String get emptyActivity => 'No activity yet.';
+
+  @override
+  String get emptyPast => 'No past events.';
+
+  @override
+  String get sectionLoadError => 'Could not load this section.';
+
+  @override
+  String get statWins => 'Wins';
+
+  @override
+  String get statLosses => 'Losses';
+
+  @override
+  String get statEvents => 'Events';
+
+  @override
+  String get statHours => 'Hours';
+
+  @override
+  String get scheduleTitle => 'Schedule';
+
+  @override
+  String get tabUpcoming => 'Upcoming';
+
+  @override
+  String get tabPast => 'Past';
+
+  @override
+  String get scheduleEmptyUpcoming => 'You have no upcoming events.';
+
+  @override
+  String get scheduleEmptyPast => 'You have no past events.';
+
+  @override
+  String get scheduleLoadError => 'Could not load events.';
+
+  @override
+  String get eventDetailsTitle => 'Event details';
+
+  @override
+  String get eventWhenLabel => 'When';
+
+  @override
+  String get eventWhereLabel => 'Where';
+
+  @override
+  String get eventStatusLabel => 'Status';
+
+  @override
+  String get eventParticipantsLabel => 'Players';
+
+  @override
+  String get eventNotesLabel => 'Notes';
+
+  @override
+  String eventSpotsLeft(int count) {
+    return '$count spots left';
+  }
+
+  @override
+  String get eventLoadError => 'Could not load this event.';
+
+  @override
+  String get eventNoPlayers => 'No players yet.';
+
+  @override
+  String get eventYourStatus => 'Your status';
+
+  @override
+  String moreSuffix(int count) {
+    return '+$count';
+  }
+
+  @override
+  String get comingSoonTitle => 'Coming soon';
+
+  @override
+  String get comingSoonMessage =>
+      'This section is not available in this build yet.';
+
+  @override
+  String get unknownPlayer => 'Player';
 }

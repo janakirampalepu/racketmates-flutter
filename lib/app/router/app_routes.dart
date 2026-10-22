@@ -2,6 +2,12 @@ abstract final class AppRoutes {
   static const splash = '/';
   static const welcome = '/welcome';
   static const home = '/home';
+  static const schedule = '/schedule';
+  static const chat = '/chat';
+  static const teams = '/teams';
+  static const event = '/event';
+
+  static String eventFor(int id) => '$event/$id';
   static const appUpdate = '/app-update';
   static const phoneEntry = '/phone-entry';
   static const countryPicker = '/country-picker';
@@ -43,5 +49,7 @@ abstract final class AppRoutes {
   static const afterAccountCreated = {profilePicture, congratulations};
 
   /// Routes that need a signed-in session.
-  static const protected = {home};
+  static bool isProtected(String location) =>
+      const {home, schedule, chat, teams}.contains(location) ||
+      location.startsWith('$event/');
 }

@@ -579,6 +579,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hi, {name}'**
   String homeGreeting(String name);
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get navSchedule;
+
+  /// No description provided for @navChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get navChat;
+
+  /// No description provided for @navTeams.
+  ///
+  /// In en, this message translates to:
+  /// **'Teams'**
+  String get navTeams;
+
+  /// No description provided for @homePendingActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending actions'**
+  String get homePendingActions;
+
+  /// No description provided for @homeUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get homeUpcoming;
+
+  /// No description provided for @homeLatestUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest updates'**
+  String get homeLatestUpdates;
+
+  /// No description provided for @homeActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get homeActivity;
+
+  /// No description provided for @homePast.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent games'**
+  String get homePast;
+
+  /// No description provided for @seeAllAction.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get seeAllAction;
+
+  /// No description provided for @retryAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get retryAction;
+
+  /// No description provided for @emptyPendingActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing needs your attention.'**
+  String get emptyPendingActions;
+
+  /// No description provided for @emptyUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming events.'**
+  String get emptyUpcoming;
+
+  /// No description provided for @emptyLatestUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'No updates yet.'**
+  String get emptyLatestUpdates;
+
+  /// No description provided for @emptyActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity yet.'**
+  String get emptyActivity;
+
+  /// No description provided for @emptyPast.
+  ///
+  /// In en, this message translates to:
+  /// **'No past events.'**
+  String get emptyPast;
+
+  /// No description provided for @sectionLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this section.'**
+  String get sectionLoadError;
+
+  /// No description provided for @statWins.
+  ///
+  /// In en, this message translates to:
+  /// **'Wins'**
+  String get statWins;
+
+  /// No description provided for @statLosses.
+  ///
+  /// In en, this message translates to:
+  /// **'Losses'**
+  String get statLosses;
+
+  /// No description provided for @statEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get statEvents;
+
+  /// No description provided for @statHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours'**
+  String get statHours;
+
+  /// No description provided for @scheduleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get scheduleTitle;
+
+  /// No description provided for @tabUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get tabUpcoming;
+
+  /// No description provided for @tabPast.
+  ///
+  /// In en, this message translates to:
+  /// **'Past'**
+  String get tabPast;
+
+  /// No description provided for @scheduleEmptyUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no upcoming events.'**
+  String get scheduleEmptyUpcoming;
+
+  /// No description provided for @scheduleEmptyPast.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no past events.'**
+  String get scheduleEmptyPast;
+
+  /// No description provided for @scheduleLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load events.'**
+  String get scheduleLoadError;
+
+  /// No description provided for @eventDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Event details'**
+  String get eventDetailsTitle;
+
+  /// No description provided for @eventWhenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get eventWhenLabel;
+
+  /// No description provided for @eventWhereLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Where'**
+  String get eventWhereLabel;
+
+  /// No description provided for @eventStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get eventStatusLabel;
+
+  /// No description provided for @eventParticipantsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Players'**
+  String get eventParticipantsLabel;
+
+  /// No description provided for @eventNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get eventNotesLabel;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} spots left'**
+  String eventSpotsLeft(int count);
+
+  /// No description provided for @eventLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this event.'**
+  String get eventLoadError;
+
+  /// No description provided for @eventNoPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'No players yet.'**
+  String get eventNoPlayers;
+
+  /// No description provided for @eventYourStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Your status'**
+  String get eventYourStatus;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count}'**
+  String moreSuffix(int count);
+
+  /// No description provided for @comingSoonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get comingSoonTitle;
+
+  /// No description provided for @comingSoonMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This section is not available in this build yet.'**
+  String get comingSoonMessage;
+
+  /// No description provided for @unknownPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Player'**
+  String get unknownPlayer;
 }
 
 class _AppLocalizationsDelegate

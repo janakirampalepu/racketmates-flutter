@@ -1,0 +1,10 @@
+{
+  "home_page_stats": [
+    {
+      "user": {"id": 7, "first_name": "Sam", "last_name": "Lee"},
+      "games_hours": 12, "lesson_hours": 2, "practice_hours": 4, "meeting_hours": 0,
+      "total_hours": 18, "total_events": 9, "wins": 5, "losses": 3,
+      "year": 2026, "weekly_average_value": "0.5"
+    }
+  ]
+}

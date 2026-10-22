@@ -17,7 +17,12 @@ import 'package:racketmates/screens/kids_list/kids_list_screen.dart';
 import 'package:racketmates/screens/kid_form/kid_form_screen.dart';
 import 'package:racketmates/screens/kid_form/kid_form_args.dart';
 import 'package:racketmates/screens/congratulations/congratulations_screen.dart';
+import 'package:racketmates/screens/chat/chat_screen.dart';
+import 'package:racketmates/screens/event_details/event_details_screen.dart';
 import 'package:racketmates/screens/home/home_screen.dart';
+import 'package:racketmates/screens/main_shell/main_shell_screen.dart';
+import 'package:racketmates/screens/schedule/schedule_screen.dart';
+import 'package:racketmates/screens/teams/teams_screen.dart';
 import 'package:racketmates/screens/otp/otp_args.dart';
 import 'package:racketmates/screens/otp/otp_screen.dart';
 import 'package:racketmates/screens/phone_entry/phone_entry_args.dart';
@@ -42,7 +47,7 @@ String? computeRedirect({
     return location == AppRoutes.splash ? null : AppRoutes.splash;
   }
   if (session is SignedOut &&
-      (AppRoutes.protected.contains(location) ||
+      (AppRoutes.isProtected(location) ||
           AppRoutes.afterAccountCreated.contains(location))) {
     return AppRoutes.welcome;
   }
@@ -148,9 +153,53 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.congratulations,
         builder: (context, state) => const CongratulationsScreen(),
       ),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, shell) =>
+            MainShellScreen(navigationShell: shell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                builder: (context, state) => const HomeScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.schedule,
+                builder: (context, state) => const ScheduleScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.chat,
+                builder: (context, state) => const ChatScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.teams,
+                builder: (context, state) => const TeamsScreen(),
+              ),
+            ],
+          ),
+        ],
+      ),
       GoRoute(
-        path: AppRoutes.home,
-        builder: (context, state) => const HomeScreen(),
+        path: '${AppRoutes.event}/:id',
+        // A malformed id (e.g. from a bad deep link) falls back to home.
+        redirect: (context, state) =>
+            int.tryParse(state.pathParameters['id'] ?? '') == null
+            ? AppRoutes.home
+            : null,
+        builder: (context, state) =>
+            EventDetailsScreen(eventId: int.parse(state.pathParameters['id']!)),
       ),
       GoRoute(
         path: AppRoutes.appUpdate,

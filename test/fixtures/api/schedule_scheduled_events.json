@@ -1,0 +1,42 @@
+{
+  "schedule_items": [
+    {
+      "event_id": 101,
+      "event_date": "2026-11-03",
+      "event_status": "es_scheduled",
+      "event_status_label": "Scheduled",
+      "event_type": "et_game",
+      "sport_type": "st_tennis",
+      "participant_status": "eus_accepted",
+      "participant_status_label": "Going",
+      "place_id": 5,
+      "place_name": "Central Courts",
+      "team_id": null,
+      "time_slot": "6:00 PM - 7:30 PM",
+      "additional_timings": 1,
+      "additional_venues": 0,
+      "additional_participants": 2,
+      "on_multiple_dates": false,
+      "notes": "Bring balls",
+      "event_users": [
+        {"id": 7, "first_name": "Sam", "last_name": "Lee", "thumbnail_attachment_url": null}
+      ],
+      "swipe_left": {"title": "Decline"},
+      "unknown_future_field": 42
+    },
+    {
+      "event_id": 102,
+      "event_date": "2026-11-05",
+      "event_status": "es_scheduled",
+      "event_status_label": "Scheduled",
+      "event_type": "et_practice",
+      "sport_type": "st_padel",
+      "place_name": "Club West",
+      "time_slot": "7:00 AM - 8:00 AM",
+      "additional_venues": 2
+    }
+  ],
+  "meta": {
+    "other_events": {"drafts_label": "Drafts (1)", "to_be_rescheduled_label": null}
+  }
+}

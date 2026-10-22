@@ -1,0 +1,12 @@
+{
+  "pending_actions": [
+    {
+      "event_date": "2026-11-04",
+      "event_id": 103,
+      "event_type": "et_game",
+      "sport_type": "st_pickleball",
+      "event_participant_user": {"id": 7, "first_name": "Sam", "last_name": "Lee"},
+      "primary_swipe_action": {"title": "Accept"}
+    }
+  ]
+}

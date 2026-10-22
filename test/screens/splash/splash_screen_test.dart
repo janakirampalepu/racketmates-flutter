@@ -9,6 +9,7 @@ import 'package:racketmates/common/auth/models/app_metadata.dart';
 import 'package:racketmates/common/auth/models/app_upgrade_check.dart';
 import 'package:racketmates/common/auth/token_store.dart';
 import 'package:racketmates/common/config/config_providers.dart';
+import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/screens/app_update/app_update_test_ids.dart';
 import 'package:racketmates/screens/app_update/store_launcher.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
@@ -36,6 +37,7 @@ Widget _app({
     appVersionProvider.overrideWithValue('1.0.0'),
     tokenStoreProvider.overrideWithValue(store ?? InMemoryTokenStore()),
     authApiProvider.overrideWithValue(FakeAuthApi()),
+    scheduleRepositoryProvider.overrideWithValue(FakeScheduleRepository()),
     startupRepositoryProvider.overrideWithValue(
       repo ?? FakeStartupRepository(metadata: metadata),
     ),

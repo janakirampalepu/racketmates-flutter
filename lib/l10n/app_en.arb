@@ -121,5 +121,62 @@
         "type": "String"
       }
     }
+  },
+  "navHome": "Home",
+  "navSchedule": "Schedule",
+  "navChat": "Chat",
+  "navTeams": "Teams",
+  "homePendingActions": "Pending actions",
+  "homeUpcoming": "Upcoming",
+  "homeLatestUpdates": "Latest updates",
+  "homeActivity": "Activity",
+  "homePast": "Recent games",
+  "seeAllAction": "See all",
+  "retryAction": "Try again",
+  "emptyPendingActions": "Nothing needs your attention.",
+  "emptyUpcoming": "No upcoming events.",
+  "emptyLatestUpdates": "No updates yet.",
+  "emptyActivity": "No activity yet.",
+  "emptyPast": "No past events.",
+  "sectionLoadError": "Could not load this section.",
+  "statWins": "Wins",
+  "statLosses": "Losses",
+  "statEvents": "Events",
+  "statHours": "Hours",
+  "scheduleTitle": "Schedule",
+  "tabUpcoming": "Upcoming",
+  "tabPast": "Past",
+  "scheduleEmptyUpcoming": "You have no upcoming events.",
+  "scheduleEmptyPast": "You have no past events.",
+  "scheduleLoadError": "Could not load events.",
+  "eventDetailsTitle": "Event details",
+  "eventWhenLabel": "When",
+  "eventWhereLabel": "Where",
+  "eventStatusLabel": "Status",
+  "eventParticipantsLabel": "Players",
+  "eventNotesLabel": "Notes",
+  "eventSpotsLeft": "{count} spots left",
+  "eventLoadError": "Could not load this event.",
+  "eventNoPlayers": "No players yet.",
+  "eventYourStatus": "Your status",
+  "moreSuffix": "+{count}",
+  "comingSoonTitle": "Coming soon",
+  "comingSoonMessage": "This section is not available in this build yet.",
+  "unknownPlayer": "Player",
+  "@eventSpotsLeft": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@moreSuffix": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }
