@@ -4,6 +4,7 @@ import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/create_event/create_event_repository.dart';
 import 'package:racketmates/common/create_event/event_draft.dart';
 import 'package:racketmates/common/create_event/event_request.dart';
+import 'package:racketmates/common/create_event/people_kind.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/places/place_models.dart';
@@ -31,6 +32,7 @@ EventDraft _complete() => EventDraft(
     AppUser(id: 9, firstName: 'Pat'),
   ],
   place: _place,
+  courtCount: 2,
   courtIds: const [12, 11],
   start: DateTime(2026, 11, 3, 18, 5),
   durationMinutes: 90,
@@ -57,9 +59,10 @@ class _FakeCreateEventRepository implements CreateEventRepository {
   }
 
   @override
-  Future<List<AppUser>> searchPlayers({
+  Future<List<AppUser>> searchUsers({
     required String query,
-    required String sportKey,
+    String? role,
+    String? sportKey,
   }) async => const [];
 
   @override
@@ -117,6 +120,7 @@ void main() {
           'is_audience': false,
         },
       ]);
+      expect(event['no_of_courts'], 2);
       expect(event['event_schedule_options_attributes'], [
         {
           'place_id': 5,
@@ -211,10 +215,27 @@ void main() {
       expect(c.read(createEventFlowProvider)!.eventType, 'et_practice_drill');
     });
 
+    test('court selection is capped at the number of courts', () {
+      final c = container();
+      final flow = c.read(createEventFlowProvider.notifier)
+        ..setPlace(_place)
+        ..toggleCourt(11)
+        ..toggleCourt(12); // second ignored: courtCount is 1
+      expect(c.read(createEventFlowProvider)!.courtIds, [11]);
+      flow
+        ..setCourtCount(2)
+        ..toggleCourt(12);
+      expect(c.read(createEventFlowProvider)!.courtIds, [11, 12]);
+      flow.setCourtCount(1);
+      expect(c.read(createEventFlowProvider)!.courtIds, [11]);
+      expect(c.read(createEventFlowProvider)!.courtCount, 1);
+    });
+
     test('a new venue clears the courts and resolved timezone', () {
       final c = container();
       c.read(createEventFlowProvider.notifier)
         ..setPlace(_place)
+        ..setCourtCount(2)
         ..toggleCourt(11)
         ..toggleCourt(12)
         ..toggleCourt(11);
@@ -350,5 +371,157 @@ void main() {
         expect(c.read(createEventSubmitterProvider).createdEventId, isNull);
       },
     );
+  });
+
+  group('event type specs and steps', () {
+    test('supported types and their step order', () {
+      expect(supportedEventTypes, {
+        'et_practice_drill',
+        'et_group_lesson',
+        'et_casual_meeting',
+      });
+      expect(createEventStepsFor('et_practice_drill'), [
+        CreateEventStep.type,
+        CreateEventStep.sport,
+        CreateEventStep.settings,
+        CreateEventStep.players,
+        CreateEventStep.whenWhere,
+        CreateEventStep.inviteSettings,
+        CreateEventStep.review,
+      ]);
+      expect(
+        createEventStepsFor('et_group_lesson'),
+        contains(CreateEventStep.coaches),
+      );
+      expect(
+        createEventStepsFor('et_group_lesson').indexOf(CreateEventStep.coaches),
+        lessThan(
+          createEventStepsFor('et_group_lesson')
+              .indexOf(CreateEventStep.players),
+        ),
+      );
+      expect(
+        createEventStepsFor('et_casual_meeting'),
+        isNot(contains(CreateEventStep.sport)),
+      );
+      expect(
+        createEventStepsFor('et_casual_meeting'),
+        isNot(contains(CreateEventStep.coaches)),
+      );
+    });
+
+    test('next step skips what the type does not need', () {
+      expect(
+        nextCreateEventStep('et_casual_meeting', CreateEventStep.type),
+        CreateEventStep.settings,
+      );
+      expect(
+        nextCreateEventStep('et_group_lesson', CreateEventStep.settings),
+        CreateEventStep.coaches,
+      );
+      expect(
+        nextCreateEventStep('et_practice_drill', CreateEventStep.settings),
+        CreateEventStep.players,
+      );
+      expect(
+        nextCreateEventStep('et_practice_drill', CreateEventStep.review),
+        isNull,
+      );
+    });
+
+    test(
+      'group lesson: coaches are is_coach participants and with_coach is set',
+      () {
+        final draft = _complete().copyWith(
+          eventType: 'et_group_lesson',
+          coaches: const [AppUser(id: 3, firstName: 'Coach', lastName: 'Pat')],
+        );
+        final event =
+            buildCreateEventBody(draft)['event'] as Map<String, dynamic>;
+        expect(event['event_type'], 'et_group_lesson');
+        expect(event['with_coach'], isTrue);
+        expect(event['event_participants_attributes'], [
+          {
+            'user_id': 3,
+            'is_player': false,
+            'is_coach': true,
+            'is_audience': false,
+          },
+          {
+            'user_id': 8,
+            'is_player': true,
+            'is_coach': false,
+            'is_audience': false,
+          },
+          {
+            'user_id': 9,
+            'is_player': true,
+            'is_coach': false,
+            'is_audience': false,
+          },
+        ]);
+        expect(event['no_of_courts'], 2);
+        expect(event['screen_flow_path'], contains('es_coaches_assign'));
+      },
+    );
+
+    test('casual meetup: no sport, attendees are audience, no courts', () {
+      final draft = const EventDraft(eventType: 'et_casual_meeting').copyWith(
+        invitees: const [AppUser(id: 8)],
+        place: () => _place,
+        start: () => DateTime(2026, 11, 3, 18),
+      );
+      final event =
+          buildCreateEventBody(draft)['event'] as Map<String, dynamic>;
+      expect(event['event_type'], 'et_casual_meeting');
+      expect(event.containsKey('sport_type'), isFalse);
+      expect(event['with_coach'], isFalse);
+      expect(event['event_participants_attributes'], [
+        {
+          'user_id': 8,
+          'is_player': false,
+          'is_coach': false,
+          'is_audience': true,
+        },
+      ]);
+      expect(event.containsKey('no_of_courts'), isFalse);
+      expect(event.containsKey('event_venue_courts_attributes'), isFalse);
+      expect(event['screen_flow_path'], isNot(contains('es_sports_type')));
+      expect(event['screen_flow_path'], isNot(contains('es_courts_addition')));
+    });
+
+    test('only courts within the count are sent; unknown or sport-less drafts cannot be built', () {
+      final capped = _complete().copyWith(courtCount: 1);
+      final event =
+          buildCreateEventBody(capped)['event'] as Map<String, dynamic>;
+      expect(event['event_venue_courts_attributes'], [
+        {'place_court_id': 12, 'order': 1},
+      ]);
+      expect(
+        () =>
+            buildCreateEventBody(const EventDraft(eventType: 'et_competitive')),
+        throwsStateError,
+      );
+      expect(
+        () => buildCreateEventBody(
+          EventDraft(
+            eventType: 'et_practice_drill',
+            place: _place,
+            start: DateTime(2027),
+          ),
+        ),
+        throwsStateError,
+      );
+    });
+
+    test('people kinds filter by role and sport', () {
+      final practice = _complete();
+      expect(PeopleKind.players.roleFor(practice), 'ur_player');
+      expect(PeopleKind.coaches.roleFor(practice), 'ur_coach');
+      expect(PeopleKind.players.sportFor(practice), 'st_tennis');
+      final meetup = const EventDraft(eventType: 'et_casual_meeting');
+      expect(PeopleKind.players.roleFor(meetup), isNull);
+      expect(PeopleKind.players.sportFor(meetup), isNull);
+    });
   });
 }

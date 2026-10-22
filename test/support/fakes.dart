@@ -529,7 +529,7 @@ class FakeCreateEventRepository implements CreateEventRepository {
   bool searchFails = false;
   int? timezone = 99;
   Map<String, dynamic>? body;
-  final List<({String query, String sport})> searches = [];
+  final List<({String query, String? role, String? sport})> searches = [];
 
   @override
   Future<EventDetailsResponse> create(Map<String, dynamic> b) async {
@@ -540,11 +540,12 @@ class FakeCreateEventRepository implements CreateEventRepository {
   }
 
   @override
-  Future<List<AppUser>> searchPlayers({
+  Future<List<AppUser>> searchUsers({
     required String query,
-    required String sportKey,
+    String? role,
+    String? sportKey,
   }) async {
-    searches.add((query: query, sport: sportKey));
+    searches.add((query: query, role: role, sport: sportKey));
     await Future<void>.delayed(Duration.zero);
     if (searchFails) throw const OfflineFailure();
     return [

@@ -644,4 +644,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cancelWizardAction => 'Cancel';
+
+  @override
+  String get createCoachesTitle => 'Who is coaching?';
+
+  @override
+  String get createCoachesSearchHint => 'Search coaches';
+
+  @override
+  String get createCoachesRequired => 'Choose at least one coach.';
+
+  @override
+  String get createCoachesEmpty => 'No coaches found.';
+
+  @override
+  String get createPeopleTitle => 'Who is coming?';
+
+  @override
+  String get createPeopleRequired => 'Invite at least one person.';
+
+  @override
+  String get createReviewCoaches => 'Coaches';
+
+  @override
+  String get createCourtCountLabel => 'Number of courts';
+
+  @override
+  String createCourtsHint(int count) {
+    return 'Choose up to $count courts.';
+  }
 }

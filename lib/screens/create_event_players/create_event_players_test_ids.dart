@@ -1,11 +1,16 @@
+import 'package:racketmates/common/widgets/people_step.dart';
+
 abstract final class CreateEventPlayersTestIds {
-  static const root = 'create_event_players_screen';
-  static const title = 'create_event_players_title';
-  static const search = 'create_event_players_search';
-  static const next = 'create_event_players_next_button';
-  static const error = 'create_event_players_error';
-  static const empty = 'create_event_players_empty';
-  static const retry = 'create_event_players_retry';
-  static const selected = 'create_event_players_selected';
-  static String player(int id) => 'create_event_player_$id';
+  static const ids = PeopleStepIds('create_event_players');
+  static final root = ids.root;
+  static final title = ids.title;
+  static final search = ids.search;
+  static final next = ids.next;
+  static final error = ids.error;
+  static final empty = ids.empty;
+  static final retry = ids.retry;
+  static final selected = ids.selected;
+
+  /// Kept from the first wizard version: `create_event_player_<id>`.
+  static String player(int id) => 'create_event_players_person_$id';
 }

@@ -9,6 +9,7 @@ import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/create_event/event_draft.dart';
 import 'package:racketmates/common/places/place_models.dart';
+import 'package:racketmates/common/widgets/number_stepper.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_when_where/create_event_when_where_test_ids.dart';
@@ -37,7 +38,8 @@ class _CreateEventWhenWhereScreenState
   }
 
   Future<void> _pickVenue() async {
-    final sport = ref.read(createEventFlowProvider)?.sport?.key;
+    final draft = ref.read(createEventFlowProvider);
+    final sport = (draft?.spec?.needsSport ?? true) ? draft?.sport?.key : null;
     final place = await context.push<PlaceItem>(
       AppRoutes.placesFor(sport: sport),
     );
@@ -92,6 +94,7 @@ class _CreateEventWhenWhereScreenState
     final flow = ref.read(createEventFlowProvider.notifier);
     final locale = Localizations.localeOf(context).toString();
     final place = draft.place;
+    final usesCourts = draft.spec?.usesCourts ?? true;
     final courts = [
       for (final c in place?.placeCourts ?? const <PlaceCourt>[])
         if (c.id != null &&
@@ -155,7 +158,7 @@ class _CreateEventWhenWhereScreenState
             padding: EdgeInsets.all(12),
             child: Center(child: CircularProgressIndicator()),
           ),
-        if (place != null && !state.loadingCourts) ...[
+        if (usesCourts && place != null && !state.loadingCourts) ...[
           const SizedBox(height: 8),
           if (courts.isEmpty)
             TestId(
@@ -163,7 +166,26 @@ class _CreateEventWhenWhereScreenState
               child: Text(l10n.createNoCourts),
             )
           else ...[
-            Semantics(header: true, child: Text(l10n.createCourtsLabel)),
+            Row(
+              children: [
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    child: Text(l10n.createCourtCountLabel),
+                  ),
+                ),
+                NumberStepper(
+                  idPrefix: CreateEventWhenWhereTestIds.courtCountPrefix,
+                  label: l10n.createCourtCountLabel,
+                  decreaseLabel: l10n.createDecrease,
+                  increaseLabel: l10n.createIncrease,
+                  value: draft.courtCount,
+                  max: courts.length,
+                  onChanged: flow.setCourtCount,
+                ),
+              ],
+            ),
+            Text(l10n.createCourtsHint(draft.courtCount)),
             for (final court in courts)
               TestId(
                 CreateEventWhenWhereTestIds.court(court.id!),

@@ -1311,6 +1311,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get cancelWizardAction;
+
+  /// No description provided for @createCoachesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is coaching?'**
+  String get createCoachesTitle;
+
+  /// No description provided for @createCoachesSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search coaches'**
+  String get createCoachesSearchHint;
+
+  /// No description provided for @createCoachesRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least one coach.'**
+  String get createCoachesRequired;
+
+  /// No description provided for @createCoachesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No coaches found.'**
+  String get createCoachesEmpty;
+
+  /// No description provided for @createPeopleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is coming?'**
+  String get createPeopleTitle;
+
+  /// No description provided for @createPeopleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite at least one person.'**
+  String get createPeopleRequired;
+
+  /// No description provided for @createReviewCoaches.
+  ///
+  /// In en, this message translates to:
+  /// **'Coaches'**
+  String get createReviewCoaches;
+
+  /// No description provided for @createCourtCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of courts'**
+  String get createCourtCountLabel;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose up to {count} courts.'**
+  String createCourtsHint(int count);
 }
 
 class _AppLocalizationsDelegate

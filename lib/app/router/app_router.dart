@@ -15,6 +15,7 @@ import 'package:racketmates/screens/create_event_success/create_event_success_sc
 import 'package:racketmates/screens/create_event_review/create_event_review_screen.dart';
 import 'package:racketmates/screens/create_event_invite_settings/create_event_invite_settings_screen.dart';
 import 'package:racketmates/screens/create_event_when_where/create_event_when_where_screen.dart';
+import 'package:racketmates/screens/create_event_coaches/create_event_coaches_screen.dart';
 import 'package:racketmates/screens/create_event_players/create_event_players_screen.dart';
 import 'package:racketmates/screens/create_event_settings/create_event_settings_screen.dart';
 import 'package:racketmates/screens/create_event_sport/create_event_sport_screen.dart';
@@ -231,6 +232,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'settings',
             builder: (context, state) => const CreateEventSettingsScreen(),
+          ),
+          GoRoute(
+            path: 'coaches',
+            builder: (context, state) => const CreateEventCoachesScreen(),
           ),
           GoRoute(
             path: 'players',

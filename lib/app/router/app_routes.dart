@@ -1,3 +1,5 @@
+import 'package:racketmates/common/create_event/event_draft.dart';
+
 abstract final class AppRoutes {
   static const splash = '/';
   static const welcome = '/welcome';
@@ -10,11 +12,24 @@ abstract final class AppRoutes {
   static const createEvent = '/create-event';
   static const createEventSport = '/create-event/sport';
   static const createEventSettings = '/create-event/settings';
+  static const createEventCoaches = '/create-event/coaches';
   static const createEventPlayers = '/create-event/players';
   static const createEventWhenWhere = '/create-event/when-where';
   static const createEventInviteSettings = '/create-event/invite-settings';
   static const createEventReview = '/create-event/review';
   static const createEventSuccess = '/create-event/success';
+
+  /// Route of a wizard step (see `createEventStepsFor`).
+  static String routeForStep(CreateEventStep step) => switch (step) {
+    CreateEventStep.type => createEvent,
+    CreateEventStep.sport => createEventSport,
+    CreateEventStep.settings => createEventSettings,
+    CreateEventStep.coaches => createEventCoaches,
+    CreateEventStep.players => createEventPlayers,
+    CreateEventStep.whenWhere => createEventWhenWhere,
+    CreateEventStep.inviteSettings => createEventInviteSettings,
+    CreateEventStep.review => createEventReview,
+  };
 
   static bool isCreateEvent(String location) =>
       location == createEvent || location.startsWith('$createEvent/');

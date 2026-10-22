@@ -33,7 +33,10 @@ class CreateEventSettingsScreen extends ConsumerWidget {
       title: ref.msg(MessageKeys.createSettingsTitle, l10n.createSettingsTitle),
       primaryLabel: ref.msg(MessageKeys.buttonNext, l10n.nextAction),
       primaryId: CreateEventSettingsTestIds.next,
-      onPrimary: () => context.push(AppRoutes.createEventPlayers),
+      onPrimary: () {
+        final next = flow.next(CreateEventStep.settings)!;
+        context.push(AppRoutes.routeForStep(next));
+      },
       onBack: () => context.pop(),
       children: [
         Semantics(

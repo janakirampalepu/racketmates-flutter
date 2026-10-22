@@ -10,10 +10,12 @@ abstract class CreateEventRepository {
   /// `POST events`; returns the created event (and server message).
   Future<EventDetailsResponse> create(Map<String, dynamic> body);
 
-  /// Players matching [query] who play [sportKey] (`st_tennis`).
-  Future<List<AppUser>> searchPlayers({
+  /// Users matching [query] with role [role] (`ur_player`, `ur_coach`; null =
+  /// any), limited to those who play [sportKey] (`st_tennis`) when given.
+  Future<List<AppUser>> searchUsers({
     required String query,
-    required String sportKey,
+    String? role,
+    String? sportKey,
   });
 
   /// `timezone_info_id` for a venue at [latitude]/[longitude] and local [time]
@@ -45,15 +47,16 @@ class CreateEventRepositoryImpl implements CreateEventRepository {
       _guard(() => api.createEvent(body));
 
   @override
-  Future<List<AppUser>> searchPlayers({
+  Future<List<AppUser>> searchUsers({
     required String query,
-    required String sportKey,
+    String? role,
+    String? sportKey,
   }) async =>
       (await _guard(
         () => api.searchUsers(
           search: query.trim(),
-          roles: const [RoleKeys.player],
-          sportTypes: [sportKey],
+          roles: role == null ? null : [role],
+          sportTypes: sportKey == null ? null : [sportKey],
         ),
       )).users ??
       const [];

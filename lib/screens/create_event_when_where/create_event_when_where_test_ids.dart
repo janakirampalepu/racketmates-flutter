@@ -4,6 +4,7 @@ abstract final class CreateEventWhenWhereTestIds {
   static const next = 'create_event_when_where_next_button';
   static const venueButton = 'create_event_venue_button';
   static const venueError = 'create_event_venue_error';
+  static const courtCountPrefix = 'create_event_court_count';
   static const courtsLoading = 'create_event_courts_loading';
   static const noCourts = 'create_event_no_courts';
   static const dateButton = 'create_event_date_button';

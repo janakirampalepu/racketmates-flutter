@@ -275,5 +275,22 @@
         "type": "int"
       }
     }
+  },
+  "createCoachesTitle": "Who is coaching?",
+  "createCoachesSearchHint": "Search coaches",
+  "createCoachesRequired": "Choose at least one coach.",
+  "createCoachesEmpty": "No coaches found.",
+  "createPeopleTitle": "Who is coming?",
+  "createPeopleRequired": "Invite at least one person.",
+  "createReviewCoaches": "Coaches",
+  "createCourtCountLabel": "Number of courts",
+  "createCourtsHint": "Choose up to {count} courts.",
+  "@createCourtsHint": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

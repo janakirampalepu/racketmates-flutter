@@ -53,10 +53,10 @@ class CreateEventTypeScreen extends ConsumerWidget {
                 subText: item.localizedSubText,
                 enabled: supportedEventTypes.contains(item.key),
                 onTap: () {
-                  ref
-                      .read(createEventFlowProvider.notifier)
-                      .setEventType(item.key!);
-                  context.push(AppRoutes.createEventSport);
+                  final flow = ref.read(createEventFlowProvider.notifier)
+                    ..setEventType(item.key!);
+                  final next = flow.next(CreateEventStep.type)!;
+                  context.push(AppRoutes.routeForStep(next));
                 },
               ),
         ],

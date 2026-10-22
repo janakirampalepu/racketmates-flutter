@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/content/content_cache.dart';
+import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/screens/event_details/event_details_test_ids.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
+import 'package:racketmates/screens/create_event_coaches/create_event_coaches_test_ids.dart';
 import 'package:racketmates/screens/create_event_invite_settings/create_event_invite_settings_test_ids.dart';
 import 'package:racketmates/screens/create_event_players/create_event_players_test_ids.dart';
 import 'package:racketmates/screens/create_event_review/create_event_review_test_ids.dart';
@@ -48,6 +51,18 @@ InMemoryContentCache _content() => InMemoryContentCache()
         'data_type': 'event_type',
         'key': 'et_round_robin',
         'localized_label': 'Round robin',
+      },
+      {
+        'id': 4,
+        'data_type': 'event_type',
+        'key': 'et_group_lesson',
+        'localized_label': 'Group lesson',
+      },
+      {
+        'id': 5,
+        'data_type': 'event_type',
+        'key': 'et_casual_meeting',
+        'localized_label': 'Casual meetup',
       },
     ],
   );
@@ -532,4 +547,100 @@ void main() {
       },
     );
   }
+
+  testWidgets(
+    'group lesson asks for coaches first and searches by coach role',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      final w = _Wizard();
+      await tester.pumpWidget(w.app());
+      await _openWizard(tester);
+      await tester.tap(_id(CreateEventTypeTestIds.type('et_group_lesson')));
+      await tester.pumpAndSettle();
+      await tester.tap(_id(CreateEventSportTestIds.sport('st_tennis')));
+      await tester.pumpAndSettle();
+      await tester.tap(_id(CreateEventSportTestIds.next));
+      await tester.pumpAndSettle();
+      await _throughSettings(tester);
+
+      expect(_id(CreateEventCoachesTestIds.root), findsOneWidget);
+      expect(w.create.searches.first.role, 'ur_coach');
+      await tester.tap(_id(CreateEventCoachesTestIds.next));
+      await tester.pumpAndSettle();
+      expect(_id(CreateEventCoachesTestIds.error), findsOneWidget);
+      expect(_id(CreateEventCoachesTestIds.root), findsOneWidget);
+
+      await tester.tap(_id(CreateEventCoachesTestIds.coach(8)));
+      await tester.pumpAndSettle();
+      await tester.tap(_id(CreateEventCoachesTestIds.next));
+      await tester.pumpAndSettle();
+      expect(_id(CreateEventPlayersTestIds.root), findsOneWidget);
+      handle.dispose();
+    },
+  );
+
+  testWidgets('casual meetup skips the sport step and shows no courts', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    useTallScreen(tester);
+    final w = _Wizard();
+    await tester.pumpWidget(w.app());
+    await _openWizard(tester);
+    await tester.tap(_id(CreateEventTypeTestIds.type('et_casual_meeting')));
+    await tester.pumpAndSettle();
+    expect(_id(CreateEventSportTestIds.root), findsNothing);
+    expect(_id(CreateEventSettingsTestIds.next), findsOneWidget);
+    await _throughSettings(tester);
+
+    expect(find.text('Who is coming?'), findsWidgets);
+    expect(w.create.searches.first.role, isNull);
+    expect(w.create.searches.first.sport, isNull);
+    await _throughPlayers(tester);
+
+    await tester.tap(_id(CreateEventWhenWhereTestIds.venueButton));
+    await tester.pumpAndSettle();
+    expect(w.places.searches.last.sport, isNull);
+    await tester.tap(_id(PlacePickerTestIds.place(5)));
+    await tester.pumpAndSettle();
+    expect(_id(CreateEventWhenWhereTestIds.court(11)), findsNothing);
+    expect(
+      _id('${CreateEventWhenWhereTestIds.courtCountPrefix}_increase'),
+      findsNothing,
+    );
+    handle.dispose();
+  });
+
+  testWidgets('court count stepper caps the selectable courts', (tester) async {
+    final handle = tester.ensureSemantics();
+    useTallScreen(tester);
+    final w = _Wizard();
+    await tester.pumpWidget(w.app());
+    await _openWizard(tester);
+    await _throughSport(tester);
+    await _throughSettings(tester);
+    await _throughPlayers(tester);
+    await tester.tap(_id(CreateEventWhenWhereTestIds.venueButton));
+    await tester.pumpAndSettle();
+    await tester.tap(_id(PlacePickerTestIds.place(5)));
+    await tester.pumpAndSettle();
+
+    List<int> courts() => ProviderScope.containerOf(
+      tester.element(_id(CreateEventWhenWhereTestIds.root)),
+    ).read(createEventFlowProvider)!.courtIds;
+    await tester.tap(_id(CreateEventWhenWhereTestIds.court(11)));
+    await tester.pump();
+    await tester.tap(_id(CreateEventWhenWhereTestIds.court(12))); // over cap
+    await tester.pump();
+    expect(courts(), [11]);
+
+    await tester.tap(
+      _id('${CreateEventWhenWhereTestIds.courtCountPrefix}_increase'),
+    );
+    await tester.pump();
+    await tester.tap(_id(CreateEventWhenWhereTestIds.court(12)));
+    await tester.pump();
+    expect(courts(), [11, 12]);
+    handle.dispose();
+  });
 }

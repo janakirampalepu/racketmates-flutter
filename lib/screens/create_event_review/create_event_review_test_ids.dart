@@ -7,5 +7,6 @@ abstract final class CreateEventReviewTestIds {
   static const summarySport = 'create_event_review_sport';
   static const summaryWhen = 'create_event_review_when';
   static const summaryWhere = 'create_event_review_where';
+  static const summaryCoaches = 'create_event_review_coaches';
   static const summaryInvited = 'create_event_review_invited';
 }

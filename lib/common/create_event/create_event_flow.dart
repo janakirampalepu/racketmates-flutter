@@ -33,6 +33,10 @@ class CreateEventFlow extends Notifier<EventDraft?> {
   /// Changing the type or sport invalidates everything that depends on it.
   void setEventType(String type) => state = EventDraft(eventType: type);
 
+  /// Next wizard step for the current event type.
+  CreateEventStep? next(CreateEventStep current) =>
+      nextCreateEventStep(_draft.eventType, current);
+
   void setSport(SportKey sport) {
     final d = _draft;
     state = EventDraft(eventType: d.eventType, sport: sport);
@@ -48,6 +52,19 @@ class CreateEventFlow extends Notifier<EventDraft?> {
 
   void setAllowManage({required bool value}) =>
       state = _draft.copyWith(allowParticipantsManagePlayers: value);
+
+  void toggleCoach(AppUser user) {
+    final d = _draft;
+    final exists = d.coaches.any((u) => u.id == user.id);
+    state = d.copyWith(
+      coaches: exists
+          ? [
+              for (final u in d.coaches)
+                if (u.id != user.id) u,
+            ]
+          : [...d.coaches, user],
+    );
+  }
 
   void toggleInvitee(AppUser user) {
     final d = _draft;
@@ -75,15 +92,29 @@ class CreateEventFlow extends Notifier<EventDraft?> {
     }
   }
 
+  /// Selecting is capped at [EventDraft.courtCount] (native "select up to N
+  /// courts").
   void toggleCourt(int courtId) {
     final d = _draft;
+    if (d.courtIds.contains(courtId)) {
+      state = d.copyWith(
+        courtIds: [
+          for (final c in d.courtIds)
+            if (c != courtId) c,
+        ],
+      );
+    } else if (d.courtIds.length < d.courtCount) {
+      state = d.copyWith(courtIds: [...d.courtIds, courtId]);
+    }
+  }
+
+  /// Number of courts to book; fewer courts drops the extra selections.
+  void setCourtCount(int count) {
+    final d = _draft;
+    final next = count < 1 ? 1 : count;
     state = d.copyWith(
-      courtIds: d.courtIds.contains(courtId)
-          ? [
-              for (final c in d.courtIds)
-                if (c != courtId) c,
-            ]
-          : [...d.courtIds, courtId],
+      courtCount: next,
+      courtIds: d.courtIds.take(next).toList(),
     );
   }
 

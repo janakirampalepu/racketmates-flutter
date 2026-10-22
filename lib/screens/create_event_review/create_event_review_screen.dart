@@ -75,6 +75,12 @@ class CreateEventReviewScreen extends ConsumerWidget {
           l10n.createVenueLabel,
           draft.place?.name ?? '',
         ),
+        if (draft.coaches.isNotEmpty)
+          _Row(
+            CreateEventReviewTestIds.summaryCoaches,
+            l10n.createReviewCoaches,
+            draft.coaches.map((u) => u.displayName).join(', '),
+          ),
         _Row(
           CreateEventReviewTestIds.summaryInvited,
           l10n.createReviewInvited,
