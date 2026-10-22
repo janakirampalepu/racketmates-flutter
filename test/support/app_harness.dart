@@ -5,8 +5,11 @@ import 'package:racketmates/app/app.dart';
 import 'package:racketmates/common/auth/auth_providers.dart';
 import 'package:racketmates/common/auth/models/session_token.dart';
 import 'package:racketmates/common/auth/token_store.dart';
+import 'package:racketmates/common/content/content_cache.dart';
 import 'package:racketmates/common/config/config_providers.dart';
+import 'package:racketmates/common/create_event/create_event_repository.dart';
 import 'package:racketmates/common/events/event_actions_repository.dart';
+import 'package:racketmates/common/places/places_repository.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/users/user_repository.dart';
 import 'package:racketmates/screens/splash/repositories/startup_repository.dart';
@@ -19,6 +22,10 @@ Widget signedInApp({
   FakeScheduleRepository? schedule,
   FakeUserRepository? users,
   FakeEventActionsRepository? actions,
+  FakeContentRepository? content,
+  InMemoryContentCache? contentCache,
+  FakePlacesRepository? places,
+  FakeCreateEventRepository? createEvent,
 }) => ProviderScope(
   overrides: [
     environmentConfigProvider.overrideWithValue(testConfig),
@@ -42,6 +49,13 @@ Widget signedInApp({
       actions ?? FakeEventActionsRepository(),
     ),
     hourFormatProvider.overrideWithValue(12),
+    placesRepositoryProvider.overrideWithValue(
+      places ?? FakePlacesRepository(),
+    ),
+    createEventRepositoryProvider.overrideWithValue(
+      createEvent ?? FakeCreateEventRepository(),
+    ),
+    ...contentOverrides(repository: content, cache: contentCache),
   ],
   child: const RacketmatesApp(),
 );
@@ -52,3 +66,20 @@ void useTallScreen(WidgetTester tester, {double height = 4000}) {
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
 }
+
+/// The app with no persisted session: lands on the welcome screen.
+Widget signedOutApp({
+  FakeContentRepository? content,
+  InMemoryContentCache? contentCache,
+}) => ProviderScope(
+  overrides: [
+    environmentConfigProvider.overrideWithValue(testConfig),
+    appVersionProvider.overrideWithValue('1.0.0'),
+    tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
+    authApiProvider.overrideWithValue(FakeAuthApi()),
+    startupRepositoryProvider.overrideWithValue(FakeStartupRepository()),
+    scheduleRepositoryProvider.overrideWithValue(FakeScheduleRepository()),
+    ...contentOverrides(repository: content, cache: contentCache),
+  ],
+  child: const RacketmatesApp(),
+);

@@ -963,6 +963,354 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More options'**
   String get moreOptionsLabel;
+
+  /// No description provided for @placePickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a venue'**
+  String get placePickerTitle;
+
+  /// No description provided for @placeSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search venues'**
+  String get placeSearchHint;
+
+  /// No description provided for @tabSearchPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get tabSearchPlaces;
+
+  /// No description provided for @tabFavouritePlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Favourites'**
+  String get tabFavouritePlaces;
+
+  /// No description provided for @placesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No venues found.'**
+  String get placesEmpty;
+
+  /// No description provided for @placesFavouritesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no favourite venues yet.'**
+  String get placesFavouritesEmpty;
+
+  /// No description provided for @placesLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load venues.'**
+  String get placesLoadError;
+
+  /// No description provided for @addFavouriteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favourites'**
+  String get addFavouriteAction;
+
+  /// No description provided for @removeFavouriteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favourites'**
+  String get removeFavouriteAction;
+
+  /// No description provided for @createEventTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create event'**
+  String get createEventTitle;
+
+  /// No description provided for @createEventAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create event'**
+  String get createEventAction;
+
+  /// No description provided for @createTypeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What kind of event?'**
+  String get createTypeTitle;
+
+  /// No description provided for @createTypeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available in this build yet.'**
+  String get createTypeUnavailable;
+
+  /// No description provided for @createSportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Which sport?'**
+  String get createSportTitle;
+
+  /// No description provided for @createSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Event settings'**
+  String get createSettingsTitle;
+
+  /// No description provided for @createDeadlineLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Response deadline'**
+  String get createDeadlineLabel;
+
+  /// No description provided for @createDeadlineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Players must respond this long before the event.'**
+  String get createDeadlineHint;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} before'**
+  String createDeadlineValue(String count);
+
+  /// No description provided for @createUnitHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours'**
+  String get createUnitHours;
+
+  /// No description provided for @createUnitDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get createUnitDays;
+
+  /// No description provided for @createAllowManageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Let participants manage players'**
+  String get createAllowManageLabel;
+
+  /// No description provided for @createPlayersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is invited?'**
+  String get createPlayersTitle;
+
+  /// No description provided for @createPlayersSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search players'**
+  String get createPlayersSearchHint;
+
+  /// No description provided for @createPlayersRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite at least one player.'**
+  String get createPlayersRequired;
+
+  /// No description provided for @createPlayersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No players found.'**
+  String get createPlayersEmpty;
+
+  /// No description provided for @createPlayersLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load players.'**
+  String get createPlayersLoadError;
+
+  /// No description provided for @createPlayersSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited'**
+  String get createPlayersSelected;
+
+  /// No description provided for @createWhenWhereTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When and where'**
+  String get createWhenWhereTitle;
+
+  /// No description provided for @createVenueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Venue'**
+  String get createVenueLabel;
+
+  /// No description provided for @createSelectVenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a venue'**
+  String get createSelectVenue;
+
+  /// No description provided for @createCourtsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Courts'**
+  String get createCourtsLabel;
+
+  /// No description provided for @createNoCourts.
+  ///
+  /// In en, this message translates to:
+  /// **'This venue has no courts listed for this sport.'**
+  String get createNoCourts;
+
+  /// No description provided for @createDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get createDateLabel;
+
+  /// No description provided for @createTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Start time'**
+  String get createTimeLabel;
+
+  /// No description provided for @createDurationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get createDurationLabel;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String createDurationValue(int minutes);
+
+  /// No description provided for @createNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get createNotesLabel;
+
+  /// No description provided for @createVenueRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a venue.'**
+  String get createVenueRequired;
+
+  /// No description provided for @createStartRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date and start time.'**
+  String get createStartRequired;
+
+  /// No description provided for @createStartInPast.
+  ///
+  /// In en, this message translates to:
+  /// **'The start time must be in the future.'**
+  String get createStartInPast;
+
+  /// No description provided for @createInviteSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Player limits'**
+  String get createInviteSettingsTitle;
+
+  /// No description provided for @createMaxPlayersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum players'**
+  String get createMaxPlayersLabel;
+
+  /// No description provided for @createRsvpLimitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Responses allowed'**
+  String get createRsvpLimitLabel;
+
+  /// No description provided for @createAcceptanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'How players are added'**
+  String get createAcceptanceLabel;
+
+  /// No description provided for @createAcceptOrderOfResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'First to respond'**
+  String get createAcceptOrderOfResponse;
+
+  /// No description provided for @createAcceptPickManually.
+  ///
+  /// In en, this message translates to:
+  /// **'I pick manually'**
+  String get createAcceptPickManually;
+
+  /// No description provided for @createDecrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease'**
+  String get createDecrease;
+
+  /// No description provided for @createIncrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase'**
+  String get createIncrease;
+
+  /// No description provided for @createReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get createReviewTitle;
+
+  /// No description provided for @createReviewType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get createReviewType;
+
+  /// No description provided for @createReviewSport.
+  ///
+  /// In en, this message translates to:
+  /// **'Sport'**
+  String get createReviewSport;
+
+  /// No description provided for @createReviewInvited.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited'**
+  String get createReviewInvited;
+
+  /// No description provided for @createFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create the event.'**
+  String get createFailed;
+
+  /// No description provided for @createdTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Event created!'**
+  String get createdTitle;
+
+  /// No description provided for @createdGoToSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to schedule'**
+  String get createdGoToSchedule;
+
+  /// No description provided for @createdSeeDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'See event details'**
+  String get createdSeeDetails;
+
+  /// No description provided for @addEventAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create event'**
+  String get addEventAction;
+
+  /// No description provided for @cancelWizardAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelWizardAction;
 }
 
 class _AppLocalizationsDelegate

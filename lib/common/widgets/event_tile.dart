@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:racketmates/common/content/content_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/events/event_labels.dart';
@@ -8,7 +10,7 @@ import 'package:racketmates/l10n/app_localizations.dart';
 /// One event row, shared by home and schedule. Date comes from `event_date`
 /// (`yyyy-MM-dd`); time slot, place and status labels are server-provided
 /// (native `CommonEventsAdapter`).
-class EventTile extends StatelessWidget {
+class EventTile extends ConsumerWidget {
   const EventTile({
     required this.item,
     required this.testId,
@@ -26,9 +28,10 @@ class EventTile extends StatelessWidget {
       (more ?? 0) > 0 ? '$text ${l10n.moreSuffix(more!)}' : text;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final reference = ref.watch(referenceDataProvider);
     final date = item.date;
     final locale = Localizations.localeOf(context).toString();
     final day = date == null ? '' : DateFormat('dd', locale).format(date);
@@ -38,7 +41,8 @@ class EventTile extends StatelessWidget {
     final time = _withMore(item.timeSlot ?? '', item.additionalTimings, l10n);
     final place = _withMore(item.placeName ?? '', item.additionalVenues, l10n);
     final status = item.eventStatusLabel ?? item.pastEventStatusLabel ?? '';
-    final title = humanizeKey(item.eventType);
+    final title =
+        reference.label(item.eventType) ?? humanizeKey(item.eventType);
     final description = [
       title,
       time,

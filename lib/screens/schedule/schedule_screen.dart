@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/content/content_text.dart';
+import 'package:racketmates/common/content/messages.dart';
+import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/widgets/event_tile.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
@@ -12,28 +15,46 @@ import 'package:racketmates/screens/schedule/schedule_view_model.dart';
 /// Schedule tab: upcoming and past events (native `ScheduleFragment`).
 /// Drafts, to-be-rescheduled, filters, calendar view and swipe actions are
 /// later work.
-class ScheduleScreen extends StatelessWidget {
+class ScheduleScreen extends ConsumerWidget {
   const ScheduleScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(l10n.scheduleTitle),
+          title: Text(ref.msg(MessageKeys.scheduleTitle, l10n.scheduleTitle)),
           bottom: TabBar(
             tabs: [
               TestId(
                 ScheduleTestIds.tab('upcoming'),
-                child: Tab(text: l10n.tabUpcoming),
+                child: Tab(
+                  text: ref.msg(
+                    MessageKeys.scheduleUpcomingTab,
+                    l10n.tabUpcoming,
+                  ),
+                ),
               ),
               TestId(
                 ScheduleTestIds.tab('past'),
-                child: Tab(text: l10n.tabPast),
+                child: Tab(
+                  text: ref.msg(MessageKeys.schedulePastTab, l10n.tabPast),
+                ),
               ),
             ],
+          ),
+        ),
+        floatingActionButton: TestId(
+          ScheduleTestIds.createEvent,
+          child: FloatingActionButton.extended(
+            icon: const Icon(Icons.add),
+            label: Text(l10n.addEventAction),
+            onPressed: () {
+              ref.read(createEventFlowProvider.notifier).start();
+              context.push(AppRoutes.createEvent);
+            },
           ),
         ),
         body: TestId(
@@ -105,8 +126,14 @@ class _ScheduleListState extends ConsumerState<_ScheduleList>
               child: Center(
                 child: Text(
                   widget.tab == ScheduleTab.upcoming
-                      ? l10n.scheduleEmptyUpcoming
-                      : l10n.scheduleEmptyPast,
+                      ? ref.msg(
+                          MessageKeys.scheduleNoUpcoming,
+                          l10n.scheduleEmptyUpcoming,
+                        )
+                      : ref.msg(
+                          MessageKeys.scheduleNoPast,
+                          l10n.scheduleEmptyPast,
+                        ),
                 ),
               ),
             ),

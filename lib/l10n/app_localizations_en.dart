@@ -464,4 +464,184 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moreOptionsLabel => 'More options';
+
+  @override
+  String get placePickerTitle => 'Choose a venue';
+
+  @override
+  String get placeSearchHint => 'Search venues';
+
+  @override
+  String get tabSearchPlaces => 'Search';
+
+  @override
+  String get tabFavouritePlaces => 'Favourites';
+
+  @override
+  String get placesEmpty => 'No venues found.';
+
+  @override
+  String get placesFavouritesEmpty => 'You have no favourite venues yet.';
+
+  @override
+  String get placesLoadError => 'Could not load venues.';
+
+  @override
+  String get addFavouriteAction => 'Add to favourites';
+
+  @override
+  String get removeFavouriteAction => 'Remove from favourites';
+
+  @override
+  String get createEventTitle => 'Create event';
+
+  @override
+  String get createEventAction => 'Create event';
+
+  @override
+  String get createTypeTitle => 'What kind of event?';
+
+  @override
+  String get createTypeUnavailable => 'Not available in this build yet.';
+
+  @override
+  String get createSportTitle => 'Which sport?';
+
+  @override
+  String get createSettingsTitle => 'Event settings';
+
+  @override
+  String get createDeadlineLabel => 'Response deadline';
+
+  @override
+  String get createDeadlineHint =>
+      'Players must respond this long before the event.';
+
+  @override
+  String createDeadlineValue(String count) {
+    return '$count before';
+  }
+
+  @override
+  String get createUnitHours => 'Hours';
+
+  @override
+  String get createUnitDays => 'Days';
+
+  @override
+  String get createAllowManageLabel => 'Let participants manage players';
+
+  @override
+  String get createPlayersTitle => 'Who is invited?';
+
+  @override
+  String get createPlayersSearchHint => 'Search players';
+
+  @override
+  String get createPlayersRequired => 'Invite at least one player.';
+
+  @override
+  String get createPlayersEmpty => 'No players found.';
+
+  @override
+  String get createPlayersLoadError => 'Could not load players.';
+
+  @override
+  String get createPlayersSelected => 'Invited';
+
+  @override
+  String get createWhenWhereTitle => 'When and where';
+
+  @override
+  String get createVenueLabel => 'Venue';
+
+  @override
+  String get createSelectVenue => 'Select a venue';
+
+  @override
+  String get createCourtsLabel => 'Courts';
+
+  @override
+  String get createNoCourts =>
+      'This venue has no courts listed for this sport.';
+
+  @override
+  String get createDateLabel => 'Date';
+
+  @override
+  String get createTimeLabel => 'Start time';
+
+  @override
+  String get createDurationLabel => 'Duration';
+
+  @override
+  String createDurationValue(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get createNotesLabel => 'Notes (optional)';
+
+  @override
+  String get createVenueRequired => 'Choose a venue.';
+
+  @override
+  String get createStartRequired => 'Choose a date and start time.';
+
+  @override
+  String get createStartInPast => 'The start time must be in the future.';
+
+  @override
+  String get createInviteSettingsTitle => 'Player limits';
+
+  @override
+  String get createMaxPlayersLabel => 'Maximum players';
+
+  @override
+  String get createRsvpLimitLabel => 'Responses allowed';
+
+  @override
+  String get createAcceptanceLabel => 'How players are added';
+
+  @override
+  String get createAcceptOrderOfResponse => 'First to respond';
+
+  @override
+  String get createAcceptPickManually => 'I pick manually';
+
+  @override
+  String get createDecrease => 'Decrease';
+
+  @override
+  String get createIncrease => 'Increase';
+
+  @override
+  String get createReviewTitle => 'Review';
+
+  @override
+  String get createReviewType => 'Type';
+
+  @override
+  String get createReviewSport => 'Sport';
+
+  @override
+  String get createReviewInvited => 'Invited';
+
+  @override
+  String get createFailed => 'Could not create the event.';
+
+  @override
+  String get createdTitle => 'Event created!';
+
+  @override
+  String get createdGoToSchedule => 'Go to schedule';
+
+  @override
+  String get createdSeeDetails => 'See event details';
+
+  @override
+  String get addEventAction => 'Create event';
+
+  @override
+  String get cancelWizardAction => 'Cancel';
 }

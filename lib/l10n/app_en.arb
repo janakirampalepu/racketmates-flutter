@@ -201,5 +201,79 @@
   "cancelEventKeep": "Keep event",
   "cancelEventDone": "The event was cancelled.",
   "cancelEventFailed": "Could not cancel the event.",
-  "moreOptionsLabel": "More options"
+  "moreOptionsLabel": "More options",
+  "placePickerTitle": "Choose a venue",
+  "placeSearchHint": "Search venues",
+  "tabSearchPlaces": "Search",
+  "tabFavouritePlaces": "Favourites",
+  "placesEmpty": "No venues found.",
+  "placesFavouritesEmpty": "You have no favourite venues yet.",
+  "placesLoadError": "Could not load venues.",
+  "addFavouriteAction": "Add to favourites",
+  "removeFavouriteAction": "Remove from favourites",
+  "createEventTitle": "Create event",
+  "createEventAction": "Create event",
+  "createTypeTitle": "What kind of event?",
+  "createTypeUnavailable": "Not available in this build yet.",
+  "createSportTitle": "Which sport?",
+  "createSettingsTitle": "Event settings",
+  "createDeadlineLabel": "Response deadline",
+  "createDeadlineHint": "Players must respond this long before the event.",
+  "createDeadlineValue": "{count} before",
+  "createUnitHours": "Hours",
+  "createUnitDays": "Days",
+  "createAllowManageLabel": "Let participants manage players",
+  "createPlayersTitle": "Who is invited?",
+  "createPlayersSearchHint": "Search players",
+  "createPlayersRequired": "Invite at least one player.",
+  "createPlayersEmpty": "No players found.",
+  "createPlayersLoadError": "Could not load players.",
+  "createPlayersSelected": "Invited",
+  "createWhenWhereTitle": "When and where",
+  "createVenueLabel": "Venue",
+  "createSelectVenue": "Select a venue",
+  "createCourtsLabel": "Courts",
+  "createNoCourts": "This venue has no courts listed for this sport.",
+  "createDateLabel": "Date",
+  "createTimeLabel": "Start time",
+  "createDurationLabel": "Duration",
+  "createDurationValue": "{minutes} min",
+  "createNotesLabel": "Notes (optional)",
+  "createVenueRequired": "Choose a venue.",
+  "createStartRequired": "Choose a date and start time.",
+  "createStartInPast": "The start time must be in the future.",
+  "createInviteSettingsTitle": "Player limits",
+  "createMaxPlayersLabel": "Maximum players",
+  "createRsvpLimitLabel": "Responses allowed",
+  "createAcceptanceLabel": "How players are added",
+  "createAcceptOrderOfResponse": "First to respond",
+  "createAcceptPickManually": "I pick manually",
+  "createDecrease": "Decrease",
+  "createIncrease": "Increase",
+  "createReviewTitle": "Review",
+  "createReviewType": "Type",
+  "createReviewSport": "Sport",
+  "createReviewInvited": "Invited",
+  "createFailed": "Could not create the event.",
+  "createdTitle": "Event created!",
+  "createdGoToSchedule": "Go to schedule",
+  "createdSeeDetails": "See event details",
+  "addEventAction": "Create event",
+  "cancelWizardAction": "Cancel",
+  "@createDeadlineValue": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@createDurationValue": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  }
 }

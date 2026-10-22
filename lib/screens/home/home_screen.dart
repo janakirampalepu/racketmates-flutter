@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/auth/session_controller.dart';
+import 'package:racketmates/common/content/content_text.dart';
+import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/events/event_labels.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/events/models/schedule_models.dart';
@@ -59,9 +61,15 @@ class HomeScreen extends ConsumerWidget {
             children: [
               _Section<List<PendingAction>>(
                 id: HomeTestIds.pendingSection,
-                title: l10n.homePendingActions,
+                title: ref.msg(
+                  MessageKeys.homePendingTitle,
+                  l10n.homePendingActions,
+                ),
                 value: state.pending,
-                emptyText: l10n.emptyPendingActions,
+                emptyText: ref.msg(
+                  MessageKeys.homePendingEmpty,
+                  l10n.emptyPendingActions,
+                ),
                 isEmpty: (v) => v.isEmpty,
                 onRetry: () => vm.reload(HomeSection.pending),
                 builder: (items) => [
@@ -70,9 +78,15 @@ class HomeScreen extends ConsumerWidget {
               ),
               _Section<List<ScheduleItem>>(
                 id: HomeTestIds.upcomingSection,
-                title: l10n.homeUpcoming,
+                title: ref.msg(
+                  MessageKeys.homeUpcomingTitle,
+                  l10n.homeUpcoming,
+                ),
                 value: state.upcoming,
-                emptyText: l10n.emptyUpcoming,
+                emptyText: ref.msg(
+                  MessageKeys.homeUpcomingEmpty,
+                  l10n.emptyUpcoming,
+                ),
                 isEmpty: (v) => v.isEmpty,
                 onRetry: () => vm.reload(HomeSection.upcoming),
                 seeAllId: HomeTestIds.seeAllUpcoming,
@@ -90,9 +104,15 @@ class HomeScreen extends ConsumerWidget {
               ),
               _Section<List<PlayerCard>>(
                 id: HomeTestIds.updatesSection,
-                title: l10n.homeLatestUpdates,
+                title: ref.msg(
+                  MessageKeys.homeUpdatesTitle,
+                  l10n.homeLatestUpdates,
+                ),
                 value: state.updates,
-                emptyText: l10n.emptyLatestUpdates,
+                emptyText: ref.msg(
+                  MessageKeys.homeUpdatesEmpty,
+                  l10n.emptyLatestUpdates,
+                ),
                 isEmpty: (v) => v.isEmpty,
                 onRetry: () => vm.reload(HomeSection.updates),
                 builder: (cards) => [
@@ -107,9 +127,15 @@ class HomeScreen extends ConsumerWidget {
               ),
               _Section<List<HomePageStats>>(
                 id: HomeTestIds.activitySection,
-                title: l10n.homeActivity,
+                title: ref.msg(
+                  MessageKeys.homeActivityTitle,
+                  l10n.homeActivity,
+                ),
                 value: state.activity,
-                emptyText: l10n.emptyActivity,
+                emptyText: ref.msg(
+                  MessageKeys.homeActivityEmpty,
+                  l10n.emptyActivity,
+                ),
                 isEmpty: (v) => v.isEmpty,
                 onRetry: () => vm.reload(HomeSection.activity),
                 builder: (stats) => [

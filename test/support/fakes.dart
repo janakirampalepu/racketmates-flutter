@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:racketmates/app/config/app_environment.dart';
 import 'package:racketmates/app/config/environment_config.dart';
 import 'package:racketmates/common/auth/auth_api.dart';
@@ -6,7 +7,14 @@ import 'package:racketmates/common/auth/models/app_metadata.dart';
 import 'package:racketmates/common/auth/models/phone_verification.dart';
 import 'package:racketmates/common/auth/models/session_token.dart';
 import 'package:racketmates/common/auth/phone_verification_repository.dart';
+import 'package:racketmates/common/content/content_cache.dart';
+import 'package:racketmates/common/content/content_controller.dart';
+import 'package:racketmates/common/content/content_repository.dart';
+import 'package:racketmates/common/content/reference_data.dart';
+import 'package:racketmates/common/create_event/create_event_repository.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/places/place_models.dart';
+import 'package:racketmates/common/places/places_repository.dart';
 import 'package:racketmates/common/events/event_actions_repository.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
@@ -399,4 +407,158 @@ class FakeEventActionsRepository implements EventActionsRepository {
     await Future<void>.delayed(Duration.zero);
     if (failure != null) throw failure!;
   }
+}
+
+class FakeContentRepository implements ContentRepository {
+  FakeContentRepository({
+    this.messagesTree = const {},
+    this.preLoginTree = const {},
+    this.reference = const [],
+    this.failing = false,
+  });
+
+  Map<String, dynamic> messagesTree;
+  Map<String, dynamic> preLoginTree;
+  List<Map<String, dynamic>> reference;
+  bool failing;
+  int messagesCalls = 0;
+  int preLoginCalls = 0;
+  int referenceCalls = 0;
+
+  @override
+  Future<Map<String, dynamic>> messages() async {
+    messagesCalls++;
+    if (failing) throw const OfflineFailure();
+    return messagesTree;
+  }
+
+  @override
+  Future<Map<String, dynamic>> preLoginMessages() async {
+    preLoginCalls++;
+    if (failing) throw const OfflineFailure();
+    return preLoginTree;
+  }
+
+  @override
+  Future<ReferenceDataResponse> referenceData() async {
+    referenceCalls++;
+    if (failing) throw const OfflineFailure();
+    return ReferenceDataResponse.fromJson({'reference_data': reference});
+  }
+}
+
+/// Provider overrides that keep content (strings / reference data) offline and
+/// deterministic in widget tests.
+List<Override> contentOverrides({
+  FakeContentRepository? repository,
+  InMemoryContentCache? cache,
+}) => [
+  contentRepositoryProvider.overrideWithValue(
+    repository ?? FakeContentRepository(),
+  ),
+  contentCacheProvider.overrideWithValue(cache ?? InMemoryContentCache()),
+];
+
+class FakePlacesRepository implements PlacesRepository {
+  FakePlacesRepository({
+    this.places = const [],
+    this.favouritePlaces = const [],
+    this.detailsById = const {},
+  });
+
+  List<PlaceItem> places;
+  List<PlaceItem> favouritePlaces;
+  Map<int, PlaceItem> detailsById;
+  bool failing = false;
+  final List<({String query, String? sport})> searches = [];
+  final List<(int, bool)> favouriteCalls = [];
+  final List<int> detailsCalls = [];
+
+  @override
+  Future<List<PlaceItem>> search({String query = '', String? sportType}) async {
+    searches.add((query: query, sport: sportType));
+    await Future<void>.delayed(Duration.zero);
+    if (failing) throw const OfflineFailure();
+    return [
+      for (final p in places)
+        if (query.isEmpty ||
+            (p.name ?? '').toLowerCase().contains(query.toLowerCase()))
+          p,
+    ];
+  }
+
+  @override
+  Future<List<PlaceItem>> favourites() async {
+    await Future<void>.delayed(Duration.zero);
+    if (failing) throw const OfflineFailure();
+    return favouritePlaces;
+  }
+
+  @override
+  Future<PlaceItem> details(int id) async {
+    detailsCalls.add(id);
+    await Future<void>.delayed(Duration.zero);
+    final d = detailsById[id];
+    if (failing || d == null) throw const OfflineFailure();
+    return d;
+  }
+
+  @override
+  Future<void> setFavourite(int id, {required bool favourite}) async {
+    favouriteCalls.add((id, favourite));
+    await Future<void>.delayed(Duration.zero);
+    if (failing) throw const OfflineFailure();
+    favouritePlaces = favourite
+        ? [
+            ...favouritePlaces,
+            places.firstWhere((p) => p.id == id).copyWith(favourite: true),
+          ]
+        : [
+            for (final p in favouritePlaces)
+              if (p.id != id) p,
+          ];
+  }
+}
+
+class FakeCreateEventRepository implements CreateEventRepository {
+  FakeCreateEventRepository({this.players = const [], this.createdId = 321});
+
+  List<AppUser> players;
+  int? createdId;
+  AppFailure? createFailure;
+  bool searchFails = false;
+  int? timezone = 99;
+  Map<String, dynamic>? body;
+  final List<({String query, String sport})> searches = [];
+
+  @override
+  Future<EventDetailsResponse> create(Map<String, dynamic> b) async {
+    await Future<void>.delayed(Duration.zero);
+    if (createFailure != null) throw createFailure!;
+    body = b;
+    return EventDetailsResponse(event: EventDetails(id: createdId));
+  }
+
+  @override
+  Future<List<AppUser>> searchPlayers({
+    required String query,
+    required String sportKey,
+  }) async {
+    searches.add((query: query, sport: sportKey));
+    await Future<void>.delayed(Duration.zero);
+    if (searchFails) throw const OfflineFailure();
+    return [
+      for (final p in players)
+        if (query.isEmpty ||
+            p.displayName.toLowerCase().contains(query.toLowerCase()))
+          p,
+    ];
+  }
+
+  @override
+  Future<int?> timezoneInfoId({
+    required double latitude,
+    required double longitude,
+    required String time,
+  }) async => timezone;
 }

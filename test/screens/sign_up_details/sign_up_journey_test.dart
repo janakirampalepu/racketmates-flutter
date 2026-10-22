@@ -57,6 +57,7 @@ class _Harness {
       appVersionProvider.overrideWithValue('1.0.0'),
       tokenStoreProvider.overrideWithValue(store),
       authApiProvider.overrideWithValue(FakeAuthApi()),
+      ...contentOverrides(),
       scheduleRepositoryProvider.overrideWithValue(FakeScheduleRepository()),
       startupRepositoryProvider.overrideWithValue(FakeStartupRepository()),
       phoneVerificationRepositoryProvider.overrideWithValue(phone),

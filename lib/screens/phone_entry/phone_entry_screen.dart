@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/content/content_text.dart';
+import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/errors/failure_message.dart';
 import 'package:racketmates/common/phone/country.dart';
 import 'package:racketmates/common/phone/phone_formatting.dart';
@@ -113,8 +115,14 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
     final state = ref.watch(phoneEntryViewModelProvider(widget.mode));
     final country = state.country;
     final error = switch (state.validation) {
-      PhoneValidation.required => l10n.phoneRequiredError,
-      PhoneValidation.invalid => l10n.phoneInvalidError,
+      PhoneValidation.required => ref.preMsg(
+        MessageKeys.prePhoneRequired,
+        l10n.phoneRequiredError,
+      ),
+      PhoneValidation.invalid => ref.preMsg(
+        MessageKeys.prePhoneInvalid,
+        l10n.phoneInvalidError,
+      ),
       _ => state.failure == null ? null : failureMessage(l10n, state.failure!),
     };
     return Scaffold(
@@ -134,8 +142,14 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                 PhoneEntryTestIds.title,
                 child: Text(
                   state.mode == PhoneEntryMode.signIn
-                      ? l10n.phoneEntrySignInTitle
-                      : l10n.phoneEntrySignUpTitle,
+                      ? ref.preMsg(
+                          MessageKeys.preSignInTitle,
+                          l10n.phoneEntrySignInTitle,
+                        )
+                      : ref.preMsg(
+                          MessageKeys.preSignUpTitle,
+                          l10n.phoneEntrySignUpTitle,
+                        ),
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),

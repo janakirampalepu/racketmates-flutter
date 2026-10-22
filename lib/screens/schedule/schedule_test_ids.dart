@@ -1,5 +1,6 @@
 abstract final class ScheduleTestIds {
   static const root = 'schedule_screen';
+  static const createEvent = 'schedule_create_event_fab';
   static String tab(String name) => 'schedule_tab_$name';
   static String list(String name) => 'schedule_list_$name';
   static String empty(String name) => 'schedule_empty_$name';

@@ -6,6 +6,30 @@ abstract final class AppRoutes {
   static const chat = '/chat';
   static const teams = '/teams';
   static const event = '/event';
+  static const places = '/places';
+  static const createEvent = '/create-event';
+  static const createEventSport = '/create-event/sport';
+  static const createEventSettings = '/create-event/settings';
+  static const createEventPlayers = '/create-event/players';
+  static const createEventWhenWhere = '/create-event/when-where';
+  static const createEventInviteSettings = '/create-event/invite-settings';
+  static const createEventReview = '/create-event/review';
+  static const createEventSuccess = '/create-event/success';
+
+  static bool isCreateEvent(String location) =>
+      location == createEvent || location.startsWith('$createEvent/');
+
+  /// Place picker, optionally filtered by sport (`st_tennis`).
+  static String placesFor({String? sport}) => sport == null
+      ? places
+      : Uri(path: places, queryParameters: {'sport': sport}).toString();
+
+  static String createEventSuccessFor(int? eventId) => eventId == null
+      ? createEventSuccess
+      : Uri(
+          path: createEventSuccess,
+          queryParameters: {'eventId': '$eventId'},
+        ).toString();
 
   static String eventFor(int id) => '$event/$id';
   static const appUpdate = '/app-update';
@@ -51,5 +75,7 @@ abstract final class AppRoutes {
   /// Routes that need a signed-in session.
   static bool isProtected(String location) =>
       const {home, schedule, chat, teams}.contains(location) ||
-      location.startsWith('$event/');
+      location.startsWith('$event/') ||
+      location == places ||
+      isCreateEvent(location);
 }

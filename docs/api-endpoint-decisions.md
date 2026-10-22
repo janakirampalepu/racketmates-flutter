@@ -13,3 +13,15 @@ The backend serves two generations of some read endpoints: the Android app and t
 | Event details | `GET events/{id}?hour_format&view_type=participant` | same | `GET events/{id}` | Identical path. |
 
 Pagination follows the native schedule screens: `per_page=10`, `page` starts at 1, and the list is finished when a page returns no items (`schedule_items` empty). Home shows `per_page=3` of upcoming/past.
+
+## Content, venues and event creation (milestone 5b)
+
+| Feature | Flutter uses | Source | Notes |
+|---|---|---|---|
+| Server-driven strings | `GET resources/messages`, `GET resources/pre_login_messages` (`client_id`, `client_secret` in the query) | Android + iOS | Read by dot path with a local fallback (`MessageKeys`); cached; refetched when `resource_strings_latest_version` (metadata) or the device language changes. |
+| Reference data | `GET reference_data` (`client_id`, `client_secret`) | Android + iOS | Flat `{id, data_type, key, localized_label, localized_sub_text}`; refetched on `reference_data_last_updated`. |
+| Venue search | `GET places` (`place_types[]` all five, `per_page=20`, `search`, `exclude_logged_in_user_club_ids=false`, `sport_type`) | Android | No latitude/longitude/distance yet (needs location permission, locations milestone). |
+| Favourite venues | `GET current_session/my_favourite_places`, `PUT places/{id}/mark_as_favourite`, `PUT places/{id}/remove_from_favourites`, `GET places/{id}` | Android | iOS equivalents (`my_clubs`, `add_to_my_clubs`, ...) are a different concept ('clubs') and were not compared. |
+| Player search | `GET users?search&roles[]=ur_player&sport_types[]=<sport>` | Android (`getListOfEventPlayers`) | `include_user_ids[]`/`exclude_user_ids[]` not sent. |
+| Venue timezone | `GET timezone_infos/lookup?latitude&longitude&time=yyyy-MM-dd'T'HH:mmZ` | Android | `timezone_info_id` goes into the schedule option. |
+| Create event | `POST events` `{event: {...}}` | Android (`CreateEventRequest`) | Practice drill only; see the request builder and the assumptions list in `CLAUDE.md` (unverified against a live backend). |

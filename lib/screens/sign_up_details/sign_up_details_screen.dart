@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/content/content_text.dart';
+import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/errors/failure_message.dart';
 import 'package:racketmates/common/sign_up/sign_up_flow.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
@@ -68,8 +70,14 @@ class _SignUpDetailsScreenState extends ConsumerState<SignUpDetailsScreen> {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(signUpDetailsViewModelProvider);
     final emailError = switch (state.emailError) {
-      EmailError.invalid => l10n.emailInvalidError,
-      EmailError.taken => l10n.emailTakenError,
+      EmailError.invalid => ref.preMsg(
+        MessageKeys.preEmailInvalid,
+        l10n.emailInvalidError,
+      ),
+      EmailError.taken => ref.preMsg(
+        MessageKeys.preEmailTaken,
+        l10n.emailTakenError,
+      ),
       null =>
         state.failure == null ? null : failureMessage(l10n, state.failure!),
     };
@@ -94,7 +102,10 @@ class _SignUpDetailsScreenState extends ConsumerState<SignUpDetailsScreen> {
             decoration: InputDecoration(
               labelText: l10n.firstNameLabel,
               errorText: state.firstNameMissing
-                  ? l10n.firstNameRequiredError
+                  ? ref.preMsg(
+                      MessageKeys.preFirstNameRequired,
+                      l10n.firstNameRequiredError,
+                    )
                   : null,
               border: const OutlineInputBorder(),
             ),
@@ -111,7 +122,10 @@ class _SignUpDetailsScreenState extends ConsumerState<SignUpDetailsScreen> {
             decoration: InputDecoration(
               labelText: l10n.lastNameLabel,
               errorText: state.lastNameMissing
-                  ? l10n.lastNameRequiredError
+                  ? ref.preMsg(
+                      MessageKeys.preLastNameRequired,
+                      l10n.lastNameRequiredError,
+                    )
                   : null,
               border: const OutlineInputBorder(),
             ),

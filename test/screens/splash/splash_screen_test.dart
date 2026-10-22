@@ -37,6 +37,7 @@ Widget _app({
     appVersionProvider.overrideWithValue('1.0.0'),
     tokenStoreProvider.overrideWithValue(store ?? InMemoryTokenStore()),
     authApiProvider.overrideWithValue(FakeAuthApi()),
+    ...contentOverrides(),
     scheduleRepositoryProvider.overrideWithValue(FakeScheduleRepository()),
     startupRepositoryProvider.overrideWithValue(
       repo ?? FakeStartupRepository(metadata: metadata),

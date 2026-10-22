@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/content/content_text.dart';
+import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/sign_up/sign_up_flow.dart';
 import 'package:racketmates/common/sign_up/sign_up_steps.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
@@ -57,7 +59,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
     return StepScaffold(
       rootId: RoleSelectionTestIds.root,
       titleId: RoleSelectionTestIds.title,
-      title: l10n.roleSelectionTitle,
+      title: ref.preMsg(MessageKeys.preRoleTitle, l10n.roleSelectionTitle),
       primaryLabel: l10n.nextAction,
       primaryId: RoleSelectionTestIds.next,
       onPrimary: _next,
@@ -81,7 +83,10 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
             child: Semantics(
               liveRegion: true,
               child: Text(
-                l10n.roleRequiredError,
+                ref.preMsg(
+                  MessageKeys.preRoleRequiredTitle,
+                  l10n.roleRequiredError,
+                ),
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),

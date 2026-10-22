@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:racketmates/common/content/content_controller.dart';
 import 'package:racketmates/common/auth/session_controller.dart';
 import 'package:racketmates/common/auth/session_state.dart';
 import 'package:racketmates/common/startup/pending_upgrade.dart';
@@ -14,8 +17,18 @@ class SplashViewModel extends AsyncNotifier<StartupDestination> {
     final session = ref.read(sessionControllerProvider.notifier);
     await session.restore();
 
+    final content = ref.read(contentControllerProvider.notifier);
+    // Persisted strings/labels first: screens have copy immediately and offline.
+    try {
+      await content.loadCache();
+    } on Object {
+      // A broken cache must never block startup; it is refreshed below.
+    }
+
     final repo = ref.read(startupRepositoryProvider);
     final metadata = await repo.fetchMetadata();
+    // Refresh stale strings / reference data in the background.
+    unawaited(content.onMetadata(metadata));
     final upgrade = metadata?.appUpgradeCheck;
     final destination = decideStartupDestination(
       signedIn: ref.read(sessionControllerProvider) is SignedIn,

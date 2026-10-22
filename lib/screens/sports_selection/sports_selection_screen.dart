@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/content/content_text.dart';
+import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/errors/failure_message.dart';
 import 'package:racketmates/common/sign_up/create_account_controller.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
@@ -69,7 +71,9 @@ class _SportsSelectionScreenState extends ConsumerState<SportsSelectionScreen> {
     return StepScaffold(
       rootId: SportsSelectionTestIds.root,
       titleId: SportsSelectionTestIds.title,
-      title: _isCoach ? l10n.sportsCoachTitle : l10n.sportsPlayerTitle,
+      title: _isCoach
+          ? ref.preMsg(MessageKeys.preCoachSportTitle, l10n.sportsCoachTitle)
+          : ref.preMsg(MessageKeys.prePlayerSportTitle, l10n.sportsPlayerTitle),
       primaryLabel: l10n.nextAction,
       primaryId: SportsSelectionTestIds.next,
       loading: create.loading,
@@ -97,7 +101,10 @@ class _SportsSelectionScreenState extends ConsumerState<SportsSelectionScreen> {
               liveRegion: true,
               child: Text(
                 _showError
-                    ? l10n.sportRequiredError
+                    ? ref.preMsg(
+                        MessageKeys.preSportRequiredTitle,
+                        l10n.sportRequiredError,
+                      )
                     : failureMessage(l10n, create.failure!),
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),

@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/content/content_text.dart';
+import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/errors/failure_message.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/otp/otp_args.dart';
@@ -46,7 +48,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     final number =
         '${widget.args.country.dialCode} ${widget.args.phone.nationalNumber}';
     final error = state.invalidCode
-        ? l10n.otpInvalidCodeError
+        ? ref.preMsg(MessageKeys.preCodeInvalid, l10n.otpInvalidCodeError)
         : (state.failure == null ? null : failureMessage(l10n, state.failure!));
 
     return _EventListener(
@@ -67,7 +69,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 TestId(
                   OtpTestIds.title,
                   child: Text(
-                    l10n.otpTitle,
+                    ref.preMsg(MessageKeys.preCodeTitle, l10n.otpTitle),
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 ),

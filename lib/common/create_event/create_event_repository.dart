@@ -1,0 +1,80 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:racketmates/common/auth/auth_providers.dart';
+import 'package:racketmates/common/create_event/create_event_api.dart';
+import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/events/models/event_details.dart';
+import 'package:racketmates/common/users/models/app_user.dart';
+
+abstract class CreateEventRepository {
+  /// `POST events`; returns the created event (and server message).
+  Future<EventDetailsResponse> create(Map<String, dynamic> body);
+
+  /// Players matching [query] who play [sportKey] (`st_tennis`).
+  Future<List<AppUser>> searchPlayers({
+    required String query,
+    required String sportKey,
+  });
+
+  /// `timezone_info_id` for a venue at [latitude]/[longitude] and local [time]
+  /// (`yyyy-MM-dd'T'HH:mm'Z'`), or null when it cannot be resolved.
+  Future<int?> timezoneInfoId({
+    required double latitude,
+    required double longitude,
+    required String time,
+  });
+}
+
+class CreateEventRepositoryImpl implements CreateEventRepository {
+  const CreateEventRepositoryImpl(this.api);
+
+  final CreateEventApi api;
+
+  Future<T> _guard<T>(Future<T> Function() call) async {
+    try {
+      return await call();
+    } on DioException catch (e) {
+      throw mapDioException(e);
+    } on TypeError {
+      throw const ParseFailure();
+    }
+  }
+
+  @override
+  Future<EventDetailsResponse> create(Map<String, dynamic> body) =>
+      _guard(() => api.createEvent(body));
+
+  @override
+  Future<List<AppUser>> searchPlayers({
+    required String query,
+    required String sportKey,
+  }) async =>
+      (await _guard(
+        () => api.searchUsers(
+          search: query.trim(),
+          roles: const [RoleKeys.player],
+          sportTypes: [sportKey],
+        ),
+      )).users ??
+      const [];
+
+  @override
+  Future<int?> timezoneInfoId({
+    required double latitude,
+    required double longitude,
+    required String time,
+  }) async {
+    final response = await _guard(
+      () => api.timezoneLookup(
+        latitude: '$latitude',
+        longitude: '$longitude',
+        time: time,
+      ),
+    );
+    return response.timezoneInfo?.id;
+  }
+}
+
+final createEventRepositoryProvider = Provider<CreateEventRepository>(
+  (ref) => CreateEventRepositoryImpl(CreateEventApi(ref.watch(apiDioProvider))),
+);

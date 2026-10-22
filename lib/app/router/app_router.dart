@@ -4,11 +4,21 @@ import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/auth/session_controller.dart';
 import 'package:racketmates/common/auth/session_state.dart';
+import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/sign_up/sign_up_flow.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/common/startup/pending_upgrade.dart';
 import 'package:racketmates/screens/app_update/app_update_screen.dart';
 import 'package:racketmates/screens/country_picker/country_picker_screen.dart';
+import 'package:racketmates/screens/place_picker/place_picker_screen.dart';
+import 'package:racketmates/screens/create_event_success/create_event_success_screen.dart';
+import 'package:racketmates/screens/create_event_review/create_event_review_screen.dart';
+import 'package:racketmates/screens/create_event_invite_settings/create_event_invite_settings_screen.dart';
+import 'package:racketmates/screens/create_event_when_where/create_event_when_where_screen.dart';
+import 'package:racketmates/screens/create_event_players/create_event_players_screen.dart';
+import 'package:racketmates/screens/create_event_settings/create_event_settings_screen.dart';
+import 'package:racketmates/screens/create_event_sport/create_event_sport_screen.dart';
+import 'package:racketmates/screens/create_event_type/create_event_type_screen.dart';
 import 'package:racketmates/screens/sports_selection/sports_selection_screen.dart';
 import 'package:racketmates/screens/sign_up_details/sign_up_details_screen.dart';
 import 'package:racketmates/screens/role_selection/role_selection_screen.dart';
@@ -200,6 +210,53 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             : null,
         builder: (context, state) =>
             EventDetailsScreen(eventId: int.parse(state.pathParameters['id']!)),
+      ),
+      GoRoute(
+        path: AppRoutes.places,
+        builder: (context, state) =>
+            PlacePickerScreen(sportType: state.uri.queryParameters['sport']),
+      ),
+      GoRoute(
+        path: AppRoutes.createEvent,
+        // Wizard steps need a started draft (e.g. not after a process restart).
+        redirect: (context, state) => ref.read(createEventFlowProvider) == null
+            ? AppRoutes.schedule
+            : null,
+        builder: (context, state) => const CreateEventTypeScreen(),
+        routes: [
+          GoRoute(
+            path: 'sport',
+            builder: (context, state) => const CreateEventSportScreen(),
+          ),
+          GoRoute(
+            path: 'settings',
+            builder: (context, state) => const CreateEventSettingsScreen(),
+          ),
+          GoRoute(
+            path: 'players',
+            builder: (context, state) => const CreateEventPlayersScreen(),
+          ),
+          GoRoute(
+            path: 'when-where',
+            builder: (context, state) => const CreateEventWhenWhereScreen(),
+          ),
+          GoRoute(
+            path: 'invite-settings',
+            builder: (context, state) =>
+                const CreateEventInviteSettingsScreen(),
+          ),
+          GoRoute(
+            path: 'review',
+            builder: (context, state) => const CreateEventReviewScreen(),
+          ),
+          // The draft is cleared when leaving; the id travels in the URL.
+          GoRoute(
+            path: 'success',
+            builder: (context, state) => CreateEventSuccessScreen(
+              eventId: int.tryParse(state.uri.queryParameters['eventId'] ?? ''),
+            ),
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.appUpdate,
