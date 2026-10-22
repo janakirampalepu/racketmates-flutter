@@ -569,5 +569,7 @@
       }
     }
   },
-  "downtimeCheckAgain": "Check again"
+  "downtimeCheckAgain": "Check again",
+  "accessNeedsSubscription": "This feature needs a subscription.",
+  "accessBlocked": "This isn't available right now."
 }

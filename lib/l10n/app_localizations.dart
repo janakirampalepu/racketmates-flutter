@@ -2493,6 +2493,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Check again'**
   String get downtimeCheckAgain;
+
+  /// No description provided for @accessNeedsSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'This feature needs a subscription.'**
+  String get accessNeedsSubscription;
+
+  /// No description provided for @accessBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'This isn\'t available right now.'**
+  String get accessBlocked;
 }
 
 class _AppLocalizationsDelegate

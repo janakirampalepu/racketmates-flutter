@@ -6,16 +6,24 @@ import 'package:racketmates/common/sign_up/sign_up_draft.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/common/users/user_repository.dart';
 
-/// Device timezone id (IANA) with a UTC fallback.
-final deviceTimezoneProvider = FutureProvider<String>((ref) async {
+/// Device timezone id (IANA), or null when the platform cannot tell. Anything
+/// that writes the zone to the server uses this one, so a failed lookup never
+/// overwrites the user's real zone.
+final deviceTimezoneOrNullProvider = FutureProvider<String?>((ref) async {
   try {
     final info = await FlutterTimezone.getLocalTimezone().timeout(
       const Duration(seconds: 2),
     );
     return info.identifier;
   } on Object {
-    return 'UTC';
+    return null;
   }
+});
+
+/// Device timezone id (IANA) with a UTC fallback (sign-up needs a value).
+final deviceTimezoneProvider = FutureProvider<String>((ref) async {
+  final id = await ref.watch(deviceTimezoneOrNullProvider.future);
+  return id ?? 'UTC';
 });
 
 final createAccountUseCaseProvider = Provider<CreateAccountUseCase>(

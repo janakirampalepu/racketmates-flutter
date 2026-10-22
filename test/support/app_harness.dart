@@ -31,6 +31,8 @@ Widget signedInApp({
   FakeDeviceIntegrity? integrity,
   FakeNativeSessionSource? nativeSession,
   FakeDowntimeRepository? downtime,
+  FakeSessionInfoRepository? sessionInfo,
+  String? deviceTimezone = 'America/New_York',
   InMemoryTokenStore? tokenStore,
 }) => ProviderScope(
   overrides: [
@@ -69,6 +71,8 @@ Widget signedInApp({
       integrity: integrity,
       nativeSession: nativeSession,
       downtime: downtime,
+      sessionInfo: sessionInfo,
+      deviceTimezone: deviceTimezone,
     ),
   ],
   child: const RacketmatesApp(),
@@ -88,6 +92,7 @@ Widget signedOutApp({
   FakeDeviceIntegrity? integrity,
   FakeNativeSessionSource? nativeSession,
   FakeDowntimeRepository? downtime,
+  FakeSessionInfoRepository? sessionInfo,
   InMemoryTokenStore? tokenStore,
 }) => ProviderScope(
   overrides: [
@@ -103,6 +108,7 @@ Widget signedOutApp({
       integrity: integrity,
       nativeSession: nativeSession,
       downtime: downtime,
+      sessionInfo: sessionInfo,
     ),
   ],
   child: const RacketmatesApp(),

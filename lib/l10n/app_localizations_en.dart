@@ -1290,4 +1290,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get downtimeCheckAgain => 'Check again';
+
+  @override
+  String get accessNeedsSubscription => 'This feature needs a subscription.';
+
+  @override
+  String get accessBlocked => 'This isn\'t available right now.';
 }

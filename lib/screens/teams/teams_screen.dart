@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/content/content_text.dart';
+import 'package:racketmates/common/session/access.dart';
+import 'package:racketmates/common/session/session_info_controller.dart';
 import 'package:racketmates/common/teams/create_team_flow.dart';
 import 'package:racketmates/common/teams/team_labels.dart';
 import 'package:racketmates/common/teams/team_models.dart';
@@ -17,15 +21,55 @@ import 'package:racketmates/screens/teams/teams_test_ids.dart';
 class TeamsScreen extends ConsumerWidget {
   const TeamsScreen({super.key});
 
-  void _create(BuildContext context, WidgetRef ref) {
-    ref.read(createTeamFlowProvider.notifier).reset();
-    context.push(AppRoutes.createTeam);
+  /// Native `ActiveTeamsFragment`: a feature that needs a subscription or is
+  /// disabled explains itself instead of opening; one that is not available
+  /// is not offered at all (see `build`).
+  Future<void> _create(BuildContext context, WidgetRef ref) async {
+    final session = ref.read(sessionInfoControllerProvider);
+    final access = session.user?.permission('teams.create');
+    switch (decideAccess(access, subscribed: session.isSubscribed)) {
+      case AccessDecision.allowed || AccessDecision.hidden:
+        ref.read(createTeamFlowProvider.notifier).reset();
+        unawaited(context.push(AppRoutes.createTeam));
+      case AccessDecision.needsSubscription || AccessDecision.blocked:
+        final l10n = AppLocalizations.of(context);
+        final needsSubscription =
+            decideAccess(access, subscribed: session.isSubscribed) ==
+            AccessDecision.needsSubscription;
+        final text = (access?.message ?? '').isNotEmpty
+            ? access!.message!
+            : (needsSubscription
+                  ? l10n.accessNeedsSubscription
+                  : l10n.accessBlocked);
+        await showDialog<void>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            content: TestId(TeamsTestIds.accessDialog, child: Text(text)),
+            actions: [
+              TestId(
+                TeamsTestIds.accessDialogClose,
+                child: TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: Text(l10n.closeAction),
+                ),
+              ),
+            ],
+          ),
+        );
+    }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final teams = ref.watch(myTeamsProvider);
+    final session = ref.watch(sessionInfoControllerProvider);
+    final canOffer =
+        decideAccess(
+          session.user?.permission('teams.create'),
+          subscribed: session.isSubscribed,
+        ) !=
+        AccessDecision.hidden;
 
     Widget body() => teams.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -73,14 +117,16 @@ class TeamsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.navTeams)),
-      floatingActionButton: TestId(
-        TeamsTestIds.create,
-        child: FloatingActionButton.extended(
-          icon: const Icon(Icons.add),
-          label: Text(l10n.createTeamAction),
-          onPressed: () => _create(context, ref),
-        ),
-      ),
+      floatingActionButton: canOffer
+          ? TestId(
+              TeamsTestIds.create,
+              child: FloatingActionButton.extended(
+                icon: const Icon(Icons.add),
+                label: Text(l10n.createTeamAction),
+                onPressed: () => _create(context, ref),
+              ),
+            )
+          : null,
       body: TestId(
         TeamsTestIds.root,
         child: RefreshIndicator(

@@ -38,6 +38,7 @@ class TokenRefresher {
     required this.store,
     required this.config,
     this.maxUnauthorized = 5,
+    this.onRefreshed,
   });
 
   static const refreshGrantType = 'refresh_token';
@@ -46,6 +47,10 @@ class TokenRefresher {
   final TokenStore store;
   final EnvironmentConfig config;
   final int maxUnauthorized;
+
+  /// Called after a refresh stored a new token (native reloads
+  /// `session_info` then).
+  final void Function(SessionToken token)? onRefreshed;
   Future<RefreshOutcome>? _inFlight;
 
   /// [staleAccessToken] is the access token the failing request used; if the
@@ -77,6 +82,7 @@ class TokenRefresher {
           'refresh_token': current.refreshToken,
         });
         await store.write(token);
+        onRefreshed?.call(token);
         return Refreshed(token);
       } on DioException catch (e) {
         final status = e.response?.statusCode;

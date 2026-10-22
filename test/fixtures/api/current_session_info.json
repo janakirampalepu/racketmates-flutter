@@ -1,0 +1,26 @@
+{
+  "user": {
+    "id": 7,
+    "first_name": "Sam",
+    "last_name": "Lee",
+    "email": "sam@example.test",
+    "roles": ["ur_player", "ur_coach"],
+    "has_full_feature_access": false,
+    "subscribed_device_type": "",
+    "trial_remaining_days": 12,
+    "trial_end_date": "2030-01-20",
+    "timezone_identifier": "America/Chicago",
+    "support_chat_room_url": "sendbird_group_channel_1",
+    "user_permissions": {
+      "teams.create": {"access": "up_requires_subscription", "message": "Upgrade to create teams"},
+      "events.create": {"access": "up_enabled"},
+      "league.create": {"access": "up_not_available"}
+    },
+    "children": [{"id": 70}],
+    "country": {"id": 1}
+  },
+  "subscription": {
+    "purchase_tokens": ["tok-1"],
+    "original_transaction_ids": []
+  }
+}

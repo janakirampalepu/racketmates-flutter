@@ -9,6 +9,9 @@ import 'package:racketmates/common/auth/models/session_token.dart';
 import 'package:racketmates/common/auth/native_session.dart';
 import 'package:racketmates/common/auth/phone_verification_repository.dart';
 import 'package:racketmates/common/security/device_integrity.dart';
+import 'package:racketmates/common/session/session_info_models.dart';
+import 'package:racketmates/common/session/session_info_repository.dart';
+import 'package:racketmates/common/sign_up/sign_up_flow.dart';
 import 'package:racketmates/common/startup/downtime.dart';
 import 'package:racketmates/common/content/content_cache.dart';
 import 'package:racketmates/common/content/content_controller.dart';
@@ -539,6 +542,39 @@ class FakeDowntimeRepository implements DowntimeRepository {
   }
 }
 
+class FakeSessionInfoRepository implements SessionInfoRepository {
+  FakeSessionInfoRepository({
+    this.response = const SessionInfoResponse(
+      user: SessionInfoUser(
+        id: 7,
+        hasFullFeatureAccess: true,
+        timezoneIdentifier: 'America/New_York',
+      ),
+    ),
+  });
+
+  SessionInfoResponse response;
+  AppFailure? fetchFailure;
+  AppFailure? updateFailure;
+  int fetches = 0;
+  final List<String> timezoneUpdates = [];
+
+  @override
+  Future<SessionInfoResponse> fetch() async {
+    fetches++;
+    await Future<void>.delayed(Duration.zero);
+    if (fetchFailure != null) throw fetchFailure!;
+    return response;
+  }
+
+  @override
+  Future<void> updateTimeZone(String identifier) async {
+    timezoneUpdates.add(identifier);
+    await Future<void>.delayed(Duration.zero);
+    if (updateFailure != null) throw updateFailure!;
+  }
+}
+
 /// Provider overrides that keep content (strings / reference data) and the
 /// startup checks (device integrity, native session, downtime) offline and
 /// deterministic in widget tests: an unmocked platform channel never answers
@@ -549,6 +585,8 @@ List<Override> contentOverrides({
   FakeDeviceIntegrity? integrity,
   FakeNativeSessionSource? nativeSession,
   FakeDowntimeRepository? downtime,
+  FakeSessionInfoRepository? sessionInfo,
+  String? deviceTimezone = 'America/New_York',
 }) => [
   contentRepositoryProvider.overrideWithValue(
     repository ?? FakeContentRepository(),
@@ -561,6 +599,10 @@ List<Override> contentOverrides({
   downtimeRepositoryProvider.overrideWithValue(
     downtime ?? FakeDowntimeRepository(),
   ),
+  sessionInfoRepositoryProvider.overrideWithValue(
+    sessionInfo ?? FakeSessionInfoRepository(),
+  ),
+  deviceTimezoneOrNullProvider.overrideWith((ref) async => deviceTimezone),
 ];
 
 class FakePlacesRepository implements PlacesRepository {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:racketmates/common/auth/auth_api.dart';
@@ -8,6 +10,7 @@ import 'package:racketmates/common/auth/token_store.dart';
 import 'package:racketmates/common/config/config_providers.dart';
 import 'package:racketmates/common/network/api_client.dart';
 import 'package:racketmates/common/network/network_providers.dart';
+import 'package:racketmates/common/session/session_info_controller.dart';
 
 final tokenStoreProvider = Provider<TokenStore>((ref) => SecureTokenStore());
 
@@ -32,6 +35,8 @@ final tokenRefresherProvider = Provider<TokenRefresher>(
     api: ref.watch(authApiProvider),
     store: ref.watch(tokenStoreProvider),
     config: ref.watch(environmentConfigProvider),
+    onRefreshed: (_) =>
+        unawaited(ref.read(sessionInfoControllerProvider.notifier).refresh()),
   ),
 );
 

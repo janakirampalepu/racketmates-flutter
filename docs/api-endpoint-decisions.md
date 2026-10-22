@@ -30,6 +30,8 @@ Pagination follows the native schedule screens: `per_page=10`, `page` starts at 
 | Team details | `GET teams/{id}` -> `{team, is_captain, ...}` | Android (`getTeamDetails`) | |
 | Team members | `GET teams/{id}/team_players?roles[]=&sport_types[]=&search=&include_inactive_members=false&page=1&per_page=100` | Android (`getTeamsMemberListWithFilter`) | Used for the roster page and team-event player search. |
 | Create team | `POST teams` `{team:{name, team_type, enable_player_ranking, team_sports_attributes[], team_players_attributes[]}}` | Android (`createTeam`) | iOS `Teams` endpoints not compared yet. |
+| Session info | `GET current_session/session_info?app_type&version` -> `{user, subscription}` | Android + iOS (identical) | Loaded on session start, token refresh and resume. |
+| Update time zone | `PUT current_session/update_time_zone {timezone_identifier}` | Android + iOS (identical) | Only when the server's zone is empty or differs from the device's. |
 | Update settings | `PUT events/{id}/update_settings` `{event:{...}}` | Android (`updateManageGeneralSettingsRequest`) | Response ignored; the event is reloaded. |
 | Reschedule event | `PUT events/{id}/reschedule_event` `{event:{event_schedule_options_attributes, event_venue_courts_attributes, notes_for_event}}` | Android (`rescheduleEvent`) | Single time option only. |
 | Update match scores | `POST events/{id}/event_matches/{matchId}/update_scores` `{event_match:{event_scores_attributes, request_unfinished_match, deciding_set_type}}` | Android (`updateScores`) | |

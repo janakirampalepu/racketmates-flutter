@@ -5,6 +5,7 @@ import 'package:racketmates/app/config/brand_config.dart';
 import 'package:racketmates/app/app_resume_gate.dart';
 import 'package:racketmates/app/router/app_router.dart';
 import 'package:racketmates/app/theme/app_theme.dart';
+import 'package:racketmates/common/session/session_info_controller.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 
 final brandConfigProvider = Provider<BrandConfig>(
@@ -17,6 +18,7 @@ class RacketmatesApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final brand = ref.watch(brandConfigProvider);
+    ref.watch(sessionInfoSyncProvider); // keeps session_info current
     return MaterialApp.router(
       title: brand.displayName,
       theme: AppTheme.light(brand),
