@@ -6,7 +6,13 @@ import 'package:racketmates/common/auth/session_controller.dart';
 import 'package:racketmates/common/auth/session_state.dart';
 import 'package:racketmates/common/startup/pending_upgrade.dart';
 import 'package:racketmates/screens/app_update/app_update_screen.dart';
+import 'package:racketmates/screens/country_picker/country_picker_screen.dart';
 import 'package:racketmates/screens/home/home_screen.dart';
+import 'package:racketmates/screens/otp/otp_args.dart';
+import 'package:racketmates/screens/otp/otp_screen.dart';
+import 'package:racketmates/screens/phone_entry/phone_entry_args.dart';
+import 'package:racketmates/screens/phone_entry/phone_entry_screen.dart';
+import 'package:racketmates/screens/sign_up/sign_up_screen.dart';
 import 'package:racketmates/screens/splash/splash_screen.dart';
 import 'package:racketmates/screens/welcome/welcome_screen.dart';
 
@@ -28,7 +34,7 @@ String? computeRedirect({
   if (session is SignedOut && AppRoutes.protected.contains(location)) {
     return AppRoutes.welcome;
   }
-  if (session is SignedIn && location == AppRoutes.welcome) {
+  if (session is SignedIn && AppRoutes.preLogin.contains(location)) {
     return AppRoutes.home;
   }
   return null;
@@ -65,6 +71,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.welcome,
         builder: (context, state) => const WelcomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.phoneEntry,
+        builder: (context, state) => PhoneEntryScreen(
+          mode: state.extra is PhoneEntryMode
+              ? state.extra! as PhoneEntryMode
+              : PhoneEntryMode.signIn,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.countryPicker,
+        builder: (context, state) => const CountryPickerScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.otp,
+        // Without the entry step's data (e.g. process restart) start over.
+        redirect: (context, state) =>
+            state.extra is OtpArgs ? null : AppRoutes.welcome,
+        builder: (context, state) => OtpScreen(args: state.extra! as OtpArgs),
+      ),
+      GoRoute(
+        path: AppRoutes.signUp,
+        builder: (context, state) => SignUpScreen(resume: state.extra == true),
       ),
       GoRoute(
         path: AppRoutes.home,

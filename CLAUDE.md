@@ -244,7 +244,7 @@ Keep `analysis_options.yaml` strict (`flutter_lints` or `very_good_analysis`), n
 | 0 | Secrets remediation + inventory | Out of scope here (native repos untouched); inventory in §1 |
 | 1 | Skeleton, flavors, CI scaffolding, TLS pinning | Done (Android + iOS flavors, Fastlane lanes unrun) |
 | 2 | Networking/auth/session/startup gates | **Partly done (2026-10-22):** token model/storage (secure), single-flight refresh with native 400/401×5 semantics, `AuthInterceptor` (bearer, proactive refresh, one retry on 401), `SessionController` (restore/sign-out/expire), `resources/metadata` + forced/optional upgrade gate + app-update screen, router redirects (mandatory upgrade lock, protected routes), splash sequence. **Missing:** root/jailbreak detection, downtime (Statuspage) gate, session migration from native storage, `session_info` + proactive session refresh, Messages (server strings) provider, reference-data fetch |
-| 3 | Sign-up / sign-in (welcome, onboarding, OTP, roles, kids) | Not started (welcome and home are placeholders) |
+| 3 | Sign-up / sign-in (welcome, onboarding, OTP, roles, kids) | **Partly done (2026-10-22):** welcome (sign in / sign up), mobile-number entry (shared by both modes, country picker with the iOS country list, masks, native mismatch dialog), OTP (6 digits, 60 s resend, auto-submit) and OAuth password-grant login → session → home. Pinned by 31 new tests incl. contrast/tap-target checks in light and dark. **Missing:** sign-up details (name/email + `validations/duplicate_dname_email_check`, `POST users?signing_up=true`), role selection, sports lists (player/coach), kids, profile picture (multipart), congratulations, resume of unfinished sign-up (screen is a placeholder), onboarding carousel/landing animation, `GET users/{id}` profile fetch after login, change-mobile-number from settings. Home is still a placeholder |
 | 4 | Home + schedule read paths | Not started |
 | 5 | Create / manage event | Not started |
 | 6 | Teams | Not started |
@@ -254,6 +254,24 @@ Keep `analysis_options.yaml` strict (`flutter_lints` or `very_good_analysis`), n
 | 10 | Settings / profile / misc, push notifications, deep links | Not started |
 | 11 | Beta (internal tracks) + dual-run comparison | Not started |
 | 12 | Staged production rollout | Not started |
+
+### 15.1 Deferred backlog (come back to these; not forgotten)
+Milestone 2 items intentionally postponed on 2026-10-22 so work could continue with sign-in. Each must be finished before any beta/release:
+1. **Root/jailbreak detection** (native: `RacketmatesRootChecker`, RootBeer, harmful-app check on Android; `JailBrokeCheck` on iOS) → block screen (`RootedActivity` / jailbreak view). Needs a maintained Flutter package or native channel.
+2. **Downtime gate** (Statuspage `pages/{page_id}/incidents/*` on a separate base URL; `CompleteDowntimeActivity` / `AppDownTime` screens; component names `Racketmates API`, `Chat Messaging`). Status-page id/token are per-environment config.
+3. **Native session migration** (Android SharedPreferences `SESSION_TOKEN`; iOS Keychain via SwiftKeychainWrapper) vs forced re-login — decide (Q4) and test an upgrade from the last native release.
+4. **`current_session/session_info`** (subscription/trial/permission state, support chat room url, timezone sync via `current_session/update_time_zone`) plus the post-refresh session refresh the native apps do.
+5. **Messages (server-driven strings) provider** (`resources/messages`, `resources/pre_login_messages`, versioned by `resource_strings_latest_version`) — screens currently use ARB fallbacks; every new screen should be switched over once this exists.
+6. **Reference data** (`reference_data`, versioned by `reference_data_last_updated`), analytics-enable flags (`settings/enable_*_analytics`), `supported_languages` language selection.
+7. **Per-environment iOS App Store IDs** for the update screen (only production's `6753332856` is wired) and the final release version number.
+8. Lint/CI debt: QLTY.sh and SonarCloud config; Fastlane lanes never run end to end; TLS pinning device verification.
+
+Assumptions made in milestone 3 that **must be verified against QA** (native source is silent or inconsistent):
+- `oauth/token` password grant `username` = national digits only (Android sends the field text, iOS a username value; unverified formatting). `verification_code` comes from the `verify_sms_code` response (both native apps).
+- `region_code` is an ISO alpha-2 code. The iOS country list has `1` for the United States and `91` for India; our `assets/data/countries.json` corrects them to `US`/`IN` (Android sends ISO regions). 229 countries; 38 masks are a bare `#`, so the client floor is 6 digits (server stays authoritative; Android uses libphonenumber validity).
+- `UserAgent` header on `send_sms_code`: Android sends `Android`; we send `iOS` on iOS (unverified).
+- iOS-only test ids reused: `signUp_mobile_number_title`, `signUp_mobile_number_field_text`, `otp_screen_*`, `phone_number_validation_*`, `sign_in_button`, `appLanding_*`. No native iOS value was found for the continue button (`signUp_continue_button` is ours) or for sign-up (`sign_up_button`); align with the Appium suite.
+- Copy is still ARB fallback (server-driven Messages provider is in §15.1 item 5).
 
 Conventions established in milestone 2: generated `*.g.dart` files are committed (regenerate with `dart run build_runner build --delete-conflicting-outputs`); `app/config` is a dependency-free leaf that `common/` may import; shared providers live in `common/config/` and `common/auth/`; screen test ids live in `<screen>_test_ids.dart`; `pubspec.yaml` version is `26.6.2+318` (versionCode above the native 317 — release version to be confirmed with product).
 

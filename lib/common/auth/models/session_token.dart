@@ -47,7 +47,7 @@ class SessionToken {
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class SessionTokenUser {
-  const SessionTokenUser({this.id, this.uid, this.uuid});
+  const SessionTokenUser({this.id, this.uid, this.uuid, this.isSignedUp});
 
   factory SessionTokenUser.fromJson(Map<String, dynamic> json) =>
       _$SessionTokenUserFromJson(json);
@@ -55,6 +55,9 @@ class SessionTokenUser {
   final int? id;
   final String? uid;
   final String? uuid;
+
+  /// False while sign-up is unfinished (native `IS_SIGN_UP_COMPLETE`).
+  final bool? isSignedUp;
 
   Map<String, dynamic> toJson() => _$SessionTokenUserToJson(this);
 }

@@ -135,6 +135,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Later'**
   String get appUpdateLaterAction;
+
+  /// No description provided for @welcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Racketmates'**
+  String get welcomeTitle;
+
+  /// No description provided for @welcomeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Organize games, teams and events in one place.'**
+  String get welcomeSubtitle;
+
+  /// No description provided for @signInAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signInAction;
+
+  /// No description provided for @signUpAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up'**
+  String get signUpAction;
+
+  /// No description provided for @phoneEntrySignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get phoneEntrySignInTitle;
+
+  /// No description provided for @phoneEntrySignUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up'**
+  String get phoneEntrySignUpTitle;
+
+  /// No description provided for @phoneEntryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your mobile number and we will text you a verification code.'**
+  String get phoneEntryDescription;
+
+  /// No description provided for @mobileNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number'**
+  String get mobileNumberLabel;
+
+  /// No description provided for @countryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get countryLabel;
+
+  /// No description provided for @continueAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueAction;
+
+  /// No description provided for @phoneRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your mobile number.'**
+  String get phoneRequiredError;
+
+  /// No description provided for @phoneInvalidError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid mobile number.'**
+  String get phoneInvalidError;
+
+  /// No description provided for @genericErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get genericErrorMessage;
+
+  /// No description provided for @networkErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection and try again.'**
+  String get networkErrorMessage;
+
+  /// No description provided for @backAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get backAction;
+
+  /// No description provided for @closeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get closeAction;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get searchHint;
+
+  /// No description provided for @countryPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select country'**
+  String get countryPickerTitle;
+
+  /// No description provided for @otpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter verification code'**
+  String get otpTitle;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit code to {number}.'**
+  String otpDescription(String number);
+
+  /// No description provided for @otpChangeNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get otpChangeNumber;
+
+  /// No description provided for @otpInvalidCodeError.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not valid. Try again.'**
+  String get otpInvalidCodeError;
+
+  /// No description provided for @otpResendAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get otpResendAction;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code in {seconds}s'**
+  String otpResendIn(int seconds);
+
+  /// No description provided for @otpCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification code'**
+  String get otpCodeLabel;
+
+  /// No description provided for @notRegisteredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Number not registered'**
+  String get notRegisteredTitle;
+
+  /// No description provided for @notRegisteredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This number is not registered yet. Continue to create an account instead.'**
+  String get notRegisteredMessage;
+
+  /// No description provided for @alreadyRegisteredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Number already registered'**
+  String get alreadyRegisteredTitle;
+
+  /// No description provided for @alreadyRegisteredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This number already has an account. Continue to sign in instead.'**
+  String get alreadyRegisteredMessage;
+
+  /// No description provided for @signUpPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-up is not available in this build yet.'**
+  String get signUpPlaceholder;
 }
 
 class _AppLocalizationsDelegate

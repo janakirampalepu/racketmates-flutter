@@ -15,5 +15,51 @@
   },
   "@homePlaceholder": {
     "description": "Placeholder until the real home screen is migrated; offline fallback only."
+  },
+  "welcomeTitle": "Welcome to Racketmates",
+  "welcomeSubtitle": "Organize games, teams and events in one place.",
+  "signInAction": "Sign in",
+  "signUpAction": "Sign up",
+  "phoneEntrySignInTitle": "Sign in",
+  "phoneEntrySignUpTitle": "Sign up",
+  "phoneEntryDescription": "Enter your mobile number and we will text you a verification code.",
+  "mobileNumberLabel": "Mobile number",
+  "countryLabel": "Country",
+  "continueAction": "Continue",
+  "phoneRequiredError": "Enter your mobile number.",
+  "phoneInvalidError": "Enter a valid mobile number.",
+  "genericErrorMessage": "Something went wrong. Please try again.",
+  "networkErrorMessage": "Check your connection and try again.",
+  "backAction": "Back",
+  "closeAction": "Close",
+  "searchHint": "Search",
+  "countryPickerTitle": "Select country",
+  "otpTitle": "Enter verification code",
+  "otpDescription": "We sent a 6-digit code to {number}.",
+  "otpChangeNumber": "Change",
+  "otpInvalidCodeError": "That code is not valid. Try again.",
+  "otpResendAction": "Resend code",
+  "otpResendIn": "Resend code in {seconds}s",
+  "otpCodeLabel": "Verification code",
+  "notRegisteredTitle": "Number not registered",
+  "notRegisteredMessage": "This number is not registered yet. Continue to create an account instead.",
+  "alreadyRegisteredTitle": "Number already registered",
+  "alreadyRegisteredMessage": "This number already has an account. Continue to sign in instead.",
+  "signUpPlaceholder": "Sign-up is not available in this build yet.",
+  "@otpDescription": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "@otpResendIn": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
   }
 }

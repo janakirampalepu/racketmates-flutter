@@ -32,6 +32,7 @@ SessionTokenUser _$SessionTokenUserFromJson(Map<String, dynamic> json) =>
       id: (json['id'] as num?)?.toInt(),
       uid: json['uid'] as String?,
       uuid: json['uuid'] as String?,
+      isSignedUp: json['is_signed_up'] as bool?,
     );
 
 Map<String, dynamic> _$SessionTokenUserToJson(SessionTokenUser instance) =>
@@ -39,4 +40,5 @@ Map<String, dynamic> _$SessionTokenUserToJson(SessionTokenUser instance) =>
       'id': instance.id,
       'uid': instance.uid,
       'uuid': instance.uuid,
+      'is_signed_up': instance.isSignedUp,
     };
