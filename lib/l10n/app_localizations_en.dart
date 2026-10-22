@@ -275,6 +275,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navChat => 'Chat';
 
   @override
+  String get chatNewTitle => 'New chat';
+
+  @override
+  String get chatNewSearchHint => 'Search players';
+
+  @override
+  String get chatNewEmpty => 'No players found.';
+
+  @override
+  String get chatNewError => 'Players could not be loaded.';
+
+  @override
+  String get chatNewCreateFailed =>
+      'The chat could not be started. Please try again.';
+
+  @override
+  String get chatNewStarting => 'Starting the chat';
+
+  @override
+  String get chatNewAction => 'Start a new chat';
+
+  @override
+  String get eventChatAction => 'Chat';
+
+  @override
+  String get eventChatChoose => 'Which chat room do you want to open?';
+
+  @override
+  String get eventChatPlayers => 'Players chat room';
+
+  @override
+  String get eventChatCaptains => 'Captains chat room';
+
+  @override
+  String get eventChatFailed =>
+      'The chat room could not be opened. Please try again.';
+
+  @override
+  String get eventChatOpening => 'Opening the chat room';
+
+  @override
   String get chatConnecting => 'Connecting to chat';
 
   @override

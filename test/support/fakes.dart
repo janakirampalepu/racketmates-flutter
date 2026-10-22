@@ -1068,6 +1068,19 @@ class FakeChatRepository implements ChatRepository {
   int tokenRequests = 0;
   int setups = 0;
 
+  /// What the room creation calls answer.
+  String roomUrl = 'sendbird_room_1';
+  AppFailure? roomFailure;
+  final List<String> roomCalls = [];
+
+  /// What the player search answers.
+  List<AppUser> players = const [
+    AppUser(id: 11, uid: 'uid-11', firstName: 'Ann', lastName: 'Lee'),
+    AppUser(id: 12, uid: 'uid-12', firstName: 'Bo', lastName: 'Chan'),
+  ];
+  AppFailure? searchFailure;
+  final List<String> searches = [];
+
   @override
   Future<String> sendbirdToken() async {
     final i = tokenRequests++;
@@ -1080,6 +1093,42 @@ class FakeChatRepository implements ChatRepository {
   Future<void> setupDefaultRooms() async {
     setups++;
     if (setupFailure != null) throw setupFailure!;
+  }
+
+  Future<String> _room(String call) async {
+    roomCalls.add(call);
+    await Future<void>.delayed(Duration.zero);
+    if (roomFailure != null) throw roomFailure!;
+    return roomUrl;
+  }
+
+  @override
+  Future<String> playersChatRoom(int eventId, {int? teamId}) =>
+      _room('players:$eventId:$teamId');
+
+  @override
+  Future<String> captainsChatRoom(int eventId) => _room('captains:$eventId');
+
+  @override
+  Future<String> directChatRoom({
+    required String ownUid,
+    required String otherUid,
+  }) => _room('direct:$ownUid:$otherUid');
+
+  @override
+  Future<List<AppUser>> searchPlayers(
+    String query, {
+    required int excludeUserId,
+  }) async {
+    searches.add(query);
+    await Future<void>.delayed(Duration.zero);
+    if (searchFailure != null) throw searchFailure!;
+    return [
+      for (final p in players)
+        if (query.isEmpty ||
+            (p.firstName ?? '').toLowerCase().contains(query.toLowerCase()))
+          p,
+    ];
   }
 }
 
@@ -1140,10 +1189,12 @@ class FakeChatUi implements ChatUi {
   Widget channelList(
     BuildContext context, {
     required void Function(String url) onOpen,
+    required VoidCallback onCreate,
   }) => Scaffold(
     body: Column(
       children: [
         const Text('fake channel list'),
+        TextButton(onPressed: onCreate, child: const Text('new chat')),
         TextButton(
           onPressed: () => onOpen('channel-1'),
           child: const Text('open channel-1'),

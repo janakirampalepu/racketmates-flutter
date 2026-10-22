@@ -47,3 +47,7 @@ Pagination follows the native schedule screens: `per_page=10`, `page` starts at 
 | Default chat rooms | `POST current_session/setup_default_chat_rooms` | Android | Called after each successful chat connection (creates the support room). |
 | Link Play subscription | `POST current_session/link_playstore_subscription` JSON `{orderId, packageName, productId, purchaseTime, purchaseState, purchaseToken, autoRenewing, acknowledged}` | Android (`SubscriptionPurchaseRequest`) | Native sends it with a client that has no token interceptor; Flutter sends it authenticated. Confirm the backend accepts that. |
 | Link App Store subscription | `POST current_session/link_appstore_subscription` raw body = StoreKit `Transaction.jsonRepresentation` (JSON) | iOS (`linkAppstoreSubscription(jsonData:)`) | Sent untouched with `Content-Type: application/json`. |
+| Players chat room | `PUT events/{id}/setup_players_chat_room {team_id}` -> `{chat_room:{id, channel_url}}` | Android (`playersChatRoom`) | `team_id` may be null for non-team events. iOS not compared. |
+| Captains chat room | `PUT events/{id}/setup_captains_chat_room` -> `{chat_room:{id, channel_url}}` | Android (`captainsChatRoom`) | |
+| One-to-one chat room | `POST chat_rooms {chat_room:{chat_room_type:crt_direct, uids:[own, other]}}` -> `{chat_room:{id, channel_url}}` | Android (`createChatRoomWithUserIds`) | `uids` are the users' `uid` (Sendbird user ids). |
+| Player search (1:1) | `GET users?search&exclude_user_ids[]=<me>&is_signed_up=true` | Android (`getListOfPlayers`) | |

@@ -9,6 +9,7 @@ abstract class ChatUi {
   Widget channelList(
     BuildContext context, {
     required void Function(String url) onOpen,
+    required VoidCallback onCreate,
   });
 
   /// One conversation.
@@ -28,10 +29,12 @@ class SendbirdChatUi implements ChatUi {
   Widget channelList(
     BuildContext context, {
     required void Function(String url) onOpen,
+    required VoidCallback onCreate,
   }) {
     _theme(context);
     return SendbirdUIKit.provider(
       child: SBUGroupChannelListScreen(
+        onCreateButtonClicked: onCreate,
         onListItemClicked: (channel) => onOpen(channel.channelUrl),
       ),
     );

@@ -58,6 +58,7 @@ class ChatScreen extends ConsumerWidget {
               .channelList(
                 context,
                 onOpen: (url) => context.push(AppRoutes.chatChannelFor(url)),
+                onCreate: () => context.push(AppRoutes.chatNew),
               ),
         ),
       );

@@ -50,6 +50,7 @@ import 'package:racketmates/screens/chat/chat_screen.dart';
 import 'package:racketmates/screens/subscription/subscription_screen.dart';
 import 'package:racketmates/screens/subscription/subscription_success_screen.dart';
 import 'package:racketmates/screens/chat_channel/chat_channel_screen.dart';
+import 'package:racketmates/screens/chat_new/new_chat_screen.dart';
 import 'package:racketmates/screens/event_details/event_details_screen.dart';
 import 'package:racketmates/screens/home/home_screen.dart';
 import 'package:racketmates/screens/main_shell/main_shell_screen.dart';
@@ -264,6 +265,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const SubscriptionSuccessScreen(),
           ),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.chatNew,
+        builder: (context, state) => const NewChatScreen(),
       ),
       GoRoute(
         path: AppRoutes.chatChannel,

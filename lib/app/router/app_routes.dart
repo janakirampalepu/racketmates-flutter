@@ -9,6 +9,7 @@ abstract final class AppRoutes {
   static const schedule = '/schedule';
   static const chat = '/chat';
   static const chatChannel = '/chat/channel';
+  static const chatNew = '/chat/new';
   static const subscription = '/subscription';
   static const subscriptionSuccess = '/subscription/success';
   static const teams = '/teams';

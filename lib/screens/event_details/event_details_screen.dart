@@ -7,7 +7,10 @@ import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/events/event_labels.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/rsvp_actions.dart';
+import 'package:racketmates/common/chat/event_chat.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
+import 'package:racketmates/screens/chat_new/new_chat_test_ids.dart';
+import 'package:racketmates/screens/event_details/event_chat_actions.dart';
 import 'package:racketmates/screens/event_details/event_details_state.dart';
 import 'package:racketmates/screens/event_details/event_details_test_ids.dart';
 import 'package:racketmates/screens/event_details/event_details_view_model.dart';
@@ -142,6 +145,9 @@ class EventDetailsScreen extends ConsumerWidget {
     final options = event == null
         ? const <RsvpOption>[]
         : rsvpOptionsFor(event);
+    final chatOptions = event == null
+        ? const <EventChatOption>[]
+        : chatOptionsFor(ref, event);
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.eventDetailsTitle),
@@ -150,6 +156,21 @@ class EventDetailsScreen extends ConsumerWidget {
           child: BackButton(onPressed: () => context.pop()),
         ),
         actions: [
+          if (event != null && chatOptions.isNotEmpty)
+            TestId(
+              EventChatTestIds.button,
+              child: IconButton(
+                tooltip: l10n.eventChatAction,
+                icon: const Icon(Icons.chat_bubble_outline),
+                onPressed: () => openEventChat(
+                  context,
+                  ref,
+                  event,
+                  chatOptions,
+                  onCreated: vm.refresh,
+                ),
+              ),
+            ),
           if (event != null && canManageEvent(event))
             TestId(
               EventDetailsTestIds.menu,

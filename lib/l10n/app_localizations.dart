@@ -598,6 +598,84 @@ abstract class AppLocalizations {
   /// **'Chat'**
   String get navChat;
 
+  /// No description provided for @chatNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New chat'**
+  String get chatNewTitle;
+
+  /// No description provided for @chatNewSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search players'**
+  String get chatNewSearchHint;
+
+  /// No description provided for @chatNewEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No players found.'**
+  String get chatNewEmpty;
+
+  /// No description provided for @chatNewError.
+  ///
+  /// In en, this message translates to:
+  /// **'Players could not be loaded.'**
+  String get chatNewError;
+
+  /// No description provided for @chatNewCreateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The chat could not be started. Please try again.'**
+  String get chatNewCreateFailed;
+
+  /// No description provided for @chatNewStarting.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting the chat'**
+  String get chatNewStarting;
+
+  /// No description provided for @chatNewAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new chat'**
+  String get chatNewAction;
+
+  /// No description provided for @eventChatAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get eventChatAction;
+
+  /// No description provided for @eventChatChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Which chat room do you want to open?'**
+  String get eventChatChoose;
+
+  /// No description provided for @eventChatPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Players chat room'**
+  String get eventChatPlayers;
+
+  /// No description provided for @eventChatCaptains.
+  ///
+  /// In en, this message translates to:
+  /// **'Captains chat room'**
+  String get eventChatCaptains;
+
+  /// No description provided for @eventChatFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The chat room could not be opened. Please try again.'**
+  String get eventChatFailed;
+
+  /// No description provided for @eventChatOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening the chat room'**
+  String get eventChatOpening;
+
   /// No description provided for @chatConnecting.
   ///
   /// In en, this message translates to:

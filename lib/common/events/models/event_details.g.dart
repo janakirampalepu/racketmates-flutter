@@ -77,6 +77,17 @@ EventDetails _$EventDetailsFromJson(Map<String, dynamic> json) => EventDetails(
   eventMatches: (json['event_matches'] as List<dynamic>?)
       ?.map((e) => EventMatch.fromJson(e as Map<String, dynamic>))
       .toList(),
+  playerChatRoom: json['player_chat_room'] == null
+      ? null
+      : ChatRoomRef.fromJson(json['player_chat_room'] as Map<String, dynamic>),
+  captainsChatRoom: json['captains_chat_room'] == null
+      ? null
+      : ChatRoomRef.fromJson(
+          json['captains_chat_room'] as Map<String, dynamic>,
+        ),
+  eventTeams: (json['event_teams'] as List<dynamic>?)
+      ?.map((e) => EventTeamRef.fromJson(e as Map<String, dynamic>))
+      .toList(),
 );
 
 Map<String, dynamic> _$EventDetailsToJson(
@@ -117,6 +128,9 @@ Map<String, dynamic> _$EventDetailsToJson(
   'settings_locked': instance.settingsLocked,
   'event_venue_courts': instance.eventVenueCourts,
   'event_matches': instance.eventMatches,
+  'player_chat_room': instance.playerChatRoom,
+  'captains_chat_room': instance.captainsChatRoom,
+  'event_teams': instance.eventTeams,
 };
 
 EventScheduleOption _$EventScheduleOptionFromJson(Map<String, dynamic> json) =>
@@ -206,6 +220,7 @@ EventParticipant _$EventParticipantFromJson(Map<String, dynamic> json) =>
       status: json['status'] as String?,
       waitlistNumber: (json['waitlist_number'] as num?)?.toInt(),
       participantLabel: json['participant_label'] as String?,
+      teamId: (json['team_id'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$EventParticipantToJson(EventParticipant instance) =>
@@ -219,6 +234,7 @@ Map<String, dynamic> _$EventParticipantToJson(EventParticipant instance) =>
       'status': instance.status,
       'waitlist_number': instance.waitlistNumber,
       'participant_label': instance.participantLabel,
+      'team_id': instance.teamId,
     };
 
 CurrentUserEventDetail _$CurrentUserEventDetailFromJson(
@@ -251,12 +267,14 @@ CurrentUserEventDetail _$CurrentUserEventDetailFromJson(
           ?.map((e) => (e as num).toInt())
           .toList(),
   showRsvpStatus: json['show_rsvp_status'] as bool?,
+  teamId: (json['team_id'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$CurrentUserEventDetailToJson(
   CurrentUserEventDetail instance,
 ) => <String, dynamic>{
   'event_participant_id': instance.eventParticipantId,
+  'team_id': instance.teamId,
   'is_player': instance.isPlayer,
   'is_coach': instance.isCoach,
   'is_manager': instance.isManager,
@@ -313,3 +331,32 @@ Map<String, dynamic> _$GroupedScheduleOptionToJson(
   'cancelled': instance.cancelled,
   'to_be_scheduled': instance.toBeScheduled,
 };
+
+ChatRoomRef _$ChatRoomRefFromJson(Map<String, dynamic> json) => ChatRoomRef(
+  id: (json['id'] as num?)?.toInt(),
+  channelUrl: json['channel_url'] as String?,
+);
+
+Map<String, dynamic> _$ChatRoomRefToJson(ChatRoomRef instance) =>
+    <String, dynamic>{'id': instance.id, 'channel_url': instance.channelUrl};
+
+EventTeamRef _$EventTeamRefFromJson(Map<String, dynamic> json) => EventTeamRef(
+  team: json['team'] == null
+      ? null
+      : EventTeamIdRef.fromJson(json['team'] as Map<String, dynamic>),
+  playersChatRoom: json['players_chat_room'] == null
+      ? null
+      : ChatRoomRef.fromJson(json['players_chat_room'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$EventTeamRefToJson(EventTeamRef instance) =>
+    <String, dynamic>{
+      'team': instance.team,
+      'players_chat_room': instance.playersChatRoom,
+    };
+
+EventTeamIdRef _$EventTeamIdRefFromJson(Map<String, dynamic> json) =>
+    EventTeamIdRef(id: (json['id'] as num?)?.toInt());
+
+Map<String, dynamic> _$EventTeamIdRefToJson(EventTeamIdRef instance) =>
+    <String, dynamic>{'id': instance.id};

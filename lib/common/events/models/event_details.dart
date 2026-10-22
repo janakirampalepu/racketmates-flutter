@@ -58,6 +58,9 @@ class EventDetails {
     this.settingsLocked,
     this.eventVenueCourts,
     this.eventMatches,
+    this.playerChatRoom,
+    this.captainsChatRoom,
+    this.eventTeams,
   });
 
   factory EventDetails.fromJson(Map<String, dynamic> json) =>
@@ -104,6 +107,13 @@ class EventDetails {
   final bool? settingsLocked;
   final List<EventVenueCourt>? eventVenueCourts;
   final List<EventMatch>? eventMatches;
+
+  /// The players' and the captains' chat rooms, once created.
+  final ChatRoomRef? playerChatRoom;
+  final ChatRoomRef? captainsChatRoom;
+
+  /// The teams of a team event, each with its players' chat room.
+  final List<EventTeamRef>? eventTeams;
 
   Map<String, dynamic> toJson() => _$EventDetailsToJson(this);
 
@@ -248,6 +258,7 @@ class EventParticipant {
     this.status,
     this.waitlistNumber,
     this.participantLabel,
+    this.teamId,
   });
 
   factory EventParticipant.fromJson(Map<String, dynamic> json) =>
@@ -264,6 +275,9 @@ class EventParticipant {
   final String? status;
   final int? waitlistNumber;
   final String? participantLabel;
+
+  /// The team the participant plays for in a team event.
+  final int? teamId;
 
   Map<String, dynamic> toJson() => _$EventParticipantToJson(this);
 }
@@ -285,12 +299,14 @@ class CurrentUserEventDetail {
     this.groupedEventScheduleOptions,
     this.selectedScheduleOptionIds,
     this.showRsvpStatus,
+    this.teamId,
   });
 
   factory CurrentUserEventDetail.fromJson(Map<String, dynamic> json) =>
       _$CurrentUserEventDetailFromJson(json);
 
   final int? eventParticipantId;
+  final int? teamId;
   final bool? isPlayer;
   final bool? isCoach;
   final bool? isManager;
@@ -374,4 +390,44 @@ class GroupedScheduleOption {
   final bool? toBeScheduled;
 
   Map<String, dynamic> toJson() => _$GroupedScheduleOptionToJson(this);
+}
+
+/// A chat room the backend created (`{id, channel_url}`).
+@JsonSerializable(fieldRename: FieldRename.snake)
+class ChatRoomRef {
+  const ChatRoomRef({this.id, this.channelUrl});
+
+  factory ChatRoomRef.fromJson(Map<String, dynamic> json) =>
+      _$ChatRoomRefFromJson(json);
+
+  final int? id;
+  final String? channelUrl;
+
+  Map<String, dynamic> toJson() => _$ChatRoomRefToJson(this);
+}
+
+/// One team of a team event.
+@JsonSerializable(fieldRename: FieldRename.snake)
+class EventTeamRef {
+  const EventTeamRef({this.team, this.playersChatRoom});
+
+  factory EventTeamRef.fromJson(Map<String, dynamic> json) =>
+      _$EventTeamRefFromJson(json);
+
+  final EventTeamIdRef? team;
+  final ChatRoomRef? playersChatRoom;
+
+  Map<String, dynamic> toJson() => _$EventTeamRefToJson(this);
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+class EventTeamIdRef {
+  const EventTeamIdRef({this.id});
+
+  factory EventTeamIdRef.fromJson(Map<String, dynamic> json) =>
+      _$EventTeamIdRefFromJson(json);
+
+  final int? id;
+
+  Map<String, dynamic> toJson() => _$EventTeamIdRefToJson(this);
 }
