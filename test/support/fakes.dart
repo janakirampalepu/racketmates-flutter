@@ -43,6 +43,8 @@ import 'package:racketmates/common/billing/billing_platform.dart';
 import 'package:racketmates/common/billing/subscription_prompt.dart';
 import 'package:racketmates/common/billing/subscription_repository.dart';
 import 'package:racketmates/common/links/external_links.dart';
+import 'package:racketmates/common/location/location_platform.dart';
+import 'package:racketmates/common/location/user_location.dart';
 import 'package:racketmates/common/chat/chat_client.dart';
 import 'package:racketmates/common/chat/chat_repository.dart';
 import 'package:racketmates/common/chat/chat_ui.dart';
@@ -777,6 +779,8 @@ List<Override> contentOverrides({
   FakeSubscriptionRepository? subscriptions,
   FakeExternalLinks? links,
   InMemoryPromptStore? promptStore,
+  FakeLocationPlatform? location,
+  InMemoryDistanceStore? distanceStore,
 }) => [
   contentRepositoryProvider.overrideWithValue(
     repository ?? FakeContentRepository(),
@@ -813,6 +817,12 @@ List<Override> contentOverrides({
   subscriptionPromptStoreProvider.overrideWithValue(
     promptStore ?? InMemoryPromptStore(),
   ),
+  locationPlatformProvider.overrideWithValue(
+    location ?? FakeLocationPlatform(),
+  ),
+  distanceFilterStoreProvider.overrideWithValue(
+    distanceStore ?? InMemoryDistanceStore(),
+  ),
 ];
 
 class FakePlacesRepository implements PlacesRepository {
@@ -827,12 +837,25 @@ class FakePlacesRepository implements PlacesRepository {
   Map<int, PlaceItem> detailsById;
   bool failing = false;
   final List<({String query, String? sport})> searches = [];
+  final List<({double? latitude, double? longitude, int? distance})> locations =
+      [];
   final List<(int, bool)> favouriteCalls = [];
   final List<int> detailsCalls = [];
 
   @override
-  Future<List<PlaceItem>> search({String query = '', String? sportType}) async {
+  Future<List<PlaceItem>> search({
+    String query = '',
+    String? sportType,
+    double? latitude,
+    double? longitude,
+    int? distance,
+  }) async {
     searches.add((query: query, sport: sportType));
+    locations.add((
+      latitude: latitude,
+      longitude: longitude,
+      distance: distance,
+    ));
     await Future<void>.delayed(Duration.zero);
     if (failing) throw const OfflineFailure();
     return [
@@ -1347,4 +1370,50 @@ class InMemoryPromptStore implements SubscriptionPromptStore {
   @override
   Future<void> markSeen(SubscriptionPromptKind kind, int userId) async =>
       seenKeys.add('${kind.name}:$userId');
+}
+
+class FakeLocationPlatform implements LocationPlatform {
+  /// Default: undecided and answering "granted", with a fix, so a screen that
+  /// asks gets a position. Tests set what they need.
+  FakeLocationPlatform({
+    this.state = LocationPermission.notDetermined,
+    this.answerToRequest = LocationPermission.granted,
+    this.position = const LatLng(40.7128, -74.006),
+  });
+
+  LocationPermission state;
+  LocationPermission answerToRequest;
+  LatLng? position;
+  int requests = 0;
+  int fixes = 0;
+  int settingsOpened = 0;
+
+  @override
+  Future<LocationPermission> permission() async => state;
+
+  @override
+  Future<LocationPermission> requestPermission() async {
+    requests++;
+    state = answerToRequest;
+    return state;
+  }
+
+  @override
+  Future<LatLng?> currentPosition() async {
+    fixes++;
+    return position;
+  }
+
+  @override
+  Future<void> openSettings() async => settingsOpened++;
+}
+
+class InMemoryDistanceStore implements DistanceFilterStore {
+  int value = defaultSearchDistance;
+
+  @override
+  Future<int> read() async => value;
+
+  @override
+  Future<void> write(int distance) async => value = distance;
 }

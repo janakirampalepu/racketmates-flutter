@@ -43,6 +43,7 @@ SessionInfoUser _$SessionInfoUserFromJson(Map<String, dynamic> json) =>
       email: json['email'] as String?,
       timezoneIdentifier: json['timezone_identifier'] as String?,
       supportChatRoomUrl: json['support_chat_room_url'] as String?,
+      distanceType: json['distance_type'] as String?,
     );
 
 Map<String, dynamic> _$SessionInfoUserToJson(SessionInfoUser instance) =>
@@ -59,6 +60,7 @@ Map<String, dynamic> _$SessionInfoUserToJson(SessionInfoUser instance) =>
       'email': instance.email,
       'timezone_identifier': instance.timezoneIdentifier,
       'support_chat_room_url': instance.supportChatRoomUrl,
+      'distance_type': instance.distanceType,
     };
 
 SessionSubscription _$SessionSubscriptionFromJson(Map<String, dynamic> json) =>

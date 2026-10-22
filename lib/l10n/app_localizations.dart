@@ -2656,6 +2656,150 @@ abstract class AppLocalizations {
   /// **'Rate the app'**
   String get settingsRate;
 
+  /// No description provided for @locationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Locations'**
+  String get locationsTitle;
+
+  /// No description provided for @locationsSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search venues'**
+  String get locationsSearchHint;
+
+  /// No description provided for @locationsNearby.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby'**
+  String get locationsNearby;
+
+  /// No description provided for @locationsFavourites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favourites'**
+  String get locationsFavourites;
+
+  /// No description provided for @locationsNearYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Near your current location'**
+  String get locationsNearYou;
+
+  /// No description provided for @locationsNoLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on location to see the venues closest to you.'**
+  String get locationsNoLocation;
+
+  /// No description provided for @locationsEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable location'**
+  String get locationsEnable;
+
+  /// No description provided for @locationsOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get locationsOpenSettings;
+
+  /// No description provided for @locationsLocating.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding your location'**
+  String get locationsLocating;
+
+  /// No description provided for @locationsFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance filter'**
+  String get locationsFilter;
+
+  /// No description provided for @locationsDistanceValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Within {distance} {unit}'**
+  String locationsDistanceValue(int distance, String unit);
+
+  /// No description provided for @locationsDistanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Show venues within this distance of you.'**
+  String get locationsDistanceHint;
+
+  /// No description provided for @locationsApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get locationsApply;
+
+  /// No description provided for @locationsReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to default'**
+  String get locationsReset;
+
+  /// No description provided for @locationsDefaultUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'mi'**
+  String get locationsDefaultUnit;
+
+  /// No description provided for @venueCourts.
+  ///
+  /// In en, this message translates to:
+  /// **'Courts'**
+  String get venueCourts;
+
+  /// No description provided for @venueNoCourts.
+  ///
+  /// In en, this message translates to:
+  /// **'No courts are listed for this venue.'**
+  String get venueNoCourts;
+
+  /// No description provided for @venueDirections.
+  ///
+  /// In en, this message translates to:
+  /// **'Directions'**
+  String get venueDirections;
+
+  /// No description provided for @venueMembership.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership required'**
+  String get venueMembership;
+
+  /// No description provided for @venueLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'The venue could not be loaded.'**
+  String get venueLoadError;
+
+  /// No description provided for @venueCourtIndoor.
+  ///
+  /// In en, this message translates to:
+  /// **'Indoor'**
+  String get venueCourtIndoor;
+
+  /// No description provided for @venueCourtOutdoor.
+  ///
+  /// In en, this message translates to:
+  /// **'Outdoor'**
+  String get venueCourtOutdoor;
+
+  /// No description provided for @settingsLocations.
+  ///
+  /// In en, this message translates to:
+  /// **'Locations'**
+  String get settingsLocations;
+
+  /// No description provided for @settingsLocationsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Find venues and manage your favourites'**
+  String get settingsLocationsHint;
+
   /// No description provided for @subscriptionTitle.
   ///
   /// In en, this message translates to:

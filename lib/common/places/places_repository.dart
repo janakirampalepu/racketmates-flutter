@@ -19,9 +19,15 @@ const placesPageSize = 20;
 
 abstract class PlacesRepository {
   /// Text search. [sportType] limits to places with courts for that sport
-  /// (`st_tennis`, ...). Location-based ordering (latitude/longitude/distance)
-  /// is added with the locations milestone.
-  Future<List<PlaceItem>> search({String query = '', String? sportType});
+  /// (`st_tennis`, ...). With a position the backend orders by distance and
+  /// limits to [distance] (in the user's unit) around it.
+  Future<List<PlaceItem>> search({
+    String query = '',
+    String? sportType,
+    double? latitude,
+    double? longitude,
+    int? distance,
+  });
 
   Future<List<PlaceItem>> favourites();
 
@@ -47,10 +53,20 @@ class PlacesRepositoryImpl implements PlacesRepository {
   }
 
   @override
-  Future<List<PlaceItem>> search({String query = '', String? sportType}) async {
+  Future<List<PlaceItem>> search({
+    String query = '',
+    String? sportType,
+    double? latitude,
+    double? longitude,
+    int? distance,
+  }) async {
+    final located = latitude != null && longitude != null;
     final response = await _guard(
       () => api.search(
         placeTypes: allPlaceTypes,
+        latitude: located ? '$latitude' : null,
+        longitude: located ? '$longitude' : null,
+        distance: located ? distance : null,
         perPage: placesPageSize,
         search: query.trim(),
         excludeLoggedInUserClubIds: false,

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/location/user_location.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/places/places_repository.dart';
 import 'package:racketmates/screens/place_picker/place_picker_state.dart';
@@ -21,6 +22,9 @@ class PlacePickerViewModel extends Notifier<PlacePickerState> {
   PlacePickerState build() {
     ref.onDispose(() => _debounce?.cancel());
     Future.microtask(() async {
+      // Nearby venues first: ask for the position (once), then search.
+      await ref.read(userLocationProvider.notifier).ensure();
+      if (!ref.mounted) return;
       await Future.wait([loadSearch(), loadFavourites()]);
     });
     return const PlacePickerState();
@@ -40,9 +44,15 @@ class PlacePickerViewModel extends Notifier<PlacePickerState> {
       search: state.search.copyWith(loading: true, failure: () => null),
     );
     try {
+      final location = ref.read(userLocationProvider).position;
       final places = await _repo.search(
         query: state.query,
         sportType: sportType,
+        latitude: location?.latitude,
+        longitude: location?.longitude,
+        distance: location == null
+            ? null
+            : ref.read(searchDistanceProvider).value ?? defaultSearchDistance,
       );
       // Ignore answers to a query the user has already replaced.
       if (!ref.mounted || token != _searchToken) return;

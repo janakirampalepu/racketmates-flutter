@@ -51,6 +51,8 @@ import 'package:racketmates/screens/subscription/subscription_screen.dart';
 import 'package:racketmates/screens/subscription/subscription_success_screen.dart';
 import 'package:racketmates/screens/chat_channel/chat_channel_screen.dart';
 import 'package:racketmates/screens/chat_new/new_chat_screen.dart';
+import 'package:racketmates/screens/locations/locations_screen.dart';
+import 'package:racketmates/screens/venue_details/venue_screen.dart';
 import 'package:racketmates/screens/event_details/event_details_screen.dart';
 import 'package:racketmates/screens/home/home_screen.dart';
 import 'package:racketmates/screens/main_shell/main_shell_screen.dart';
@@ -263,6 +265,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'success',
             builder: (context, state) => const SubscriptionSuccessScreen(),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: AppRoutes.locations,
+        builder: (context, state) => const LocationsScreen(),
+        routes: [
+          GoRoute(
+            path: ':id',
+            redirect: (context, state) =>
+                int.tryParse(state.pathParameters['id'] ?? '') == null
+                ? AppRoutes.locations
+                : null,
+            builder: (context, state) =>
+                VenueScreen(placeId: int.parse(state.pathParameters['id']!)),
           ),
         ],
       ),

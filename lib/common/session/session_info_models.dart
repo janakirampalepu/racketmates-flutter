@@ -33,6 +33,7 @@ class SessionInfoUser {
     this.email,
     this.timezoneIdentifier,
     this.supportChatRoomUrl,
+    this.distanceType,
   });
 
   factory SessionInfoUser.fromJson(Map<String, dynamic> json) =>
@@ -57,6 +58,9 @@ class SessionInfoUser {
   /// The time zone the server has for the user (IANA id).
   final String? timezoneIdentifier;
   final String? supportChatRoomUrl;
+
+  /// The user's distance unit (`dt_*` reference data key).
+  final String? distanceType;
 
   Map<String, dynamic> toJson() => _$SessionInfoUserToJson(this);
 

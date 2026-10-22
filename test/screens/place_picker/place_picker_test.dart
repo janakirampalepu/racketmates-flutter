@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/common/places/place_models.dart';
+import 'package:racketmates/common/location/location_platform.dart';
+import 'package:racketmates/common/location/user_location.dart';
 import 'package:racketmates/common/places/places_repository.dart';
 import 'package:racketmates/screens/place_picker/place_picker_test_ids.dart';
 import 'package:racketmates/screens/place_picker/place_picker_view_model.dart';
@@ -51,7 +53,11 @@ Widget _host(FakePlacesRepository repo, {ValueSetter<PlaceItem?>? onResult}) {
     ],
   );
   return ProviderScope(
-    overrides: [placesRepositoryProvider.overrideWithValue(repo)],
+    overrides: [
+      placesRepositoryProvider.overrideWithValue(repo),
+      locationPlatformProvider.overrideWithValue(FakeLocationPlatform()),
+      distanceFilterStoreProvider.overrideWithValue(InMemoryDistanceStore()),
+    ],
     child: MaterialApp.router(
       routerConfig: router,
       localizationsDelegates: const [
@@ -68,7 +74,13 @@ void main() {
   group('PlacePickerViewModel', () {
     ProviderContainer container(FakePlacesRepository repo) {
       final c = ProviderContainer(
-        overrides: [placesRepositoryProvider.overrideWithValue(repo)],
+        overrides: [
+          placesRepositoryProvider.overrideWithValue(repo),
+          locationPlatformProvider.overrideWithValue(FakeLocationPlatform()),
+          distanceFilterStoreProvider.overrideWithValue(
+            InMemoryDistanceStore(),
+          ),
+        ],
       );
       addTearDown(c.dispose);
       return c;

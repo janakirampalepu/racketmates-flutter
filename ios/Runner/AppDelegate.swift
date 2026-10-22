@@ -1,4 +1,5 @@
 import Flutter
+import CoreLocation
 import StoreKit
 import UIKit
 import UserNotifications
@@ -51,6 +52,7 @@ import UserNotifications
       NativeSessionChannel.register(with: registrar.messenger())
       PushChannel.register(with: registrar.messenger())
       BillingChannel.register(with: registrar.messenger())
+      LocationChannel.register(with: registrar.messenger())
     }
   }
 }
@@ -453,5 +455,89 @@ enum BillingChannel {
     if let purchase = purchase { args["purchase"] = purchase }
     if let message = message { args["message"] = message }
     DispatchQueue.main.async { channel?.invokeMethod("onPurchase", arguments: args) }
+  }
+}
+
+// MARK: - Device location
+
+/// `io.appsmaker.racketmates/location`: permission while the app is in use and
+/// one position fix through Core Location. Methods: permissionStatus,
+/// requestPermission, currentPosition, openSettings.
+final class LocationChannel: NSObject, CLLocationManagerDelegate {
+  static let name = "io.appsmaker.racketmates/location"
+  private static let shared = LocationChannel()
+
+  private let manager = CLLocationManager()
+  private var permissionResult: FlutterResult?
+  private var positionResult: FlutterResult?
+
+  static func register(with messenger: FlutterBinaryMessenger) {
+    shared.manager.delegate = shared
+    FlutterMethodChannel(name: name, binaryMessenger: messenger)
+      .setMethodCallHandler { call, result in
+        switch call.method {
+        case "permissionStatus":
+          result(shared.status())
+        case "requestPermission":
+          shared.request(result)
+        case "currentPosition":
+          shared.position(result)
+        case "openSettings":
+          DispatchQueue.main.async {
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+              UIApplication.shared.open(url)
+            }
+            result(nil)
+          }
+        default:
+          result(FlutterMethodNotImplemented)
+        }
+      }
+  }
+
+  private func status() -> String {
+    switch manager.authorizationStatus {
+    case .authorizedWhenInUse, .authorizedAlways: return "granted"
+    case .denied, .restricted: return "denied"
+    default: return "notDetermined"
+    }
+  }
+
+  private func request(_ result: @escaping FlutterResult) {
+    guard manager.authorizationStatus == .notDetermined else {
+      result(status())
+      return
+    }
+    permissionResult = result
+    manager.requestWhenInUseAuthorization()
+  }
+
+  private func position(_ result: @escaping FlutterResult) {
+    guard status() == "granted", CLLocationManager.locationServicesEnabled() else {
+      result(nil)
+      return
+    }
+    positionResult?(nil)
+    positionResult = result
+    manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+    manager.requestLocation()
+  }
+
+  func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+    guard manager.authorizationStatus != .notDetermined, let result = permissionResult else { return }
+    permissionResult = nil
+    result(status())
+  }
+
+  func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    guard let location = locations.last, let result = positionResult else { return }
+    positionResult = nil
+    result(["latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude])
+  }
+
+  func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    guard let result = positionResult else { return }
+    positionResult = nil
+    result(nil)
   }
 }

@@ -51,3 +51,4 @@ Pagination follows the native schedule screens: `per_page=10`, `page` starts at 
 | Captains chat room | `PUT events/{id}/setup_captains_chat_room` -> `{chat_room:{id, channel_url}}` | Android (`captainsChatRoom`) | |
 | One-to-one chat room | `POST chat_rooms {chat_room:{chat_room_type:crt_direct, uids:[own, other]}}` -> `{chat_room:{id, channel_url}}` | Android (`createChatRoomWithUserIds`) | `uids` are the users' `uid` (Sendbird user ids). |
 | Player search (1:1) | `GET users?search&exclude_user_ids[]=<me>&is_signed_up=true` | Android (`getListOfPlayers`) | |
+| Venue search with a position | `GET places?place_types[]=&latitude=&longitude=&distance=&per_page=20&search=&exclude_logged_in_user_club_ids=false[&sport_type=]` | Android (`getLocationList`) | `latitude`/`longitude`/`distance` only when the device position is known; `distance` is in the user's unit (`distance_type`), default 30. |

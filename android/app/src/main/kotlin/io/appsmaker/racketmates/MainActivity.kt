@@ -7,6 +7,7 @@ import io.flutter.embedding.engine.FlutterEngine
 class MainActivity : FlutterActivity() {
     private var push: PushPlugin? = null
     private var billing: BillingPlugin? = null
+    private var location: LocationPlugin? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -15,6 +16,7 @@ class MainActivity : FlutterActivity() {
         NativeSessionPlugin(applicationContext).register(messenger)
         push = PushPlugin(this).also { it.register(messenger) }
         billing = BillingPlugin(this).also { it.register(messenger) }
+        location = LocationPlugin(this).also { it.register(messenger) }
     }
 
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
@@ -22,6 +24,8 @@ class MainActivity : FlutterActivity() {
         push = null
         billing?.dispose()
         billing = null
+        location?.dispose()
+        location = null
         super.cleanUpFlutterEngine(flutterEngine)
     }
 
@@ -47,5 +51,6 @@ class MainActivity : FlutterActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         push?.onPermissionResult(requestCode)
+        location?.onPermissionResult(requestCode)
     }
 }

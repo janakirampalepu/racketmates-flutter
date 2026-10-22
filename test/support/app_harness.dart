@@ -45,6 +45,8 @@ Widget signedInApp({
   FakeSubscriptionRepository? subscriptions,
   FakeExternalLinks? links,
   InMemoryPromptStore? promptStore,
+  FakeLocationPlatform? location,
+  InMemoryDistanceStore? distanceStore,
   String? sendbirdAppId,
   AppEnvironment? environment,
 }) => ProviderScope(
@@ -96,6 +98,8 @@ Widget signedInApp({
       subscriptions: subscriptions,
       links: links,
       promptStore: promptStore,
+      location: location,
+      distanceStore: distanceStore,
       sessionInfo: sessionInfo,
       deviceTimezone: deviceTimezone,
     ),
@@ -129,6 +133,8 @@ Widget signedOutApp({
   FakeSubscriptionRepository? subscriptions,
   FakeExternalLinks? links,
   InMemoryPromptStore? promptStore,
+  FakeLocationPlatform? location,
+  InMemoryDistanceStore? distanceStore,
 }) => ProviderScope(
   overrides: [
     environmentConfigProvider.overrideWithValue(testConfig),
@@ -153,6 +159,8 @@ Widget signedOutApp({
       subscriptions: subscriptions,
       links: links,
       promptStore: promptStore,
+      location: location,
+      distanceStore: distanceStore,
       sessionInfo: sessionInfo,
     ),
   ],

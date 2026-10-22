@@ -154,6 +154,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         : context.push(AppRoutes.subscription),
                   ),
                 tile(
+                  id: SettingsTestIds.locations,
+                  icon: Icons.place_outlined,
+                  title: l10n.settingsLocations,
+                  subtitle: l10n.settingsLocationsHint,
+                  onTap: () => context.push(AppRoutes.locations),
+                ),
+                tile(
                   id: SettingsTestIds.notifications,
                   icon: Icons.notifications_outlined,
                   title: l10n.settingsNotifications,

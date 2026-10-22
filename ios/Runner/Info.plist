@@ -66,6 +66,8 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We use your location to show the venues closest to you and to sort them by distance. It is not shared with other players.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>We need access to your camera to let you capture new photos for your profile and to upload images directly within the app.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

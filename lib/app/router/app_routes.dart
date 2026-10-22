@@ -9,6 +9,7 @@ abstract final class AppRoutes {
   static const schedule = '/schedule';
   static const chat = '/chat';
   static const chatChannel = '/chat/channel';
+  static const locations = '/locations';
   static const chatNew = '/chat/new';
   static const subscription = '/subscription';
   static const subscriptionSuccess = '/subscription/success';
@@ -89,6 +90,9 @@ abstract final class AppRoutes {
 
   static String eventFor(int id) => '$event/$id';
 
+  /// One venue's page.
+  static String venueFor(int id) => '$locations/$id';
+
   /// One chat conversation, by its Sendbird channel url.
   static String chatChannelFor(String url) =>
       Uri(path: chatChannel, queryParameters: {'url': url}).toString();
@@ -150,6 +154,8 @@ abstract final class AppRoutes {
   static bool isProtected(String location) =>
       const {home, schedule, chat, teams}.contains(location) ||
       location.startsWith('$chat/') ||
+      location == locations ||
+      location.startsWith('$locations/') ||
       location == subscription ||
       location.startsWith('$subscription/') ||
       location.startsWith('$event/') ||

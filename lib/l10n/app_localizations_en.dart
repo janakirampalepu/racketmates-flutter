@@ -1385,6 +1385,82 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsRate => 'Rate the app';
 
   @override
+  String get locationsTitle => 'Locations';
+
+  @override
+  String get locationsSearchHint => 'Search venues';
+
+  @override
+  String get locationsNearby => 'Nearby';
+
+  @override
+  String get locationsFavourites => 'Favourites';
+
+  @override
+  String get locationsNearYou => 'Near your current location';
+
+  @override
+  String get locationsNoLocation =>
+      'Turn on location to see the venues closest to you.';
+
+  @override
+  String get locationsEnable => 'Enable location';
+
+  @override
+  String get locationsOpenSettings => 'Open settings';
+
+  @override
+  String get locationsLocating => 'Finding your location';
+
+  @override
+  String get locationsFilter => 'Distance filter';
+
+  @override
+  String locationsDistanceValue(int distance, String unit) {
+    return 'Within $distance $unit';
+  }
+
+  @override
+  String get locationsDistanceHint =>
+      'Show venues within this distance of you.';
+
+  @override
+  String get locationsApply => 'Apply';
+
+  @override
+  String get locationsReset => 'Reset to default';
+
+  @override
+  String get locationsDefaultUnit => 'mi';
+
+  @override
+  String get venueCourts => 'Courts';
+
+  @override
+  String get venueNoCourts => 'No courts are listed for this venue.';
+
+  @override
+  String get venueDirections => 'Directions';
+
+  @override
+  String get venueMembership => 'Membership required';
+
+  @override
+  String get venueLoadError => 'The venue could not be loaded.';
+
+  @override
+  String get venueCourtIndoor => 'Indoor';
+
+  @override
+  String get venueCourtOutdoor => 'Outdoor';
+
+  @override
+  String get settingsLocations => 'Locations';
+
+  @override
+  String get settingsLocationsHint => 'Find venues and manage your favourites';
+
+  @override
   String get subscriptionTitle => 'Racketmates Pro';
 
   @override
