@@ -11,4 +11,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loadingLabel => 'Loading';
+
+  @override
+  String get welcomePlaceholder => 'Welcome';
+
+  @override
+  String get homePlaceholder => 'Home';
+
+  @override
+  String get signOutAction => 'Sign out';
+
+  @override
+  String get appUpdateTitle => 'A new version is available';
+
+  @override
+  String get appUpdateAction => 'Update';
+
+  @override
+  String get appUpdateLaterAction => 'Later';
 }

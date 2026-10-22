@@ -99,6 +99,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading'**
   String get loadingLabel;
+
+  /// Placeholder until the real welcome screen is migrated; offline fallback only.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome'**
+  String get welcomePlaceholder;
+
+  /// Placeholder until the real home screen is migrated; offline fallback only.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get homePlaceholder;
+
+  /// No description provided for @signOutAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get signOutAction;
+
+  /// No description provided for @appUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version is available'**
+  String get appUpdateTitle;
+
+  /// No description provided for @appUpdateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get appUpdateAction;
+
+  /// No description provided for @appUpdateLaterAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get appUpdateLaterAction;
 }
 
 class _AppLocalizationsDelegate

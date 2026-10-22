@@ -31,12 +31,11 @@ void main() {
     oauthClientSecret: 'secret',
   );
 
-  test('adds the native header contract and bearer token', () async {
+  test('adds the native header contract (Authorization comes from AuthInterceptor)', () async {
     final adapter = _CaptureAdapter();
     final dio = createDio(
       config,
       appVersion: '1.2.3',
-      accessToken: () => 'tok',
       acceptLanguage: () => 'en-US',
     )..httpClientAdapter = adapter;
 
@@ -46,20 +45,7 @@ void main() {
     expect(headers['Accept'], 'application/vnd.test');
     expect(headers['app-version'], '1.2.3');
     expect(headers['Accept-Language'], 'en-US');
-    expect(headers['Authorization'], 'Bearer tok');
-  });
-
-  test('omits Authorization without a token', () async {
-    final adapter = _CaptureAdapter();
-    final dio = createDio(
-      config,
-      appVersion: '1.2.3',
-      acceptLanguage: () => 'en-US',
-    )..httpClientAdapter = adapter;
-
-    await dio.get<dynamic>('/resources/metadata');
-
-    expect(adapter.last!.headers.containsKey('Authorization'), isFalse);
+    expect(headers.containsKey('Authorization'), isFalse);
   });
 
   group('mapDioException', () {
