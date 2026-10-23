@@ -208,9 +208,17 @@ int scoreSetCount(String? format) => switch (format) {
 /// The score typed for one set: the top side and the bottom side.
 typedef SetScore = ({String top, String bottom});
 
-enum ScoreError { noScores, incompleteSet, notANumber }
+/// Set tie-break scores typed by set number (1-based).
+typedef TieBreaks = Map<int, SetScore>;
+
+enum ScoreError { noScores, incompleteSet, notANumber, tieBreakDrawn }
 
 final _digits = RegExp(r'^\d{1,3}$');
+
+/// Tie-break sets are played in tennis and padel only (native
+/// `canAllowTieBreakSets`).
+bool allowsTieBreak(String? sportType) =>
+    sportType == 'st_tennis' || sportType == 'st_padel';
 
 /// A set is either empty or has a whole-number score for both sides; at least
 /// one set must be filled. (The server applies the sport's own rules.)
@@ -235,18 +243,147 @@ List<ScoreError> validateSetScores(List<SetScore> sets) {
   return errors.toList();
 }
 
-/// Sets won by each side (a drawn set counts for neither).
-({int top, int bottom}) setsWon(List<SetScore> sets) {
+({int? top, int? bottom}) _numbers(SetScore s) =>
+    (top: int.tryParse(s.top.trim()), bottom: int.tryParse(s.bottom.trim()));
+
+/// Whether a set tie-break is played: both sides reached the minimum score
+/// (native: at least [minimum] each, equal) in a sport that has them.
+bool needsSetTieBreak(
+  SetScore set, {
+  required bool allow,
+  required int minimum,
+}) {
+  if (!allow) return false;
+  final n = _numbers(set);
+  if (n.top == null || n.bottom == null) return false;
+  return n.top == n.bottom && n.top! >= (minimum < 1 ? 1 : minimum);
+}
+
+/// +1 when the top side won the set, -1 for the bottom side, 0 when it is
+/// open or drawn. A tied set is decided by its tie-break when there is one.
+int setWinner(SetScore set, [SetScore? tieBreak]) {
+  final n = _numbers(set);
+  if (n.top == null || n.bottom == null) return 0;
+  if (n.top! != n.bottom!) return n.top! > n.bottom! ? 1 : -1;
+  if (tieBreak == null) return 0;
+  final t = _numbers(tieBreak);
+  if (t.top == null || t.bottom == null || t.top == t.bottom) return 0;
+  return t.top! > t.bottom! ? 1 : -1;
+}
+
+/// Sets won by each side (a drawn set counts for neither). Tie-breaks decide
+/// tied sets; a match tie-break counts as one set.
+({int top, int bottom}) setsWon(
+  List<SetScore> sets, {
+  TieBreaks tieBreaks = const {},
+  SetScore? matchTieBreak,
+}) {
   var top = 0;
   var bottom = 0;
-  for (final s in sets) {
-    final a = int.tryParse(s.top.trim());
-    final b = int.tryParse(s.bottom.trim());
-    if (a == null || b == null) continue;
-    if (a > b) top++;
-    if (b > a) bottom++;
+  for (var i = 0; i < sets.length; i++) {
+    final w = setWinner(sets[i], tieBreaks[i + 1]);
+    if (w > 0) top++;
+    if (w < 0) bottom++;
+  }
+  if (matchTieBreak != null) {
+    final w = setWinner(matchTieBreak);
+    if (w > 0) top++;
+    if (w < 0) bottom++;
   }
   return (top: top, bottom: bottom);
+}
+
+/// Which rows the score screen shows.
+class ScoreLayout {
+  const ScoreLayout({
+    required this.setRows,
+    required this.matchTieBreakRow,
+    required this.askDecidingSet,
+  });
+
+  /// Regular set rows shown.
+  final int setRows;
+
+  /// A match tie-break row replaces the last set.
+  final bool matchTieBreakRow;
+
+  /// The sets are level before the last one and nobody decided yet how the
+  /// last one is played: ask (native `MatchTieBreakerPicker`).
+  final bool askDecidingSet;
+}
+
+/// Rows for [format]: the last set of a best-of-3/5 is a match tie-break when
+/// the deciding set type says so (tennis and padel only).
+ScoreLayout scoreLayout({
+  required String? format,
+  required String? sportType,
+  required String? decidingSetType,
+  required List<SetScore> sets,
+  TieBreaks tieBreaks = const {},
+}) {
+  final base = scoreSetCount(format);
+  final allow = allowsTieBreak(sportType) && base >= 3;
+  if (!allow) {
+    return ScoreLayout(
+      setRows: base,
+      matchTieBreakRow: false,
+      askDecidingSet: false,
+    );
+  }
+  final tieBreakDecides = decidingSetType == ScoringKeys.tieBreak;
+  final undecided =
+      decidingSetType == null || decidingSetType == ScoringKeys.decideLater;
+  final earlier = sets.take(base - 1).toList();
+  final won = setsWon(earlier, tieBreaks: tieBreaks);
+  final level =
+      earlier.length == base - 1 &&
+      won.top == won.bottom &&
+      won.top == (base - 1) ~/ 2;
+  return ScoreLayout(
+    setRows: tieBreakDecides ? base - 1 : base,
+    matchTieBreakRow: tieBreakDecides,
+    askDecidingSet: undecided && level,
+  );
+}
+
+/// Errors in the tie-break fields of the visible rows. [sets] are the visible
+/// regular sets.
+List<ScoreError> validateTieBreaks(
+  List<SetScore> sets, {
+  required TieBreaks tieBreaks,
+  required SetScore? matchTieBreak,
+  required bool allow,
+  required int minimum,
+  required bool matchTieBreakNeeded,
+}) {
+  final errors = <ScoreError>{};
+  void check(SetScore s, {required bool required}) {
+    final top = s.top.trim();
+    final bottom = s.bottom.trim();
+    if (top.isEmpty && bottom.isEmpty) {
+      if (required) errors.add(ScoreError.incompleteSet);
+      return;
+    }
+    if (top.isEmpty || bottom.isEmpty) {
+      errors.add(ScoreError.incompleteSet);
+    } else if (!_digits.hasMatch(top) || !_digits.hasMatch(bottom)) {
+      errors.add(ScoreError.notANumber);
+    } else if (top == bottom) {
+      errors.add(ScoreError.tieBreakDrawn);
+    }
+  }
+
+  for (var i = 0; i < sets.length; i++) {
+    final needed = needsSetTieBreak(sets[i], allow: allow, minimum: minimum);
+    final entered = tieBreaks[i + 1];
+    if (needed || entered != null) {
+      check(entered ?? (top: '', bottom: ''), required: needed);
+    }
+  }
+  if (matchTieBreak != null) {
+    check(matchTieBreak, required: matchTieBreakNeeded);
+  }
+  return errors.toList();
 }
 
 /// The scores already entered for [match], one entry per set.
@@ -261,61 +398,155 @@ List<SetScore> prefillSets(EventMatch match) {
   ];
 }
 
+/// Set tie-break scores already on [match].
+TieBreaks prefillTieBreaks(EventMatch match) {
+  final result = <int, SetScore>{};
+  for (var i = 1; i <= 5; i++) {
+    final top = match.top?.tieBreakOfSet('$i');
+    final bottom = match.bottom?.tieBreakOfSet('$i');
+    if (top != null || bottom != null) {
+      result[i] = (top: top ?? '', bottom: bottom ?? '');
+    }
+  }
+  return result;
+}
+
+/// The match tie-break already on [match], if any.
+SetScore? prefillMatchTieBreak(EventMatch match) {
+  final top = match.top?.matchTieBreakScore;
+  final bottom = match.bottom?.matchTieBreakScore;
+  if (top == null && bottom == null) return null;
+  return (top: top ?? '', bottom: bottom ?? '');
+}
+
+/// The set number the server stores a match tie-break under (native
+/// `SET_SIX`).
+const matchTieBreakSet = '6';
+
 /// Body of `POST update_scores` (native `updateScores`): the filled sets for
-/// both sides, `request_unfinished_match`, and the match's deciding set type.
-/// Tie-break scores already on the match are sent back unchanged so saving
-/// does not drop them (they cannot be edited here).
+/// both sides, their tie-breaks, `request_unfinished_match`, and the match's
+/// deciding set type ([decidingSetType], else the match's own). Tie-break
+/// scores the server has that are no longer entered are sent blank with their
+/// id so they are cleared.
 Map<String, dynamic> buildUpdateScoresBody(
   EventMatch match,
   List<SetScore> sets, {
   required bool unfinished,
+  TieBreaks tieBreaks = const {},
+  SetScore? matchTieBreak,
+  String? decidingSetType,
 }) {
   final topId = match.top?.id;
   final bottomId = match.bottom?.id;
   if (topId == null || bottomId == null) {
     throw StateError('match without sides');
   }
-  Map<String, dynamic> entry(int sideId, String set, String score) => {
+  Map<String, dynamic> entry(
+    int sideId,
+    String set,
+    String score, {
+    bool setTieBreak = false,
+    bool matchTieBreak = false,
+  }) => {
     'event_match_side_id': sideId,
     'set': set,
     'score': score,
-    'set_tie_breaker': false,
-    'match_tie_breaker': false,
+    'set_tie_breaker': setTieBreak,
+    'match_tie_breaker': matchTieBreak,
   };
-  final kept = [
+
+  bool filled(SetScore s) =>
+      s.top.trim().isNotEmpty && s.bottom.trim().isNotEmpty;
+
+  final scores = <Map<String, dynamic>>[
+    for (var i = 0; i < sets.length; i++)
+      if (filled(sets[i])) ...[
+        entry(topId, '${i + 1}', sets[i].top.trim()),
+        entry(bottomId, '${i + 1}', sets[i].bottom.trim()),
+        if (tieBreaks[i + 1] case final tb? when filled(tb)) ...[
+          entry(topId, '${i + 1}', tb.top.trim(), setTieBreak: true),
+          entry(bottomId, '${i + 1}', tb.bottom.trim(), setTieBreak: true),
+        ],
+      ],
+    if (matchTieBreak != null && filled(matchTieBreak)) ...[
+      entry(
+        topId,
+        matchTieBreakSet,
+        matchTieBreak.top.trim(),
+        matchTieBreak: true,
+      ),
+      entry(
+        bottomId,
+        matchTieBreakSet,
+        matchTieBreak.bottom.trim(),
+        matchTieBreak: true,
+      ),
+    ],
+  ];
+
+  bool sent(int? sideId, String? set, bool stb, bool mtb) => scores.any(
+    (e) =>
+        e['event_match_side_id'] == sideId &&
+        e['set'] == set &&
+        e['set_tie_breaker'] == stb &&
+        e['match_tie_breaker'] == mtb,
+  );
+  final cleared = [
     for (final side in match.eventMatchSides ?? const <EventMatchSide>[])
       for (final s in side.eventScores ?? const <EventScore>[])
-        if (!s.isRegularSet && (s.score ?? '').isNotEmpty)
+        if (!s.isRegularSet &&
+            s.id != null &&
+            (s.score ?? '').isNotEmpty &&
+            !sent(
+              side.id,
+              s.set,
+              s.setTieBreaker ?? false,
+              s.matchTieBreaker ?? false,
+            ))
           {
-            'event_match_side_id': side.id,
-            'set': s.set,
-            'score': s.score,
-            'set_tie_breaker': s.setTieBreaker ?? false,
-            'match_tie_breaker': s.matchTieBreaker ?? false,
+            'id': s.id,
+            ...entry(
+              side.id!,
+              s.set ?? '',
+              '',
+              setTieBreak: s.setTieBreaker ?? false,
+              matchTieBreak: s.matchTieBreaker ?? false,
+            ),
           },
   ];
+
   return {
     'event_match': {
-      'deciding_set_type': match.decidingSetType,
-      'event_scores_attributes': [
-        for (var i = 0; i < sets.length; i++)
-          if (sets[i].top.trim().isNotEmpty &&
-              sets[i].bottom.trim().isNotEmpty) ...[
-            entry(topId, '${i + 1}', sets[i].top.trim()),
-            entry(bottomId, '${i + 1}', sets[i].bottom.trim()),
-          ],
-        ...kept,
-      ],
+      'deciding_set_type': decidingSetType ?? match.decidingSetType,
+      'event_scores_attributes': [...scores, ...cleared],
       'request_unfinished_match': unfinished,
     },
   };
 }
 
-/// "6-4, 3-6, 7-5" for the sets with scores, else an empty string.
-String scoreSummary(EventMatch match) => [
-  for (final s in prefillSets(match))
-    if (s.top.isNotEmpty && s.bottom.isNotEmpty) '${s.top}-${s.bottom}',
-].join(', ');
+/// "6-4, 7-6(5), [10-8]" for the sets with scores: a set tie-break shows the
+/// loser's points in brackets, a match tie-break the whole score.
+String scoreSummary(EventMatch match) {
+  final tieBreaks = prefillTieBreaks(match);
+  final parts = <String>[];
+  final sets = prefillSets(match);
+  for (var i = 0; i < sets.length; i++) {
+    final s = sets[i];
+    if (s.top.isEmpty || s.bottom.isEmpty) continue;
+    final tb = tieBreaks[i + 1];
+    final loser = tb == null
+        ? null
+        : [int.tryParse(tb.top), int.tryParse(tb.bottom)]
+              .whereType<int>()
+              .fold<int?>(null, (m, v) => m == null || v < m ? v : m);
+    parts.add('${s.top}-${s.bottom}${loser == null ? '' : '($loser)'}');
+  }
+  final mtb = prefillMatchTieBreak(match);
+  if (mtb != null && mtb.top.isNotEmpty && mtb.bottom.isNotEmpty) {
+    parts.add('[${mtb.top}-${mtb.bottom}]');
+  }
+  return parts.join(', ');
+}
 
 // --- Players ------------------------------------------------------------------
 

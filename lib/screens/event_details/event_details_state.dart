@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/rsvp_actions.dart';
 
-enum FeedbackKind { rsvp, cancel }
+enum FeedbackKind { rsvp, cancel, scores }
 
 /// One-shot message to show after an action (snack bar).
 class EventFeedback {
@@ -21,6 +21,7 @@ class EventDetailsState {
     this.event = const AsyncLoading(),
     this.busyAction,
     this.cancelling = false,
+    this.acceptingScores = false,
     this.feedback,
     this.cancelled = false,
     this.removed = false,
@@ -31,6 +32,9 @@ class EventDetailsState {
   /// RSVP action in flight (buttons disabled meanwhile).
   final RsvpAction? busyAction;
   final bool cancelling;
+
+  /// `accept_scores` in flight.
+  final bool acceptingScores;
   final EventFeedback? feedback;
 
   /// The event was cancelled by this user (details reload shows the status).
@@ -39,12 +43,13 @@ class EventDetailsState {
   /// The event was cancelled and removed; the screen should close.
   final bool removed;
 
-  bool get busy => busyAction != null || cancelling;
+  bool get busy => busyAction != null || cancelling || acceptingScores;
 
   EventDetailsState copyWith({
     AsyncValue<EventDetails>? event,
     RsvpAction? Function()? busyAction,
     bool? cancelling,
+    bool? acceptingScores,
     EventFeedback? Function()? feedback,
     bool? cancelled,
     bool? removed,
@@ -52,6 +57,7 @@ class EventDetailsState {
     event: event ?? this.event,
     busyAction: busyAction != null ? busyAction() : this.busyAction,
     cancelling: cancelling ?? this.cancelling,
+    acceptingScores: acceptingScores ?? this.acceptingScores,
     feedback: feedback != null ? feedback() : this.feedback,
     cancelled: cancelled ?? this.cancelled,
     removed: removed ?? this.removed,

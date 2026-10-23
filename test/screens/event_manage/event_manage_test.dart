@@ -47,10 +47,13 @@ Future<_Open> _open(
   String? route,
   AppFailure? failure,
   List<AppUser> people = const [],
+  void Function(Map<String, dynamic> event)? edit,
 }) async {
   useTallScreen(tester);
+  final json = apiFixture(fixture);
+  if (edit != null) edit(json['event'] as Map<String, dynamic>);
   final schedule = FakeScheduleRepository(
-    event: EventDetailsResponse.fromJson(apiFixture(fixture)).event,
+    event: EventDetailsResponse.fromJson(json).event,
   );
   final actions = FakeEventActionsRepository(failure: failure);
   final create = FakeCreateEventRepository(players: people);
@@ -555,6 +558,173 @@ void main() {
       handle.dispose();
     });
 
+    List<Map<String, dynamic>> sentScores(_Open o) =>
+        (((o.actions.manageCalls.single.data!
+                        as Map<String, dynamic>)['event_match']
+                    as Map<String, dynamic>)['event_scores_attributes']
+                as List)
+            .cast<Map<String, dynamic>>();
+
+    Future<void> type(WidgetTester tester, String id, String text) =>
+        tester.enterText(_field(id), text);
+
+    testWidgets('a stored set tie-break is shown and kept', (tester) async {
+      final handle = tester.ensureSemantics();
+      final o = await _open(
+        tester,
+        'events_show_manage_game',
+        route: AppRoutes.eventManageScoreFor(101, 301),
+      );
+      expect(
+        tester
+            .widget<TextField>(
+              _field(EventManageScoreEntryTestIds.tieBreakTop(2)),
+            )
+            .controller!
+            .text,
+        '7',
+      );
+      expect(
+        tester
+            .widget<TextField>(
+              _field(EventManageScoreEntryTestIds.tieBreakBottom(2)),
+            )
+            .controller!
+            .text,
+        '5',
+      );
+      await _tap(tester, EventManageScoreEntryTestIds.save);
+      expect(
+        sentScores(o)
+            .where((s) => s['set_tie_breaker'] == true)
+            .map((s) => (s['event_match_side_id'], s['score'])),
+        [(401, '7'), (402, '5')],
+      );
+      handle.dispose();
+    });
+
+    testWidgets('a level set asks for its tie-break', (tester) async {
+      final handle = tester.ensureSemantics();
+      final o = await _open(
+        tester,
+        'events_show_manage_game',
+        route: AppRoutes.eventManageScoreFor(101, 301),
+      );
+      expect(_id(EventManageScoreEntryTestIds.tieBreakTop(3)), findsNothing);
+      await type(tester, EventManageScoreEntryTestIds.top(3), '6');
+      await type(tester, EventManageScoreEntryTestIds.bottom(3), '6');
+      await tester.pump();
+      expect(_id(EventManageScoreEntryTestIds.tieBreakTop(3)), findsOneWidget);
+
+      await _tap(tester, EventManageScoreEntryTestIds.save);
+      expect(o.actions.manageCalls, isEmpty);
+      expect(find.text('Enter both scores of a set.'), findsOneWidget);
+
+      await type(tester, EventManageScoreEntryTestIds.tieBreakTop(3), '7');
+      await type(tester, EventManageScoreEntryTestIds.tieBreakBottom(3), '7');
+      await tester.pump();
+      await _tap(tester, EventManageScoreEntryTestIds.save);
+      expect(o.actions.manageCalls, isEmpty);
+      expect(find.text('A tie-break cannot end level.'), findsOneWidget);
+
+      await type(tester, EventManageScoreEntryTestIds.tieBreakBottom(3), '5');
+      await tester.pump();
+      await _tap(tester, EventManageScoreEntryTestIds.save);
+      expect(
+        sentScores(o)
+            .where((s) => s['set'] == '3' && s['set_tie_breaker'] == true)
+            .map((s) => (s['event_match_side_id'], s['score'])),
+        [(401, '7'), (402, '5')],
+      );
+      handle.dispose();
+    });
+
+    testWidgets('level sets offer a match tie-break for the last set', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final o = await _open(
+        tester,
+        'events_show_manage_game',
+        route: AppRoutes.eventManageScoreFor(101, 301),
+      );
+      expect(_id(EventManageScoreEntryTestIds.decidingPrompt), findsNothing);
+      // Second set 3-6: one set each.
+      await type(tester, EventManageScoreEntryTestIds.top(2), '3');
+      await type(tester, EventManageScoreEntryTestIds.bottom(2), '6');
+      await tester.pump();
+      expect(
+        _id(EventManageScoreEntryTestIds.tieBreakTop(2)),
+        findsNothing,
+      ); // no longer the 7-6 it was
+      expect(_id(EventManageScoreEntryTestIds.decidingPrompt), findsOneWidget);
+      expect(_id(EventManageScoreEntryTestIds.top(3)), findsOneWidget);
+
+      await _tap(
+        tester,
+        EventManageScoreEntryTestIds.deciding('dst_tie_break'),
+      );
+      expect(_id(EventManageScoreEntryTestIds.top(3)), findsNothing);
+      expect(
+        _id(EventManageScoreEntryTestIds.matchTieBreakTop),
+        findsOneWidget,
+      );
+      expect(_id(EventManageScoreEntryTestIds.decidingPrompt), findsNothing);
+
+      await _tap(tester, EventManageScoreEntryTestIds.save);
+      expect(o.actions.manageCalls, isEmpty); // the tie-break is needed now
+
+      await type(tester, EventManageScoreEntryTestIds.matchTieBreakTop, '10');
+      await type(tester, EventManageScoreEntryTestIds.matchTieBreakBottom, '8');
+      await tester.pump();
+      expect(find.text('Sets won: 2 – 1'), findsOneWidget);
+      await _tap(tester, EventManageScoreEntryTestIds.save);
+
+      final match =
+          (o.actions.manageCalls.single.data!
+                  as Map<String, dynamic>)['event_match']
+              as Map<String, dynamic>;
+      expect(match['deciding_set_type'], 'dst_tie_break');
+      final scores = sentScores(o);
+      expect(
+        scores
+            .where((s) => s['match_tie_breaker'] == true)
+            .map((s) => (s['event_match_side_id'], s['set'], s['score'])),
+        [(401, '6', '10'), (402, '6', '8')],
+      );
+      // The old 7-5 tie-break of set 2 is cleared by its id.
+      final cleared = scores.where((s) => s.containsKey('id'));
+      expect(cleared.map((s) => s['score']), ['', '']);
+      handle.dispose();
+    });
+
+    testWidgets('a regular last set needs no tie-break', (tester) async {
+      final handle = tester.ensureSemantics();
+      final o = await _open(
+        tester,
+        'events_show_manage_game',
+        route: AppRoutes.eventManageScoreFor(101, 301),
+      );
+      await type(tester, EventManageScoreEntryTestIds.top(2), '3');
+      await type(tester, EventManageScoreEntryTestIds.bottom(2), '6');
+      await tester.pump();
+      await _tap(
+        tester,
+        EventManageScoreEntryTestIds.deciding('dst_regular_set'),
+      );
+      expect(_id(EventManageScoreEntryTestIds.matchTieBreakTop), findsNothing);
+      await type(tester, EventManageScoreEntryTestIds.top(3), '6');
+      await type(tester, EventManageScoreEntryTestIds.bottom(3), '2');
+      await tester.pump();
+      await _tap(tester, EventManageScoreEntryTestIds.save);
+      final match =
+          (o.actions.manageCalls.single.data!
+                  as Map<String, dynamic>)['event_match']
+              as Map<String, dynamic>;
+      expect(match['deciding_set_type'], 'dst_regular_set');
+      handle.dispose();
+    });
+
     testWidgets('a score the server rejects shows its message', (tester) async {
       final handle = tester.ensureSemantics();
       final o = await _open(
@@ -566,7 +736,7 @@ void main() {
       await tester.enterText(_field(EventManageScoreEntryTestIds.top(3)), '9');
       await tester.enterText(
         _field(EventManageScoreEntryTestIds.bottom(3)),
-        '9',
+        '8',
       );
       await tester.pump();
       await _tap(tester, EventManageScoreEntryTestIds.save);

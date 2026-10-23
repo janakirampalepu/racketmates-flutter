@@ -25,6 +25,9 @@ abstract class EventActionsRepository {
 
   Future<EventDetailsResponse> joinWaitlist(int eventId, int participantId);
 
+  /// `POST accept_scores`: confirms the submitted scores.
+  Future<EventDetailsResponse> acceptScores(int eventId);
+
   /// `PUT cancel_event`; [removeEvent] also deletes it from the schedule.
   Future<void> cancelEvent(
     int eventId, {
@@ -111,6 +114,10 @@ class EventActionsRepositoryImpl implements EventActionsRepository {
   @override
   Future<EventDetailsResponse> joinWaitlist(int eventId, int participantId) =>
       _guard(() => api.joinWaitlist(eventId, participantId, {}));
+
+  @override
+  Future<EventDetailsResponse> acceptScores(int eventId) =>
+      _guard(() => api.acceptScores(eventId));
 
   @override
   Future<void> cancelEvent(

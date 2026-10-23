@@ -1623,6 +1623,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventScoreErrorNumber => 'Scores are whole numbers.';
 
   @override
+  String get eventConfirmScores => 'Confirm scores';
+
+  @override
+  String get eventScoresConfirmed => 'Scores confirmed.';
+
+  @override
+  String get eventScoresConfirmFailed =>
+      'The scores could not be confirmed. Please try again.';
+
+  @override
+  String get eventScoreErrorTieBreak => 'A tie-break cannot end level.';
+
+  @override
+  String eventScoreTieBreak(int set) {
+    return 'Tie-break, set $set';
+  }
+
+  @override
+  String get eventScoreMatchTieBreak => 'Match tie-break';
+
+  @override
+  String get eventScoreDecidingPrompt =>
+      'The sets are level. How is the last set played?';
+
+  @override
   String get eventScoreNone => 'No score yet';
 
   @override

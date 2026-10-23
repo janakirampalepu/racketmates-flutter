@@ -650,6 +650,21 @@
   "eventScoreErrorNone": "Enter a score.",
   "eventScoreErrorIncomplete": "Enter both scores of a set.",
   "eventScoreErrorNumber": "Scores are whole numbers.",
+  "eventConfirmScores": "Confirm scores",
+  "eventScoresConfirmed": "Scores confirmed.",
+  "eventScoresConfirmFailed": "The scores could not be confirmed. Please try again.",
+  "eventScoreErrorTieBreak": "A tie-break cannot end level.",
+  "eventScoreTieBreak": "Tie-break, set {set}",
+  "@eventScoreTieBreak": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "set": {
+        "type": "int"
+      }
+    }
+  },
+  "eventScoreMatchTieBreak": "Match tie-break",
+  "eventScoreDecidingPrompt": "The sets are level. How is the last set played?",
   "eventScoreNone": "No score yet",
   "eventScoreUnfinishedTag": "Unfinished",
   "eventScoreClearUnfinished": "Remove unfinished status",

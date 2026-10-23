@@ -129,10 +129,16 @@ class EventDetailsScreen extends ConsumerWidget {
 
     ref.listen(provider.select((s) => s.feedback), (_, feedback) {
       if (feedback == null) return;
-      final cancel = feedback.kind == FeedbackKind.cancel;
-      final fallback = feedback.isError
-          ? (cancel ? l10n.cancelEventFailed : l10n.rsvpActionFailed)
-          : (cancel ? l10n.cancelEventDone : l10n.rsvpDone);
+      final fallback = switch (feedback.kind) {
+        FeedbackKind.cancel =>
+          feedback.isError ? l10n.cancelEventFailed : l10n.cancelEventDone,
+        FeedbackKind.scores =>
+          feedback.isError
+              ? l10n.eventScoresConfirmFailed
+              : l10n.eventScoresConfirmed,
+        FeedbackKind.rsvp =>
+          feedback.isError ? l10n.rsvpActionFailed : l10n.rsvpDone,
+      };
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(feedback.text ?? fallback)));
       vm.clearFeedback();
@@ -145,6 +151,7 @@ class EventDetailsScreen extends ConsumerWidget {
     final options = event == null
         ? const <RsvpOption>[]
         : rsvpOptionsFor(event);
+    final confirmScores = event != null && canConfirmScores(event);
     final chatOptions = event == null
         ? const <EventChatOption>[]
         : chatOptionsFor(ref, event);
@@ -201,7 +208,7 @@ class EventDetailsScreen extends ConsumerWidget {
             ),
         ],
       ),
-      bottomNavigationBar: options.isEmpty
+      bottomNavigationBar: options.isEmpty && !confirmScores
           ? null
           : SafeArea(
               child: TestId(
@@ -210,6 +217,25 @@ class EventDetailsScreen extends ConsumerWidget {
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                   child: Row(
                     children: [
+                      if (confirmScores)
+                        Expanded(
+                          child: TestId(
+                            EventDetailsTestIds.confirmScores,
+                            child: FilledButton(
+                              onPressed: state.busy ? null : vm.acceptScores,
+                              child: state.acceptingScores
+                                  ? const SizedBox.square(
+                                      dimension: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Text(l10n.eventConfirmScores),
+                            ),
+                          ),
+                        ),
+                      if (confirmScores && options.isNotEmpty)
+                        const SizedBox(width: 12),
                       for (final option in options) ...[
                         Expanded(
                           child: TestId(

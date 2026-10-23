@@ -103,6 +103,28 @@ class EventMatchSide {
     return names.isNotEmpty ? names.join(', ') : (teamName ?? '');
   }
 
+  /// Score of the set tie-break of [set], if entered.
+  String? tieBreakOfSet(String set) {
+    for (final s in eventScores ?? const <EventScore>[]) {
+      if ((s.setTieBreaker ?? false) &&
+          s.set == set &&
+          (s.score ?? '').isNotEmpty) {
+        return s.score;
+      }
+    }
+    return null;
+  }
+
+  /// Score of the match tie-break, if entered.
+  String? get matchTieBreakScore {
+    for (final s in eventScores ?? const <EventScore>[]) {
+      if ((s.matchTieBreaker ?? false) && (s.score ?? '').isNotEmpty) {
+        return s.score;
+      }
+    }
+    return null;
+  }
+
   /// Score of regular [set] ("1", "2", ...), if entered.
   String? scoreOfSet(String set) {
     for (final s in eventScores ?? const <EventScore>[]) {

@@ -102,6 +102,33 @@ class EventDetailsViewModel extends Notifier<EventDetailsState> {
     }
   }
 
+  /// Confirms the scores another player submitted (`accept_scores`).
+  Future<void> acceptScores() async {
+    if (state.busy) return;
+    state = state.copyWith(acceptingScores: true, feedback: () => null);
+    try {
+      final response = await ref
+          .read(eventActionsRepositoryProvider)
+          .acceptScores(eventId);
+      if (!ref.mounted) return;
+      final updated = response.event;
+      state = state.copyWith(
+        event: updated == null ? null : AsyncData(updated),
+        acceptingScores: false,
+        feedback: () => const EventFeedback.success(FeedbackKind.scores),
+      );
+      _refreshLists();
+      if (updated == null) await load();
+    } on AppFailure catch (failure) {
+      if (!ref.mounted) return;
+      state = state.copyWith(
+        acceptingScores: false,
+        feedback: () =>
+            EventFeedback.error(FeedbackKind.scores, _messageOf(failure)),
+      );
+    }
+  }
+
   /// Cancels the event (optionally removing it from the schedule).
   Future<void> cancelEvent({String? reason, bool removeEvent = false}) async {
     if (state.busy) return;
@@ -147,6 +174,16 @@ final eventDetailsViewModelProvider = NotifierProvider.autoDispose
     .family<EventDetailsViewModel, EventDetailsState, int>(
       EventDetailsViewModel.new,
     );
+
+/// Whether the server offers the signed-in user *confirm scores* (native
+/// `hasAction(EVENT_VIEW_CONFIRM_SCORES)`): the primary or secondary action,
+/// enabled.
+bool canConfirmScores(EventDetails event) {
+  final mine = event.currentUserEventDetails?.firstOrNull;
+  return [mine?.primaryAction, mine?.secondaryAction].any(
+    (a) => a?.action == 'user_action_confirm_scores' && (a?.enabled ?? false),
+  );
+}
 
 /// Whether the signed-in user may cancel this event (`event.manage`).
 bool canCancelEvent(EventDetails event) =>

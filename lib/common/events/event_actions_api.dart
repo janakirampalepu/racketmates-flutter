@@ -50,6 +50,10 @@ abstract class EventActionsApi {
     @Body() Map<String, dynamic> body,
   );
 
+  /// Confirms the scores another player submitted (event level).
+  @POST('events/{eventId}/accept_scores')
+  Future<EventDetailsResponse> acceptScores(@Path('eventId') int eventId);
+
   // --- Manage (organizer) actions; the event is reloaded afterwards ---
 
   @PUT('events/{eventId}/update_settings')

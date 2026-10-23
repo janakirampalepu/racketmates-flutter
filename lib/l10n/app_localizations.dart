@@ -3070,6 +3070,48 @@ abstract class AppLocalizations {
   /// **'Scores are whole numbers.'**
   String get eventScoreErrorNumber;
 
+  /// No description provided for @eventConfirmScores.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm scores'**
+  String get eventConfirmScores;
+
+  /// No description provided for @eventScoresConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Scores confirmed.'**
+  String get eventScoresConfirmed;
+
+  /// No description provided for @eventScoresConfirmFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The scores could not be confirmed. Please try again.'**
+  String get eventScoresConfirmFailed;
+
+  /// No description provided for @eventScoreErrorTieBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'A tie-break cannot end level.'**
+  String get eventScoreErrorTieBreak;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Tie-break, set {set}'**
+  String eventScoreTieBreak(int set);
+
+  /// No description provided for @eventScoreMatchTieBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Match tie-break'**
+  String get eventScoreMatchTieBreak;
+
+  /// No description provided for @eventScoreDecidingPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'The sets are level. How is the last set played?'**
+  String get eventScoreDecidingPrompt;
+
   /// No description provided for @eventScoreNone.
   ///
   /// In en, this message translates to:

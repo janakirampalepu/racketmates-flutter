@@ -91,11 +91,21 @@ class EventManageViewModel extends Notifier<EventManageState> {
     EventMatch match,
     List<SetScore> sets, {
     required bool unfinished,
+    TieBreaks tieBreaks = const {},
+    SetScore? matchTieBreak,
+    String? decidingSetType,
   }) => _run(
     () => _repo.updateScores(
       eventId,
       match.id!,
-      buildUpdateScoresBody(match, sets, unfinished: unfinished),
+      buildUpdateScoresBody(
+        match,
+        sets,
+        unfinished: unfinished,
+        tieBreaks: tieBreaks,
+        matchTieBreak: matchTieBreak,
+        decidingSetType: decidingSetType,
+      ),
     ),
   );
 

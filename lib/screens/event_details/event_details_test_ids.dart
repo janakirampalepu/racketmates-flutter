@@ -21,6 +21,7 @@ abstract final class EventDetailsTestIds {
   static const cancelRemoveSwitch = 'event_cancel_remove_switch';
   static const cancelConfirm = 'event_cancel_confirm_button';
   static const cancelKeep = 'event_cancel_keep_button';
+  static const confirmScores = 'event_details_confirm_scores_button';
   static String player(int id) => 'event_details_player_$id';
   static String action(String name) => 'event_details_action_$name';
 }

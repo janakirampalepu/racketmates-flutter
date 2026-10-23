@@ -585,6 +585,10 @@ class FakeEventActionsRepository implements EventActionsRepository {
   }
 
   @override
+  Future<EventDetailsResponse> acceptScores(int eventId) =>
+      _rsvp('acceptScores');
+
+  @override
   Future<void> updateSettings(int eventId, Map<String, dynamic> body) =>
       _manage('updateSettings:$eventId', body);
 

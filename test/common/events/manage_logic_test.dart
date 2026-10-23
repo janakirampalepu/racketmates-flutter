@@ -260,7 +260,7 @@ void main() {
         (top: '7', bottom: '6'),
         (top: '', bottom: ''),
       ]);
-      expect(scoreSummary(m), '6-4, 7-6');
+      expect(scoreSummary(m), '6-4, 7-6(5)');
       final open = _event('events_show_manage_game').eventMatches!.last;
       expect(prefillSets(open), [(top: '', bottom: '')]); // single set
       expect(scoreSummary(open), isEmpty);
@@ -299,11 +299,17 @@ void main() {
 
     test('empty sets are skipped and tie-breaks are sent back unchanged', () {
       final m = _event('events_show_manage_game').eventMatches!.first;
-      final body = buildUpdateScoresBody(m, [
-        (top: '6', bottom: '4'),
-        (top: '7', bottom: '6'),
-        (top: '', bottom: ''),
-      ], unfinished: true);
+      final body = buildUpdateScoresBody(
+        m,
+        [
+          (top: '6', bottom: '4'),
+          (top: '7', bottom: '6'),
+          (top: '', bottom: ''),
+        ],
+        unfinished: true,
+        tieBreaks: prefillTieBreaks(m),
+        decidingSetType: 'dst_decide_later',
+      );
       final match = body['event_match'] as Map<String, dynamic>;
       expect(match['deciding_set_type'], 'dst_decide_later');
       expect(match['request_unfinished_match'], isTrue);
@@ -320,6 +326,22 @@ void main() {
       expect(scores.every((s) => !s.containsKey('id')), isTrue);
     });
 
+    test('a tie-break that is no longer entered is cleared by its id', () {
+      final m = _event('events_show_manage_game').eventMatches!.first;
+      // The second set is now 3-6: no tie-break any more.
+      final body = buildUpdateScoresBody(m, [
+        (top: '6', bottom: '4'),
+        (top: '3', bottom: '6'),
+      ], unfinished: false);
+      final scores =
+          ((body['event_match'] as Map)['event_scores_attributes'] as List)
+              .cast<Map<String, dynamic>>();
+      final cleared = scores.where((s) => s.containsKey('id')).toList();
+      expect(cleared, hasLength(2));
+      expect(cleared.every((s) => s['score'] == '' && s['set'] == '2'), isTrue);
+      expect(cleared.every((s) => s['set_tie_breaker'] == true), isTrue);
+    });
+
     test('a match without sides cannot be scored', () {
       expect(
         () => buildUpdateScoresBody(const EventMatch(id: 1), [
@@ -327,6 +349,220 @@ void main() {
         ], unfinished: false),
         throwsStateError,
       );
+    });
+  });
+
+  group('tie-breaks', () {
+    test('only tennis and padel have them', () {
+      expect(allowsTieBreak('st_tennis'), isTrue);
+      expect(allowsTieBreak('st_padel'), isTrue);
+      expect(allowsTieBreak('st_pickleball'), isFalse);
+      expect(allowsTieBreak(null), isFalse);
+    });
+
+    test('a set is tied at the minimum score', () {
+      bool tied(String a, String b, {int min = 6, bool allow = true}) =>
+          needsSetTieBreak((top: a, bottom: b), allow: allow, minimum: min);
+      expect(tied('6', '6'), isTrue);
+      expect(tied('7', '7'), isTrue);
+      expect(tied('5', '5'), isFalse);
+      expect(tied('6', '4'), isFalse);
+      expect(tied('', ''), isFalse);
+      expect(tied('6', '6', allow: false), isFalse);
+      expect(tied('0', '0', min: 0), isFalse);
+    });
+
+    test('a tied set goes to its tie-break', () {
+      expect(setWinner((top: '6', bottom: '4')), 1);
+      expect(setWinner((top: '4', bottom: '6')), -1);
+      expect(setWinner((top: '6', bottom: '6')), 0);
+      expect(setWinner((top: '6', bottom: '6'), (top: '5', bottom: '7')), -1);
+      expect(setWinner((top: '6', bottom: '6'), (top: '7', bottom: '7')), 0);
+      expect(setWinner((top: '', bottom: '')), 0);
+    });
+
+    test('sets won count tie-breaks and a match tie-break', () {
+      expect(
+        setsWon(
+          [(top: '6', bottom: '6'), (top: '3', bottom: '6')],
+          tieBreaks: {1: (top: '7', bottom: '4')},
+        ),
+        (top: 1, bottom: 1),
+      );
+      expect(
+        setsWon(
+          [(top: '6', bottom: '4'), (top: '3', bottom: '6')],
+          matchTieBreak: (top: '8', bottom: '10'),
+        ),
+        (top: 1, bottom: 2),
+      );
+    });
+
+    group('layout', () {
+      const level = [(top: '6', bottom: '4'), (top: '3', bottom: '6')];
+      ScoreLayout layout({
+        String format = 'sf_best_of_3_sets',
+        String sport = 'st_tennis',
+        String? deciding,
+        List<SetScore> sets = level,
+      }) => scoreLayout(
+        format: format,
+        sportType: sport,
+        decidingSetType: deciding,
+        sets: sets,
+      );
+
+      test('level sets ask how the last set is played', () {
+        expect(layout().askDecidingSet, isTrue);
+        expect(layout(deciding: 'dst_decide_later').askDecidingSet, isTrue);
+        expect(layout().setRows, 3);
+        expect(layout().matchTieBreakRow, isFalse);
+      });
+
+      test('not asked once decided, in other sports or when not level', () {
+        expect(layout(deciding: 'dst_regular_set').askDecidingSet, isFalse);
+        expect(layout(sport: 'st_pickleball').askDecidingSet, isFalse);
+        expect(
+          layout(sets: const [(top: '6', bottom: '4'), (top: '6', bottom: '3')])
+              .askDecidingSet,
+          isFalse,
+        );
+      });
+
+      test('a tie-break replaces the last set', () {
+        final l = layout(deciding: 'dst_tie_break');
+        expect(l.setRows, 2);
+        expect(l.matchTieBreakRow, isTrue);
+        expect(l.askDecidingSet, isFalse);
+        final five = layout(
+          format: 'sf_best_of_5_sets',
+          deciding: 'dst_tie_break',
+        );
+        expect(five.setRows, 4);
+        expect(five.matchTieBreakRow, isTrue);
+      });
+
+      test('best of five asks at two sets each', () {
+        const twoTwo = [
+          (top: '6', bottom: '4'),
+          (top: '4', bottom: '6'),
+          (top: '6', bottom: '3'),
+          (top: '2', bottom: '6'),
+        ];
+        expect(
+          layout(format: 'sf_best_of_5_sets', sets: twoTwo).askDecidingSet,
+          isTrue,
+        );
+        expect(
+          layout(
+            format: 'sf_best_of_5_sets',
+            sets: twoTwo.take(2).toList(),
+          ).askDecidingSet,
+          isFalse,
+        );
+      });
+
+      test('single sets and other formats have no tie-break row', () {
+        final l = layout(format: 'sf_single_set', deciding: 'dst_tie_break');
+        expect(l.setRows, 1);
+        expect(l.matchTieBreakRow, isFalse);
+      });
+    });
+
+    test('validation needs both tie-break scores, apart', () {
+      List<ScoreError> check({
+        TieBreaks tb = const {},
+        SetScore? mtb,
+        bool mtbNeeded = false,
+      }) => validateTieBreaks(
+        [(top: '6', bottom: '6')],
+        tieBreaks: tb,
+        matchTieBreak: mtb,
+        allow: true,
+        minimum: 6,
+        matchTieBreakNeeded: mtbNeeded,
+      );
+      expect(check(), [ScoreError.incompleteSet]);
+      expect(check(tb: {1: (top: '7', bottom: '')}), [
+        ScoreError.incompleteSet,
+      ]);
+      expect(check(tb: {1: (top: '7', bottom: 'x')}), [ScoreError.notANumber]);
+      expect(check(tb: {1: (top: '7', bottom: '7')}), [
+        ScoreError.tieBreakDrawn,
+      ]);
+      expect(check(tb: {1: (top: '7', bottom: '5')}), isEmpty);
+      expect(
+        check(
+          tb: {1: (top: '7', bottom: '5')},
+          mtb: (top: '', bottom: ''),
+          mtbNeeded: true,
+        ),
+        [ScoreError.incompleteSet],
+      );
+      expect(
+        check(tb: {1: (top: '7', bottom: '5')}, mtb: (top: '', bottom: '')),
+        isEmpty,
+      );
+    });
+
+    test(
+      'the body carries tie-breaks, the match tie-break and deciding type',
+      () {
+        final m = _event('events_show_manage_game').eventMatches!.last;
+        final body = buildUpdateScoresBody(
+          m,
+          [(top: '6', bottom: '6')],
+          unfinished: false,
+          tieBreaks: {1: (top: '7', bottom: '5')},
+          matchTieBreak: (top: '10', bottom: '8'),
+          decidingSetType: 'dst_tie_break',
+        );
+        final match = body['event_match'] as Map<String, dynamic>;
+        expect(match['deciding_set_type'], 'dst_tie_break');
+        final scores = (match['event_scores_attributes'] as List)
+            .cast<Map<String, dynamic>>();
+        (int, String, String, bool, bool) key(Map<String, dynamic> s) => (
+          s['event_match_side_id'] as int,
+          s['set'] as String,
+          s['score'] as String,
+          s['set_tie_breaker'] as bool,
+          s['match_tie_breaker'] as bool,
+        );
+        expect(scores.map(key), [
+          (403, '1', '6', false, false),
+          (404, '1', '6', false, false),
+          (403, '1', '7', true, false),
+          (404, '1', '5', true, false),
+          (403, '6', '10', false, true),
+          (404, '6', '8', false, true),
+        ]);
+      },
+    );
+
+    test('stored tie-breaks are read back', () {
+      final m = _event('events_show_manage_game').eventMatches!.first;
+      expect(prefillTieBreaks(m), {2: (top: '7', bottom: '5')});
+      expect(prefillMatchTieBreak(m), isNull);
+      const withMtb = EventMatch(
+        eventMatchSides: [
+          EventMatchSide(
+            id: 1,
+            side: 'ecs_top',
+            eventScores: [
+              EventScore(set: '6', score: '10', matchTieBreaker: true),
+            ],
+          ),
+          EventMatchSide(
+            id: 2,
+            side: 'ecs_bottom',
+            eventScores: [
+              EventScore(set: '6', score: '8', matchTieBreaker: true),
+            ],
+          ),
+        ],
+      );
+      expect(prefillMatchTieBreak(withMtb), (top: '10', bottom: '8'));
+      expect(scoreSummary(withMtb), '[10-8]');
     });
   });
 
