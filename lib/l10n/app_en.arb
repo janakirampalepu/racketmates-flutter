@@ -640,6 +640,7 @@
   "eventPartnerChooseAction": "Choose a partner",
   "eventPrefsSaved": "Your game preferences were saved.",
   "eventPrefsFailed": "Your preferences could not be saved. Please try again.",
+  "kidSportsLabel": "Sports",
   "eventPairsTitle": "Pairs",
   "eventPairsInfo": "Create pairs for your round robin. Players who aren't paired play singles.",
   "eventPairsHeading": "Pairs",

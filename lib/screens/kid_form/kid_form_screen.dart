@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
+import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/errors/failure_message.dart';
 import 'package:racketmates/common/phone/country.dart';
@@ -10,7 +11,7 @@ import 'package:racketmates/common/phone/phone_formatting.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
 import 'package:racketmates/common/sign_up/sign_up_flow.dart';
 import 'package:racketmates/common/sign_up/sport_labels.dart';
-import 'package:racketmates/common/widgets/step_scaffold.dart';
+import 'package:racketmates/common/widgets/native_widgets.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/kid_form/kid_form_args.dart';
 import 'package:racketmates/screens/kid_form/kid_form_state.dart';
@@ -92,10 +93,13 @@ class _KidFormScreenState extends ConsumerState<KidFormScreen> {
       null =>
         state.failure == null ? null : failureMessage(l10n, state.failure!),
     };
-    return StepScaffold(
+    final n = context.native;
+    final sdp = context.sdp;
+    return SignUpScaffold(
       rootId: KidFormTestIds.root,
       titleId: KidFormTestIds.title,
       title: l10n.kidFormTitle,
+      titleGap: 14,
       primaryLabel: l10n.saveAction,
       primaryId: KidFormTestIds.save,
       loading: state.loading,
@@ -104,72 +108,94 @@ class _KidFormScreenState extends ConsumerState<KidFormScreen> {
       children: [
         TestId(
           KidFormTestIds.firstName,
-          child: TextField(
+          child: NativeTextField(
             controller: _first,
-            textCapitalization: TextCapitalization.words,
+            label: l10n.firstNameLabel,
+            maxLength: 30,
             textInputAction: TextInputAction.next,
-            decoration: InputDecoration(
-              labelText: l10n.firstNameLabel,
-              errorText: state.firstNameMissing
-                  ? l10n.firstNameRequiredError
-                  : null,
-              border: const OutlineInputBorder(),
-            ),
+            error: state.firstNameMissing ? l10n.firstNameRequiredError : null,
           ),
         ),
-        const SizedBox(height: 16),
         TestId(
           KidFormTestIds.lastName,
-          child: TextField(
+          child: NativeTextField(
             controller: _last,
-            textCapitalization: TextCapitalization.words,
+            label: l10n.lastNameLabel,
+            maxLength: 30,
             textInputAction: TextInputAction.next,
-            decoration: InputDecoration(
-              labelText: l10n.lastNameLabel,
-              errorText: state.lastNameMissing
-                  ? l10n.lastNameRequiredError
-                  : null,
-              border: const OutlineInputBorder(),
-            ),
+            error: state.lastNameMissing ? l10n.lastNameRequiredError : null,
           ),
         ),
-        const SizedBox(height: 16),
         TestId(
           KidFormTestIds.mobile,
-          child: TextField(
+          child: NativeTextField(
             controller: _mobile,
+            label: l10n.kidMobileLabel,
             keyboardType: TextInputType.phone,
+            capitalization: TextCapitalization.none,
             inputFormatters: [
               if (country != null) NationalNumberFormatter(country),
               LengthLimitingTextInputFormatter(32),
             ],
-            decoration: InputDecoration(
-              labelText: l10n.kidMobileLabel,
-              prefixText: country == null ? null : '${country.dialCode} ',
-              errorText: mobileError,
-              border: const OutlineInputBorder(),
+            leading: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: sdp(32),
+                  child: Center(
+                    child: Text(
+                      country?.flag ?? '',
+                      style: TextStyle(
+                        fontSize: sdp(24),
+                        color: n.scheduleDayColor,
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: sdp(4), right: sdp(8)),
+                  child: Text(
+                    country?.dialCode ?? '',
+                    style: NativeText.regular(sdp(12), n.textSecondary),
+                  ),
+                ),
+              ],
             ),
+            error: mobileError,
           ),
         ),
-        const SizedBox(height: 16),
+        Padding(
+          padding: EdgeInsets.only(top: sdp(12), bottom: sdp(10)),
+          child: Text(
+            l10n.kidSportsLabel,
+            style: NativeText.regular(sdp(12), n.textSecondary),
+          ),
+        ),
         if (state.sportMissing)
           TestId(
             KidFormTestIds.sportError,
-            child: Semantics(
-              liveRegion: true,
-              child: Text(
-                l10n.sportRequiredError,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+            child: Padding(
+              padding: EdgeInsets.only(bottom: sdp(8)),
+              child: Semantics(
+                liveRegion: true,
+                child: Text(
+                  l10n.sportRequiredError,
+                  style: NativeText.regular(sdp(12), n.statusColorsLightRed),
+                ),
               ),
             ),
           ),
         for (final sport in SportKey.values)
           TestId(
             KidFormTestIds.sport(sport.key),
-            child: CheckboxListTile(
-              value: _sports.contains(sport),
-              title: Text(sportLabel(l10n, sport)),
-              onChanged: (_) => setState(() {
+            child: NativeChoiceCard(
+              icon: 'ic_${sport.name}_sport',
+              iconSize: 28,
+              padding: 12,
+              titleSize: 12,
+              title: sportLabel(l10n, sport),
+              selected: _sports.contains(sport),
+              onChanged: () => setState(() {
                 _sports = {..._sports};
                 if (!_sports.add(sport)) _sports.remove(sport);
               }),

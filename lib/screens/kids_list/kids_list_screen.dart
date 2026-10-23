@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
+import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/errors/failure_message.dart';
 import 'package:racketmates/common/sign_up/create_account_controller.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
 import 'package:racketmates/common/sign_up/sign_up_flow.dart';
-import 'package:racketmates/common/widgets/step_scaffold.dart';
+import 'package:racketmates/common/widgets/native_widgets.dart';
+import 'package:racketmates/common/sign_up/sport_labels.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/kids_list/kids_list_test_ids.dart';
 
@@ -22,10 +24,13 @@ class KidsListScreen extends ConsumerWidget {
     final kids = draft?.kids ?? const <KidDraft>[];
     final create = ref.watch(createAccountControllerProvider);
     final canAdd = kids.length < SignUpDraft.maxKids;
-    return StepScaffold(
+    final n = context.native;
+    final sdp = context.sdp;
+    return SignUpScaffold(
       rootId: KidsListTestIds.root,
       titleId: KidsListTestIds.title,
       title: l10n.kidsTitle,
+      titleGap: 14,
       primaryLabel: l10n.nextAction,
       primaryId: KidsListTestIds.next,
       loading: create.loading,
@@ -39,22 +44,120 @@ class KidsListScreen extends ConsumerWidget {
             },
       onBack: () => context.pop(),
       children: [
+        TestId(
+          KidsListTestIds.add,
+          child: Padding(
+            padding: EdgeInsets.only(top: sdp(6), bottom: sdp(10)),
+            child: Material(
+              color: n.backgroundSolidSecondary2,
+              borderRadius: BorderRadius.circular(sdp(8)),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(sdp(8)),
+                onTap: canAdd
+                    ? () => context.push(AppRoutes.kidFormFor(fromList: true))
+                    : null,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 48),
+                  child: Padding(
+                    padding: EdgeInsets.all(sdp(10)),
+                    child: Row(
+                      children: [
+                        SvgIcon(
+                          'ic_add_team',
+                          size: sdp(20),
+                          color: n.textPrimary,
+                        ),
+                        SizedBox(width: sdp(8)),
+                        Expanded(
+                          child: Text(
+                            canAdd ? l10n.addKidAction : l10n.kidsMaxReached,
+                            style: NativeText.medium(sdp(12), n.textPrimary),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
         for (var i = 0; i < kids.length; i++)
           TestId(
             KidsListTestIds.kid(i),
-            child: Card(
-              child: ListTile(
-                title: Text('${kids[i].firstName} ${kids[i].lastName}'.trim()),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: sdp(8)),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(sdp(12)),
+                  border: Border.all(
+                    color: n.statusColorsDarkGray,
+                    width: sdp(1),
+                  ),
+                ),
+                child: Row(
                   children: [
-                    TestId(
-                      KidsListTestIds.edit(i),
-                      child: IconButton(
-                        tooltip: l10n.editAction,
-                        icon: const Icon(Icons.edit_outlined),
-                        onPressed: () => context.push(
-                          AppRoutes.kidFormFor(index: i, fromList: true),
+                    Expanded(
+                      child: TestId(
+                        KidsListTestIds.edit(i),
+                        child: Semantics(
+                          button: true,
+                          label: l10n.editAction,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(sdp(12)),
+                            onTap: () => context.push(
+                              AppRoutes.kidFormFor(index: i, fromList: true),
+                            ),
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(minHeight: 48),
+                              child: Padding(
+                                padding: EdgeInsets.all(sdp(10)),
+                                child: Row(
+                                  children: [
+                                    _Initials(kid: kids[i]),
+                                    SizedBox(width: sdp(8)),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${kids[i].firstName} ${kids[i].lastName}'
+                                                .trim(),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: NativeText.semibold(
+                                              sdp(12),
+                                              n.textPrimary,
+                                            ),
+                                          ),
+                                          if (kids[i].sports.isNotEmpty)
+                                            Text(
+                                              [
+                                                for (final sport
+                                                    in kids[i].sports)
+                                                  sportLabel(l10n, sport),
+                                              ].join(', '),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: NativeText.medium(
+                                                sdp(10),
+                                                n.textTertiary,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                    SvgIcon(
+                                      'ic_next_arrow_v2',
+                                      size: sdp(14),
+                                      color: n.textPrimary,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -62,7 +165,10 @@ class KidsListScreen extends ConsumerWidget {
                       KidsListTestIds.remove(i),
                       child: IconButton(
                         tooltip: l10n.removeAction,
-                        icon: const Icon(Icons.delete_outline),
+                        icon: Icon(
+                          Icons.delete_outline,
+                          color: n.statusColorsLightRed,
+                        ),
                         onPressed: () {
                           ref.read(signUpFlowProvider.notifier).removeKid(i);
                           if (ref.read(signUpFlowProvider)!.kids.isEmpty &&
@@ -77,17 +183,6 @@ class KidsListScreen extends ConsumerWidget {
               ),
             ),
           ),
-        const SizedBox(height: 8),
-        TestId(
-          KidsListTestIds.add,
-          child: OutlinedButton.icon(
-            icon: const Icon(Icons.add),
-            onPressed: canAdd
-                ? () => context.push(AppRoutes.kidFormFor(fromList: true))
-                : null,
-            label: Text(canAdd ? l10n.addKidAction : l10n.kidsMaxReached),
-          ),
-        ),
         if (create.failure != null)
           Padding(
             padding: const EdgeInsets.only(top: 12),
@@ -103,6 +198,33 @@ class KidsListScreen extends ConsumerWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// The kid's round picture slot: the initials in lime (native `tvInitials`).
+class _Initials extends StatelessWidget {
+  const _Initials({required this.kid});
+
+  final KidDraft kid;
+
+  @override
+  Widget build(BuildContext context) {
+    final n = context.native;
+    final sdp = context.sdp;
+    String first(String s) => s.trim().isEmpty ? '' : s.trim()[0].toUpperCase();
+    return Container(
+      width: sdp(40),
+      height: sdp(40),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: n.colorPrimary, width: sdp(1)),
+      ),
+      child: Text(
+        '${first(kid.firstName)}${first(kid.lastName)}',
+        style: NativeText.medium(sdp(12), n.mainTertiary),
+      ),
     );
   }
 }

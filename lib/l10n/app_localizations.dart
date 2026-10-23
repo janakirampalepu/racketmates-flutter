@@ -3058,6 +3058,12 @@ abstract class AppLocalizations {
   /// **'Your preferences could not be saved. Please try again.'**
   String get eventPrefsFailed;
 
+  /// No description provided for @kidSportsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sports'**
+  String get kidSportsLabel;
+
   /// No description provided for @eventPairsTitle.
   ///
   /// In en, this message translates to:
@@ -4173,12 +4179,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter a name.'**
   String get kidNameRequired;
-
-  /// No description provided for @kidSportsLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Sports'**
-  String get kidSportsLabel;
 
   /// No description provided for @phoneChangeTitle.
   ///

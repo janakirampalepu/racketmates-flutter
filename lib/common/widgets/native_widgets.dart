@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
@@ -88,6 +89,8 @@ class SignUpScaffold extends StatelessWidget {
     this.onPrimary,
     this.loading = false,
     this.titleGap = 24,
+    this.subtitle,
+    this.secondary,
     super.key,
   });
 
@@ -104,6 +107,12 @@ class SignUpScaffold extends StatelessWidget {
 
   /// The space under the title in sdp (14 on the details form, 24 on lists).
   final double titleGap;
+
+  /// A line under the title (14 sp, secondary colour).
+  final String? subtitle;
+
+  /// Under the primary button, e.g. the "do it later" link.
+  final Widget? secondary;
 
   @override
   Widget build(BuildContext context) {
@@ -129,9 +138,25 @@ class SignUpScaffold extends StatelessWidget {
                       top: sdp(14),
                       bottom: sdp(titleGap),
                     ),
-                    child: titleId == null
-                        ? heading
-                        : TestId(titleId!, child: heading),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        titleId == null
+                            ? heading
+                            : TestId(titleId!, child: heading),
+                        if (subtitle != null)
+                          Padding(
+                            padding: EdgeInsets.only(top: sdp(4)),
+                            child: Text(
+                              subtitle!,
+                              style: NativeText.regular(
+                                sdp(14),
+                                n.textSecondary,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                   ...children,
                 ],
@@ -163,6 +188,11 @@ class SignUpScaffold extends StatelessWidget {
                   ),
                 ),
               ),
+            if (secondary != null)
+              Padding(
+                padding: EdgeInsets.only(bottom: sdp(24)),
+                child: secondary,
+              ),
           ],
         ),
       ),
@@ -183,6 +213,8 @@ class NativeTextField extends StatelessWidget {
     this.autofillHints,
     this.maxLength,
     this.onSubmitted,
+    this.inputFormatters,
+    this.leading,
     super.key,
   });
 
@@ -195,11 +227,38 @@ class NativeTextField extends StatelessWidget {
   final Iterable<String>? autofillHints;
   final int? maxLength;
   final ValueChanged<String>? onSubmitted;
+  final List<TextInputFormatter>? inputFormatters;
+
+  /// Shown inside the box before the text, e.g. the country flag and dial
+  /// code of a mobile number, followed by a divider.
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
     final n = context.native;
     final sdp = context.sdp;
+    final field = TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      textCapitalization: capitalization,
+      autofillHints: autofillHints,
+      inputFormatters: inputFormatters,
+      maxLength: maxLength,
+      maxLines: 1,
+      cursorColor: n.textPrimary,
+      style: NativeText.regular(sdp(12), n.textPrimary),
+      onSubmitted: onSubmitted,
+      decoration: InputDecoration(
+        isDense: true,
+        counterText: '',
+        border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        contentPadding: EdgeInsets.all(sdp(14)),
+      ),
+    );
     return Padding(
       padding: EdgeInsets.only(top: sdp(6)),
       child: Column(
@@ -226,27 +285,22 @@ class NativeTextField extends StatelessWidget {
                   width: sdp(1),
                 ),
               ),
-              child: TextField(
-                controller: controller,
-                keyboardType: keyboardType,
-                textInputAction: textInputAction,
-                textCapitalization: capitalization,
-                autofillHints: autofillHints,
-                maxLength: maxLength,
-                maxLines: 1,
-                cursorColor: n.textPrimary,
-                style: NativeText.regular(sdp(12), n.textPrimary),
-                onSubmitted: onSubmitted,
-                decoration: InputDecoration(
-                  isDense: true,
-                  counterText: '',
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  errorBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.all(sdp(14)),
-                ),
-              ),
+              child: leading == null
+                  ? field
+                  : Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: sdp(4)),
+                          child: leading,
+                        ),
+                        Container(
+                          width: sdp(1),
+                          height: sdp(32),
+                          color: n.signupFieldViewColor,
+                        ),
+                        Expanded(child: field),
+                      ],
+                    ),
             ),
           ),
           if (error != null)
@@ -381,4 +435,57 @@ class NativeChoiceCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The round "add a photo" button of the profile picture screens (native
+/// `add_photo_profile`: a dashed outline, the add icon in the middle).
+class DashedPhotoCircle extends StatelessWidget {
+  const DashedPhotoCircle({required this.size, super.key});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final n = context.native;
+    return CustomPaint(
+      size: Size.square(size),
+      painter: _DashedCirclePainter(
+        fill: n.iconBlack2,
+        stroke: n.borderSolidPrimary,
+      ),
+      child: SizedBox.square(
+        dimension: size,
+        child: const Center(child: SvgIcon('ic_add_profile')),
+      ),
+    );
+  }
+}
+
+class _DashedCirclePainter extends CustomPainter {
+  _DashedCirclePainter({required this.fill, required this.stroke});
+
+  final Color fill;
+  final Color stroke;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    canvas.drawOval(rect, Paint()..color = fill);
+    final path = Path()..addOval(rect.deflate(1));
+    final paint = Paint()
+      ..color = stroke
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    const dash = 10.0;
+    const gap = 7.5;
+    for (final metric in path.computeMetrics()) {
+      for (double d = 0; d < metric.length; d += dash + gap) {
+        canvas.drawPath(metric.extractPath(d, d + dash), paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedCirclePainter old) =>
+      old.fill != fill || old.stroke != stroke;
 }

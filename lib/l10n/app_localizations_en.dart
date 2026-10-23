@@ -1618,6 +1618,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your preferences could not be saved. Please try again.';
 
   @override
+  String get kidSportsLabel => 'Sports';
+
+  @override
   String get eventPairsTitle => 'Pairs';
 
   @override
@@ -2226,9 +2229,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kidNameRequired => 'Enter a name.';
-
-  @override
-  String get kidSportsLabel => 'Sports';
 
   @override
   String get phoneChangeTitle => 'Change mobile number';
