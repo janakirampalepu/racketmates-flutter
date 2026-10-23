@@ -87,6 +87,13 @@ flutter:
     - assets/certs/
     - assets/data/
 
+  # Sendbird UIKit draws its icons from this font but expects the app to
+  # declare it (see sbu_icons.dart in the package).
+  fonts:
+    - family: SendbirdIcons
+      fonts:
+        - asset: packages/sendbird_uikit/fonts/SendbirdIcons.ttf
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

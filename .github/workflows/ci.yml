@@ -1,0 +1,86 @@
+name: CI
+
+# Every pull request and every push to main. Secrets are not needed: builds
+# use throwaway configuration values (the app only has to compile here).
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: 3.47.7 # keep in step with .fvmrc
+
+jobs:
+  quality:
+    name: Format, analyze, test
+    runs-on: ubuntu-latest
+    env:
+      QLTY_COVERAGE_TOKEN: ${{ secrets.QLTY_COVERAGE_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed lib test
+      - run: tool/verify_ssl_pins.sh
+      - run: flutter analyze
+      - run: flutter test --coverage
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/lcov.info
+      - name: QLTY checks (secrets, dependency vulnerabilities, shell)
+        run: |
+          curl -fsSL https://qlty.sh | bash
+          echo "$HOME/.qlty/bin" >> "$GITHUB_PATH"
+          "$HOME/.qlty/bin/qlty" check --all --no-upgrade-check
+      - name: Publish coverage to QLTY
+        if: github.event_name == 'push' && env.QLTY_COVERAGE_TOKEN != ''
+        run: $HOME/.qlty/bin/qlty coverage publish coverage/lcov.info
+
+  android:
+    name: Android build (qa)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      - name: Throwaway configuration
+        run: |
+          echo '{"API_BASE_URL":"https://api-qa.racketmatesapp.com","API_VERSION":"ci","OAUTH_CLIENT_ID":"ci","OAUTH_CLIENT_SECRET":"ci","SENDBIRD_APP_ID":"ci"}' > "$RUNNER_TEMP/ci.json"
+      - run: >
+          flutter build apk --release --flavor qa -t lib/main_qa.dart
+          --dart-define-from-file="$RUNNER_TEMP/ci.json"
+
+  ios:
+    name: iOS build (qa, simulator)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      - name: Throwaway configuration
+        run: |
+          echo '{"API_BASE_URL":"https://api-qa.racketmatesapp.com","API_VERSION":"ci","OAUTH_CLIENT_ID":"ci","OAUTH_CLIENT_SECRET":"ci","SENDBIRD_APP_ID":"ci"}' > "$RUNNER_TEMP/ci.json"
+      - run: >
+          flutter build ios --simulator --debug --no-codesign --flavor qa
+          -t lib/main_qa.dart --dart-define-from-file="$RUNNER_TEMP/ci.json"

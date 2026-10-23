@@ -137,8 +137,10 @@ platform :ios do
     env = resolve_env!(options)
     ensure_ios_flavor!(env)
     sh("cd .. && #{FLUTTER} build ios --simulator --debug #{flutter_args(env, build_number: options[:build_number]).join(' ')}")
-    app = Dir["../build/ios/iphonesimulator/*.app"].first
+    app = Dir[File.expand_path("../build/ios/iphonesimulator/*.app", __dir__)].first
     UI.user_error!("Simulator .app not found") unless app
-    zip(path: app, output_path: "build/Racketmates-#{env}-simulator.zip")
+    output = File.expand_path("../build/Racketmates-#{env}-simulator.zip", __dir__)
+    zip(path: app, output_path: output)
+    UI.success("Simulator build: #{output}")
   end
 end
