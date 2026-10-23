@@ -107,6 +107,7 @@ void main() {
     'new parent + player: details > roles > sports > kid > kids list > create > photo > congratulations > home',
     (tester) async {
       final handle = tester.ensureSemantics();
+      useTallScreen(tester);
       final h = _Harness();
       await tester.pumpWidget(h.app());
       await _toDetails(tester);
@@ -180,6 +181,7 @@ void main() {
     tester,
   ) async {
     final handle = tester.ensureSemantics();
+    useTallScreen(tester);
     final h = _Harness();
     await tester.pumpWidget(h.app());
     await _toDetails(tester);
@@ -202,6 +204,7 @@ void main() {
 
   testWidgets('a taken email stays on details with an error', (tester) async {
     final handle = tester.ensureSemantics();
+    useTallScreen(tester);
     final h = _Harness(users: FakeUserRepository(emailTaken: true));
     await tester.pumpWidget(h.app());
     await _toDetails(tester);
@@ -215,6 +218,7 @@ void main() {
     tester,
   ) async {
     final handle = tester.ensureSemantics();
+    useTallScreen(tester);
     final h = _Harness(picker: FakePhotoPicker('/tmp/photo.jpg'));
     await tester.pumpWidget(h.app());
     await _toDetails(tester);
@@ -243,6 +247,7 @@ void main() {
     tester,
   ) async {
     final handle = tester.ensureSemantics();
+    useTallScreen(tester);
     final h = _Harness();
     await tester.pumpWidget(h.app());
     await _toDetails(tester);

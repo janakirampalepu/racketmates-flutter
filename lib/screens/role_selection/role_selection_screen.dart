@@ -8,7 +8,7 @@ import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/sign_up/sign_up_flow.dart';
 import 'package:racketmates/common/sign_up/sign_up_steps.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
-import 'package:racketmates/common/widgets/step_scaffold.dart';
+import 'package:racketmates/common/widgets/native_widgets.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/role_selection/role_selection_test_ids.dart';
 
@@ -24,6 +24,19 @@ class RoleSelectionScreen extends ConsumerStatefulWidget {
 
 class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
   bool _showError = false;
+
+  String _subKey(String role) => switch (role) {
+    RoleKeys.player => MessageKeys.prePlayerSub,
+    RoleKeys.coach => MessageKeys.preCoachSub,
+    _ => MessageKeys.preParentSub,
+  };
+
+  String _title(WidgetRef ref, AppLocalizations l10n, String role) =>
+      ref.preMsg(switch (role) {
+        RoleKeys.player => MessageKeys.prePlayerTitle,
+        RoleKeys.coach => MessageKeys.preCoachTitle,
+        _ => MessageKeys.preParentTitle,
+      }, _label(l10n, role));
 
   String _label(AppLocalizations l10n, String role) => switch (role) {
     RoleKeys.player => l10n.rolePlayer,
@@ -56,7 +69,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
     final l10n = AppLocalizations.of(context);
     final draft = ref.watch(signUpFlowProvider);
     final roles = draft?.roles ?? const <String>{};
-    return StepScaffold(
+    return SignUpScaffold(
       rootId: RoleSelectionTestIds.root,
       titleId: RoleSelectionTestIds.title,
       title: ref.preMsg(MessageKeys.preRoleTitle, l10n.roleSelectionTitle),
@@ -68,10 +81,18 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
         for (final role in RoleKeys.all)
           TestId(
             RoleSelectionTestIds.role(role),
-            child: CheckboxListTile(
-              value: roles.contains(role),
-              title: Text(_label(l10n, role)),
-              onChanged: (_) {
+            child: NativeChoiceCard(
+              icon: switch (role) {
+                RoleKeys.player => 'ic_role_player_v3',
+                RoleKeys.coach => 'ic_role_coach_v3',
+                _ => 'ic_parent_role_v3',
+              },
+              iconSize: 40,
+              title: _title(ref, l10n, role),
+              // The description is server copy; there is no offline text.
+              subtitle: ref.preMsg(_subKey(role), ''),
+              selected: roles.contains(role),
+              onChanged: () {
                 ref.read(signUpFlowProvider.notifier).toggleRole(role);
                 setState(() => _showError = false);
               },

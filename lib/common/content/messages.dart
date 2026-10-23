@@ -161,6 +161,12 @@ abstract final class MessageKeys {
   static const preEmailInvalid = 'signup.email_invalid_error';
   static const preEmailTaken = 'signup.duplicate_email_error';
   static const preRoleTitle = 'signup.role_selection_title';
+  static const prePlayerTitle = 'signup.role_player_title';
+  static const prePlayerSub = 'signup.role_player_sub_text';
+  static const preCoachTitle = 'signup.role_coach_title';
+  static const preCoachSub = 'signup.role_coach_sub_text';
+  static const preParentTitle = 'signup.role_parent_title';
+  static const preParentSub = 'signup.role_parent_sub_text';
   static const prePlayerSportTitle = 'signup.player_sport_selection_title';
   static const preCoachSportTitle = 'signup.coach_sport_selection_title';
   static const preSportRequiredTitle = 'signup.sport_required_error_title';

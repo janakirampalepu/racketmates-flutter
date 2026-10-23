@@ -7,7 +7,7 @@ import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/errors/failure_message.dart';
 import 'package:racketmates/common/sign_up/sign_up_flow.dart';
-import 'package:racketmates/common/widgets/step_scaffold.dart';
+import 'package:racketmates/common/widgets/native_widgets.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/sign_up_details/sign_up_details_state.dart';
 import 'package:racketmates/screens/sign_up_details/sign_up_details_test_ids.dart';
@@ -81,11 +81,12 @@ class _SignUpDetailsScreenState extends ConsumerState<SignUpDetailsScreen> {
       null =>
         state.failure == null ? null : failureMessage(l10n, state.failure!),
     };
-    return StepScaffold(
+    return SignUpScaffold(
       rootId: SignUpDetailsTestIds.root,
       titleId: SignUpDetailsTestIds.title,
       backId: SignUpDetailsTestIds.back,
       title: l10n.signUpDetailsTitle,
+      titleGap: 14,
       primaryLabel: l10n.nextAction,
       primaryId: SignUpDetailsTestIds.next,
       loading: state.loading,
@@ -94,55 +95,45 @@ class _SignUpDetailsScreenState extends ConsumerState<SignUpDetailsScreen> {
       children: [
         TestId(
           SignUpDetailsTestIds.firstName,
-          child: TextField(
+          child: NativeTextField(
             controller: _first,
-            textCapitalization: TextCapitalization.words,
+            label: l10n.firstNameLabel,
+            maxLength: 30,
             textInputAction: TextInputAction.next,
             autofillHints: const [AutofillHints.givenName],
-            decoration: InputDecoration(
-              labelText: l10n.firstNameLabel,
-              errorText: state.firstNameMissing
-                  ? ref.preMsg(
-                      MessageKeys.preFirstNameRequired,
-                      l10n.firstNameRequiredError,
-                    )
-                  : null,
-              border: const OutlineInputBorder(),
-            ),
+            error: state.firstNameMissing
+                ? ref.preMsg(
+                    MessageKeys.preFirstNameRequired,
+                    l10n.firstNameRequiredError,
+                  )
+                : null,
           ),
         ),
-        const SizedBox(height: 16),
         TestId(
           SignUpDetailsTestIds.lastName,
-          child: TextField(
+          child: NativeTextField(
             controller: _last,
-            textCapitalization: TextCapitalization.words,
+            label: l10n.lastNameLabel,
+            maxLength: 30,
             textInputAction: TextInputAction.next,
             autofillHints: const [AutofillHints.familyName],
-            decoration: InputDecoration(
-              labelText: l10n.lastNameLabel,
-              errorText: state.lastNameMissing
-                  ? ref.preMsg(
-                      MessageKeys.preLastNameRequired,
-                      l10n.lastNameRequiredError,
-                    )
-                  : null,
-              border: const OutlineInputBorder(),
-            ),
+            error: state.lastNameMissing
+                ? ref.preMsg(
+                    MessageKeys.preLastNameRequired,
+                    l10n.lastNameRequiredError,
+                  )
+                : null,
           ),
         ),
-        const SizedBox(height: 16),
         TestId(
           SignUpDetailsTestIds.email,
-          child: TextField(
+          child: NativeTextField(
             controller: _email,
+            label: l10n.emailLabel,
             keyboardType: TextInputType.emailAddress,
+            capitalization: TextCapitalization.none,
             autofillHints: const [AutofillHints.email],
-            decoration: InputDecoration(
-              labelText: l10n.emailLabel,
-              errorText: emailError,
-              border: const OutlineInputBorder(),
-            ),
+            error: emailError,
             onSubmitted: (_) => _next(),
           ),
         ),

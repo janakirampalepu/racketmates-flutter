@@ -12,7 +12,7 @@ import 'package:racketmates/common/sign_up/sign_up_flow.dart';
 import 'package:racketmates/common/sign_up/sign_up_steps.dart';
 import 'package:racketmates/common/sign_up/sport_labels.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
-import 'package:racketmates/common/widgets/step_scaffold.dart';
+import 'package:racketmates/common/widgets/native_widgets.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/sports_selection/sports_selection_test_ids.dart';
 
@@ -68,7 +68,7 @@ class _SportsSelectionScreenState extends ConsumerState<SportsSelectionScreen> {
         ? (draft?.coachSports ?? const <SportKey>{})
         : (draft?.playerSports ?? const <SportKey>{});
     final create = ref.watch(createAccountControllerProvider);
-    return StepScaffold(
+    return SignUpScaffold(
       rootId: SportsSelectionTestIds.root,
       titleId: SportsSelectionTestIds.title,
       title: _isCoach
@@ -83,10 +83,14 @@ class _SportsSelectionScreenState extends ConsumerState<SportsSelectionScreen> {
         for (final sport in SportKey.values)
           TestId(
             SportsSelectionTestIds.sport(sport.key),
-            child: CheckboxListTile(
-              value: selected.contains(sport),
-              title: Text(sportLabel(l10n, sport)),
-              onChanged: (_) {
+            child: NativeChoiceCard(
+              icon: 'ic_${sport.name}_sport',
+              iconSize: 28,
+              padding: 12,
+              titleSize: 12,
+              title: sportLabel(l10n, sport),
+              selected: selected.contains(sport),
+              onChanged: () {
                 ref
                     .read(signUpFlowProvider.notifier)
                     .toggleSport(widget.role, sport);
