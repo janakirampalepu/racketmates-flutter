@@ -20,6 +20,25 @@ class EventDetailsResponse {
   Map<String, dynamic> toJson() => _$EventDetailsResponseToJson(this);
 }
 
+/// One round of a round robin (`event_rounds`).
+@JsonSerializable(fieldRename: FieldRename.snake)
+class EventRound {
+  const EventRound({this.id, this.order, this.status, this.eventMatches});
+
+  factory EventRound.fromJson(Map<String, dynamic> json) =>
+      _$EventRoundFromJson(json);
+
+  final int? id;
+  final int? order;
+
+  /// `eros_setup_pending`, `eros_setup_completed`, `eros_in_progress`,
+  /// `eros_completed` or `eros_cancelled`.
+  final String? status;
+  final List<EventMatch>? eventMatches;
+
+  Map<String, dynamic> toJson() => _$EventRoundToJson(this);
+}
+
 @JsonSerializable(fieldRename: FieldRename.snake)
 class EventDetails {
   const EventDetails({
@@ -58,6 +77,8 @@ class EventDetails {
     this.settingsLocked,
     this.eventVenueCourts,
     this.eventMatches,
+    this.eventRounds,
+    this.eventSubType,
     this.playerChatRoom,
     this.captainsChatRoom,
     this.eventTeams,
@@ -107,6 +128,12 @@ class EventDetails {
   final bool? settingsLocked;
   final List<EventVenueCourt>? eventVenueCourts;
   final List<EventMatch>? eventMatches;
+
+  /// Rounds of a round robin, each with its matches.
+  final List<EventRound>? eventRounds;
+
+  /// Round robin format (`est_manual`, ...).
+  final String? eventSubType;
 
   /// The players' and the captains' chat rooms, once created.
   final ChatRoomRef? playerChatRoom;

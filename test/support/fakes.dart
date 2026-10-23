@@ -588,6 +588,38 @@ class FakeEventActionsRepository implements EventActionsRepository {
   Future<EventDetailsResponse> acceptScores(int eventId) =>
       _rsvp('acceptScores');
 
+  /// `result` returned by `generateRounds`.
+  String? generateResult;
+
+  @override
+  Future<EventDetailsResponse> generateRounds(
+    int eventId, {
+    List<List<int>>? partnerPairs,
+  }) async {
+    await _manage('generateRounds:$eventId', partnerPairs);
+    return EventDetailsResponse(result: generateResult);
+  }
+
+  @override
+  Future<EventDetailsResponse> addRound(int eventId) async {
+    await _manage('addRound:$eventId', null);
+    return const EventDetailsResponse();
+  }
+
+  @override
+  Future<EventDetailsResponse> removeRound(int eventId, int roundId) async {
+    await _manage('removeRound:$eventId:$roundId', null);
+    return const EventDetailsResponse();
+  }
+
+  @override
+  Future<void> removeMatch(int eventId, int matchId) =>
+      _manage('removeMatch:$eventId:$matchId', null);
+
+  @override
+  Future<void> updateMatches(int eventId, Map<String, dynamic> body) =>
+      _manage('updateMatches:$eventId', body);
+
   @override
   Future<void> updateSettings(int eventId, Map<String, dynamic> body) =>
       _manage('updateSettings:$eventId', body);

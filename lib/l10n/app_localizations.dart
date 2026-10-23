@@ -2872,6 +2872,144 @@ abstract class AppLocalizations {
   /// **'Enter or correct the results of the matches'**
   String get eventManageScoresHint;
 
+  /// No description provided for @eventManageRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounds'**
+  String get eventManageRounds;
+
+  /// No description provided for @eventManageRoundsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'See and edit the rounds of this round robin'**
+  String get eventManageRoundsHint;
+
+  /// No description provided for @eventManageRoundsSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up rounds'**
+  String get eventManageRoundsSetUp;
+
+  /// No description provided for @eventManageRoundsSetUpHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate the rounds from the confirmed players'**
+  String get eventManageRoundsSetUpHint;
+
+  /// No description provided for @eventManageRoundsFixedUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Choosing fixed partners is not available in this build yet.'**
+  String get eventManageRoundsFixedUnsupported;
+
+  /// No description provided for @eventRoundsWaitingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for players'**
+  String get eventRoundsWaitingTitle;
+
+  /// No description provided for @eventRoundsWaitingText.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have enough players yet to start generating the rounds.'**
+  String get eventRoundsWaitingText;
+
+  /// No description provided for @eventRoundsOk.
+  ///
+  /// In en, this message translates to:
+  /// **'I understand'**
+  String get eventRoundsOk;
+
+  /// No description provided for @eventRoundsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounds'**
+  String get eventRoundsTitle;
+
+  /// No description provided for @eventRoundsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no rounds yet.'**
+  String get eventRoundsEmpty;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Round {number}'**
+  String eventRoundNumber(int number);
+
+  /// No description provided for @eventRoundAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add round'**
+  String get eventRoundAdd;
+
+  /// No description provided for @eventRoundRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove round'**
+  String get eventRoundRemove;
+
+  /// No description provided for @eventRoundKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep round'**
+  String get eventRoundKeep;
+
+  /// No description provided for @eventRoundRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this round?'**
+  String get eventRoundRemoveTitle;
+
+  /// No description provided for @eventRoundRemoveText.
+  ///
+  /// In en, this message translates to:
+  /// **'If you remove this round, its matches will be missing at the end of the event. This can\'t be undone.'**
+  String get eventRoundRemoveText;
+
+  /// No description provided for @eventMatchRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove match'**
+  String get eventMatchRemove;
+
+  /// No description provided for @eventMatchRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this match?'**
+  String get eventMatchRemoveTitle;
+
+  /// No description provided for @eventMatchRemoveText.
+  ///
+  /// In en, this message translates to:
+  /// **'The match is removed from the round. This can\'t be undone.'**
+  String get eventMatchRemoveText;
+
+  /// No description provided for @eventMatchChangeCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Change court'**
+  String get eventMatchChangeCourt;
+
+  /// No description provided for @eventMatchCourtTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to court'**
+  String get eventMatchCourtTitle;
+
+  /// No description provided for @eventMatchNoCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'No court'**
+  String get eventMatchNoCourt;
+
+  /// No description provided for @eventMatchNoCourts.
+  ///
+  /// In en, this message translates to:
+  /// **'This event has no courts to choose from.'**
+  String get eventMatchNoCourts;
+
   /// No description provided for @eventManageLocked.
   ///
   /// In en, this message translates to:

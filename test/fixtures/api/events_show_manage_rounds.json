@@ -1,0 +1,227 @@
+{
+  "message": "ok",
+  "result": "success",
+  "event": {
+    "id": 101,
+    "event_type": "et_round_robin",
+    "sport_type": "st_tennis",
+    "status": "es_scheduled",
+    "originator_type": "",
+    "attendance_deadline_unit": 1,
+    "attendance_deadline_unit_type": "adut_day",
+    "allow_participants_manage_players": true,
+    "allow_participants_to_log_results": false,
+    "player_pool": "pp_invited_only",
+    "players_limit": 6,
+    "rsvp_limit": 6,
+    "player_acceptance_type": "pat_pick_manually",
+    "assign_type": "at_court_addition",
+    "settings_locked": false,
+    "with_coach": false,
+    "event_participants_count": 4,
+    "event_schedule_options": [
+      {
+        "id": 900,
+        "start_time": "2030-11-03T23:00:00.000Z",
+        "duration": 90,
+        "place_id": 5,
+        "timezone_info": {
+          "id": 14,
+          "utc_offset_time": -18000
+        },
+        "status": "eco_confirmed",
+        "place": {
+          "id": 5,
+          "name": "Central Courts"
+        }
+      }
+    ],
+    "event_participants": [
+      {
+        "id": 1,
+        "user_id": 7,
+        "is_player": true,
+        "is_organizer": true,
+        "status": "eus_confirmed",
+        "user": {
+          "id": 7,
+          "first_name": "Sam",
+          "last_name": "Lee"
+        }
+      }
+    ],
+    "user_permissions": {
+      "event.manage": {
+        "access": "up_enabled"
+      },
+      "event.manage_rounds": {
+        "access": "up_enabled"
+      }
+    },
+    "event_sub_type": "est_manual",
+    "partnership_type": "ept_rotating",
+    "game_type": "egt_both",
+    "event_venue_courts": [
+      {
+        "id": 1,
+        "place_court_id": 11,
+        "order": 1
+      },
+      {
+        "id": 2,
+        "place_court_id": 12,
+        "order": 2
+      }
+    ],
+    "event_rounds": [
+      {
+        "id": 701,
+        "order": 1,
+        "status": "eros_setup_completed",
+        "event_matches": [
+          {
+            "id": 501,
+            "match_type": "mt_singles",
+            "order": 1,
+            "status": "ems_scheduled",
+            "event_match_sides": [
+              {
+                "id": 601,
+                "side": "ecs_top",
+                "event_participants": [
+                  {
+                    "id": 80,
+                    "user_id": 8,
+                    "position": "epp_center",
+                    "user": {
+                      "id": 8,
+                      "first_name": "Alex",
+                      "last_name": "Kim"
+                    }
+                  }
+                ],
+                "event_scores": []
+              },
+              {
+                "id": 602,
+                "side": "ecs_bottom",
+                "event_participants": [
+                  {
+                    "id": 90,
+                    "user_id": 9,
+                    "position": "epp_center",
+                    "user": {
+                      "id": 9,
+                      "first_name": "Pat",
+                      "last_name": "Lee"
+                    }
+                  }
+                ],
+                "event_scores": []
+              }
+            ],
+            "place_court": {
+              "id": 11,
+              "name": "Court 1"
+            }
+          },
+          {
+            "id": 502,
+            "match_type": "mt_singles",
+            "order": 2,
+            "status": "ems_scheduled",
+            "event_match_sides": [
+              {
+                "id": 603,
+                "side": "ecs_top",
+                "event_participants": [
+                  {
+                    "id": 100,
+                    "user_id": 10,
+                    "position": "epp_center",
+                    "user": {
+                      "id": 10,
+                      "first_name": "Sam",
+                      "last_name": "Ng"
+                    }
+                  }
+                ],
+                "event_scores": []
+              },
+              {
+                "id": 604,
+                "side": "ecs_bottom",
+                "event_participants": [
+                  {
+                    "id": 110,
+                    "user_id": 11,
+                    "position": "epp_center",
+                    "user": {
+                      "id": 11,
+                      "first_name": "Kay",
+                      "last_name": "Ito"
+                    }
+                  }
+                ],
+                "event_scores": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 702,
+        "order": 2,
+        "status": "eros_setup_pending",
+        "event_matches": [
+          {
+            "id": 503,
+            "match_type": "mt_singles",
+            "order": 1,
+            "status": "ems_scheduled",
+            "event_match_sides": [
+              {
+                "id": 605,
+                "side": "ecs_top",
+                "event_participants": [
+                  {
+                    "id": 90,
+                    "user_id": 9,
+                    "position": "epp_center",
+                    "user": {
+                      "id": 9,
+                      "first_name": "Pat",
+                      "last_name": "Lee"
+                    }
+                  }
+                ],
+                "event_scores": []
+              },
+              {
+                "id": 606,
+                "side": "ecs_bottom",
+                "event_participants": [
+                  {
+                    "id": 100,
+                    "user_id": 10,
+                    "position": "epp_center",
+                    "user": {
+                      "id": 10,
+                      "first_name": "Sam",
+                      "last_name": "Ng"
+                    }
+                  }
+                ],
+                "event_scores": []
+              }
+            ],
+            "place_court": {
+              "id": 12,
+              "name": "Court 2"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

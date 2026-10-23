@@ -1521,6 +1521,83 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enter or correct the results of the matches';
 
   @override
+  String get eventManageRounds => 'Rounds';
+
+  @override
+  String get eventManageRoundsHint =>
+      'See and edit the rounds of this round robin';
+
+  @override
+  String get eventManageRoundsSetUp => 'Set up rounds';
+
+  @override
+  String get eventManageRoundsSetUpHint =>
+      'Generate the rounds from the confirmed players';
+
+  @override
+  String get eventManageRoundsFixedUnsupported =>
+      'Choosing fixed partners is not available in this build yet.';
+
+  @override
+  String get eventRoundsWaitingTitle => 'Waiting for players';
+
+  @override
+  String get eventRoundsWaitingText =>
+      'You don\'t have enough players yet to start generating the rounds.';
+
+  @override
+  String get eventRoundsOk => 'I understand';
+
+  @override
+  String get eventRoundsTitle => 'Rounds';
+
+  @override
+  String get eventRoundsEmpty => 'There are no rounds yet.';
+
+  @override
+  String eventRoundNumber(int number) {
+    return 'Round $number';
+  }
+
+  @override
+  String get eventRoundAdd => 'Add round';
+
+  @override
+  String get eventRoundRemove => 'Remove round';
+
+  @override
+  String get eventRoundKeep => 'Keep round';
+
+  @override
+  String get eventRoundRemoveTitle => 'Remove this round?';
+
+  @override
+  String get eventRoundRemoveText =>
+      'If you remove this round, its matches will be missing at the end of the event. This can\'t be undone.';
+
+  @override
+  String get eventMatchRemove => 'Remove match';
+
+  @override
+  String get eventMatchRemoveTitle => 'Remove this match?';
+
+  @override
+  String get eventMatchRemoveText =>
+      'The match is removed from the round. This can\'t be undone.';
+
+  @override
+  String get eventMatchChangeCourt => 'Change court';
+
+  @override
+  String get eventMatchCourtTitle => 'Move to court';
+
+  @override
+  String get eventMatchNoCourt => 'No court';
+
+  @override
+  String get eventMatchNoCourts => 'This event has no courts to choose from.';
+
+  @override
   String get eventManageLocked => 'This event can no longer be changed.';
 
   @override

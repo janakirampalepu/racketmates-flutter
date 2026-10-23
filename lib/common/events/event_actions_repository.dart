@@ -28,6 +28,25 @@ abstract class EventActionsRepository {
   /// `POST accept_scores`: confirms the submitted scores.
   Future<EventDetailsResponse> acceptScores(int eventId);
 
+  /// `POST generate_event_rounds`. The server answers 422 with the event and a
+  /// `result` (`egr_insufficient_confirmed_players`) when it cannot: that body
+  /// is returned, not thrown.
+  Future<EventDetailsResponse> generateRounds(
+    int eventId, {
+    List<List<int>>? partnerPairs,
+  });
+
+  /// `POST event_rounds`: one more (empty) round.
+  Future<EventDetailsResponse> addRound(int eventId);
+
+  Future<EventDetailsResponse> removeRound(int eventId, int roundId);
+
+  /// `DELETE event_matches/{id}`.
+  Future<void> removeMatch(int eventId, int matchId);
+
+  /// `PUT update_matches` with `{event: {event_matches_attributes: [...]}}`.
+  Future<void> updateMatches(int eventId, Map<String, dynamic> body);
+
   /// `PUT cancel_event`; [removeEvent] also deletes it from the schedule.
   Future<void> cancelEvent(
     int eventId, {
@@ -118,6 +137,44 @@ class EventActionsRepositoryImpl implements EventActionsRepository {
   @override
   Future<EventDetailsResponse> acceptScores(int eventId) =>
       _guard(() => api.acceptScores(eventId));
+
+  @override
+  Future<EventDetailsResponse> generateRounds(
+    int eventId, {
+    List<List<int>>? partnerPairs,
+  }) async {
+    try {
+      return await api.generateRounds(eventId, {
+        'event_partner_pairs': ?partnerPairs,
+      });
+    } on DioException catch (e) {
+      final data = e.response?.data;
+      if (e.response?.statusCode == 422 &&
+          data is Map<String, dynamic> &&
+          data['result'] != null) {
+        return EventDetailsResponse.fromJson(data);
+      }
+      throw mapDioException(e);
+    } on TypeError {
+      throw const ParseFailure();
+    }
+  }
+
+  @override
+  Future<EventDetailsResponse> addRound(int eventId) =>
+      _guard(() => api.addRound(eventId));
+
+  @override
+  Future<EventDetailsResponse> removeRound(int eventId, int roundId) =>
+      _guard(() => api.removeRound(eventId, roundId));
+
+  @override
+  Future<void> removeMatch(int eventId, int matchId) =>
+      _guard(() => api.removeMatch(eventId, matchId));
+
+  @override
+  Future<void> updateMatches(int eventId, Map<String, dynamic> body) =>
+      _guard(() => api.updateMatches(eventId, body));
 
   @override
   Future<void> cancelEvent(

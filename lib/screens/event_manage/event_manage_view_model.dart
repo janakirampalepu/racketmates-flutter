@@ -44,20 +44,16 @@ class EventManageViewModel extends Notifier<EventManageState> {
       if (ref.mounted) state = const EventManageState();
       return true;
     } on AppFailure catch (failure) {
-      if (ref.mounted) {
-        state = EventManageState(
-          error: switch (failure) {
-            ServerFailure(message: final m) when m != null && m.isNotEmpty => m,
-            UnauthorizedFailure(message: final m)
-                when m != null && m.isNotEmpty =>
-              m,
-            _ => '',
-          },
-        );
-      }
+      if (ref.mounted) state = EventManageState(error: _messageOf(failure));
       return false;
     }
   }
+
+  String _messageOf(AppFailure failure) => switch (failure) {
+    ServerFailure(message: final m) when m != null && m.isNotEmpty => m,
+    UnauthorizedFailure(message: final m) when m != null && m.isNotEmpty => m,
+    _ => '',
+  };
 
   Future<bool> updateSettings(EventDetails event, EventSettingsEdit edit) =>
       _run(
@@ -107,6 +103,37 @@ class EventManageViewModel extends Notifier<EventManageState> {
         decidingSetType: decidingSetType,
       ),
     ),
+  );
+
+  /// Generates the rounds and reloads the event. [result] is the server's
+  /// verdict (`egr_insufficient_confirmed_players` when too few players
+  /// confirmed); on failure [error] is the server text ('' when it sent none).
+  Future<({bool ok, String? result, String error})> generateRounds() async {
+    if (state.busy) return (ok: false, result: null, error: '');
+    state = const EventManageState(busy: true);
+    try {
+      final response = await _repo.generateRounds(eventId);
+      if (!ref.mounted) return (ok: true, result: response.result, error: '');
+      await ref.read(eventDetailsViewModelProvider(eventId).notifier).refresh();
+      if (ref.mounted) state = const EventManageState();
+      return (ok: true, result: response.result, error: '');
+    } on AppFailure catch (failure) {
+      final text = _messageOf(failure);
+      if (ref.mounted) state = EventManageState(error: text);
+      return (ok: false, result: null, error: text);
+    }
+  }
+
+  Future<bool> addRound() => _run(() => _repo.addRound(eventId));
+
+  Future<bool> removeRound(int roundId) =>
+      _run(() => _repo.removeRound(eventId, roundId));
+
+  Future<bool> removeMatch(int matchId) =>
+      _run(() => _repo.removeMatch(eventId, matchId));
+
+  Future<bool> moveMatchToCourt(int matchId, int courtId) => _run(
+    () => _repo.updateMatches(eventId, buildMatchCourtBody(matchId, courtId)),
   );
 
   Future<bool> clearUnfinished(EventMatch match) =>

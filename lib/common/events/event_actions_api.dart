@@ -54,6 +54,35 @@ abstract class EventActionsApi {
   @POST('events/{eventId}/accept_scores')
   Future<EventDetailsResponse> acceptScores(@Path('eventId') int eventId);
 
+  /// Generates the rounds of a round robin; `{}` (fixed partner pairs go in
+  /// `event_partner_pairs`).
+  @POST('events/{eventId}/generate_event_rounds')
+  Future<EventDetailsResponse> generateRounds(
+    @Path('eventId') int eventId,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @POST('events/{eventId}/event_rounds')
+  Future<EventDetailsResponse> addRound(@Path('eventId') int eventId);
+
+  @DELETE('events/{eventId}/event_rounds/{roundId}')
+  Future<EventDetailsResponse> removeRound(
+    @Path('eventId') int eventId,
+    @Path('roundId') int roundId,
+  );
+
+  @DELETE('events/{eventId}/event_matches/{matchId}')
+  Future<void> removeMatch(
+    @Path('eventId') int eventId,
+    @Path('matchId') int matchId,
+  );
+
+  @PUT('events/{eventId}/update_matches')
+  Future<void> updateMatches(
+    @Path('eventId') int eventId,
+    @Body() Map<String, dynamic> body,
+  );
+
   // --- Manage (organizer) actions; the event is reloaded afterwards ---
 
   @PUT('events/{eventId}/update_settings')

@@ -548,6 +548,68 @@ String scoreSummary(EventMatch match) {
   return parts.join(', ');
 }
 
+// --- Rounds -------------------------------------------------------------------
+
+/// What the round robin entry of the manage hub does.
+enum RoundsEntry {
+  /// No entry (not a round robin, or the user may do nothing with rounds).
+  none,
+
+  /// The rounds do not exist yet: generate them (native `event.setup_rounds`).
+  setUp,
+
+  /// Open the rounds (native `event.manage_rounds`).
+  manage,
+}
+
+/// Native `performRoundRobinAction`: managing rounds wins over setting them up.
+/// (`event.generate_rounds` does nothing in the native app either.)
+RoundsEntry roundsEntryFor(EventDetails event) {
+  if (!event.isRoundRobin) return RoundsEntry.none;
+  if (event.permission('event.manage_rounds')?.enabled ?? false) {
+    return RoundsEntry.manage;
+  }
+  if (event.permission('event.setup_rounds')?.enabled ?? false) {
+    return RoundsEntry.setUp;
+  }
+  return RoundsEntry.none;
+}
+
+/// Fixed partners are chosen on their own screen before rounds exist.
+bool needsFixedPartners(EventDetails event) =>
+    event.partnershipType == 'ept_fixed';
+
+/// `result` of the generate call when too few players confirmed.
+const insufficientPlayersResult = 'egr_insufficient_confirmed_players';
+
+/// Only the manual format has rounds the organizer builds by hand.
+bool roundsAreManual(EventDetails event) => event.eventSubType == 'est_manual';
+
+/// Add and remove rounds and matches: manual rounds, unless the server says
+/// the event cannot be managed (native `isEnableForActions`).
+bool canEditRounds(EventDetails event) =>
+    roundsAreManual(event) &&
+    event.permission('event.manage')?.access != 'up_not_available';
+
+/// Only the last round can be removed, and never the only one.
+bool canRemoveRound(List<EventRound> rounds, EventRound round) =>
+    rounds.length > 1 && round.id != null && round.id == rounds.last.id;
+
+/// Courts a match of [event] can be moved to: the event's own courts.
+List<int> roundCourtIds(EventDetails event) => [
+  for (final c in event.eventVenueCourts ?? const <EventVenueCourt>[])
+    if (c.placeCourtId != null) c.placeCourtId!,
+];
+
+/// Body of `PUT update_matches` moving a match to a court.
+Map<String, dynamic> buildMatchCourtBody(int matchId, int courtId) => {
+  'event': {
+    'event_matches_attributes': [
+      {'id': matchId, 'place_court_id': courtId},
+    ],
+  },
+};
+
 // --- Players ------------------------------------------------------------------
 
 enum ParticipantGroup {

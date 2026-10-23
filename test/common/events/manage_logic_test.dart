@@ -566,6 +566,129 @@ void main() {
     });
   });
 
+  group('rounds', () {
+    EventDetails ev(
+      Map<String, Object?> perms, {
+      String type = 'et_round_robin',
+      String? sub,
+      String? partnership,
+      List<EventRound>? rounds,
+    }) => EventDetails(
+      eventType: type,
+      eventSubType: sub,
+      partnershipType: partnership,
+      eventRounds: rounds,
+      userPermissions: {
+        for (final e in perms.entries) e.key: AccessInfo(access: '${e.value}'),
+      },
+    );
+
+    test('the entry follows the permissions, managing first', () {
+      expect(
+        roundsEntryFor(ev({'event.manage_rounds': 'up_enabled'})),
+        RoundsEntry.manage,
+      );
+      expect(
+        roundsEntryFor(ev({'event.setup_rounds': 'up_enabled'})),
+        RoundsEntry.setUp,
+      );
+      expect(
+        roundsEntryFor(
+          ev({
+            'event.manage_rounds': 'up_enabled',
+            'event.setup_rounds': 'up_enabled',
+          }),
+        ),
+        RoundsEntry.manage,
+      );
+      expect(
+        roundsEntryFor(ev({'event.manage_rounds': 'up_disabled'})),
+        RoundsEntry.none,
+      );
+      // Generating alone does nothing, like the native app.
+      expect(
+        roundsEntryFor(ev({'event.generate_rounds': 'up_enabled'})),
+        RoundsEntry.none,
+      );
+      expect(
+        roundsEntryFor(
+          ev({'event.manage_rounds': 'up_enabled'}, type: 'et_competitive'),
+        ),
+        RoundsEntry.none,
+      );
+    });
+
+    test('fixed partners and manual rounds', () {
+      expect(needsFixedPartners(ev({}, partnership: 'ept_fixed')), isTrue);
+      expect(needsFixedPartners(ev({}, partnership: 'ept_rotating')), isFalse);
+      expect(roundsAreManual(ev({}, sub: 'est_manual')), isTrue);
+      expect(roundsAreManual(ev({}, sub: 'est_classic')), isFalse);
+    });
+
+    test('rounds are edited when manual and the event can be managed', () {
+      expect(
+        canEditRounds(ev({'event.manage': 'up_enabled'}, sub: 'est_manual')),
+        isTrue,
+      );
+      expect(
+        canEditRounds(
+          ev({'event.manage': 'up_not_available'}, sub: 'est_manual'),
+        ),
+        isFalse,
+      );
+      expect(
+        canEditRounds(ev({'event.manage': 'up_enabled'}, sub: 'est_classic')),
+        isFalse,
+      );
+    });
+
+    test('only the last of several rounds can be removed', () {
+      const one = EventRound(id: 1);
+      const two = EventRound(id: 2);
+      expect(canRemoveRound([one], one), isFalse);
+      expect(canRemoveRound([one, two], one), isFalse);
+      expect(canRemoveRound([one, two], two), isTrue);
+      expect(
+        canRemoveRound([one, const EventRound()], const EventRound()),
+        isFalse,
+      );
+    });
+
+    test('the courts and the court body', () {
+      expect(
+        roundCourtIds(
+          const EventDetails(
+            eventVenueCourts: [
+              EventVenueCourt(placeCourtId: 11),
+              EventVenueCourt(),
+              EventVenueCourt(placeCourtId: 12),
+            ],
+          ),
+        ),
+        [11, 12],
+      );
+      expect(buildMatchCourtBody(5, 12), {
+        'event': {
+          'event_matches_attributes': [
+            {'id': 5, 'place_court_id': 12},
+          ],
+        },
+      });
+    });
+
+    test('rounds are read from the event', () {
+      final e = EventDetails.fromJson(
+        (apiFixture('events_show_manage_rounds')['event']
+            as Map<String, dynamic>),
+      );
+      expect(e.eventRounds!.map((r) => r.id), [701, 702]);
+      expect(e.eventRounds!.first.eventMatches!.map((m) => m.id), [501, 502]);
+      expect(e.eventRounds!.first.status, 'eros_setup_completed');
+      expect(e.eventSubType, 'est_manual');
+      expect(e.eventRounds!.first.eventMatches!.first.top?.label, 'Alex Kim');
+    });
+  });
+
   group('people', () {
     test('status groups', () {
       expect(groupOfStatus('eus_confirmed'), ParticipantGroup.confirmed);

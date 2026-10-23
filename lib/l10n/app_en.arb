@@ -609,6 +609,37 @@
   "eventManageScheduleHint": "Move the event to another time or place",
   "eventManageScores": "Scores",
   "eventManageScoresHint": "Enter or correct the results of the matches",
+  "eventManageRounds": "Rounds",
+  "eventManageRoundsHint": "See and edit the rounds of this round robin",
+  "eventManageRoundsSetUp": "Set up rounds",
+  "eventManageRoundsSetUpHint": "Generate the rounds from the confirmed players",
+  "eventManageRoundsFixedUnsupported": "Choosing fixed partners is not available in this build yet.",
+  "eventRoundsWaitingTitle": "Waiting for players",
+  "eventRoundsWaitingText": "You don't have enough players yet to start generating the rounds.",
+  "eventRoundsOk": "I understand",
+  "eventRoundsTitle": "Rounds",
+  "eventRoundsEmpty": "There are no rounds yet.",
+  "eventRoundNumber": "Round {number}",
+  "@eventRoundNumber": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "eventRoundAdd": "Add round",
+  "eventRoundRemove": "Remove round",
+  "eventRoundKeep": "Keep round",
+  "eventRoundRemoveTitle": "Remove this round?",
+  "eventRoundRemoveText": "If you remove this round, its matches will be missing at the end of the event. This can't be undone.",
+  "eventMatchRemove": "Remove match",
+  "eventMatchRemoveTitle": "Remove this match?",
+  "eventMatchRemoveText": "The match is removed from the round. This can't be undone.",
+  "eventMatchChangeCourt": "Change court",
+  "eventMatchCourtTitle": "Move to court",
+  "eventMatchNoCourt": "No court",
+  "eventMatchNoCourts": "This event has no courts to choose from.",
   "eventManageLocked": "This event can no longer be changed.",
   "eventManageScheduleUnsupported": "Changing the time of this event is not available in this build yet.",
   "eventManageSaved": "Changes saved.",

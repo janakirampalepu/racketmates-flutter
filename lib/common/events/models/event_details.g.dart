@@ -24,6 +24,23 @@ Map<String, dynamic> _$EventDetailsResponseToJson(
   'event': instance.event,
 };
 
+EventRound _$EventRoundFromJson(Map<String, dynamic> json) => EventRound(
+  id: (json['id'] as num?)?.toInt(),
+  order: (json['order'] as num?)?.toInt(),
+  status: json['status'] as String?,
+  eventMatches: (json['event_matches'] as List<dynamic>?)
+      ?.map((e) => EventMatch.fromJson(e as Map<String, dynamic>))
+      .toList(),
+);
+
+Map<String, dynamic> _$EventRoundToJson(EventRound instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'order': instance.order,
+      'status': instance.status,
+      'event_matches': instance.eventMatches,
+    };
+
 EventDetails _$EventDetailsFromJson(Map<String, dynamic> json) => EventDetails(
   id: (json['id'] as num?)?.toInt(),
   eventType: json['event_type'] as String?,
@@ -77,6 +94,10 @@ EventDetails _$EventDetailsFromJson(Map<String, dynamic> json) => EventDetails(
   eventMatches: (json['event_matches'] as List<dynamic>?)
       ?.map((e) => EventMatch.fromJson(e as Map<String, dynamic>))
       .toList(),
+  eventRounds: (json['event_rounds'] as List<dynamic>?)
+      ?.map((e) => EventRound.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  eventSubType: json['event_sub_type'] as String?,
   playerChatRoom: json['player_chat_room'] == null
       ? null
       : ChatRoomRef.fromJson(json['player_chat_room'] as Map<String, dynamic>),
@@ -128,6 +149,8 @@ Map<String, dynamic> _$EventDetailsToJson(
   'settings_locked': instance.settingsLocked,
   'event_venue_courts': instance.eventVenueCourts,
   'event_matches': instance.eventMatches,
+  'event_rounds': instance.eventRounds,
+  'event_sub_type': instance.eventSubType,
   'player_chat_room': instance.playerChatRoom,
   'captains_chat_room': instance.captainsChatRoom,
   'event_teams': instance.eventTeams,
