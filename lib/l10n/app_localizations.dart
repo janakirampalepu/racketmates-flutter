@@ -244,6 +244,18 @@ abstract class AppLocalizations {
   /// **'Select country'**
   String get countryPickerTitle;
 
+  /// No description provided for @welcomeAlreadyMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Already a member?'**
+  String get welcomeAlreadyMember;
+
+  /// No description provided for @otpDescriptionShort.
+  ///
+  /// In en, this message translates to:
+  /// **'A verification code has been sent to'**
+  String get otpDescriptionShort;
+
   /// No description provided for @otpTitle.
   ///
   /// In en, this message translates to:

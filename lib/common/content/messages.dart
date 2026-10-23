@@ -147,6 +147,8 @@ abstract final class MessageKeys {
   static const preProductTitle = 'introduction.product_title';
   static const preProductSubText = 'introduction.product_sub_text';
   static const preSignUpButton = 'introduction.sign_up_button';
+  static const preAlreadyMember = 'signup.already_member_text';
+  static const preSignInLink = 'signup.sign_in_link';
   static const preSignUpTitle = 'signup.title';
   static const preSignInTitle = 'signup.sign_in_title';
   static const prePhoneRequired = 'signup.phone_number_required_error';

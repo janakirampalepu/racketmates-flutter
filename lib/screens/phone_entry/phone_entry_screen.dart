@@ -3,12 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
+import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/errors/failure_message.dart';
 import 'package:racketmates/common/phone/country.dart';
 import 'package:racketmates/common/phone/phone_formatting.dart';
+import 'package:racketmates/common/widgets/native_widgets.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/otp/otp_args.dart';
 import 'package:racketmates/screens/phone_entry/phone_entry_args.dart';
@@ -125,20 +127,19 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
       ),
       _ => state.failure == null ? null : failureMessage(l10n, state.failure!),
     };
-    return Scaffold(
-      appBar: AppBar(
-        leading: TestId(
-          PhoneEntryTestIds.backButton,
-          child: BackButton(onPressed: () => context.pop()),
-        ),
-      ),
+    final n = context.native;
+    final sdp = context.sdp;
+    return NativeAuthScaffold(
+      onBack: () => context.pop(),
+      backId: PhoneEntryTestIds.backButton,
       body: TestId(
         PhoneEntryTestIds.root,
-        child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.all(24),
-            children: [
-              TestId(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(sdp(16), sdp(80), sdp(16), 0),
+              child: TestId(
                 PhoneEntryTestIds.title,
                 child: Text(
                   state.mode == PhoneEntryMode.signIn
@@ -150,59 +151,190 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                           MessageKeys.preSignUpTitle,
                           l10n.phoneEntrySignUpTitle,
                         ),
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  textAlign: TextAlign.center,
+                  style: NativeText.semibold(sdp(24), n.textPrimary),
                 ),
               ),
-              const SizedBox(height: 8),
-              TestId(
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(sdp(32), sdp(8), sdp(32), 0),
+              child: TestId(
                 PhoneEntryTestIds.description,
-                child: Text(l10n.phoneEntryDescription),
-              ),
-              const SizedBox(height: 24),
-              TestId(
-                PhoneEntryTestIds.countryButton,
-                child: OutlinedButton(
-                  onPressed: country == null ? null : _pickCountry,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(56),
-                    alignment: Alignment.centerLeft,
-                  ),
-                  child: Text(
-                    country == null
-                        ? l10n.countryLabel
-                        : '${country.flag}  ${country.name}  ${country.dialCode}',
-                  ),
+                child: Text(
+                  l10n.phoneEntryDescription,
+                  textAlign: TextAlign.center,
+                  style: NativeText.regular(sdp(14), n.textSecondary),
                 ),
               ),
-              const SizedBox(height: 16),
-              TestId(
-                PhoneEntryTestIds.numberField,
-                child: TextField(
-                  controller: _controller,
-                  enabled: country != null && !state.loading,
-                  keyboardType: TextInputType.phone,
-                  autofillHints: const [AutofillHints.telephoneNumberNational],
-                  inputFormatters: [
-                    if (country != null) NationalNumberFormatter(country),
-                    LengthLimitingTextInputFormatter(32),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(sdp(16), sdp(32), sdp(16), sdp(8)),
+              child: Container(
+                padding: EdgeInsets.all(sdp(4)),
+                decoration: BoxDecoration(
+                  color: n.signupViewColor,
+                  borderRadius: BorderRadius.circular(sdp(10)),
+                  border: Border.all(color: n.colorPrimary, width: sdp(1)),
+                ),
+                child: Row(
+                  children: [
+                    TestId(
+                      PhoneEntryTestIds.countryButton,
+                      child: InkWell(
+                        onTap: country == null ? null : _pickCountry,
+                        borderRadius: BorderRadius.circular(sdp(8)),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 48),
+                          child: Semantics(
+                            button: true,
+                            label: country == null
+                                ? l10n.countryLabel
+                                : '${country.name} ${country.dialCode}',
+                            child: ExcludeSemantics(
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: sdp(32),
+                                    child: Center(
+                                      child: Text(
+                                        country?.flag ?? '',
+                                        style: TextStyle(
+                                          fontSize: sdp(24),
+                                          color: n.scheduleDayColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                      left: sdp(4),
+                                      right: sdp(8),
+                                    ),
+                                    child: Text(
+                                      country?.dialCode ?? '',
+                                      style: NativeText.regular(
+                                        sdp(12),
+                                        n.textSecondary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: sdp(1),
+                      height: sdp(32),
+                      margin: EdgeInsets.symmetric(vertical: sdp(4)),
+                      color: n.signupFieldViewColor,
+                    ),
+                    Expanded(
+                      child: TestId(
+                        PhoneEntryTestIds.numberField,
+                        child: TextField(
+                          controller: _controller,
+                          enabled: country != null && !state.loading,
+                          keyboardType: TextInputType.phone,
+                          autofillHints: const [
+                            AutofillHints.telephoneNumberNational,
+                          ],
+                          inputFormatters: [
+                            if (country != null)
+                              NationalNumberFormatter(country),
+                            LengthLimitingTextInputFormatter(32),
+                          ],
+                          style: NativeText.regular(sdp(12), n.textColor),
+                          cursorColor: n.textColor,
+                          decoration: InputDecoration(
+                            hintText: l10n.mobileNumberLabel,
+                            hintStyle: NativeText.regular(
+                              sdp(12),
+                              n.textSecondary,
+                            ),
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: sdp(12),
+                              vertical: sdp(12),
+                            ),
+                          ),
+                          onChanged: (v) {
+                            _vm.setInput(v);
+                            setState(() {});
+                          },
+                          onSubmitted: (_) => _submit(),
+                        ),
+                      ),
+                    ),
+                    if (_controller.text.isNotEmpty)
+                      IconButton(
+                        tooltip: MaterialLocalizations.of(context)
+                            .deleteButtonTooltip,
+                        icon: SvgIcon(
+                          'ic_clear_mob',
+                          size: sdp(23),
+                          color: n.clearImgBg,
+                        ),
+                        onPressed: () {
+                          _controller.clear();
+                          _vm.setInput('');
+                          setState(() {});
+                        },
+                      ),
                   ],
-                  decoration: InputDecoration(
-                    labelText: l10n.mobileNumberLabel,
-                    prefixText: country == null ? null : '${country.dialCode} ',
-                    errorText: error,
-                    border: const OutlineInputBorder(),
-                  ),
-                  onChanged: _vm.setInput,
-                  onSubmitted: (_) => _submit(),
                 ),
               ),
-              const SizedBox(height: 24),
-              TestId(
+            ),
+            if (error != null)
+              Padding(
+                padding: EdgeInsets.fromLTRB(sdp(12), sdp(4), sdp(12), 0),
+                child: TestId(
+                  PhoneEntryTestIds.errorText,
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SvgIcon('ic_error_info'),
+                        SizedBox(width: sdp(4)),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              error,
+                              style: NativeText.regular(
+                                sdp(12),
+                                n.noClubsColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(sdp(16), sdp(4), sdp(16), 0),
+              child: TestId(
                 PhoneEntryTestIds.continueButton,
                 child: FilledButton(
                   onPressed: state.canSubmit ? _submit : null,
                   style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(52),
+                    minimumSize: Size.fromHeight(sdp(50)),
+                    backgroundColor: n.colorPrimary,
+                    disabledBackgroundColor: Theme.of(context)
+                        .colorScheme
+                        .primary,
+                    disabledForegroundColor: n.black.withValues(alpha: 0.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(sdp(12)),
+                    ),
+                    textStyle: NativeText.bold(sdp(14), n.black),
                   ),
                   child: state.loading
                       ? const SizedBox.square(
@@ -212,8 +344,8 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                       : Text(l10n.continueAction),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -34,6 +34,7 @@ import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/places/places_repository.dart';
 import 'package:racketmates/common/events/event_actions_repository.dart';
+import 'package:racketmates/screens/welcome/landing_video.dart';
 import 'package:racketmates/common/events/participant_status_filter.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
@@ -1075,6 +1076,7 @@ List<Override> contentOverrides({
   FakePhoneVerificationRepository? phone,
   FakeDraftsRepository? drafts,
 }) => [
+  landingVideoEnabledProvider.overrideWithValue(false),
   participantStatusFilterKeyProvider.overrideWith(
     (ref) async => 'eus_confirmed',
   ),

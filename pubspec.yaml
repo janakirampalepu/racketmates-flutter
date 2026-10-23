@@ -52,6 +52,8 @@ dependencies:
   mime: ^2.1.0
   share_plus: ^13.3.1
   device_info_plus: ^13.3.0
+  flutter_svg: ^2.3.0
+  video_player: ^2.14.1
 
 dependency_overrides:
   # Same package with an Android build file that works with AGP 9 (see
@@ -86,10 +88,25 @@ flutter:
   assets:
     - assets/certs/
     - assets/data/
+    - assets/icons/
+    - assets/video/
 
   # Sendbird UIKit draws its icons from this font but expects the app to
   # declare it (see sbu_icons.dart in the package).
   fonts:
+    # Native design font (res/font), ported by tool/port_android_resources.py.
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/inter_light.ttf
+          weight: 300
+        - asset: assets/fonts/inter_regular.ttf
+          weight: 400
+        - asset: assets/fonts/inter_medium.ttf
+          weight: 500
+        - asset: assets/fonts/inter_semibold.ttf
+          weight: 600
+        - asset: assets/fonts/inter_bold.ttf
+          weight: 700
     - family: SendbirdIcons
       fonts:
         - asset: packages/sendbird_uikit/fonts/SendbirdIcons.ttf

@@ -87,6 +87,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get countryPickerTitle => 'Select country';
 
   @override
+  String get welcomeAlreadyMember => 'Already a member?';
+
+  @override
+  String get otpDescriptionShort => 'A verification code has been sent to';
+
+  @override
   String get otpTitle => 'Enter verification code';
 
   @override

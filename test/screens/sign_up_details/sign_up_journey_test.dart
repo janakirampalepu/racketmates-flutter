@@ -25,6 +25,7 @@ import 'package:racketmates/screens/splash/repositories/startup_repository.dart'
 import 'package:racketmates/screens/sports_selection/sports_selection_test_ids.dart';
 import 'package:racketmates/screens/welcome/welcome_test_ids.dart';
 
+import '../../support/app_harness.dart';
 import '../../support/fakes.dart';
 
 Finder _id(String id) => find.bySemanticsIdentifier(id);
@@ -274,6 +275,7 @@ void main() {
         tester.platformDispatcher.platformBrightnessTestValue =
             mode == ThemeMode.dark ? Brightness.dark : Brightness.light;
         addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+        useTallScreen(tester);
         final h = _Harness();
         await tester.pumpWidget(h.app());
         await _toDetails(tester);

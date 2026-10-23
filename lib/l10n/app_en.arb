@@ -34,6 +34,8 @@
   "closeAction": "Close",
   "searchHint": "Search",
   "countryPickerTitle": "Select country",
+  "welcomeAlreadyMember": "Already a member?",
+  "otpDescriptionShort": "A verification code has been sent to",
   "otpTitle": "Enter verification code",
   "otpDescription": "We sent a 6-digit code to {number}.",
   "otpChangeNumber": "Change",
