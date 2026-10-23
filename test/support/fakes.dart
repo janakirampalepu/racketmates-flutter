@@ -318,6 +318,91 @@ class FakeUserRepository implements UserRepository {
     return profile;
   }
 
+  /// Calls: `role:<id>:<roleId>`, `addRole:<id>`, `kid:create`, `delete:<id>`,
+  /// `phone:<id>`; bodies are kept in [roleBodies], [kidForms], [phoneBodies].
+  final List<String> userCalls = [];
+  final List<Map<String, dynamic>> roleBodies = [];
+  final List<FormData> kidForms = [];
+  final List<Map<String, dynamic>> phoneBodies = [];
+
+  /// Replaces the profile's user (tests set kids and roles through this).
+  void setUser(AppUser user) => profile = UserDetails(user: user);
+
+  @override
+  Future<UserDetails> updateRole(
+    int id,
+    int roleId,
+    Map<String, dynamic> body,
+  ) async {
+    userCalls.add('role:$id:$roleId');
+    roleBodies.add(body);
+    if (failure != null) throw failure!;
+    return profile;
+  }
+
+  @override
+  Future<UserDetails> addRole(int id, Map<String, dynamic> body) async {
+    userCalls.add('addRole:$id');
+    roleBodies.add(body);
+    if (failure != null) throw failure!;
+    return profile;
+  }
+
+  @override
+  Future<UserDetails> createKid(FormData form) async {
+    userCalls.add('kid:create');
+    kidForms.add(form);
+    if (failure != null) throw failure!;
+    return profile;
+  }
+
+  @override
+  Future<void> deleteUser(int id) async {
+    userCalls.add('delete:$id');
+    if (failure != null) throw failure!;
+    final u = profile.user!;
+    profile = UserDetails(
+      user: AppUser(
+        id: u.id,
+        uid: u.uid,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        mobileNumber: u.mobileNumber,
+        email: u.email,
+        roles: u.roles,
+        userRoles: u.userRoles,
+        country: u.country,
+        children: [
+          for (final c in u.children ?? const <AppUser>[])
+            if (c.id != id) c,
+        ],
+      ),
+    );
+  }
+
+  @override
+  Future<UserDetails> changeMobileNumber(
+    int id,
+    Map<String, dynamic> body,
+  ) async {
+    userCalls.add('phone:$id');
+    phoneBodies.add(body);
+    if (failure != null) throw failure!;
+    final u = profile.user!;
+    profile = UserDetails(
+      user: AppUser(
+        id: u.id,
+        uid: u.uid,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        mobileNumber: body['mobile_number'] as String?,
+        email: u.email,
+        country: u.country,
+      ),
+    );
+    return profile;
+  }
+
   @override
   Future<void> removeAvatar(int id) async {
     removedAvatars.add(id);
@@ -874,6 +959,7 @@ List<Override> contentOverrides({
   FakeSupportRepository? support,
   FakeShareService? share,
   FakePhotoPicker? photoPicker,
+  FakePhoneVerificationRepository? phone,
 }) => [
   contentRepositoryProvider.overrideWithValue(
     repository ?? FakeContentRepository(),
@@ -921,6 +1007,8 @@ List<Override> contentOverrides({
   ),
   shareServiceProvider.overrideWithValue(share ?? FakeShareService()),
   if (photoPicker != null) photoPickerProvider.overrideWithValue(photoPicker),
+  if (phone != null)
+    phoneVerificationRepositoryProvider.overrideWithValue(phone),
 ];
 
 class FakePlacesRepository implements PlacesRepository {

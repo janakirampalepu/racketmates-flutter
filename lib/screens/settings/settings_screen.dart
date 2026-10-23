@@ -168,6 +168,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   onTap: () => context.push(AppRoutes.profile),
                 ),
                 tile(
+                  id: SettingsTestIds.roles,
+                  icon: Icons.sports_tennis,
+                  title: l10n.settingsRoles,
+                  subtitle: l10n.settingsRolesHint,
+                  onTap: () => context.push(AppRoutes.roles),
+                ),
+                tile(
                   id: SettingsTestIds.notifications,
                   icon: Icons.notifications_outlined,
                   title: l10n.settingsNotifications,

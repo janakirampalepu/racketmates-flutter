@@ -20,6 +20,10 @@ abstract final class AppRoutes {
   static const notificationSettings = '/settings/notifications';
   static const eventReminders = '/settings/reminders';
   static const profile = '/settings/profile';
+  static const roles = '/settings/roles';
+  static const kids = '/settings/kids';
+  static const kidEdit = '/settings/kids/edit';
+  static const changePhone = '/settings/phone';
   static const shareWithFriends = '/settings/share';
   static const contactUs = '/settings/contact';
   static const deleteAccount = '/settings/delete-account';
@@ -113,6 +117,14 @@ abstract final class AppRoutes {
     path: '$event/$id/manage/add-people',
     queryParameters: {'role': coaches ? 'coach' : 'player'},
   ).toString();
+  static String roleSportsFor(String role) => '$roles/sports/$role';
+
+  /// Add (no id) or edit a kid.
+  static String kidEditFor([int? id]) => Uri(
+    path: kidEdit,
+    queryParameters: id == null ? null : {'id': '$id'},
+  ).toString();
+
   static String teamFor(int id) => '$team/$id';
   static String teamAddMembersFor(int id) => '$team/$id/add-members';
   static String teamSettingsFor(int id) => '$team/$id/settings';

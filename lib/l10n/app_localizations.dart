@@ -3412,6 +3412,252 @@ abstract class AppLocalizations {
   /// **'The request could not be sent. Please try again.'**
   String get deleteFailed;
 
+  /// No description provided for @rolesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Roles and sports'**
+  String get rolesTitle;
+
+  /// No description provided for @rolesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how you use Racketmates and which sports you play, coach or have your kids play.'**
+  String get rolesHint;
+
+  /// No description provided for @roleActiveSports.
+  ///
+  /// In en, this message translates to:
+  /// **'{sports}'**
+  String roleActiveSports(String sports);
+
+  /// No description provided for @roleNotActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Not active. Tap to add.'**
+  String get roleNotActive;
+
+  /// No description provided for @roleParentKids.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 kid} other{{count} kids}}'**
+  String roleParentKids(int count);
+
+  /// No description provided for @settingsRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'Roles and sports'**
+  String get settingsRoles;
+
+  /// No description provided for @settingsRolesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Player, coach and parent'**
+  String get settingsRolesHint;
+
+  /// No description provided for @roleSportsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get roleSportsSave;
+
+  /// No description provided for @roleSportsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Sports updated.'**
+  String get roleSportsSaved;
+
+  /// No description provided for @roleSportsAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Role added.'**
+  String get roleSportsAdded;
+
+  /// No description provided for @roleSportsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The change could not be saved. Please try again.'**
+  String get roleSportsFailed;
+
+  /// No description provided for @kidsEnableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable the parent role'**
+  String get kidsEnableTitle;
+
+  /// No description provided for @kidsEnableText.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your kids to manage their games and events from your account.'**
+  String get kidsEnableText;
+
+  /// No description provided for @kidsEnableAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a kid'**
+  String get kidsEnableAction;
+
+  /// No description provided for @kidEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get kidEdit;
+
+  /// No description provided for @kidRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get kidRemove;
+
+  /// No description provided for @kidRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String kidRemoveTitle(String name);
+
+  /// No description provided for @kidRemoveText.
+  ///
+  /// In en, this message translates to:
+  /// **'The account of {name} is deleted.'**
+  String kidRemoveText(String name);
+
+  /// No description provided for @kidRemoveLastText.
+  ///
+  /// In en, this message translates to:
+  /// **'The account of {name} is deleted and the parent role is turned off.'**
+  String kidRemoveLastText(String name);
+
+  /// No description provided for @kidRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Kid removed.'**
+  String get kidRemoved;
+
+  /// No description provided for @kidRemoveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The kid could not be removed. Please try again.'**
+  String get kidRemoveFailed;
+
+  /// No description provided for @kidAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Kid added.'**
+  String get kidAdded;
+
+  /// No description provided for @kidUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Kid updated.'**
+  String get kidUpdated;
+
+  /// No description provided for @kidEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit kid'**
+  String get kidEditTitle;
+
+  /// No description provided for @kidSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get kidSave;
+
+  /// No description provided for @kidSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The kid could not be saved. Please try again.'**
+  String get kidSaveFailed;
+
+  /// No description provided for @kidNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name.'**
+  String get kidNameRequired;
+
+  /// No description provided for @kidSportsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sports'**
+  String get kidSportsLabel;
+
+  /// No description provided for @phoneChangeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change mobile number'**
+  String get phoneChangeTitle;
+
+  /// No description provided for @phoneChangeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We will text a code to the new number.'**
+  String get phoneChangeHint;
+
+  /// No description provided for @phoneChangeSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get phoneChangeSend;
+
+  /// No description provided for @phoneChangeTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This number belongs to another account.'**
+  String get phoneChangeTaken;
+
+  /// No description provided for @phoneChangeSame.
+  ///
+  /// In en, this message translates to:
+  /// **'That is already your number.'**
+  String get phoneChangeSame;
+
+  /// No description provided for @phoneChangeCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code we sent to {number}.'**
+  String phoneChangeCodeHint(String number);
+
+  /// No description provided for @phoneChangeCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get phoneChangeCodeLabel;
+
+  /// No description provided for @phoneChangeVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify and change'**
+  String get phoneChangeVerify;
+
+  /// No description provided for @phoneChangeCodeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not right.'**
+  String get phoneChangeCodeInvalid;
+
+  /// No description provided for @phoneChangeResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the code again'**
+  String get phoneChangeResend;
+
+  /// No description provided for @phoneChangeDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number changed.'**
+  String get phoneChangeDone;
+
+  /// No description provided for @phoneChangeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The number could not be changed. Please try again.'**
+  String get phoneChangeFailed;
+
+  /// No description provided for @profilePhoneChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change number'**
+  String get profilePhoneChange;
+
   /// No description provided for @settingsRate.
   ///
   /// In en, this message translates to:

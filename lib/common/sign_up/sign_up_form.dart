@@ -33,7 +33,7 @@ List<MapEntry<String, String>> signUpFields(SignUpDraft draft) {
     final rolePrefix = '$prefix[user_roles_attributes][0]';
     if (kid.roleId != null) add('$rolePrefix[id]', '${kid.roleId}');
     add('$rolePrefix[role]', RoleKeys.player);
-    _sports(
+    appendSportFields(
       out,
       '$rolePrefix[user_role_sports_attributes]',
       selected: kid.sports,
@@ -53,7 +53,7 @@ List<MapEntry<String, String>> signUpFields(SignUpDraft draft) {
       RoleKeys.coach => draft.coachSports,
       _ => const <SportKey>{},
     };
-    _sports(
+    appendSportFields(
       out,
       '$prefix[user_role_sports_attributes]',
       selected: draft.roles.contains(role) ? selected : const {},
@@ -63,7 +63,9 @@ List<MapEntry<String, String>> signUpFields(SignUpDraft draft) {
   return out;
 }
 
-void _sports(
+/// Sport attributes of a role: selected sports (with their id when they
+/// exist already) and `_destroy` for existing ones that were deselected.
+void appendSportFields(
   List<MapEntry<String, String>> out,
   String prefix, {
   required Set<SportKey> selected,

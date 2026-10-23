@@ -1807,6 +1807,152 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteFailed => 'The request could not be sent. Please try again.';
 
   @override
+  String get rolesTitle => 'Roles and sports';
+
+  @override
+  String get rolesHint =>
+      'Choose how you use Racketmates and which sports you play, coach or have your kids play.';
+
+  @override
+  String roleActiveSports(String sports) {
+    return '$sports';
+  }
+
+  @override
+  String get roleNotActive => 'Not active. Tap to add.';
+
+  @override
+  String roleParentKids(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kids',
+      one: '1 kid',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsRoles => 'Roles and sports';
+
+  @override
+  String get settingsRolesHint => 'Player, coach and parent';
+
+  @override
+  String get roleSportsSave => 'Save';
+
+  @override
+  String get roleSportsSaved => 'Sports updated.';
+
+  @override
+  String get roleSportsAdded => 'Role added.';
+
+  @override
+  String get roleSportsFailed =>
+      'The change could not be saved. Please try again.';
+
+  @override
+  String get kidsEnableTitle => 'Enable the parent role';
+
+  @override
+  String get kidsEnableText =>
+      'Add your kids to manage their games and events from your account.';
+
+  @override
+  String get kidsEnableAction => 'Add a kid';
+
+  @override
+  String get kidEdit => 'Edit';
+
+  @override
+  String get kidRemove => 'Remove';
+
+  @override
+  String kidRemoveTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String kidRemoveText(String name) {
+    return 'The account of $name is deleted.';
+  }
+
+  @override
+  String kidRemoveLastText(String name) {
+    return 'The account of $name is deleted and the parent role is turned off.';
+  }
+
+  @override
+  String get kidRemoved => 'Kid removed.';
+
+  @override
+  String get kidRemoveFailed =>
+      'The kid could not be removed. Please try again.';
+
+  @override
+  String get kidAdded => 'Kid added.';
+
+  @override
+  String get kidUpdated => 'Kid updated.';
+
+  @override
+  String get kidEditTitle => 'Edit kid';
+
+  @override
+  String get kidSave => 'Save';
+
+  @override
+  String get kidSaveFailed => 'The kid could not be saved. Please try again.';
+
+  @override
+  String get kidNameRequired => 'Enter a name.';
+
+  @override
+  String get kidSportsLabel => 'Sports';
+
+  @override
+  String get phoneChangeTitle => 'Change mobile number';
+
+  @override
+  String get phoneChangeHint => 'We will text a code to the new number.';
+
+  @override
+  String get phoneChangeSend => 'Send code';
+
+  @override
+  String get phoneChangeTaken => 'This number belongs to another account.';
+
+  @override
+  String get phoneChangeSame => 'That is already your number.';
+
+  @override
+  String phoneChangeCodeHint(String number) {
+    return 'Enter the code we sent to $number.';
+  }
+
+  @override
+  String get phoneChangeCodeLabel => 'Code';
+
+  @override
+  String get phoneChangeVerify => 'Verify and change';
+
+  @override
+  String get phoneChangeCodeInvalid => 'That code is not right.';
+
+  @override
+  String get phoneChangeResend => 'Send the code again';
+
+  @override
+  String get phoneChangeDone => 'Mobile number changed.';
+
+  @override
+  String get phoneChangeFailed =>
+      'The number could not be changed. Please try again.';
+
+  @override
+  String get profilePhoneChange => 'Change number';
+
+  @override
   String get settingsRate => 'Rate the app';
 
   @override

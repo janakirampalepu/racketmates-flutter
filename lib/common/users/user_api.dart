@@ -45,4 +45,31 @@ abstract class UserApi {
 
   @DELETE('users/{id}/destroy_profile_image')
   Future<void> removeAvatar(@Path('id') int id);
+
+  @PUT('users/{id}/user_roles/{roleId}')
+  Future<UserDetails> updateRole(
+    @Path('id') int id,
+    @Path('roleId') int roleId,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @POST('users/{id}/user_roles')
+  Future<UserDetails> addRole(
+    @Path('id') int id,
+    @Body() Map<String, dynamic> body,
+  );
+
+  /// A kid account of the signed-in parent (multipart, no sign-up).
+  @POST('users')
+  @MultiPart()
+  Future<UserDetails> createKid(@Body() FormData form);
+
+  @DELETE('users/{id}')
+  Future<void> deleteUser(@Path('id') int id);
+
+  @PUT('users/{id}/change_mobile_number')
+  Future<UserDetails> changeMobileNumber(
+    @Path('id') int id,
+    @Body() Map<String, dynamic> body,
+  );
 }

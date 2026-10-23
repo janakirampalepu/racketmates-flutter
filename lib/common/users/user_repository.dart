@@ -26,6 +26,21 @@ abstract class UserRepository {
 
   /// `DELETE users/{id}/destroy_profile_image`.
   Future<void> removeAvatar(int id);
+
+  /// Sports of a role the user has: `PUT users/{id}/user_roles/{roleId}`.
+  Future<UserDetails> updateRole(int id, int roleId, Map<String, dynamic> body);
+
+  /// A role the user does not have yet: `POST users/{id}/user_roles`.
+  Future<UserDetails> addRole(int id, Map<String, dynamic> body);
+
+  /// `POST users` for a kid of the signed-in parent.
+  Future<UserDetails> createKid(FormData form);
+
+  /// `DELETE users/{id}` (a kid account).
+  Future<void> deleteUser(int id);
+
+  /// `PUT users/{id}/change_mobile_number` after the new number was verified.
+  Future<UserDetails> changeMobileNumber(int id, Map<String, dynamic> body);
 }
 
 class UserRepositoryImpl implements UserRepository {
@@ -69,6 +84,28 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<UserDetails> updateProfile(int id, Map<String, dynamic> body) =>
       _guard(() => api.updateProfile(id, body));
+
+  @override
+  Future<UserDetails> updateRole(
+    int id,
+    int roleId,
+    Map<String, dynamic> body,
+  ) => _guard(() => api.updateRole(id, roleId, body));
+
+  @override
+  Future<UserDetails> addRole(int id, Map<String, dynamic> body) =>
+      _guard(() => api.addRole(id, body));
+
+  @override
+  Future<UserDetails> createKid(FormData form) =>
+      _guard(() => api.createKid(form));
+
+  @override
+  Future<void> deleteUser(int id) => _guard(() => api.deleteUser(id));
+
+  @override
+  Future<UserDetails> changeMobileNumber(int id, Map<String, dynamic> body) =>
+      _guard(() => api.changeMobileNumber(id, body));
 
   @override
   Future<void> removeAvatar(int id) => _guard(() => api.removeAvatar(id));

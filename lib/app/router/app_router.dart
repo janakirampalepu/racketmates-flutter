@@ -64,7 +64,12 @@ import 'package:racketmates/screens/team_details/team_details_screen.dart';
 import 'package:racketmates/screens/team_settings/team_settings_screen.dart';
 import 'package:racketmates/screens/event_reminders/event_reminders_screen.dart';
 import 'package:racketmates/screens/notification_settings/notification_settings_screen.dart';
+import 'package:racketmates/screens/change_phone/change_phone_screen.dart';
 import 'package:racketmates/screens/contact_us/contact_us_screen.dart';
+import 'package:racketmates/screens/kid_edit/kid_edit_screen.dart';
+import 'package:racketmates/screens/kids_settings/kids_settings_screen.dart';
+import 'package:racketmates/screens/my_roles/my_roles_screen.dart';
+import 'package:racketmates/screens/role_sports/role_sports_screen.dart';
 import 'package:racketmates/screens/delete_account/delete_account_screen.dart';
 import 'package:racketmates/screens/profile/profile_screen.dart';
 import 'package:racketmates/screens/settings/settings_screen.dart';
@@ -506,6 +511,40 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'profile',
             builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: 'roles',
+            builder: (context, state) => const MyRolesScreen(),
+            routes: [
+              GoRoute(
+                path: 'sports/:role',
+                redirect: (context, state) =>
+                    const {
+                      'ur_player',
+                      'ur_coach',
+                    }.contains(state.pathParameters['role'])
+                    ? null
+                    : AppRoutes.roles,
+                builder: (context, state) =>
+                    RoleSportsScreen(role: state.pathParameters['role']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: 'kids',
+            builder: (context, state) => const KidsSettingsScreen(),
+            routes: [
+              GoRoute(
+                path: 'edit',
+                builder: (context, state) => KidEditScreen(
+                  kidId: int.tryParse(state.uri.queryParameters['id'] ?? ''),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: 'phone',
+            builder: (context, state) => const ChangePhoneScreen(),
           ),
           GoRoute(
             path: 'share',

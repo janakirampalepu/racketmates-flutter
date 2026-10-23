@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/auth/session_controller.dart';
 import 'package:racketmates/common/auth/session_state.dart';
@@ -368,10 +369,17 @@ class _FormState extends ConsumerState<_Form> {
             child: ListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(l10n.profilePhone),
-              subtitle: Text(
-                '${widget.user.mobileNumber}\n${l10n.profilePhoneHint}',
+              subtitle: Text(widget.user.mobileNumber!),
+              trailing: TestId(
+                ProfileTestIds.changePhone,
+                child: TextButton(
+                  onPressed: () async {
+                    await context.push(AppRoutes.changePhone);
+                    ref.invalidate(userProfileProvider);
+                  },
+                  child: Text(l10n.profilePhoneChange),
+                ),
               ),
-              isThreeLine: true,
             ),
           ),
         if (_saveFailed)

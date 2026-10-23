@@ -11,6 +11,7 @@ abstract final class ProfileTestIds {
   static const lastName = 'profile_last_name_field';
   static const email = 'profile_email_field';
   static const phone = 'profile_phone';
+  static const changePhone = 'profile_change_phone_button';
   static const firstNameError = 'profile_first_name_error';
   static const lastNameError = 'profile_last_name_error';
   static const emailError = 'profile_email_error';
@@ -51,4 +52,68 @@ abstract final class DeleteAccountTestIds {
   static const processing = 'delete_account_processing_dialog';
   static const processingOk = 'delete_account_processing_ok';
   static const failed = 'delete_account_failed';
+}
+
+abstract final class RolesTestIds {
+  static const root = 'roles_screen';
+  static const title = 'roles_title';
+  static const player = 'roles_player_tile';
+  static const coach = 'roles_coach_tile';
+  static const parent = 'roles_parent_tile';
+  static const loadError = 'roles_load_error';
+  static const retry = 'roles_retry_button';
+
+  static const sportsRoot = 'role_sports_screen';
+  static const sportsTitle = 'role_sports_title';
+  static const sportsSave = 'role_sports_save_button';
+  static const sportsError = 'role_sports_error';
+  static const sportsFailed = 'role_sports_failed';
+
+  /// `role_sport_<st_*>`.
+  static String sport(String key) => 'role_sport_$key';
+}
+
+abstract final class KidsSettingsTestIds {
+  static const root = 'kids_settings_screen';
+  static const title = 'kids_settings_title';
+  static const enable = 'kids_settings_enable';
+  static const add = 'kids_settings_add_button';
+  static const max = 'kids_settings_max';
+  static const removeFailed = 'kids_settings_remove_failed';
+  static const confirmYes = 'kids_settings_confirm_yes_button';
+  static const confirmNo = 'kids_settings_confirm_no_button';
+
+  /// `kid_<id>`, `kid_<id>_edit`, `kid_<id>_remove`.
+  static String kid(int id) => 'kid_$id';
+  static String edit(int id) => 'kid_${id}_edit';
+  static String remove(int id) => 'kid_${id}_remove';
+}
+
+abstract final class KidEditTestIds {
+  static const root = 'kid_edit_screen';
+  static const title = 'kid_edit_title';
+  static const firstName = 'kid_edit_first_name_field';
+  static const lastName = 'kid_edit_last_name_field';
+  static const mobile = 'kid_edit_mobile_field';
+  static const firstNameError = 'kid_edit_first_name_error';
+  static const lastNameError = 'kid_edit_last_name_error';
+  static const mobileError = 'kid_edit_mobile_error';
+  static const sportError = 'kid_edit_sport_error';
+  static const save = 'kid_edit_save_button';
+  static const failed = 'kid_edit_failed';
+
+  /// `kid_edit_sport_<st_*>`.
+  static String sport(String key) => 'kid_edit_sport_$key';
+}
+
+abstract final class ChangePhoneTestIds {
+  static const root = 'change_phone_screen';
+  static const title = 'change_phone_title';
+  static const country = 'change_phone_country_button';
+  static const number = 'change_phone_number_field';
+  static const send = 'change_phone_send_button';
+  static const code = 'change_phone_code_field';
+  static const verify = 'change_phone_verify_button';
+  static const resend = 'change_phone_resend_button';
+  static const error = 'change_phone_error';
 }
