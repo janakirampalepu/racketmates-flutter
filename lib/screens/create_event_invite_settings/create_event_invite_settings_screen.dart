@@ -11,6 +11,7 @@ import 'package:racketmates/common/widgets/number_stepper.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_invite_settings/create_event_invite_settings_test_ids.dart';
+import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 
 /// Player limits and how players are accepted (native
 /// `InvitePlayerSettingsFragment`; the whole-team pool only exists for team
@@ -24,6 +25,7 @@ class CreateEventInviteSettingsScreen extends ConsumerWidget {
     final draft = ref.watch(createEventFlowProvider) ?? const EventDraft();
     final flow = ref.read(createEventFlowProvider.notifier);
     return StepScaffold(
+      actions: eventDraftActions(context, ref),
       rootId: CreateEventInviteSettingsTestIds.root,
       titleId: CreateEventInviteSettingsTestIds.title,
       title: ref.msg(

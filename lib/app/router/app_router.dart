@@ -54,6 +54,7 @@ import 'package:racketmates/screens/chat_new/new_chat_screen.dart';
 import 'package:racketmates/screens/locations/locations_screen.dart';
 import 'package:racketmates/screens/venue_details/venue_screen.dart';
 import 'package:racketmates/screens/event_details/event_details_screen.dart';
+import 'package:racketmates/screens/event_drafts/event_drafts_screen.dart';
 import 'package:racketmates/screens/home/home_screen.dart';
 import 'package:racketmates/screens/main_shell/main_shell_screen.dart';
 import 'package:racketmates/screens/schedule/schedule_screen.dart';
@@ -293,6 +294,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 VenueScreen(placeId: int.parse(state.pathParameters['id']!)),
           ),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.drafts,
+        builder: (context, state) => const EventDraftsScreen(),
       ),
       GoRoute(
         path: AppRoutes.chatNew,

@@ -68,6 +68,9 @@ class _FakeCreateEventRepository implements CreateEventRepository {
   }) async => const [];
 
   @override
+  Future<List<AppUser>> usersByIds(List<int> ids) async => const [];
+
+  @override
   Future<ScoringFormatsResponse> scoringFormats({
     required String sportKey,
     required String eventType,

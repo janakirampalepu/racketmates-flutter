@@ -10,6 +10,7 @@ import 'package:racketmates/common/create_event/event_draft.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_home_away/create_event_home_away_test_ids.dart';
+import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 
 /// Which team is home and which is visiting (native `DefineHomeTeamFragment`).
 /// The user's team starts as home; the home team can be left undecided.
@@ -37,6 +38,7 @@ class CreateEventHomeAwayScreen extends ConsumerWidget {
     );
 
     return StepScaffold(
+      actions: eventDraftActions(context, ref),
       rootId: CreateEventHomeAwayTestIds.root,
       titleId: CreateEventHomeAwayTestIds.title,
       title: l10n.createHomeAwayTitle,

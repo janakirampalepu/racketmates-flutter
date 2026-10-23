@@ -16,6 +16,7 @@ import 'package:racketmates/common/sign_up/sport_labels.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_review/create_event_review_test_ids.dart';
+import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 
 /// Summary and the single `POST events` (native `EventReviewFragment`).
 class CreateEventReviewScreen extends ConsumerWidget {
@@ -44,6 +45,7 @@ class CreateEventReviewScreen extends ConsumerWidget {
     );
 
     return StepScaffold(
+      actions: eventDraftActions(context, ref),
       rootId: CreateEventReviewTestIds.root,
       titleId: CreateEventReviewTestIds.title,
       title: l10n.createReviewTitle,

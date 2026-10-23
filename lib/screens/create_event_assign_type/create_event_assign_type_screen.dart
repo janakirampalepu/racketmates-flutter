@@ -11,6 +11,7 @@ import 'package:racketmates/common/create_event/match_draft.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_assign_type/create_event_assign_type_test_ids.dart';
+import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 
 /// Assign players to matches now, or invite players and assign later (native
 /// `AssignTypeFragment`). Assigning now needs singles or doubles on every
@@ -66,6 +67,7 @@ class _CreateEventAssignTypeScreenState
     );
 
     return StepScaffold(
+      actions: eventDraftActions(context, ref),
       rootId: CreateEventAssignTypeTestIds.root,
       titleId: CreateEventAssignTypeTestIds.title,
       title: lesson ? l10n.createLessonAssignTitle : l10n.createAssignTypeTitle,

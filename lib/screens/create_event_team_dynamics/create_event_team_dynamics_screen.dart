@@ -10,6 +10,7 @@ import 'package:racketmates/common/create_event/event_draft.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_team_dynamics/create_event_team_dynamics_test_ids.dart';
+import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 
 /// Who a team game is played against (native `EventDynamicsFragment`): within
 /// the team, another team in the app, or a team known only by name.
@@ -87,6 +88,7 @@ class _CreateEventTeamDynamicsScreenState
     }
 
     return StepScaffold(
+      actions: eventDraftActions(context, ref),
       rootId: CreateEventTeamDynamicsTestIds.root,
       titleId: CreateEventTeamDynamicsTestIds.title,
       title: l10n.createDynamicsTitle,

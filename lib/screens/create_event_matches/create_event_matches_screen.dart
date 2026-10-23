@@ -13,6 +13,7 @@ import 'package:racketmates/common/widgets/number_stepper.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_matches/create_event_matches_test_ids.dart';
+import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 
 /// Courts maximum of a round robin (native stepper limit).
 const maxRoundRobinCourts = 10;
@@ -31,6 +32,7 @@ class CreateEventMatchesScreen extends ConsumerWidget {
     final flow = ref.read(createEventFlowProvider.notifier);
     final roundRobin = draft.spec?.isRoundRobin ?? false;
     return StepScaffold(
+      actions: eventDraftActions(context, ref),
       rootId: CreateEventMatchesTestIds.root,
       titleId: CreateEventMatchesTestIds.title,
       title: roundRobin

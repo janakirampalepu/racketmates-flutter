@@ -10,6 +10,7 @@ import 'package:racketmates/common/create_event/event_draft.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_team_choice/create_event_team_choice_test_ids.dart';
+import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 
 /// Team or non-team event (native `SelectTeamGlobalEventFragment`). A team
 /// event is for a team the user captains and invites that team's members.
@@ -51,6 +52,7 @@ class CreateEventTeamChoiceScreen extends ConsumerWidget {
     );
 
     return StepScaffold(
+      actions: eventDraftActions(context, ref),
       rootId: CreateEventTeamChoiceTestIds.root,
       titleId: CreateEventTeamChoiceTestIds.title,
       title: l10n.createTeamChoiceTitle,

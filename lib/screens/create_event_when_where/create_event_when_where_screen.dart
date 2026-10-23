@@ -14,6 +14,7 @@ import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_when_where/create_event_when_where_test_ids.dart';
 import 'package:racketmates/screens/create_event_when_where/create_event_when_where_view_model.dart';
+import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 
 /// Venue, courts, date, start time, duration and notes (native
 /// `EventCourtFragment`, single schedule option).
@@ -129,6 +130,7 @@ class _CreateEventWhenWhereScreenState
     );
 
     return StepScaffold(
+      actions: eventDraftActions(context, ref),
       rootId: CreateEventWhenWhereTestIds.root,
       titleId: CreateEventWhenWhereTestIds.title,
       title: ref.msg(MessageKeys.createDetailsTitle, l10n.createWhenWhereTitle),

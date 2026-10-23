@@ -12,6 +12,7 @@ import 'package:racketmates/common/widgets/scoring_picker.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_settings/create_event_settings_test_ids.dart';
+import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 
 /// General settings (native `GenerelSettingsFragment`): response deadline
 /// (hours 1-23 / days 1-7), whether participants can manage players and, for
@@ -31,6 +32,7 @@ class CreateEventSettingsScreen extends ConsumerWidget {
         : ref.refLabel(attendanceUnitDays, l10n.createUnitDays);
     final scored = draft.spec?.usesScoring ?? false;
     return StepScaffold(
+      actions: eventDraftActions(context, ref),
       rootId: CreateEventSettingsTestIds.root,
       titleId: CreateEventSettingsTestIds.title,
       title: ref.msg(MessageKeys.createSettingsTitle, l10n.createSettingsTitle),

@@ -13,6 +13,7 @@ import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_assign_players/create_event_assign_players_test_ids.dart';
+import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 
 /// Puts players into the spots of every match (native `EventCourtFragment` /
 /// `SelectCourtPlayersPicker`): singles has one spot per side, doubles two.
@@ -41,6 +42,7 @@ class _CreateEventAssignPlayersScreenState
         side == MatchKeys.sideTop ? l10n.createSideTop : l10n.createSideBottom;
 
     return StepScaffold(
+      actions: eventDraftActions(context, ref),
       rootId: CreateEventAssignPlayersTestIds.root,
       titleId: CreateEventAssignPlayersTestIds.title,
       title: l10n.createAssignPlayersTitle,

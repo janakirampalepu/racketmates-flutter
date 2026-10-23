@@ -8,6 +8,7 @@ import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
+import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 import 'package:racketmates/screens/create_event_success/create_event_success_test_ids.dart';
 import 'package:racketmates/screens/home/home_view_model.dart';
 import 'package:racketmates/screens/schedule/schedule_view_model.dart';
@@ -22,7 +23,8 @@ class CreateEventSuccessScreen extends ConsumerWidget {
     ref
       ..invalidate(homeViewModelProvider)
       ..invalidate(scheduleListViewModelProvider)
-      ..invalidate(createEventSubmitterProvider);
+      ..invalidate(createEventSubmitterProvider)
+      ..invalidate(draftsProvider);
     ref.read(createEventFlowProvider.notifier).reset();
     context.go(AppRoutes.schedule);
     if (details && eventId != null) {

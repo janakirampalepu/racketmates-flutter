@@ -9,6 +9,7 @@ import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/widgets/event_tile.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
+import 'package:racketmates/screens/event_drafts/event_drafts_test_ids.dart';
 import 'package:racketmates/screens/schedule/schedule_test_ids.dart';
 import 'package:racketmates/screens/schedule/schedule_view_model.dart';
 
@@ -26,6 +27,16 @@ class ScheduleScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(ref.msg(MessageKeys.scheduleTitle, l10n.scheduleTitle)),
+          actions: [
+            TestId(
+              EventDraftActionIds.scheduleButton,
+              child: IconButton(
+                tooltip: l10n.draftsAction,
+                icon: const Icon(Icons.drafts_outlined),
+                onPressed: () => context.push(AppRoutes.drafts),
+              ),
+            ),
+          ],
           bottom: TabBar(
             tabs: [
               TestId(

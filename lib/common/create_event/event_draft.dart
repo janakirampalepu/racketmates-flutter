@@ -304,6 +304,7 @@ class EventDraft {
     this.opponentName = '',
     this.opponentIsHome = false,
     this.homeTeamNotDecided = false,
+    this.draftEventId,
   });
 
   final String? eventType;
@@ -358,6 +359,10 @@ class EventDraft {
 
   /// Team or non-team event; null until chosen.
   final bool? forTeam;
+
+  /// The saved draft this event was resumed from; creating the event (or
+  /// saving it again) replaces that draft.
+  final int? draftEventId;
 
   /// The team (one the user captains) a team event is for.
   final Team? team;
@@ -416,6 +421,7 @@ class EventDraft {
     String? opponentName,
     bool? opponentIsHome,
     bool? homeTeamNotDecided,
+    int? Function()? draftEventId,
   }) => EventDraft(
     eventType: eventType ?? this.eventType,
     sport: sport ?? this.sport,
@@ -457,6 +463,7 @@ class EventDraft {
     opponentName: opponentName ?? this.opponentName,
     opponentIsHome: opponentIsHome ?? this.opponentIsHome,
     homeTeamNotDecided: homeTeamNotDecided ?? this.homeTeamNotDecided,
+    draftEventId: draftEventId != null ? draftEventId() : this.draftEventId,
   );
 
   EventTypeSpec? get spec => eventTypeSpecs[eventType];

@@ -12,6 +12,7 @@ import 'package:racketmates/common/create_event/match_draft.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/screens/create_event_round_robin_format/create_event_round_robin_format_test_ids.dart';
+import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 
 /// Round robin format (native `RoundRobinTypeSelectionFragment`): classic,
 /// king of the court or manual. The descriptions depend on singles, rotating
@@ -55,6 +56,7 @@ class CreateEventRoundRobinFormatScreen extends ConsumerWidget {
     ];
 
     return StepScaffold(
+      actions: eventDraftActions(context, ref),
       rootId: CreateEventRoundRobinFormatTestIds.root,
       titleId: CreateEventRoundRobinFormatTestIds.title,
       title: l10n.createRoundRobinFormatTitle,

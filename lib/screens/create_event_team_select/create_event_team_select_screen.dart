@@ -13,6 +13,7 @@ import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_team_select/create_event_team_select_test_ids.dart';
+import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 
 /// Picks the team of a team event (native `SelectTeamV2Fragment`): teams the
 /// user captains that play the event's sport.
@@ -70,6 +71,7 @@ class _CreateEventTeamSelectScreenState
     }
 
     return StepScaffold(
+      actions: eventDraftActions(context, ref),
       rootId: CreateEventTeamSelectTestIds.root,
       titleId: CreateEventTeamSelectTestIds.title,
       title: l10n.createTeamSelectTitle,

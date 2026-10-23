@@ -20,6 +20,9 @@ abstract class CreateEventRepository {
     List<String>? sportKeys,
   });
 
+  /// The users with these ids (names for a resumed draft).
+  Future<List<AppUser>> usersByIds(List<int> ids);
+
   /// Scoring formats a sport offers for an event type.
   Future<ScoringFormatsResponse> scoringFormats({
     required String sportKey,
@@ -69,6 +72,13 @@ class CreateEventRepositoryImpl implements CreateEventRepository {
         sportTypes: sports.isEmpty ? null : sports,
       ),
     );
+    return response.users ?? const [];
+  }
+
+  @override
+  Future<List<AppUser>> usersByIds(List<int> ids) async {
+    if (ids.isEmpty) return const [];
+    final response = await _guard(() => api.searchUsers(includeUserIds: ids));
     return response.users ?? const [];
   }
 

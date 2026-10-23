@@ -7,6 +7,7 @@ abstract final class AppRoutes {
   static const welcome = '/welcome';
   static const home = '/home';
   static const schedule = '/schedule';
+  static const drafts = '/drafts';
   static const chat = '/chat';
   static const chatChannel = '/chat/channel';
   static const locations = '/locations';
@@ -51,6 +52,14 @@ abstract final class AppRoutes {
   static const createEventSuccess = '/create-event/success';
 
   /// Route of a wizard step (see `createEventStepsFor`).
+  /// The wizard step a location belongs to (null elsewhere).
+  static CreateEventStep? stepForRoute(String location) {
+    for (final step in CreateEventStep.values) {
+      if (routeForStep(step) == location) return step;
+    }
+    return null;
+  }
+
   static String routeForStep(CreateEventStep step) => switch (step) {
     CreateEventStep.type => createEvent,
     CreateEventStep.sport => createEventSport,
@@ -174,6 +183,7 @@ abstract final class AppRoutes {
       location.startsWith('$chat/') ||
       location == locations ||
       location.startsWith('$locations/') ||
+      location == drafts ||
       location == subscription ||
       location.startsWith('$subscription/') ||
       location.startsWith('$event/') ||

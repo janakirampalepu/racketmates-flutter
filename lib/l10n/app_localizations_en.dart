@@ -561,6 +561,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createEventAction => 'Create event';
 
   @override
+  String get eventDraftSave => 'Save as draft';
+
+  @override
+  String get eventDraftDiscard => 'Discard';
+
+  @override
+  String get eventDraftSaved => 'Saved as a draft.';
+
+  @override
+  String get eventDraftSaveFailed =>
+      'The draft could not be saved. Please try again.';
+
+  @override
+  String get eventDraftMenu => 'Draft options';
+
+  @override
+  String get eventDraftDiscardTitle => 'Leave this event?';
+
+  @override
+  String get eventDraftDiscardText => 'Nothing you entered will be kept.';
+
+  @override
+  String get eventDraftDiscardSavedText => 'The saved draft is deleted too.';
+
+  @override
+  String get eventDraftKeep => 'Keep editing';
+
+  @override
+  String get eventDraftLeave => 'Discard';
+
+  @override
+  String get draftsTitle => 'Drafts';
+
+  @override
+  String get draftsAction => 'Drafts';
+
+  @override
+  String get draftsEmpty => 'You have no drafts.';
+
+  @override
+  String get draftsLoadError => 'Drafts could not be loaded.';
+
+  @override
+  String draftsUpdated(String date) {
+    return 'Updated $date';
+  }
+
+  @override
+  String get draftDelete => 'Delete draft';
+
+  @override
+  String get draftDeleteTitle => 'Delete this draft?';
+
+  @override
+  String get draftDeleteText => 'The draft is deleted for good.';
+
+  @override
+  String get draftDeleted => 'Draft deleted.';
+
+  @override
+  String get draftDeleteFailed =>
+      'The draft could not be deleted. Please try again.';
+
+  @override
+  String get draftOpenFailed => 'This draft could not be opened.';
+
+  @override
+  String get draftOpening => 'Opening the draft';
+
+  @override
   String get createTypeTitle => 'What kind of event?';
 
   @override

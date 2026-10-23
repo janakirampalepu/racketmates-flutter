@@ -16,6 +16,7 @@ import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_opponent_select/create_event_opponent_select_test_ids.dart';
+import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 
 /// Picks the opposing team (native `SelectTeamV2Fragment` in opponent mode):
 /// any non-league team that plays the sport, except the user's own team.
@@ -89,6 +90,7 @@ class _CreateEventOpponentSelectScreenState
     }
 
     return StepScaffold(
+      actions: eventDraftActions(context, ref),
       rootId: CreateEventOpponentSelectTestIds.root,
       titleId: CreateEventOpponentSelectTestIds.title,
       title: l10n.createOpponentTitle,

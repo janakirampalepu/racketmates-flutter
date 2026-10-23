@@ -16,6 +16,7 @@ class StepScaffold extends StatelessWidget {
     this.backId,
     this.onBack,
     this.titleId,
+    this.actions,
     super.key,
   });
 
@@ -31,6 +32,9 @@ class StepScaffold extends StatelessWidget {
   final String? backId;
   final VoidCallback? onBack;
 
+  /// App bar actions (e.g. the create-event draft menu).
+  final List<Widget>? actions;
+
   @override
   Widget build(BuildContext context) {
     final heading = Text(
@@ -40,6 +44,7 @@ class StepScaffold extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        actions: actions,
         leading: showBack
             ? TestId(
                 backId ?? '${rootId}_back_button',

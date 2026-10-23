@@ -12,6 +12,7 @@ import 'package:racketmates/common/sign_up/sport_labels.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_sport/create_event_sport_test_ids.dart';
+import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 
 /// Sport of the event (single choice).
 class CreateEventSportScreen extends ConsumerWidget {
@@ -27,6 +28,7 @@ class CreateEventSportScreen extends ConsumerWidget {
         ? {for (final k in draft?.team?.sportKeys ?? const <String>[]) k}
         : null;
     return StepScaffold(
+      actions: eventDraftActions(context, ref),
       rootId: CreateEventSportTestIds.root,
       titleId: CreateEventSportTestIds.title,
       title: ref.msg(MessageKeys.createSportTitle, l10n.createSportTitle),

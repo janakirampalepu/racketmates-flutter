@@ -48,6 +48,8 @@ import 'package:racketmates/common/support/support_repository.dart';
 import 'package:racketmates/common/location/location_platform.dart';
 import 'package:racketmates/common/location/user_location.dart';
 import 'package:racketmates/common/chat/chat_client.dart';
+import 'package:racketmates/common/create_event/drafts_models.dart';
+import 'package:racketmates/common/create_event/drafts_repository.dart';
 import 'package:racketmates/common/chat/chat_repository.dart';
 import 'package:racketmates/common/chat/chat_ui.dart';
 import 'package:racketmates/common/media/image_picker_service.dart';
@@ -960,7 +962,9 @@ List<Override> contentOverrides({
   FakeShareService? share,
   FakePhotoPicker? photoPicker,
   FakePhoneVerificationRepository? phone,
+  FakeDraftsRepository? drafts,
 }) => [
+  draftsRepositoryProvider.overrideWithValue(drafts ?? FakeDraftsRepository()),
   contentRepositoryProvider.overrideWithValue(
     repository ?? FakeContentRepository(),
   ),
@@ -1434,10 +1438,22 @@ class FakeCreateEventRepository implements CreateEventRepository {
   Map<String, dynamic>? body;
   final List<({String query, String? role, String? sport})> searches = [];
 
+  /// Every body `create` was given (drafts and real events).
+  final List<Map<String, dynamic>> bodies = [];
+
+  /// People looked up by id (resuming a draft).
+  Map<int, AppUser> usersById = {};
+
+  @override
+  Future<List<AppUser>> usersByIds(List<int> ids) async => [
+    for (final id in ids) ?usersById[id],
+  ];
+
   @override
   Future<EventDetailsResponse> create(Map<String, dynamic> b) async {
     await Future<void>.delayed(Duration.zero);
     if (createFailure != null) throw createFailure!;
+    bodies.add(b);
     body = b;
     return EventDetailsResponse(event: EventDetails(id: createdId));
   }
@@ -1814,4 +1830,49 @@ class InMemoryDistanceStore implements DistanceFilterStore {
 
   @override
   Future<void> write(int distance) async => value = distance;
+}
+
+class FakeDraftsRepository implements DraftsRepository {
+  FakeDraftsRepository({
+    this.drafts = const [],
+    Map<int, Map<String, dynamic>>? requests,
+  }) : requestsById = requests ?? {};
+
+  List<DraftSummary> drafts;
+  final Map<int, Map<String, dynamic>> requestsById;
+  bool listFails = false;
+  bool requestFails = false;
+  AppFailure? deleteFailure;
+  final List<int> deleted = [];
+  final List<int> opened = [];
+
+  @override
+  Future<List<DraftSummary>> list({required List<String> userIds}) async {
+    await Future<void>.delayed(Duration.zero);
+    if (listFails) throw const OfflineFailure();
+    return drafts;
+  }
+
+  @override
+  Future<Map<String, dynamic>> request(
+    int id, {
+    required int hourFormat,
+  }) async {
+    opened.add(id);
+    await Future<void>.delayed(Duration.zero);
+    final body = requestsById[id];
+    if (requestFails || body == null) throw const OfflineFailure();
+    return body;
+  }
+
+  @override
+  Future<void> delete(int id) async {
+    await Future<void>.delayed(Duration.zero);
+    if (deleteFailure != null) throw deleteFailure!;
+    deleted.add(id);
+    drafts = [
+      for (final d in drafts)
+        if (d.eventId != id) d,
+    ];
+  }
 }

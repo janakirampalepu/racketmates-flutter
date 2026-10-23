@@ -1132,6 +1132,138 @@ abstract class AppLocalizations {
   /// **'Create event'**
   String get createEventAction;
 
+  /// No description provided for @eventDraftSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as draft'**
+  String get eventDraftSave;
+
+  /// No description provided for @eventDraftDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get eventDraftDiscard;
+
+  /// No description provided for @eventDraftSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved as a draft.'**
+  String get eventDraftSaved;
+
+  /// No description provided for @eventDraftSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The draft could not be saved. Please try again.'**
+  String get eventDraftSaveFailed;
+
+  /// No description provided for @eventDraftMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft options'**
+  String get eventDraftMenu;
+
+  /// No description provided for @eventDraftDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave this event?'**
+  String get eventDraftDiscardTitle;
+
+  /// No description provided for @eventDraftDiscardText.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing you entered will be kept.'**
+  String get eventDraftDiscardText;
+
+  /// No description provided for @eventDraftDiscardSavedText.
+  ///
+  /// In en, this message translates to:
+  /// **'The saved draft is deleted too.'**
+  String get eventDraftDiscardSavedText;
+
+  /// No description provided for @eventDraftKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get eventDraftKeep;
+
+  /// No description provided for @eventDraftLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get eventDraftLeave;
+
+  /// No description provided for @draftsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drafts'**
+  String get draftsTitle;
+
+  /// No description provided for @draftsAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Drafts'**
+  String get draftsAction;
+
+  /// No description provided for @draftsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no drafts.'**
+  String get draftsEmpty;
+
+  /// No description provided for @draftsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Drafts could not be loaded.'**
+  String get draftsLoadError;
+
+  /// No description provided for @draftsUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {date}'**
+  String draftsUpdated(String date);
+
+  /// No description provided for @draftDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete draft'**
+  String get draftDelete;
+
+  /// No description provided for @draftDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this draft?'**
+  String get draftDeleteTitle;
+
+  /// No description provided for @draftDeleteText.
+  ///
+  /// In en, this message translates to:
+  /// **'The draft is deleted for good.'**
+  String get draftDeleteText;
+
+  /// No description provided for @draftDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft deleted.'**
+  String get draftDeleted;
+
+  /// No description provided for @draftDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The draft could not be deleted. Please try again.'**
+  String get draftDeleteFailed;
+
+  /// No description provided for @draftOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'This draft could not be opened.'**
+  String get draftOpenFailed;
+
+  /// No description provided for @draftOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening the draft'**
+  String get draftOpening;
+
   /// No description provided for @createTypeTitle.
   ///
   /// In en, this message translates to:

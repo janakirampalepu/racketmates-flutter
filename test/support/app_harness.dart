@@ -51,6 +51,7 @@ Widget signedInApp({
   FakeShareService? share,
   FakePhotoPicker? photoPicker,
   FakePhoneVerificationRepository? phone,
+  FakeDraftsRepository? drafts,
   String? sendbirdAppId,
   AppEnvironment? environment,
 }) => ProviderScope(
@@ -108,6 +109,7 @@ Widget signedInApp({
       share: share,
       photoPicker: photoPicker,
       phone: phone,
+      drafts: drafts,
       sessionInfo: sessionInfo,
       deviceTimezone: deviceTimezone,
     ),
@@ -147,6 +149,7 @@ Widget signedOutApp({
   FakeShareService? share,
   FakePhotoPicker? photoPicker,
   FakePhoneVerificationRepository? phone,
+  FakeDraftsRepository? drafts,
 }) => ProviderScope(
   overrides: [
     environmentConfigProvider.overrideWithValue(testConfig),
@@ -177,6 +180,7 @@ Widget signedOutApp({
       share: share,
       photoPicker: photoPicker,
       phone: phone,
+      drafts: drafts,
       sessionInfo: sessionInfo,
     ),
   ],

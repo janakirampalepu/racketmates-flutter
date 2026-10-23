@@ -61,6 +61,14 @@ String _flowPath(EventDraft draft, EventTypeSpec spec) {
   ].join('##');
 }
 
+/// The wizard step a backend `event_screen` name stands for (resuming a draft).
+CreateEventStep? stepForScreen(String? screen) {
+  for (final e in _stepScreens.entries) {
+    if (e.value == screen) return e.key;
+  }
+  return null;
+}
+
 /// Teams of a team event (native `eventTeamsAttributes`): the user's team,
 /// plus the opponent in a team game against another team. Home or visiting
 /// is left out while the home team is undecided.
@@ -123,25 +131,36 @@ List<Map<String, dynamic>> _matchBodies(
 /// competitive/casual game, round robin; team events are within the user's own
 /// team), built from the fields the native `getCreateEventInfo()` sends. Throws [StateError] when the draft is
 /// incomplete (screens validate first).
-Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
+///
+/// With [asDraft] the body is the same shape but may be partial: the backend
+/// keeps it as a draft (`request_save_as_draft`) and hands it back for
+/// resuming, with [screen] (`event_screen`) the step to resume at. Only the
+/// event type is needed.
+Map<String, dynamic> buildCreateEventBody(
+  EventDraft draft, {
+  bool asDraft = false,
+  CreateEventStep? screen,
+}) {
   final spec = draft.spec;
   final start = draft.start;
   final place = draft.place;
-  if (spec == null ||
-      (spec.needsSport && draft.sport == null) ||
-      start == null ||
-      place?.id == null) {
-    throw StateError('incomplete event draft');
-  }
-  if (spec.usesScoring && draft.scoring == null) {
-    throw StateError('incomplete event draft');
+  if (spec == null) throw StateError('incomplete event draft');
+  if (!asDraft) {
+    if ((spec.needsSport && draft.sport == null) ||
+        start == null ||
+        place?.id == null) {
+      throw StateError('incomplete event draft');
+    }
+    if (spec.usesScoring && draft.scoring == null) {
+      throw StateError('incomplete event draft');
+    }
   }
   final team = draft.forTeam == true ? draft.team : null;
-  if (draft.forTeam == true && team?.id == null) {
+  if (!asDraft && draft.forTeam == true && team?.id == null) {
     throw StateError('incomplete event draft');
   }
   // A team game says who it is played against.
-  if (team != null && spec.hasMatches) {
+  if (!asDraft && team != null && spec.hasMatches) {
     final opponent = draft.opponent;
     if (opponent == null ||
         (opponent == OpponentKind.selectTeam &&
@@ -152,9 +171,11 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
     }
   }
   // A ball machine is one singles match on one court with one player.
-  if (spec.ballMachine && draft.invitees.isEmpty) {
+  if (!asDraft && spec.ballMachine && draft.invitees.isEmpty) {
     throw StateError('incomplete event draft');
   }
+  // A team event whose team is not chosen yet is saved without originator.
+  final teamPending = asDraft && draft.forTeam == true && team?.id == null;
   final courts = draft.courtIds.take(draft.courtCap).toList();
   final scoring = draft.scoring;
   final ballMatches = [
@@ -172,16 +193,17 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
   return {
     'event': {
       'event_type': spec.key,
-      if (spec.needsSport) 'sport_type': draft.sport!.key,
+      if (spec.needsSport && draft.sport != null)
+        'sport_type': draft.sport!.key,
       // Non-team ("global") event: native sends an empty originator type;
       // lessons for one player and ball machines never ask, so send none.
-      if (!spec.noTeam)
+      if (!spec.noTeam && !teamPending)
         'originator_type': team == null ? '' : originatorTypeTeam,
       if (team != null) ...{
         'originator_id': team.id,
         'event_teams_attributes': _eventTeams(draft, team.id!),
         'opponent_team_type': spec.hasMatches
-            ? draft.opponent!.key
+            ? (draft.opponent?.key ?? OpponentKind.withinTeam.key)
             : OpponentKind.withinTeam.key,
         if (draft.isMultiTeam) ...{
           if (draft.opponent == OpponentKind.namedTeam)
@@ -193,7 +215,8 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
       },
       'with_coach': spec.needsCoaches,
       'with_audience': false,
-      'request_save_as_draft': false,
+      'request_save_as_draft': asDraft,
+      'request_draft_event_id': ?draft.draftEventId,
       // A ball machine skips the settings and invite steps, so those fields
       // are not sent.
       if (!spec.ballMachine) ...{
@@ -214,9 +237,11 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
             : MatchKeys.assignLater,
       if (spec.ballMachine) 'assign_type': MatchKeys.assignNow,
       if (spec.usesScoring) ...{
-        'scoring_format': scoring!.format,
-        'deciding_set_type': scoring.decidingSetType,
-        'minimum_score_to_win': scoring.minimumScore,
+        if (scoring != null) ...{
+          'scoring_format': scoring.format,
+          'deciding_set_type': scoring.decidingSetType,
+          'minimum_score_to_win': scoring.minimumScore,
+        },
         'allow_participants_to_log_results':
             draft.allowParticipantsToLogResults,
         'assign_type': assignNow ? MatchKeys.assignNow : MatchKeys.assignLater,
@@ -249,15 +274,16 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
               'is_audience': spec.participantsAreAudience,
             },
         ],
-      'event_schedule_options_attributes': [
-        {
-          'place_id': place!.id,
-          'start_time': formatStartTime(start),
-          'duration': draft.durationMinutes,
-          if (draft.timezoneInfoId != null)
-            'timezone_info_id': draft.timezoneInfoId,
-        },
-      ],
+      if (place?.id != null && start != null)
+        'event_schedule_options_attributes': [
+          {
+            'place_id': place!.id,
+            'start_time': formatStartTime(start),
+            'duration': draft.durationMinutes,
+            if (draft.timezoneInfoId != null)
+              'timezone_info_id': draft.timezoneInfoId,
+          },
+        ],
       if (spec.hasMatches || spec.ballMachine) ...{
         'event_matches_attributes': _matchBodies(
           draft,
@@ -274,7 +300,9 @@ Map<String, dynamic> buildCreateEventBody(EventDraft draft) {
           for (var i = 0; i < courts.length; i++)
             {'place_court_id': courts[i], 'order': i + 1},
         ],
-      'event_screen': 'es_review',
+      'event_screen': screen == null
+          ? 'es_review'
+          : (_stepScreens[screen] ?? 'es_review'),
       'screen_flow_path': _flowPath(draft, spec),
     },
   };
