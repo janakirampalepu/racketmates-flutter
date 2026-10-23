@@ -3,6 +3,7 @@ import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/events/event_actions_repository.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/rsvp_actions.dart';
+import 'package:racketmates/common/events/rsvp_preferences.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/screens/event_details/event_details_state.dart';
 import 'package:racketmates/screens/home/home_view_model.dart';
@@ -56,7 +57,7 @@ class EventDetailsViewModel extends Notifier<EventDetailsState> {
       ?.eventParticipantId;
 
   /// Performs a supported RSVP action for the signed-in user.
-  Future<void> rsvp(RsvpAction action) async {
+  Future<void> rsvp(RsvpAction action, {RsvpPreferences? preferences}) async {
     final event = state.event.value;
     final participantId = _participantId;
     if (event == null || participantId == null || state.busy) return;
@@ -65,20 +66,29 @@ class EventDetailsViewModel extends Notifier<EventDetailsState> {
 
     final repo = ref.read(eventActionsRepositoryProvider);
     final mine = event.currentUserEventDetails!.first;
+    final extra = preferences == null
+        ? const <String, dynamic>{}
+        : preferenceFields(event, preferences, withNotes: true);
     state = state.copyWith(busyAction: () => action, feedback: () => null);
     try {
       final response = switch (action) {
-        RsvpAction.accept => await repo.accept(eventId, participantId),
+        RsvpAction.accept => await repo.accept(
+          eventId,
+          participantId,
+          preferences: extra,
+        ),
         RsvpAction.decline => await repo.decline(eventId, participantId),
         RsvpAction.rejoin => await repo.rejoin(
           eventId,
           participantId,
           scheduleOptionIds: mine.selectedScheduleOptionIds ?? const [],
+          preferences: extra,
         ),
         RsvpAction.leave => await repo.leave(eventId, participantId),
         RsvpAction.joinWaitlist => await repo.joinWaitlist(
           eventId,
           participantId,
+          preferences: extra,
         ),
         RsvpAction.editResponse => throw StateError('unsupported'),
       };
@@ -98,6 +108,38 @@ class EventDetailsViewModel extends Notifier<EventDetailsState> {
         busyAction: () => null,
         feedback: () =>
             EventFeedback.error(FeedbackKind.rsvp, _messageOf(failure)),
+      );
+    }
+  }
+
+  /// Changes the partner and match type of the user's response.
+  Future<void> updatePreferences(RsvpPreferences preferences) async {
+    final event = state.event.value;
+    final participantId = _participantId;
+    if (event == null || participantId == null || state.busy) return;
+    state = state.copyWith(savingPreferences: true, feedback: () => null);
+    try {
+      final response = await ref
+          .read(eventActionsRepositoryProvider)
+          .updatePreference(
+            eventId,
+            participantId,
+            preferenceFields(event, preferences, withNotes: false),
+          );
+      if (!ref.mounted) return;
+      final updated = response.event;
+      state = state.copyWith(
+        event: updated == null ? null : AsyncData(updated),
+        savingPreferences: false,
+        feedback: () => const EventFeedback.success(FeedbackKind.preferences),
+      );
+      if (updated == null) await load();
+    } on AppFailure catch (failure) {
+      if (!ref.mounted) return;
+      state = state.copyWith(
+        savingPreferences: false,
+        feedback: () =>
+            EventFeedback.error(FeedbackKind.preferences, _messageOf(failure)),
       );
     }
   }

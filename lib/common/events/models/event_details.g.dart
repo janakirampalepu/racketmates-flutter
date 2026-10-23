@@ -319,6 +319,13 @@ CurrentUserEventDetail _$CurrentUserEventDetailFromJson(
           .toList(),
   showRsvpStatus: json['show_rsvp_status'] as bool?,
   teamId: (json['team_id'] as num?)?.toInt(),
+  partnershipPreference: json['partnership_preference'] as String?,
+  preferredMatchType: json['preferred_match_type'] as String?,
+  eventPartner: json['event_partner'] == null
+      ? null
+      : EventParticipant.fromJson(
+          json['event_partner'] as Map<String, dynamic>,
+        ),
 );
 
 Map<String, dynamic> _$CurrentUserEventDetailToJson(
@@ -338,6 +345,9 @@ Map<String, dynamic> _$CurrentUserEventDetailToJson(
   'grouped_event_schedule_options': instance.groupedEventScheduleOptions,
   'selected_schedule_option_ids': instance.selectedScheduleOptionIds,
   'show_rsvp_status': instance.showRsvpStatus,
+  'partnership_preference': instance.partnershipPreference,
+  'preferred_match_type': instance.preferredMatchType,
+  'event_partner': instance.eventPartner,
 };
 
 AccessInfo _$AccessInfoFromJson(Map<String, dynamic> json) => AccessInfo(

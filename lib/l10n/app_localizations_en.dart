@@ -1539,6 +1539,79 @@ class AppLocalizationsEn extends AppLocalizations {
       'Pair the players, then generate the rounds';
 
   @override
+  String get rsvpPrefsTitle => 'Your game';
+
+  @override
+  String get rsvpPrefsMatchType => 'Match type';
+
+  @override
+  String get rsvpPrefsDoubles => 'Doubles';
+
+  @override
+  String get rsvpPrefsBoth => 'Singles or doubles';
+
+  @override
+  String get rsvpPrefsPartner => 'Partner';
+
+  @override
+  String get rsvpPrefsHavePartner => 'I have a partner';
+
+  @override
+  String get rsvpPrefsNeedPartner => 'I need a partner';
+
+  @override
+  String get rsvpPrefsSelectPartner => 'Select partner';
+
+  @override
+  String get rsvpPrefsChangePartner => 'Change';
+
+  @override
+  String get rsvpPrefsNotes => 'Notes';
+
+  @override
+  String get rsvpPrefsSubmit => 'Confirm';
+
+  @override
+  String get rsvpPrefsSave => 'Save';
+
+  @override
+  String get rsvpPartnerTitle => 'Select partner';
+
+  @override
+  String get rsvpPartnerSearch => 'Search players';
+
+  @override
+  String get rsvpPartnerNone => 'No partners';
+
+  @override
+  String get rsvpPartnerSelect => 'Select';
+
+  @override
+  String get rsvpPartnerLoadError => 'The players could not be loaded.';
+
+  @override
+  String get eventPartnerYours => 'Your partner';
+
+  @override
+  String get eventPartnerRequested => 'Someone wants to play with you';
+
+  @override
+  String get eventPartnerChoose => 'You have not chosen a partner yet.';
+
+  @override
+  String get eventPartnerEdit => 'Change partner';
+
+  @override
+  String get eventPartnerChooseAction => 'Choose a partner';
+
+  @override
+  String get eventPrefsSaved => 'Your game preferences were saved.';
+
+  @override
+  String get eventPrefsFailed =>
+      'Your preferences could not be saved. Please try again.';
+
+  @override
   String get eventPairsTitle => 'Pairs';
 
   @override

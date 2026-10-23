@@ -200,4 +200,85 @@ void main() {
       ],
     });
   });
+
+  test('a response carries the round robin preferences', () async {
+    adapter.body = {
+      'event': {'id': 7},
+    };
+    await repo.accept(
+      7,
+      3,
+      preferences: {
+        'preferred_match_type': 'mt_doubles',
+        'notes': 'Late',
+        'event_partner_id': 77,
+      },
+    );
+    expect(
+      adapter.requests.last.path,
+      'events/7/event_participants/3/accept_invite',
+    );
+    expect(adapter.requests.last.data, {
+      'event_schedule_option_ids': <int>[],
+      'preferred_match_type': 'mt_doubles',
+      'notes': 'Late',
+      'event_partner_id': 77,
+    });
+
+    await repo.rejoin(
+      7,
+      3,
+      scheduleOptionIds: [9],
+      preferences: {'notes': 'x'},
+    );
+    expect(adapter.requests.last.data, {
+      'event_schedule_option_ids': [9],
+      'notes': 'x',
+    });
+
+    await repo.joinWaitlist(7, 3, preferences: {'event_partner_id': 5});
+    expect(
+      adapter.requests.last.path,
+      'events/7/event_participants/3/join_waitlist',
+    );
+    expect(adapter.requests.last.data, {'event_partner_id': 5});
+
+    await repo.joinWaitlist(7, 3);
+    expect(adapter.requests.last.data, <String, dynamic>{});
+  });
+
+  test('preferences of an existing response are a PUT', () async {
+    adapter.body = {
+      'event': {'id': 7},
+    };
+    await repo.updatePreference(7, 3, {
+      'preferred_match_type': 'mt_undecided',
+      'event_partner_id': 5,
+    });
+    expect(
+      (adapter.requests.last.method, adapter.requests.last.path),
+      ('PUT', 'events/7/event_participants/3/update_rsvp_preference'),
+    );
+    expect(adapter.requests.last.data, {
+      'event_schedule_option_ids': <int>[],
+      'preferred_match_type': 'mt_undecided',
+      'event_partner_id': 5,
+    });
+  });
+
+  test('a status filter narrows the participants', () async {
+    adapter.body = {'event_participant_groups': <Object>[]};
+    await repo.participants(7, groupBy: 'status', statuses: ['eus_invited']);
+    expect(
+      adapter.requests.last.uri.queryParametersAll['participant_statuses[]'],
+      ['eus_invited'],
+    );
+    await repo.participants(7, statuses: const []);
+    expect(
+      adapter.requests.last.uri.queryParametersAll.containsKey(
+        'participant_statuses[]',
+      ),
+      isFalse,
+    );
+  });
 }

@@ -2902,6 +2902,150 @@ abstract class AppLocalizations {
   /// **'Pair the players, then generate the rounds'**
   String get eventManageRoundsFixedHint;
 
+  /// No description provided for @rsvpPrefsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your game'**
+  String get rsvpPrefsTitle;
+
+  /// No description provided for @rsvpPrefsMatchType.
+  ///
+  /// In en, this message translates to:
+  /// **'Match type'**
+  String get rsvpPrefsMatchType;
+
+  /// No description provided for @rsvpPrefsDoubles.
+  ///
+  /// In en, this message translates to:
+  /// **'Doubles'**
+  String get rsvpPrefsDoubles;
+
+  /// No description provided for @rsvpPrefsBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'Singles or doubles'**
+  String get rsvpPrefsBoth;
+
+  /// No description provided for @rsvpPrefsPartner.
+  ///
+  /// In en, this message translates to:
+  /// **'Partner'**
+  String get rsvpPrefsPartner;
+
+  /// No description provided for @rsvpPrefsHavePartner.
+  ///
+  /// In en, this message translates to:
+  /// **'I have a partner'**
+  String get rsvpPrefsHavePartner;
+
+  /// No description provided for @rsvpPrefsNeedPartner.
+  ///
+  /// In en, this message translates to:
+  /// **'I need a partner'**
+  String get rsvpPrefsNeedPartner;
+
+  /// No description provided for @rsvpPrefsSelectPartner.
+  ///
+  /// In en, this message translates to:
+  /// **'Select partner'**
+  String get rsvpPrefsSelectPartner;
+
+  /// No description provided for @rsvpPrefsChangePartner.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get rsvpPrefsChangePartner;
+
+  /// No description provided for @rsvpPrefsNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get rsvpPrefsNotes;
+
+  /// No description provided for @rsvpPrefsSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get rsvpPrefsSubmit;
+
+  /// No description provided for @rsvpPrefsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get rsvpPrefsSave;
+
+  /// No description provided for @rsvpPartnerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select partner'**
+  String get rsvpPartnerTitle;
+
+  /// No description provided for @rsvpPartnerSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search players'**
+  String get rsvpPartnerSearch;
+
+  /// No description provided for @rsvpPartnerNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No partners'**
+  String get rsvpPartnerNone;
+
+  /// No description provided for @rsvpPartnerSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get rsvpPartnerSelect;
+
+  /// No description provided for @rsvpPartnerLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'The players could not be loaded.'**
+  String get rsvpPartnerLoadError;
+
+  /// No description provided for @eventPartnerYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Your partner'**
+  String get eventPartnerYours;
+
+  /// No description provided for @eventPartnerRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone wants to play with you'**
+  String get eventPartnerRequested;
+
+  /// No description provided for @eventPartnerChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'You have not chosen a partner yet.'**
+  String get eventPartnerChoose;
+
+  /// No description provided for @eventPartnerEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change partner'**
+  String get eventPartnerEdit;
+
+  /// No description provided for @eventPartnerChooseAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a partner'**
+  String get eventPartnerChooseAction;
+
+  /// No description provided for @eventPrefsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your game preferences were saved.'**
+  String get eventPrefsSaved;
+
+  /// No description provided for @eventPrefsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your preferences could not be saved. Please try again.'**
+  String get eventPrefsFailed;
+
   /// No description provided for @eventPairsTitle.
   ///
   /// In en, this message translates to:

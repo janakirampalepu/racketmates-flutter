@@ -18,6 +18,13 @@ abstract class AuthApi {
   @POST('oauth/revoke')
   Future<void> revokeToken(@Body() Map<String, dynamic> body);
 
+  /// Status filters of the participant lists (`filter_options[]{key,label}`).
+  @GET('resources/event_participants_status_filter_options')
+  Future<dynamic> participantStatusFilterOptions(
+    @Query('client_id') String clientId,
+    @Query('client_secret') String clientSecret,
+  );
+
   @GET('resources/metadata')
   Future<AppMetadata> metadata(
     @Query('client_id') String clientId,

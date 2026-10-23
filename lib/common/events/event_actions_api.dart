@@ -31,6 +31,15 @@ abstract class EventActionsApi {
     @Body() Map<String, dynamic> body,
   );
 
+  @PUT(
+    'events/{eventId}/event_participants/{participantId}/update_rsvp_preference',
+  )
+  Future<EventDetailsResponse> updateRsvpPreference(
+    @Path('eventId') int eventId,
+    @Path('participantId') int participantId,
+    @Body() Map<String, dynamic> body,
+  );
+
   @POST('events/{eventId}/event_participants/{participantId}/leave_event')
   Future<EventDetailsResponse> leaveEvent(
     @Path('eventId') int eventId,

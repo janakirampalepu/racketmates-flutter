@@ -7,10 +7,14 @@ import 'package:racketmates/common/events/models/event_details.dart';
 
 abstract class EventActionsRepository {
   /// Each RSVP call returns the updated event (and the server's message).
+  ///
+  /// [preferences] are the round robin fields (`preferred_match_type`,
+  /// `notes`, `event_partner_id`) sent along with the response.
   Future<EventDetailsResponse> accept(
     int eventId,
     int participantId, {
     List<int> scheduleOptionIds = const [],
+    Map<String, dynamic> preferences = const {},
   });
 
   Future<EventDetailsResponse> decline(int eventId, int participantId);
@@ -19,11 +23,24 @@ abstract class EventActionsRepository {
     int eventId,
     int participantId, {
     required List<int> scheduleOptionIds,
+    Map<String, dynamic> preferences = const {},
   });
 
   Future<EventDetailsResponse> leave(int eventId, int participantId);
 
-  Future<EventDetailsResponse> joinWaitlist(int eventId, int participantId);
+  Future<EventDetailsResponse> joinWaitlist(
+    int eventId,
+    int participantId, {
+    Map<String, dynamic> preferences = const {},
+  });
+
+  /// `PUT update_rsvp_preference`: changes the partner and match type of an
+  /// existing response.
+  Future<EventDetailsResponse> updatePreference(
+    int eventId,
+    int participantId,
+    Map<String, dynamic> preferences,
+  );
 
   /// `POST accept_scores`: confirms the submitted scores.
   Future<EventDetailsResponse> acceptScores(int eventId);
@@ -57,6 +74,7 @@ abstract class EventActionsRepository {
     String? search,
     String? preferredMatchType,
     bool? excludeWithPartner,
+    List<String>? statuses,
   });
 
   /// `PUT assign_players` with `{event_participants: [...]}`.
@@ -119,9 +137,11 @@ class EventActionsRepositoryImpl implements EventActionsRepository {
     int eventId,
     int participantId, {
     List<int> scheduleOptionIds = const [],
+    Map<String, dynamic> preferences = const {},
   }) => _guard(
     () => api.acceptInvite(eventId, participantId, {
       'event_schedule_option_ids': scheduleOptionIds,
+      ...preferences,
     }),
   );
 
@@ -138,9 +158,11 @@ class EventActionsRepositoryImpl implements EventActionsRepository {
     int eventId,
     int participantId, {
     required List<int> scheduleOptionIds,
+    Map<String, dynamic> preferences = const {},
   }) => _guard(
     () => api.rejoinEvent(eventId, participantId, {
       'event_schedule_option_ids': scheduleOptionIds,
+      ...preferences,
     }),
   );
 
@@ -149,8 +171,23 @@ class EventActionsRepositoryImpl implements EventActionsRepository {
       _guard(() => api.leaveEvent(eventId, participantId));
 
   @override
-  Future<EventDetailsResponse> joinWaitlist(int eventId, int participantId) =>
-      _guard(() => api.joinWaitlist(eventId, participantId, {}));
+  Future<EventDetailsResponse> joinWaitlist(
+    int eventId,
+    int participantId, {
+    Map<String, dynamic> preferences = const {},
+  }) => _guard(() => api.joinWaitlist(eventId, participantId, preferences));
+
+  @override
+  Future<EventDetailsResponse> updatePreference(
+    int eventId,
+    int participantId,
+    Map<String, dynamic> preferences,
+  ) => _guard(
+    () => api.updateRsvpPreference(eventId, participantId, {
+      'event_schedule_option_ids': <int>[],
+      ...preferences,
+    }),
+  );
 
   @override
   Future<EventDetailsResponse> acceptScores(int eventId) =>
@@ -203,12 +240,13 @@ class EventActionsRepositoryImpl implements EventActionsRepository {
     String? search,
     String? preferredMatchType,
     bool? excludeWithPartner,
+    List<String>? statuses,
   }) => _guard(
     () async => parseParticipantGroups(
       await api.participants(
         eventId,
         const ['ur_player'],
-        const ['eus_confirmed'],
+        statuses ?? const ['eus_confirmed'],
         groupBy: groupBy,
         includeUserIds: include.isEmpty ? null : include,
         excludeUserIds: exclude.isEmpty ? null : exclude,

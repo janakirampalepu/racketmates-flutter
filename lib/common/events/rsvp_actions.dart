@@ -25,8 +25,8 @@ enum RsvpAction {
 
 /// Why an action cannot be completed from this build.
 enum RsvpBlock {
-  /// Several time/court options (or round-robin partner preferences) need the
-  /// option picker, which is not migrated yet.
+  /// Several time/court options need the option picker, which is not migrated
+  /// yet.
   needsOptionPicker,
 
   /// The backend says the action needs a subscription.
@@ -77,10 +77,9 @@ RsvpBlock? _blockFor(
   CurrentUserEventDetail mine,
 ) {
   final multipleOptions = mine.assignedOptions.length > 1;
-  final partner = event.needsPartnerPreferences && (mine.isPlayer ?? false);
   return switch (action) {
     RsvpAction.accept || RsvpAction.rejoin || RsvpAction.joinWaitlist =>
-      (multipleOptions || partner) ? RsvpBlock.needsOptionPicker : null,
+      multipleOptions ? RsvpBlock.needsOptionPicker : null,
     // Editing a response always revolves around choosing options.
     RsvpAction.editResponse => RsvpBlock.needsOptionPicker,
     RsvpAction.decline || RsvpAction.leave => null,

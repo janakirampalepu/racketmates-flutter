@@ -7,6 +7,7 @@ import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/events/event_labels.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/rsvp_actions.dart';
+import 'package:racketmates/common/events/rsvp_preferences.dart';
 import 'package:racketmates/common/chat/event_chat.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/chat_new/new_chat_test_ids.dart';
@@ -14,6 +15,7 @@ import 'package:racketmates/screens/event_details/event_chat_actions.dart';
 import 'package:racketmates/screens/event_details/event_details_state.dart';
 import 'package:racketmates/screens/event_details/event_details_test_ids.dart';
 import 'package:racketmates/screens/event_details/event_details_view_model.dart';
+import 'package:racketmates/screens/event_details/rsvp_preferences_sheet.dart';
 
 /// Event view for a participant (native `ViewEventDetailsFragment`): type,
 /// status, when/where, the user's own status, spots, notes, players, plus the
@@ -104,9 +106,40 @@ class EventDetailsScreen extends ConsumerWidget {
           dismissLabel: l10n.closeAction,
         );
         if (ok) await vm.rsvp(option.action);
+      case RsvpAction.accept || RsvpAction.rejoin || RsvpAction.joinWaitlist:
+        final event = ref
+            .read(eventDetailsViewModelProvider(eventId))
+            .event
+            .value;
+        final mine = event?.currentUserEventDetails?.firstOrNull;
+        if (event != null && asksPreferences(event, mine)) {
+          // Round robins: how the player wants to play goes with the answer.
+          final prefs = await showRsvpPreferences(
+            context,
+            event: event,
+            me: mine,
+            editing: false,
+          );
+          if (prefs != null) await vm.rsvp(option.action, preferences: prefs);
+        } else {
+          await vm.rsvp(option.action);
+        }
       default:
         await vm.rsvp(option.action);
     }
+  }
+
+  Future<void> _editPartner(BuildContext context, WidgetRef ref) async {
+    final vm = ref.read(eventDetailsViewModelProvider(eventId).notifier);
+    final event = ref.read(eventDetailsViewModelProvider(eventId)).event.value;
+    if (event == null) return;
+    final prefs = await showRsvpPreferences(
+      context,
+      event: event,
+      me: event.currentUserEventDetails?.firstOrNull,
+      editing: true,
+    );
+    if (prefs != null) await vm.updatePreferences(prefs);
   }
 
   Future<void> _onCancelEvent(BuildContext context, WidgetRef ref) async {
@@ -138,6 +171,8 @@ class EventDetailsScreen extends ConsumerWidget {
               : l10n.eventScoresConfirmed,
         FeedbackKind.rsvp =>
           feedback.isError ? l10n.rsvpActionFailed : l10n.rsvpDone,
+        FeedbackKind.preferences =>
+          feedback.isError ? l10n.eventPrefsFailed : l10n.eventPrefsSaved,
       };
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(feedback.text ?? fallback)));
@@ -292,7 +327,11 @@ class EventDetailsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          data: (event) => _Body(event: event),
+          data: (event) => _Body(
+            event: event,
+            busy: state.busy,
+            onEditPartner: () => _editPartner(context, ref),
+          ),
         ),
       ),
     );
@@ -300,9 +339,15 @@ class EventDetailsScreen extends ConsumerWidget {
 }
 
 class _Body extends StatelessWidget {
-  const _Body({required this.event});
+  const _Body({
+    required this.event,
+    required this.busy,
+    required this.onEditPartner,
+  });
 
   final EventDetails event;
+  final bool busy;
+  final VoidCallback onEditPartner;
 
   String _when(BuildContext context, EventScheduleOption option) {
     final start = option.start?.toLocal();
@@ -313,6 +358,56 @@ class _Body extends StatelessWidget {
     final end = option.end?.toLocal();
     final to = end == null ? '' : ' – ${DateFormat.jm(locale).format(end)}';
     return '$date, $from$to';
+  }
+
+  /// The player's partner on a fixed-partner event (native
+  /// `refreshEventPartnerForSelectedUser`).
+  List<Widget> _partnerSection(
+    BuildContext context,
+    AppLocalizations l10n,
+    CurrentUserEventDetail? mine,
+  ) {
+    final standing = partnerStandingFor(event, mine);
+    if (standing == PartnerStanding.none) return const [];
+    final partner = mine?.eventPartner;
+    return [
+      TestId(
+        EventDetailsTestIds.partnerSection,
+        child: switch (standing) {
+          PartnerStanding.needsChoice => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              children: [
+                Expanded(child: Text(l10n.eventPartnerChoose)),
+                TestId(
+                  EventDetailsTestIds.partnerChoose,
+                  child: TextButton(
+                    onPressed: busy ? null : onEditPartner,
+                    child: Text(l10n.eventPartnerChooseAction),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _ => _Row(
+            label: standing == PartnerStanding.mine
+                ? l10n.eventPartnerYours
+                : l10n.eventPartnerRequested,
+            value: partner?.name ?? '',
+            trailing: standing == PartnerStanding.mine
+                ? TestId(
+                    EventDetailsTestIds.partnerEdit,
+                    child: IconButton(
+                      tooltip: l10n.eventPartnerEdit,
+                      icon: const Icon(Icons.edit_outlined),
+                      onPressed: busy ? null : onEditPartner,
+                    ),
+                  )
+                : null,
+          ),
+        },
+      ),
+    ];
   }
 
   @override
@@ -375,6 +470,7 @@ class _Body extends StatelessWidget {
               ].join('\n'),
             ),
           ),
+        ..._partnerSection(context, l10n, mine),
         if (spots != null)
           TestId(
             EventDetailsTestIds.spots,
@@ -431,19 +527,27 @@ class _Body extends StatelessWidget {
 }
 
 class _Row extends StatelessWidget {
-  const _Row({required this.label, required this.value});
+  const _Row({required this.label, required this.value, this.trailing});
 
   final String label;
   final String value;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 12),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    child: Row(
       children: [
-        Text(label, style: Theme.of(context).textTheme.labelMedium),
-        Text(value),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: Theme.of(context).textTheme.labelMedium),
+              Text(value),
+            ],
+          ),
+        ),
+        ?trailing,
       ],
     ),
   );

@@ -160,12 +160,6 @@ class EventDetails {
       eventType != 'et_practice_ball' &&
       (eventScheduleOptions?.length ?? 0) == 1;
 
-  /// Round-robin events with mixed games or fixed partners ask each player for
-  /// partner / match-type preferences when responding (not migrated yet).
-  bool get needsPartnerPreferences =>
-      isRoundRobin &&
-      (gameType == 'egt_both' || partnershipType == 'ept_fixed');
-
   /// Participants who are players (coaches, organizers and audience excluded).
   List<EventParticipant> get players => [
     for (final p in eventParticipants ?? const <EventParticipant>[])
@@ -380,6 +374,9 @@ class CurrentUserEventDetail {
     this.selectedScheduleOptionIds,
     this.showRsvpStatus,
     this.teamId,
+    this.partnershipPreference,
+    this.preferredMatchType,
+    this.eventPartner,
   });
 
   factory CurrentUserEventDetail.fromJson(Map<String, dynamic> json) =>
@@ -401,6 +398,12 @@ class CurrentUserEventDetail {
   final List<GroupedScheduleOption>? groupedEventScheduleOptions;
   final List<int>? selectedScheduleOptionIds;
   final bool? showRsvpStatus;
+
+  /// Round robins: `eppp_has_partner` / `eppp_needs_partner`, the match type
+  /// the user prefers (`mt_doubles`, `mt_undecided`) and the chosen partner.
+  final String? partnershipPreference;
+  final String? preferredMatchType;
+  final EventParticipant? eventPartner;
 
   Map<String, dynamic> toJson() => _$CurrentUserEventDetailToJson(this);
 

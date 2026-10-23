@@ -34,6 +34,7 @@ import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/places/places_repository.dart';
 import 'package:racketmates/common/events/event_actions_repository.dart';
+import 'package:racketmates/common/events/participant_status_filter.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/events/models/schedule_models.dart';
@@ -130,6 +131,19 @@ class FakeAuthApi implements AuthApi {
   @override
   Future<void> revokeToken(Map<String, dynamic> body) async =>
       revokeBodies.add(body);
+
+  /// Answer of `participantStatusFilterOptions` (null: the call fails).
+  Object? statusFilterOptions;
+
+  @override
+  Future<dynamic> participantStatusFilterOptions(
+    String clientId,
+    String clientSecret,
+  ) async {
+    final result = statusFilterOptions;
+    if (result == null) throw connectionError();
+    return result;
+  }
 
   @override
   Future<AppMetadata> metadata(
@@ -572,6 +586,9 @@ class FakeEventActionsRepository implements EventActionsRepository {
   AppFailure? failure;
   final List<String> calls = [];
   final List<List<int>> optionIds = [];
+
+  /// Round robin fields sent with RSVP calls, in order.
+  final List<Map<String, dynamic>> preferences = [];
   String? cancelReason;
   bool? cancelRemove;
 
@@ -602,8 +619,10 @@ class FakeEventActionsRepository implements EventActionsRepository {
     String? search,
     String? preferredMatchType,
     bool? excludeWithPartner,
+    List<String>? statuses,
   }) async {
     participantQueries.add({
+      'statuses': statuses,
       'groupBy': groupBy,
       'include': include,
       'exclude': exclude,
@@ -699,8 +718,10 @@ class FakeEventActionsRepository implements EventActionsRepository {
     int eventId,
     int participantId, {
     List<int> scheduleOptionIds = const [],
+    Map<String, dynamic> preferences = const {},
   }) {
     optionIds.add(scheduleOptionIds);
+    this.preferences.add(preferences);
     return _rsvp('accept:$eventId:$participantId');
   }
 
@@ -713,8 +734,10 @@ class FakeEventActionsRepository implements EventActionsRepository {
     int eventId,
     int participantId, {
     required List<int> scheduleOptionIds,
+    Map<String, dynamic> preferences = const {},
   }) {
     optionIds.add(scheduleOptionIds);
+    this.preferences.add(preferences);
     return _rsvp('rejoin:$eventId:$participantId');
   }
 
@@ -723,8 +746,24 @@ class FakeEventActionsRepository implements EventActionsRepository {
       _rsvp('leave:$eventId:$participantId');
 
   @override
-  Future<EventDetailsResponse> joinWaitlist(int eventId, int participantId) =>
-      _rsvp('waitlist:$eventId:$participantId');
+  Future<EventDetailsResponse> joinWaitlist(
+    int eventId,
+    int participantId, {
+    Map<String, dynamic> preferences = const {},
+  }) {
+    this.preferences.add(preferences);
+    return _rsvp('waitlist:$eventId:$participantId');
+  }
+
+  @override
+  Future<EventDetailsResponse> updatePreference(
+    int eventId,
+    int participantId,
+    Map<String, dynamic> preferences,
+  ) {
+    this.preferences.add(preferences);
+    return _rsvp('preference:$eventId:$participantId');
+  }
 
   @override
   Future<void> cancelEvent(
@@ -1036,6 +1075,9 @@ List<Override> contentOverrides({
   FakePhoneVerificationRepository? phone,
   FakeDraftsRepository? drafts,
 }) => [
+  participantStatusFilterKeyProvider.overrideWith(
+    (ref) async => 'eus_confirmed',
+  ),
   draftsRepositoryProvider.overrideWithValue(drafts ?? FakeDraftsRepository()),
   contentRepositoryProvider.overrideWithValue(
     repository ?? FakeContentRepository(),

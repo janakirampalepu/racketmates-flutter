@@ -69,6 +69,33 @@ class _AuthApi implements AuthApi {
   }
 
   @override
+  Future<dynamic> participantStatusFilterOptions(
+    String clientId,
+    String clientSecret,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'client_id': clientId,
+      r'client_secret': clientSecret,
+    };
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<dynamic>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            'resources/event_participants_status_filter_options',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch(_options);
+    final _value = _result.data;
+    return _value;
+  }
+
+  @override
   Future<AppMetadata> metadata(
     String clientId,
     String clientSecret,

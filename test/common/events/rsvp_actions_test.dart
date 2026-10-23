@@ -72,27 +72,24 @@ void main() {
     expect(rsvpOptionsFor(const EventDetails(id: 1)), isEmpty);
   });
 
-  test(
-    'round-robin with mixed games or fixed partners needs partner input',
-    () {
-      const event = EventDetails(
-        eventType: 'et_round_robin',
-        gameType: 'egt_both',
-        currentUserEventDetails: [
-          CurrentUserEventDetail(
-            eventParticipantId: 1,
-            isPlayer: true,
-            groupedEventScheduleOptions: [GroupedScheduleOption(id: 1)],
-            primaryAction: EventAction(
-              action: 'event_view_action_accept',
-              access: 'up_enabled',
-            ),
+  test('round-robin partner preferences no longer block the response', () {
+    const event = EventDetails(
+      eventType: 'et_round_robin',
+      gameType: 'egt_both',
+      currentUserEventDetails: [
+        CurrentUserEventDetail(
+          eventParticipantId: 1,
+          isPlayer: true,
+          groupedEventScheduleOptions: [GroupedScheduleOption(id: 1)],
+          primaryAction: EventAction(
+            action: 'event_view_action_accept',
+            access: 'up_enabled',
           ),
-        ],
-      );
-      expect(rsvpOptionsFor(event).single.block, RsvpBlock.needsOptionPicker);
-    },
-  );
+        ),
+      ],
+    );
+    expect(rsvpOptionsFor(event).single.block, isNull);
+  });
 
   test('cancelled or to-be-scheduled options are not counted', () {
     const mine = CurrentUserEventDetail(
