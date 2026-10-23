@@ -116,11 +116,16 @@ class EventManageViewModel extends Notifier<EventManageState> {
   /// Generates the rounds and reloads the event. [result] is the server's
   /// verdict (`egr_insufficient_confirmed_players` when too few players
   /// confirmed); on failure [error] is the server text ('' when it sent none).
-  Future<({bool ok, String? result, String error})> generateRounds() async {
+  Future<({bool ok, String? result, String error})> generateRounds({
+    List<List<int>>? partnerPairs,
+  }) async {
     if (state.busy) return (ok: false, result: null, error: '');
     state = const EventManageState(busy: true);
     try {
-      final response = await _repo.generateRounds(eventId);
+      final response = await _repo.generateRounds(
+        eventId,
+        partnerPairs: partnerPairs,
+      );
       if (!ref.mounted) return (ok: true, result: response.result, error: '');
       await ref.read(eventDetailsViewModelProvider(eventId).notifier).refresh();
       if (ref.mounted) state = const EventManageState();
@@ -131,6 +136,20 @@ class EventManageViewModel extends Notifier<EventManageState> {
       return (ok: false, result: null, error: text);
     }
   }
+
+  /// Puts [userIds] on [side] of [match] in [round]; the other sides keep
+  /// their players.
+  Future<bool> assignPlayers(
+    EventRound round,
+    EventMatch match,
+    EventMatchSide side,
+    List<int> userIds,
+  ) => _run(
+    () => _repo.assignPlayers(
+      eventId,
+      assignmentsAfter(round, match, side, userIds),
+    ),
+  );
 
   Future<bool> addRound() => _run(() => _repo.addRound(eventId));
 

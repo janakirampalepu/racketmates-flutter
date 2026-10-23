@@ -19,6 +19,17 @@ abstract final class EventManageRoundsTestIds {
   static String matchCourt(int id) => 'event_manage_round_match_${id}_court';
   static String matchRemove(int id) => 'event_manage_round_match_${id}_remove';
 
+  static const assignSearch = 'event_manage_rounds_assign_search';
+  static const assignSave = 'event_manage_rounds_assign_save_button';
+  static const assignNone = 'event_manage_rounds_assign_none';
+  static const assignError = 'event_manage_rounds_assign_error';
+
+  /// `event_manage_rounds_side_<sideId>` (tap to assign players).
+  static String side(int id) => 'event_manage_rounds_side_$id';
+
+  /// `event_manage_rounds_assign_player_<userId>`.
+  static String assignPlayer(int id) => 'event_manage_rounds_assign_player_$id';
+
   /// `event_manage_rounds_court_<placeCourtId>` (court picker).
   static String court(int id) => 'event_manage_rounds_court_$id';
 }

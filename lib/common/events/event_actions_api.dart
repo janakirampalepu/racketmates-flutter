@@ -83,6 +83,28 @@ abstract class EventActionsApi {
     @Body() Map<String, dynamic> body,
   );
 
+  /// Participants, optionally grouped (`group_by`: `pairs`, `partnership`).
+  /// The answer is parsed by `parseParticipantGroups`.
+  @GET('events/{eventId}/event_participants')
+  Future<dynamic> participants(
+    @Path('eventId') int eventId,
+    @Query('roles[]') List<String> roles,
+    @Query('participant_statuses[]') List<String> statuses, {
+    @Query('group_by') String? groupBy,
+    @Query('include_user_ids[]') List<int>? includeUserIds,
+    @Query('exclude_user_ids[]') List<int>? excludeUserIds,
+    @Query('search') String? search,
+    @Query('preferred_match_type') String? preferredMatchType,
+    @Query('exclude_participants_with_partner') bool? excludeWithPartner,
+  });
+
+  /// Puts players on the sides of the matches of a round.
+  @PUT('events/{eventId}/assign_players')
+  Future<void> assignPlayers(
+    @Path('eventId') int eventId,
+    @Body() Map<String, dynamic> body,
+  );
+
   // --- Manage (organizer) actions; the event is reloaded afterwards ---
 
   @PUT('events/{eventId}/update_settings')

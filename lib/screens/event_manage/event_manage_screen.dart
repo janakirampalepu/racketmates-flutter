@@ -143,13 +143,19 @@ class EventManageScreen extends ConsumerWidget {
                     ? l10n.eventManageRoundsSetUp
                     : l10n.eventManageRounds,
                 subtitle: fixed
-                    ? l10n.eventManageRoundsFixedUnsupported
+                    ? l10n.eventManageRoundsFixedHint
                     : setUp
                     ? l10n.eventManageRoundsSetUpHint
                     : l10n.eventManageRoundsHint,
-                route: setUp ? null : AppRoutes.eventManageRoundsFor(eventId),
-                onTap: setUp ? () => _setUpRounds(context, ref) : null,
-                enabled: !fixed,
+                // Fixed partners are paired before the rounds are generated.
+                route: fixed
+                    ? AppRoutes.eventManagePairsFor(eventId)
+                    : setUp
+                    ? null
+                    : AppRoutes.eventManageRoundsFor(eventId),
+                onTap: setUp && !fixed
+                    ? () => _setUpRounds(context, ref)
+                    : null,
               );
             }(),
           if (canScore)

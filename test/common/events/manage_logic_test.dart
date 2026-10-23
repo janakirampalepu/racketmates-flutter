@@ -6,6 +6,7 @@ import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/models/event_match_models.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
+import 'package:racketmates/common/users/models/app_user.dart';
 
 import '../../support/fixtures.dart';
 
@@ -763,6 +764,149 @@ void main() {
         () => buildRescheduleMatchBody(301, const EventDraft()),
         throwsStateError,
       );
+    });
+  });
+
+  group('round players and pairs', () {
+    const single = EventMatch(id: 1, matchType: 'mt_singles');
+    const double = EventMatch(id: 2, matchType: 'mt_doubles');
+
+    test('a side holds one player in singles and two in doubles', () {
+      expect(sideCapacity(single), 1);
+      expect(sideCapacity(double), 2);
+      expect(positionFor(single, 0), 'epp_center');
+      expect(positionFor(double, 0), 'epp_left');
+      expect(positionFor(double, 1), 'epp_right');
+    });
+
+    EventRound round() => const EventRound(
+      id: 7,
+      eventMatches: [
+        EventMatch(
+          id: 1,
+          matchType: 'mt_doubles',
+          eventMatchSides: [
+            EventMatchSide(
+              id: 10,
+              eventParticipants: [
+                MatchPlayer(userId: 1, position: 'epp_right'),
+                MatchPlayer(user: AppUser(id: 2)),
+              ],
+            ),
+            EventMatchSide(id: 11, eventParticipants: [MatchPlayer(userId: 3)]),
+          ],
+        ),
+      ],
+    );
+
+    test('the round keeps stored positions and fills the missing ones', () {
+      expect(roundAssignments(round()), [
+        {'user_id': 1, 'event_match_side_id': 10, 'position': 'epp_right'},
+        {'user_id': 2, 'event_match_side_id': 10, 'position': 'epp_right'},
+        {'user_id': 3, 'event_match_side_id': 11, 'position': 'epp_left'},
+      ]);
+      expect(
+        sidePlayerIds(round().eventMatches!.first.eventMatchSides!.first),
+        [1, 2],
+      );
+    });
+
+    test('a side is replaced, the others kept, extra players dropped', () {
+      final r = round();
+      final match = r.eventMatches!.first;
+      expect(
+        assignmentsAfter(r, match, match.eventMatchSides!.last, [5, 6, 7]),
+        [
+          {'user_id': 1, 'event_match_side_id': 10, 'position': 'epp_right'},
+          {'user_id': 2, 'event_match_side_id': 10, 'position': 'epp_right'},
+          {'user_id': 5, 'event_match_side_id': 11, 'position': 'epp_left'},
+          {'user_id': 6, 'event_match_side_id': 11, 'position': 'epp_right'},
+        ],
+      );
+      expect(
+        () => assignmentsAfter(r, match, const EventMatchSide(), [1]),
+        throwsStateError,
+      );
+    });
+
+    test('pairs go out only when something new was paired', () {
+      final ann = EventParticipant(userId: 1);
+      final bo = EventParticipant(user: AppUser(id: 2));
+      expect(
+        partnerPairsToSend([
+          [ann, bo],
+        ], const []),
+        isNull,
+      );
+      expect(
+        partnerPairsToSend(
+          [
+            [ann, bo],
+          ],
+          [(3, 4)],
+        ),
+        [
+          [1, 2],
+          [3, 4],
+        ],
+      );
+    });
+
+    test('pairs are for round robins with fixed partners', () {
+      expect(
+        canEditPairs(
+          const EventDetails(
+            eventType: 'et_round_robin',
+            partnershipType: 'ept_fixed',
+          ),
+        ),
+        isTrue,
+      );
+      expect(
+        canEditPairs(
+          const EventDetails(
+            eventType: 'et_round_robin',
+            partnershipType: 'ept_rotating',
+          ),
+        ),
+        isFalse,
+      );
+    });
+
+    test('participant groups come as several or as one', () {
+      final several = parseParticipantGroups({
+        'event_participant_groups': [
+          {
+            'key': 'pairs',
+            'event_participant_pairs': [
+              [
+                {
+                  'id': 1,
+                  'user_id': 1,
+                  'user': {'id': 1, 'first_name': 'Ann'},
+                },
+                {'id': 2, 'user_id': 2},
+              ],
+            ],
+          },
+        ],
+      });
+      expect(
+        several.single.eventParticipantPairs!.single.map((p) => p.person),
+        [1, 2],
+      );
+      final one = parseParticipantGroups({
+        'event_participants': [
+          {
+            'id': 1,
+            'user': {'id': 9, 'first_name': 'Zoe', 'last_name': 'V'},
+          },
+        ],
+      });
+      expect(one.single.eventParticipants!.single.person, 9);
+      expect(one.single.eventParticipants!.single.name, 'Zoe V');
+      expect(parseParticipantGroups(null), isEmpty);
+      expect(parseParticipantGroups({'other': 1}), isEmpty);
     });
   });
 

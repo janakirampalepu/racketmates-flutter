@@ -134,4 +134,70 @@ void main() {
     );
     expect(response.event?.id, 7);
   });
+
+  test(
+    'participants are asked for with the confirmed player filters',
+    () async {
+      adapter.body = {
+        'event_participant_groups': [
+          {
+            'key': 'pairs',
+            'event_participant_pairs': [
+              [
+                {'id': 1, 'user_id': 1},
+                {'id': 2, 'user_id': 2},
+              ],
+            ],
+          },
+        ],
+      };
+      final groups = await repo.participants(
+        7,
+        groupBy: 'pairs',
+        include: [1],
+        exclude: [2, 3],
+        search: 'zo',
+        preferredMatchType: 'mt_doubles',
+        excludeWithPartner: true,
+      );
+      final q = adapter.requests.last.uri;
+      expect(adapter.requests.last.path, 'events/7/event_participants');
+      expect(q.queryParametersAll['roles[]'], ['ur_player']);
+      expect(q.queryParametersAll['participant_statuses[]'], ['eus_confirmed']);
+      expect(q.queryParametersAll['group_by'], ['pairs']);
+      expect(q.queryParametersAll['include_user_ids[]'], ['1']);
+      expect(q.queryParametersAll['exclude_user_ids[]'], ['2', '3']);
+      expect(q.queryParametersAll['search'], ['zo']);
+      expect(q.queryParametersAll['preferred_match_type'], ['mt_doubles']);
+      expect(q.queryParametersAll['exclude_participants_with_partner'], [
+        'true',
+      ]);
+      expect(groups.single.eventParticipantPairs!.single, hasLength(2));
+    },
+  );
+
+  test('empty filters are left out of the query', () async {
+    adapter.body = {'event_participants': <Object>[]};
+    await repo.participants(7, search: '');
+    final q = adapter.requests.last.uri.queryParametersAll;
+    expect(q.containsKey('include_user_ids[]'), isFalse);
+    expect(q.containsKey('exclude_user_ids[]'), isFalse);
+    expect(q.containsKey('search'), isFalse);
+    expect(q.containsKey('group_by'), isFalse);
+  });
+
+  test('players are assigned with a PUT of the whole round', () async {
+    await repo.assignPlayers(7, [
+      {'user_id': 1, 'event_match_side_id': 10, 'position': 'epp_center'},
+    ]);
+    expect(
+      (adapter.requests.last.method, adapter.requests.last.path),
+      ('PUT', 'events/7/assign_players'),
+    );
+    expect(adapter.requests.last.data, {
+      'event_participants': [
+        {'user_id': 1, 'event_match_side_id': 10, 'position': 'epp_center'},
+      ],
+    });
+  });
 }

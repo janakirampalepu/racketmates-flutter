@@ -7,7 +7,9 @@ import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/places/place_models.dart';
+import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/screens/event_manage/event_manage_test_ids.dart';
+import 'package:racketmates/screens/event_manage_pairs/event_manage_pairs_test_ids.dart';
 import 'package:racketmates/screens/event_manage_rounds/event_manage_rounds_test_ids.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
 
@@ -29,10 +31,14 @@ Future<FakeEventActionsRepository> _open(
   String route, {
   AppFailure? failure,
   String? generateResult,
+  List<EventParticipant> candidates = const [],
 }) async {
   useTallScreen(tester);
   final actions = FakeEventActionsRepository(failure: failure)
-    ..generateResult = generateResult;
+    ..generateResult = generateResult
+    ..participantGroups = {
+      'partnership': [EventParticipantGroup(eventParticipants: candidates)],
+    };
   await tester.pumpWidget(
     signedInApp(
       schedule: FakeScheduleRepository(
@@ -129,7 +135,7 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('fixed partners are not available yet', (tester) async {
+    testWidgets('fixed partners are paired before the rounds', (tester) async {
       final handle = tester.ensureSemantics();
       final actions = await _open(
         tester,
@@ -137,14 +143,12 @@ void main() {
         hub,
       );
       expect(
-        find.text(
-          'Choosing fixed partners is not available in this build yet.',
-        ),
+        find.text('Pair the players, then generate the rounds'),
         findsOneWidget,
       );
-      await tester.tap(_id(EventManageTestIds.rounds), warnIfMissed: false);
-      await tester.pumpAndSettle();
-      expect(actions.manageCalls, isEmpty);
+      await _tap(tester, EventManageTestIds.rounds);
+      expect(_id(EventManagePairsTestIds.root), findsOneWidget);
+      expect(actions.manageCalls, isEmpty); // nothing generated yet
       handle.dispose();
     });
 
@@ -165,7 +169,8 @@ void main() {
       expect(find.text('Round 1'), findsOneWidget);
       expect(find.text('Round 2'), findsOneWidget);
       expect(_id(EventManageRoundsTestIds.match(501)), findsOneWidget);
-      expect(find.textContaining('Alex Kim vs Pat Lee'), findsOneWidget);
+      expect(find.textContaining('Top side: Alex Kim'), findsOneWidget);
+      expect(find.textContaining('Bottom side: Pat Lee'), findsOneWidget);
       expect(find.textContaining('Court 1'), findsOneWidget);
       expect(find.textContaining('No court'), findsOneWidget);
       expect(_id(EventManageRoundsTestIds.match(503)), findsNothing);
@@ -278,6 +283,161 @@ void main() {
       final handle = tester.ensureSemantics();
       await _open(tester, 'events_show_setup_rounds', rounds);
       expect(_id(EventManageRoundsTestIds.empty), findsOneWidget);
+      handle.dispose();
+    });
+  });
+
+  group('assign players', () {
+    EventParticipant p(int id, String first, String last) => EventParticipant(
+      userId: id,
+      user: AppUser(id: id, firstName: first, lastName: last),
+    );
+    final candidates = [
+      p(8, 'Alex', 'Kim'),
+      p(12, 'Zoe', 'Vega'),
+      p(13, 'Max', 'Ray'),
+    ];
+
+    testWidgets('a side offers the players not on other sides', (tester) async {
+      final handle = tester.ensureSemantics();
+      final actions = await _open(
+        tester,
+        'events_show_manage_rounds',
+        rounds,
+        candidates: candidates,
+      );
+      await _tap(tester, EventManageRoundsTestIds.side(601));
+      final query = actions.participantQueries.single;
+      expect(query['groupBy'], 'partnership');
+      expect(query['include'], [8]); // who is on this side
+      expect(query['exclude'], [9, 10, 11]); // the other sides of the round
+      expect(_id(EventManageRoundsTestIds.assignPlayer(12)), findsOneWidget);
+      // The current player is ticked.
+      expect(
+        tester
+            .widget<CheckboxListTile>(
+              find.descendant(
+                of: _id(EventManageRoundsTestIds.assignPlayer(8)),
+                matching: find.byType(CheckboxListTile),
+              ),
+            )
+            .value,
+        isTrue,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('changing a player sends the whole round', (tester) async {
+      final handle = tester.ensureSemantics();
+      final actions = await _open(
+        tester,
+        'events_show_manage_rounds',
+        rounds,
+        candidates: candidates,
+      );
+      await _tap(tester, EventManageRoundsTestIds.side(601));
+      // A singles side holds one player: free the place, then take another.
+      await _tap(tester, EventManageRoundsTestIds.assignPlayer(8));
+      await _tap(tester, EventManageRoundsTestIds.assignPlayer(12));
+      await _tap(tester, EventManageRoundsTestIds.assignSave);
+
+      expect(actions.manageCalls.single.name, 'assignPlayers:101');
+      final sent = (actions.manageCalls.single.data! as List)
+          .cast<Map<String, dynamic>>();
+      Map<String, Object?> e(int user, int side) => {
+        'user_id': user,
+        'event_match_side_id': side,
+        'position': 'epp_center',
+      };
+      expect(sent, [e(9, 602), e(10, 603), e(11, 604), e(12, 601)]);
+      handle.dispose();
+    });
+
+    testWidgets('a singles side holds one player', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _open(
+        tester,
+        'events_show_manage_rounds',
+        rounds,
+        candidates: candidates,
+      );
+      await _tap(tester, EventManageRoundsTestIds.side(601));
+      CheckboxListTile box(int id) => tester.widget<CheckboxListTile>(
+        find.descendant(
+          of: _id(EventManageRoundsTestIds.assignPlayer(id)),
+          matching: find.byType(CheckboxListTile),
+        ),
+      );
+      expect(box(8).onChanged, isNotNull); // can be unticked
+      expect(box(12).onChanged, isNull); // the place is taken
+      expect(find.text('Up to 1 per side.'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('a side can be emptied', (tester) async {
+      final handle = tester.ensureSemantics();
+      final actions = await _open(
+        tester,
+        'events_show_manage_rounds',
+        rounds,
+        candidates: candidates,
+      );
+      await _tap(tester, EventManageRoundsTestIds.side(601));
+      await _tap(tester, EventManageRoundsTestIds.assignPlayer(8));
+      await _tap(tester, EventManageRoundsTestIds.assignSave);
+      final sent = (actions.manageCalls.single.data! as List)
+          .cast<Map<String, dynamic>>();
+      expect(sent.where((s) => s['event_match_side_id'] == 601), isEmpty);
+      expect(sent, hasLength(3));
+      handle.dispose();
+    });
+
+    testWidgets('searching asks the server', (tester) async {
+      final handle = tester.ensureSemantics();
+      final actions = await _open(
+        tester,
+        'events_show_manage_rounds',
+        rounds,
+        candidates: candidates,
+      );
+      await _tap(tester, EventManageRoundsTestIds.side(601));
+      await tester.enterText(
+        find.descendant(
+          of: _id(EventManageRoundsTestIds.assignSearch),
+          matching: find.byType(TextField),
+        ),
+        'zo',
+      );
+      await tester.pumpAndSettle();
+      expect(actions.participantQueries.last['search'], 'zo');
+      handle.dispose();
+    });
+
+    testWidgets('no players and a failed load are explained', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _open(tester, 'events_show_manage_rounds', rounds);
+      await _tap(tester, EventManageRoundsTestIds.side(601));
+      expect(_id(EventManageRoundsTestIds.assignNone), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('a failed load shows a message', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _open(
+        tester,
+        'events_show_manage_rounds',
+        rounds,
+        failure: const OfflineFailure(),
+      );
+      await _tap(tester, EventManageRoundsTestIds.side(601));
+      expect(_id(EventManageRoundsTestIds.assignError), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('formats other than manual cannot assign', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _open(tester, 'events_show_rounds_classic', rounds);
+      expect(_id(EventManageRoundsTestIds.side(601)), findsNothing);
       handle.dispose();
     });
   });

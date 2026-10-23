@@ -47,6 +47,21 @@ abstract class EventActionsRepository {
   /// `PUT update_matches` with `{event: {event_matches_attributes: [...]}}`.
   Future<void> updateMatches(int eventId, Map<String, dynamic> body);
 
+  /// Confirmed players (`GET event_participants`), as groups. [include] and
+  /// [exclude] are user ids; [excludeWithPartner] leaves out paired players.
+  Future<List<EventParticipantGroup>> participants(
+    int eventId, {
+    String? groupBy,
+    List<int> include = const [],
+    List<int> exclude = const [],
+    String? search,
+    String? preferredMatchType,
+    bool? excludeWithPartner,
+  });
+
+  /// `PUT assign_players` with `{event_participants: [...]}`.
+  Future<void> assignPlayers(int eventId, List<Map<String, dynamic>> players);
+
   /// `PUT cancel_event`; [removeEvent] also deletes it from the schedule.
   Future<void> cancelEvent(
     int eventId, {
@@ -178,6 +193,35 @@ class EventActionsRepositoryImpl implements EventActionsRepository {
   @override
   Future<void> updateMatches(int eventId, Map<String, dynamic> body) =>
       _guard(() => api.updateMatches(eventId, body));
+
+  @override
+  Future<List<EventParticipantGroup>> participants(
+    int eventId, {
+    String? groupBy,
+    List<int> include = const [],
+    List<int> exclude = const [],
+    String? search,
+    String? preferredMatchType,
+    bool? excludeWithPartner,
+  }) => _guard(
+    () async => parseParticipantGroups(
+      await api.participants(
+        eventId,
+        const ['ur_player'],
+        const ['eus_confirmed'],
+        groupBy: groupBy,
+        includeUserIds: include.isEmpty ? null : include,
+        excludeUserIds: exclude.isEmpty ? null : exclude,
+        search: (search ?? '').isEmpty ? null : search,
+        preferredMatchType: preferredMatchType,
+        excludeWithPartner: excludeWithPartner,
+      ),
+    ),
+  );
+
+  @override
+  Future<void> assignPlayers(int eventId, List<Map<String, dynamic>> players) =>
+      _guard(() => api.assignPlayers(eventId, {'event_participants': players}));
 
   @override
   Future<void> cancelEvent(

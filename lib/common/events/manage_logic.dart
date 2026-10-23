@@ -670,6 +670,88 @@ Map<String, dynamic> buildMatchCourtBody(int matchId, int courtId) => {
   },
 };
 
+// --- Round players and fixed pairs ---------------------------------------------
+
+/// Players one side of [match] holds: one in singles, two in doubles.
+int sideCapacity(EventMatch match) =>
+    match.matchType == MatchKeys.singles ? 1 : 2;
+
+/// The position of the [index]th player of a side (native
+/// `getSelectedRoundAllMatchPlayers`): centre in singles, left then right.
+String positionFor(EventMatch match, int index) =>
+    match.matchType == MatchKeys.singles
+    ? MatchKeys.positionCenter
+    : (index == 0 ? 'epp_left' : 'epp_right');
+
+int? _playerUser(MatchPlayer p) => p.userId ?? p.user?.id;
+
+/// User ids of the players standing on [side].
+List<int> sidePlayerIds(EventMatchSide side) => [
+  for (final p in side.eventParticipants ?? const <MatchPlayer>[])
+    if (_playerUser(p) != null) _playerUser(p)!,
+];
+
+/// Everyone on the sides of [round]'s matches as `assign_players` entries.
+List<Map<String, dynamic>> roundAssignments(EventRound round) => [
+  for (final match in round.eventMatches ?? const <EventMatch>[])
+    for (final side in match.eventMatchSides ?? const <EventMatchSide>[])
+      for (final (i, p)
+          in (side.eventParticipants ?? const <MatchPlayer>[]).indexed)
+        if (_playerUser(p) != null && side.id != null)
+          {
+            'user_id': _playerUser(p),
+            'event_match_side_id': side.id,
+            'position': p.position ?? positionFor(match, i),
+          },
+];
+
+/// The assignments of [round] after [side] of [match] is given [userIds]: the
+/// other sides keep their players, native sends the whole round.
+List<Map<String, dynamic>> assignmentsAfter(
+  EventRound round,
+  EventMatch match,
+  EventMatchSide side,
+  List<int> userIds,
+) {
+  if (side.id == null) throw StateError('side without id');
+  return [
+    for (final a in roundAssignments(round))
+      if (a['event_match_side_id'] != side.id) a,
+    for (final (i, id) in userIds.take(sideCapacity(match)).indexed)
+      {
+        'user_id': id,
+        'event_match_side_id': side.id,
+        'position': positionFor(match, i),
+      },
+  ];
+}
+
+/// `preferred_match_type` filters of the fixed-partner screen.
+const preferredMatchTypes = ['mt_doubles', 'mt_undecided'];
+
+/// Whether fixed pairs can be chosen: partners are fixed and the format lets
+/// players pair at all.
+bool canEditPairs(EventDetails event) =>
+    event.isRoundRobin && needsFixedPartners(event);
+
+/// The pairs to send with `generate_event_rounds`: the server's pairs and the
+/// new ones, as user ids; null when nothing new was paired (the server keeps
+/// the pairs it has).
+List<List<int>>? partnerPairsToSend(
+  List<List<EventParticipant>> existing,
+  List<(int, int)> added,
+) {
+  if (added.isEmpty) return null;
+  return [
+    for (final pair in existing)
+      [
+        for (final p in pair)
+          if (p.person != null) p.person!,
+      ],
+    for (final (a, b) in added) [a, b],
+  ];
+}
+
 // --- Players ------------------------------------------------------------------
 
 enum ParticipantGroup {

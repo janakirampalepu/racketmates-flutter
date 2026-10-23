@@ -1535,8 +1535,77 @@ class AppLocalizationsEn extends AppLocalizations {
       'Generate the rounds from the confirmed players';
 
   @override
-  String get eventManageRoundsFixedUnsupported =>
-      'Choosing fixed partners is not available in this build yet.';
+  String get eventManageRoundsFixedHint =>
+      'Pair the players, then generate the rounds';
+
+  @override
+  String get eventPairsTitle => 'Pairs';
+
+  @override
+  String get eventPairsInfo =>
+      'Create pairs for your round robin. Players who aren\'t paired play singles.';
+
+  @override
+  String get eventPairsHeading => 'Pairs';
+
+  @override
+  String get eventPairsNone => 'No pairs yet.';
+
+  @override
+  String get eventPairsUnpaired => 'Players without a partner';
+
+  @override
+  String get eventPairsUnpairedNone => 'Everyone has a partner.';
+
+  @override
+  String get eventPairsPick => 'Select two players to pair them.';
+
+  @override
+  String get eventPairsPair => 'Pair up';
+
+  @override
+  String get eventPairsRemove => 'Remove pair';
+
+  @override
+  String get eventPairsContinue => 'Continue to rounds';
+
+  @override
+  String get eventPairsFilterAll => 'All';
+
+  @override
+  String get eventPairsFilterDoubles => 'Doubles';
+
+  @override
+  String get eventPairsFilterBoth => 'Singles or doubles';
+
+  @override
+  String get eventPairsLoadError => 'The players could not be loaded.';
+
+  @override
+  String get eventRoundSideTop => 'Top side';
+
+  @override
+  String get eventRoundSideBottom => 'Bottom side';
+
+  @override
+  String get eventRoundNoPlayers => 'Assign players';
+
+  @override
+  String get eventAssignTitle => 'Select players';
+
+  @override
+  String get eventAssignSearch => 'Search players';
+
+  @override
+  String get eventAssignNone => 'No players to choose from.';
+
+  @override
+  String get eventAssignSave => 'Save';
+
+  @override
+  String eventAssignLimit(int count) {
+    return 'Up to $count per side.';
+  }
 
   @override
   String get eventRoundsWaitingTitle => 'Waiting for players';

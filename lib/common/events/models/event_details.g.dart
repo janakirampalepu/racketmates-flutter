@@ -244,6 +244,7 @@ EventParticipant _$EventParticipantFromJson(Map<String, dynamic> json) =>
       waitlistNumber: (json['waitlist_number'] as num?)?.toInt(),
       participantLabel: json['participant_label'] as String?,
       teamId: (json['team_id'] as num?)?.toInt(),
+      preferredMatchType: json['preferred_match_type'] as String?,
     );
 
 Map<String, dynamic> _$EventParticipantToJson(EventParticipant instance) =>
@@ -258,7 +259,34 @@ Map<String, dynamic> _$EventParticipantToJson(EventParticipant instance) =>
       'waitlist_number': instance.waitlistNumber,
       'participant_label': instance.participantLabel,
       'team_id': instance.teamId,
+      'preferred_match_type': instance.preferredMatchType,
     };
+
+EventParticipantGroup _$EventParticipantGroupFromJson(
+  Map<String, dynamic> json,
+) => EventParticipantGroup(
+  key: json['key'] as String?,
+  label: json['label'] as String?,
+  eventParticipants: (json['event_participants'] as List<dynamic>?)
+      ?.map((e) => EventParticipant.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  eventParticipantPairs: (json['event_participant_pairs'] as List<dynamic>?)
+      ?.map(
+        (e) => (e as List<dynamic>)
+            .map((e) => EventParticipant.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      )
+      .toList(),
+);
+
+Map<String, dynamic> _$EventParticipantGroupToJson(
+  EventParticipantGroup instance,
+) => <String, dynamic>{
+  'key': instance.key,
+  'label': instance.label,
+  'event_participants': instance.eventParticipants,
+  'event_participant_pairs': instance.eventParticipantPairs,
+};
 
 CurrentUserEventDetail _$CurrentUserEventDetailFromJson(
   Map<String, dynamic> json,

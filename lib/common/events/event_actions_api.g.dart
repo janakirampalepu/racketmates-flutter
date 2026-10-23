@@ -350,6 +350,67 @@ class _EventActionsApi implements EventActionsApi {
   }
 
   @override
+  Future<dynamic> participants(
+    int eventId,
+    List<String> roles,
+    List<String> statuses, {
+    String? groupBy,
+    List<int>? includeUserIds,
+    List<int>? excludeUserIds,
+    String? search,
+    String? preferredMatchType,
+    bool? excludeWithPartner,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'roles[]': roles,
+      r'participant_statuses[]': statuses,
+      r'group_by': groupBy,
+      r'include_user_ids[]': includeUserIds,
+      r'exclude_user_ids[]': excludeUserIds,
+      r'search': search,
+      r'preferred_match_type': preferredMatchType,
+      r'exclude_participants_with_partner': excludeWithPartner,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<dynamic>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            'events/${eventId}/event_participants',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch(_options);
+    final _value = _result.data;
+    return _value;
+  }
+
+  @override
+  Future<void> assignPlayers(int eventId, Map<String, dynamic> body) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(body);
+    final _options = _setStreamType<void>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            'events/${eventId}/assign_players',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    await _dio.fetch<void>(_options);
+  }
+
+  @override
   Future<void> updateSettings(int eventId, Map<String, dynamic> body) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};

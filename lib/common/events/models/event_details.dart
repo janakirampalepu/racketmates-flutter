@@ -286,6 +286,7 @@ class EventParticipant {
     this.waitlistNumber,
     this.participantLabel,
     this.teamId,
+    this.preferredMatchType,
   });
 
   factory EventParticipant.fromJson(Map<String, dynamic> json) =>
@@ -306,7 +307,59 @@ class EventParticipant {
   /// The team the participant plays for in a team event.
   final int? teamId;
 
+  /// `mt_singles`, `mt_doubles` or `mt_undecided` (round robins with both).
+  final String? preferredMatchType;
+
   Map<String, dynamic> toJson() => _$EventParticipantToJson(this);
+
+  /// The user id: the participant's own, else the user's.
+  int? get person => userId ?? user?.id;
+
+  /// "Alex Kim", falling back to the server label.
+  String get name {
+    final n = user?.displayName ?? '';
+    return n.isNotEmpty ? n : (participantLabel ?? '');
+  }
+}
+
+/// A group of participants from `GET event_participants` (`group_by`): the
+/// pairs of a fixed-partner round robin come as [eventParticipantPairs].
+@JsonSerializable(fieldRename: FieldRename.snake)
+class EventParticipantGroup {
+  const EventParticipantGroup({
+    this.key,
+    this.label,
+    this.eventParticipants,
+    this.eventParticipantPairs,
+  });
+
+  factory EventParticipantGroup.fromJson(Map<String, dynamic> json) =>
+      _$EventParticipantGroupFromJson(json);
+
+  final String? key;
+  final String? label;
+  final List<EventParticipant>? eventParticipants;
+  final List<List<EventParticipant>>? eventParticipantPairs;
+
+  Map<String, dynamic> toJson() => _$EventParticipantGroupToJson(this);
+}
+
+/// Groups of an `event_participants` answer: several under
+/// `event_participant_groups`, or one group at the top.
+List<EventParticipantGroup> parseParticipantGroups(Object? data) {
+  if (data is! Map<String, dynamic>) return const [];
+  final groups = data['event_participant_groups'];
+  if (groups is List) {
+    return [
+      for (final g in groups)
+        if (g is Map<String, dynamic>) EventParticipantGroup.fromJson(g),
+    ];
+  }
+  if (data['event_participants'] is List ||
+      data['event_participant_pairs'] is List) {
+    return [EventParticipantGroup.fromJson(data)];
+  }
+  return const [];
 }
 
 /// The signed-in user's own standing in the event (server-provided texts).

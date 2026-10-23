@@ -119,6 +119,7 @@ abstract final class AppRoutes {
   static String eventManageScheduleFor(int id) => '$event/$id/manage/schedule';
   static String eventManageScheduleMatchFor(int id, int matchId) =>
       '$event/$id/manage/schedule/$matchId';
+  static String eventManagePairsFor(int id) => '$event/$id/manage/pairs';
   static String eventManageRoundsFor(int id) => '$event/$id/manage/rounds';
   static String eventManageScoresFor(int id) => '$event/$id/manage/scores';
   static String eventManageScoreFor(int id, int matchId) =>

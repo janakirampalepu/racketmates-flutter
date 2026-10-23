@@ -588,6 +588,38 @@ class FakeEventActionsRepository implements EventActionsRepository {
   Future<EventDetailsResponse> acceptScores(int eventId) =>
       _rsvp('acceptScores');
 
+  /// Groups `participants` returns, by `group_by` ('' for none); calls are in
+  /// [participantQueries].
+  Map<String, List<EventParticipantGroup>> participantGroups = {};
+  final List<Map<String, Object?>> participantQueries = [];
+
+  @override
+  Future<List<EventParticipantGroup>> participants(
+    int eventId, {
+    String? groupBy,
+    List<int> include = const [],
+    List<int> exclude = const [],
+    String? search,
+    String? preferredMatchType,
+    bool? excludeWithPartner,
+  }) async {
+    participantQueries.add({
+      'groupBy': groupBy,
+      'include': include,
+      'exclude': exclude,
+      'search': search,
+      'preferredMatchType': preferredMatchType,
+      'excludeWithPartner': excludeWithPartner,
+    });
+    await Future<void>.delayed(Duration.zero);
+    if (failure != null) throw failure!;
+    return participantGroups[groupBy ?? ''] ?? const [];
+  }
+
+  @override
+  Future<void> assignPlayers(int eventId, List<Map<String, dynamic>> players) =>
+      _manage('assignPlayers:$eventId', players);
+
   /// `result` returned by `generateRounds`.
   String? generateResult;
 

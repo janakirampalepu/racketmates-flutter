@@ -2896,11 +2896,143 @@ abstract class AppLocalizations {
   /// **'Generate the rounds from the confirmed players'**
   String get eventManageRoundsSetUpHint;
 
-  /// No description provided for @eventManageRoundsFixedUnsupported.
+  /// No description provided for @eventManageRoundsFixedHint.
   ///
   /// In en, this message translates to:
-  /// **'Choosing fixed partners is not available in this build yet.'**
-  String get eventManageRoundsFixedUnsupported;
+  /// **'Pair the players, then generate the rounds'**
+  String get eventManageRoundsFixedHint;
+
+  /// No description provided for @eventPairsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairs'**
+  String get eventPairsTitle;
+
+  /// No description provided for @eventPairsInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Create pairs for your round robin. Players who aren\'t paired play singles.'**
+  String get eventPairsInfo;
+
+  /// No description provided for @eventPairsHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairs'**
+  String get eventPairsHeading;
+
+  /// No description provided for @eventPairsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No pairs yet.'**
+  String get eventPairsNone;
+
+  /// No description provided for @eventPairsUnpaired.
+  ///
+  /// In en, this message translates to:
+  /// **'Players without a partner'**
+  String get eventPairsUnpaired;
+
+  /// No description provided for @eventPairsUnpairedNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone has a partner.'**
+  String get eventPairsUnpairedNone;
+
+  /// No description provided for @eventPairsPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Select two players to pair them.'**
+  String get eventPairsPick;
+
+  /// No description provided for @eventPairsPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair up'**
+  String get eventPairsPair;
+
+  /// No description provided for @eventPairsRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove pair'**
+  String get eventPairsRemove;
+
+  /// No description provided for @eventPairsContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to rounds'**
+  String get eventPairsContinue;
+
+  /// No description provided for @eventPairsFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get eventPairsFilterAll;
+
+  /// No description provided for @eventPairsFilterDoubles.
+  ///
+  /// In en, this message translates to:
+  /// **'Doubles'**
+  String get eventPairsFilterDoubles;
+
+  /// No description provided for @eventPairsFilterBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'Singles or doubles'**
+  String get eventPairsFilterBoth;
+
+  /// No description provided for @eventPairsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'The players could not be loaded.'**
+  String get eventPairsLoadError;
+
+  /// No description provided for @eventRoundSideTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Top side'**
+  String get eventRoundSideTop;
+
+  /// No description provided for @eventRoundSideBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom side'**
+  String get eventRoundSideBottom;
+
+  /// No description provided for @eventRoundNoPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign players'**
+  String get eventRoundNoPlayers;
+
+  /// No description provided for @eventAssignTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select players'**
+  String get eventAssignTitle;
+
+  /// No description provided for @eventAssignSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search players'**
+  String get eventAssignSearch;
+
+  /// No description provided for @eventAssignNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No players to choose from.'**
+  String get eventAssignNone;
+
+  /// No description provided for @eventAssignSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get eventAssignSave;
+
+  /// Offline fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {count} per side.'**
+  String eventAssignLimit(int count);
 
   /// No description provided for @eventRoundsWaitingTitle.
   ///

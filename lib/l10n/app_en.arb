@@ -613,7 +613,37 @@
   "eventManageRoundsHint": "See and edit the rounds of this round robin",
   "eventManageRoundsSetUp": "Set up rounds",
   "eventManageRoundsSetUpHint": "Generate the rounds from the confirmed players",
-  "eventManageRoundsFixedUnsupported": "Choosing fixed partners is not available in this build yet.",
+  "eventManageRoundsFixedHint": "Pair the players, then generate the rounds",
+  "eventPairsTitle": "Pairs",
+  "eventPairsInfo": "Create pairs for your round robin. Players who aren't paired play singles.",
+  "eventPairsHeading": "Pairs",
+  "eventPairsNone": "No pairs yet.",
+  "eventPairsUnpaired": "Players without a partner",
+  "eventPairsUnpairedNone": "Everyone has a partner.",
+  "eventPairsPick": "Select two players to pair them.",
+  "eventPairsPair": "Pair up",
+  "eventPairsRemove": "Remove pair",
+  "eventPairsContinue": "Continue to rounds",
+  "eventPairsFilterAll": "All",
+  "eventPairsFilterDoubles": "Doubles",
+  "eventPairsFilterBoth": "Singles or doubles",
+  "eventPairsLoadError": "The players could not be loaded.",
+  "eventRoundSideTop": "Top side",
+  "eventRoundSideBottom": "Bottom side",
+  "eventRoundNoPlayers": "Assign players",
+  "eventAssignTitle": "Select players",
+  "eventAssignSearch": "Search players",
+  "eventAssignNone": "No players to choose from.",
+  "eventAssignSave": "Save",
+  "eventAssignLimit": "Up to {count} per side.",
+  "@eventAssignLimit": {
+    "description": "Offline fallback.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "eventRoundsWaitingTitle": "Waiting for players",
   "eventRoundsWaitingText": "You don't have enough players yet to start generating the rounds.",
   "eventRoundsOk": "I understand",

@@ -23,6 +23,7 @@ import 'package:racketmates/screens/event_manage_add_people/event_manage_add_peo
 import 'package:racketmates/screens/event_manage_players/event_manage_players_screen.dart';
 import 'package:racketmates/screens/event_manage_schedule/event_manage_schedule_screen.dart';
 import 'package:racketmates/screens/event_manage_score_entry/event_manage_score_entry_screen.dart';
+import 'package:racketmates/screens/event_manage_pairs/event_manage_pairs_screen.dart';
 import 'package:racketmates/screens/event_manage_rounds/event_manage_rounds_screen.dart';
 import 'package:racketmates/screens/event_manage_scores/event_manage_scores_screen.dart';
 import 'package:racketmates/screens/event_manage_settings/event_manage_settings_screen.dart';
@@ -371,6 +372,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     ),
                   ),
                 ],
+              ),
+              GoRoute(
+                path: 'pairs',
+                builder: (context, state) => EventManagePairsScreen(
+                  eventId: int.parse(state.pathParameters['id']!),
+                ),
               ),
               GoRoute(
                 path: 'rounds',

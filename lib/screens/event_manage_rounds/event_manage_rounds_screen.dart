@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/content/content_text.dart';
+import 'package:racketmates/common/events/event_actions_repository.dart';
 import 'package:racketmates/common/events/event_labels.dart';
 import 'package:racketmates/common/events/manage_logic.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
@@ -130,6 +133,33 @@ class _EventManageRoundsScreenState
         .moveMatchToCourt(match.id!, picked);
   }
 
+  Future<void> _assign(
+    EventRound round,
+    EventMatch match,
+    EventMatchSide side,
+  ) async {
+    if (side.id == null) return;
+    final others = [
+      for (final m in round.eventMatches ?? const <EventMatch>[])
+        for (final s in m.eventMatchSides ?? const <EventMatchSide>[])
+          if (s.id != side.id) ...sidePlayerIds(s),
+    ];
+    final picked = await showModalBottomSheet<List<int>>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _AssignSheet(
+        eventId: widget.eventId,
+        capacity: sideCapacity(match),
+        current: sidePlayerIds(side),
+        others: others,
+      ),
+    );
+    if (picked == null || !mounted) return;
+    await ref
+        .read(eventManageViewModelProvider(widget.eventId).notifier)
+        .assignPlayers(round, match, side, picked);
+  }
+
   Future<void> _removeMatch(EventMatch match) async {
     final l10n = AppLocalizations.of(context);
     if (match.id == null) return;
@@ -197,7 +227,34 @@ class _EventManageRoundsScreenState
             orElse: () => rounds.first,
           );
 
-    Widget matchCard(EventMatch m) {
+    Widget sideRow(
+      EventRound round,
+      EventMatch m,
+      EventMatchSide? s,
+      String who,
+    ) {
+      if (s == null) return const SizedBox.shrink();
+      final names = s.label.isEmpty ? l10n.eventRoundNoPlayers : s.label;
+      return TestId(
+        EventManageRoundsTestIds.side(s.id ?? 0),
+        child: InkWell(
+          onTap: manage.busy || s.id == null
+              ? null
+              : () => _assign(round, m, s),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Row(
+              children: [
+                Expanded(child: Text('$who: $names')),
+                const Icon(Icons.edit_outlined, size: 18),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    Widget matchCard(EventRound round, EventMatch m) {
       final players = '${m.top?.label ?? ''} vs ${m.bottom?.label ?? ''}'
           .trim();
       return TestId(
@@ -211,7 +268,15 @@ class _EventManageRoundsScreenState
                 m.placeCourt?.name ?? l10n.eventMatchNoCourt,
               ].join(' · '),
             ),
-            subtitle: Text(players),
+            subtitle: editable
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      sideRow(round, m, m.top, l10n.eventRoundSideTop),
+                      sideRow(round, m, m.bottom, l10n.eventRoundSideBottom),
+                    ],
+                  )
+                : Text(players),
             trailing: editable && m.id != null
                 ? TestId(
                     EventManageRoundsTestIds.matchMenu(m.id!),
@@ -284,7 +349,7 @@ class _EventManageRoundsScreenState
             ],
           ),
           const SizedBox(height: 12),
-          for (final m in matches) matchCard(m),
+          for (final m in matches) matchCard(current!, m),
           if (editable && current != null && canRemoveRound(rounds, current))
             Padding(
               padding: const EdgeInsets.only(top: 12),
@@ -340,6 +405,165 @@ class _EventManageRoundsScreenState
                     : const CircularProgressIndicator(),
               )
             : body(event),
+      ),
+    );
+  }
+}
+
+/// Pick the players of one side of a round match from the confirmed players
+/// who are not on another side of the round.
+class _AssignSheet extends ConsumerStatefulWidget {
+  const _AssignSheet({
+    required this.eventId,
+    required this.capacity,
+    required this.current,
+    required this.others,
+  });
+
+  final int eventId;
+  final int capacity;
+  final List<int> current;
+  final List<int> others;
+
+  @override
+  ConsumerState<_AssignSheet> createState() => _AssignSheetState();
+}
+
+class _AssignSheetState extends ConsumerState<_AssignSheet> {
+  late final List<int> _selected = [...widget.current];
+  List<EventParticipant>? _players;
+  bool _failed = false;
+  int _request = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_load(''));
+  }
+
+  Future<void> _load(String search) async {
+    final request = ++_request;
+    try {
+      final groups = await ref
+          .read(eventActionsRepositoryProvider)
+          .participants(
+            widget.eventId,
+            groupBy: 'partnership',
+            include: widget.current,
+            exclude: widget.others,
+            search: search,
+          );
+      if (!mounted || request != _request) return;
+      setState(() {
+        _failed = false;
+        _players = [for (final g in groups) ...?g.eventParticipants];
+      });
+    } on Object {
+      if (mounted && request == _request) setState(() => _failed = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final players = _players;
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SafeArea(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Semantics(
+                  header: true,
+                  child: Text(l10n.eventAssignTitle),
+                ),
+                subtitle: Text(l10n.eventAssignLimit(widget.capacity)),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: TestId(
+                  EventManageRoundsTestIds.assignSearch,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      labelText: l10n.eventAssignSearch,
+                      prefixIcon: const Icon(Icons.search),
+                      border: const OutlineInputBorder(),
+                    ),
+                    onChanged: (v) => _load(v.trim()),
+                  ),
+                ),
+              ),
+              Flexible(
+                child: _failed
+                    ? Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: TestId(
+                          EventManageRoundsTestIds.assignError,
+                          child: Text(l10n.eventPairsLoadError),
+                        ),
+                      )
+                    : players == null
+                    ? const Padding(
+                        padding: EdgeInsets.all(32),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    : players.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: TestId(
+                          EventManageRoundsTestIds.assignNone,
+                          child: Text(l10n.eventAssignNone),
+                        ),
+                      )
+                    : ListView(
+                        shrinkWrap: true,
+                        children: [
+                          for (final p in players)
+                            if (p.person != null)
+                              TestId(
+                                EventManageRoundsTestIds.assignPlayer(
+                                  p.person!,
+                                ),
+                                child: CheckboxListTile(
+                                  title: Text(p.name),
+                                  value: _selected.contains(p.person),
+                                  onChanged:
+                                      !_selected.contains(p.person) &&
+                                          _selected.length >= widget.capacity
+                                      ? null
+                                      : (v) => setState(
+                                          () => v == true
+                                              ? _selected.add(p.person!)
+                                              : _selected.remove(p.person),
+                                        ),
+                                ),
+                              ),
+                        ],
+                      ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: TestId(
+                  EventManageRoundsTestIds.assignSave,
+                  child: FilledButton(
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(52),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(_selected),
+                    child: Text(l10n.eventAssignSave),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
