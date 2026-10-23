@@ -94,7 +94,9 @@ class EventManageScreen extends ConsumerWidget {
     Widget body(EventDetails e) {
       final locked = e.settingsLocked ?? false;
       final canSchedule =
-          !locked && e.status != 'es_cancelled' && e.hasSingleSchedule;
+          !locked &&
+          e.status != 'es_cancelled' &&
+          (e.hasSingleSchedule || canRescheduleMatches(e));
       final canScore =
           (e.eventMatches?.isNotEmpty ?? false) &&
           ((e.permission('event.update_scores')?.enabled ?? false) ||

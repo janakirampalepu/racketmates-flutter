@@ -60,6 +60,9 @@ abstract class EventActionsRepository {
   /// `PUT reschedule_event` with `{event: {...}}`.
   Future<void> reschedule(int eventId, Map<String, dynamic> body);
 
+  /// `PUT reschedule_matches` with `{event: {event_matches_attributes: [...]}}`.
+  Future<void> rescheduleMatches(int eventId, Map<String, dynamic> body);
+
   /// `POST event_matches/{id}/update_scores` with `{event_match: {...}}`.
   Future<void> updateScores(
     int eventId,
@@ -196,6 +199,10 @@ class EventActionsRepositoryImpl implements EventActionsRepository {
   @override
   Future<void> reschedule(int eventId, Map<String, dynamic> body) =>
       _guard(() => api.rescheduleEvent(eventId, body));
+
+  @override
+  Future<void> rescheduleMatches(int eventId, Map<String, dynamic> body) =>
+      _guard(() => api.rescheduleMatches(eventId, body));
 
   @override
   Future<void> updateScores(

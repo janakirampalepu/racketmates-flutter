@@ -629,6 +629,10 @@ class FakeEventActionsRepository implements EventActionsRepository {
       _manage('reschedule:$eventId', body);
 
   @override
+  Future<void> rescheduleMatches(int eventId, Map<String, dynamic> body) =>
+      _manage('rescheduleMatches:$eventId', body);
+
+  @override
   Future<void> updateScores(
     int eventId,
     int matchId,

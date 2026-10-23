@@ -83,6 +83,14 @@ class EventManageViewModel extends Notifier<EventManageState> {
     await _repo.reschedule(eventId, buildRescheduleBody(d));
   });
 
+  /// Moves one match to the venue, time, court and notes of [draft].
+  Future<bool> rescheduleMatch(int matchId, EventDraft draft) => _run(
+    () => _repo.rescheduleMatches(
+      eventId,
+      buildRescheduleMatchBody(matchId, draft),
+    ),
+  );
+
   Future<bool> saveScores(
     EventMatch match,
     List<SetScore> sets, {

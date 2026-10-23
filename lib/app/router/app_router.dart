@@ -354,6 +354,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) => EventManageScheduleScreen(
                   eventId: int.parse(state.pathParameters['id']!),
                 ),
+                routes: [
+                  GoRoute(
+                    path: ':matchId',
+                    // A malformed match id goes back to the list.
+                    redirect: (context, state) =>
+                        int.tryParse(state.pathParameters['matchId'] ?? '') ==
+                            null
+                        ? AppRoutes.eventManageScheduleFor(
+                            int.parse(state.pathParameters['id']!),
+                          )
+                        : null,
+                    builder: (context, state) => EventManageScheduleScreen(
+                      eventId: int.parse(state.pathParameters['id']!),
+                      matchId: int.parse(state.pathParameters['matchId']!),
+                    ),
+                  ),
+                ],
               ),
               GoRoute(
                 path: 'rounds',

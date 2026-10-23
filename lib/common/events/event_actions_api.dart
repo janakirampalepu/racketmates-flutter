@@ -91,6 +91,12 @@ abstract class EventActionsApi {
     @Body() Map<String, dynamic> body,
   );
 
+  @PUT('events/{eventId}/reschedule_matches')
+  Future<void> rescheduleMatches(
+    @Path('eventId') int eventId,
+    @Body() Map<String, dynamic> body,
+  );
+
   @PUT('events/{eventId}/reschedule_event')
   Future<void> rescheduleEvent(
     @Path('eventId') int eventId,

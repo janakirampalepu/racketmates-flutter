@@ -689,6 +689,83 @@ void main() {
     });
   });
 
+  group('match reschedule', () {
+    EventDetails scheduled() => EventDetails.fromJson(
+      apiFixture('events_show_manage_game_scheduled')['event']
+          as Map<String, dynamic>,
+    );
+
+    test('only games with matches are moved one by one', () {
+      expect(canRescheduleMatches(scheduled()), isTrue);
+      expect(
+        canRescheduleMatches(const EventDetails(eventType: 'et_competitive')),
+        isFalse,
+      );
+      expect(
+        canRescheduleMatches(
+          const EventDetails(
+            eventType: 'et_practice_drill',
+            eventMatches: [EventMatch(id: 1)],
+          ),
+        ),
+        isFalse,
+      );
+    });
+
+    test('the draft holds the match time, court and notes', () {
+      final e = scheduled();
+      final draft = rescheduleDraftForMatch(e, e.eventMatches!.first);
+      expect(draft.place?.id, 5);
+      expect(draft.start, DateTime(2030, 11, 4, 17));
+      expect(draft.durationMinutes, 90);
+      expect(draft.courtIds, [11]);
+      expect(draft.notes, 'Bring balls');
+      expect(draft.matches, hasLength(1));
+      expect(draft.courtCap, 1);
+      expect(draft.timezoneInfoId, 14);
+    });
+
+    test(
+      'a match without its own option takes the event time and no court',
+      () {
+        final e = scheduled();
+        final draft = rescheduleDraftForMatch(e, e.eventMatches!.last);
+        expect(draft.start, DateTime(2030, 11, 3, 18));
+        expect(draft.courtIds, isEmpty);
+        expect(draft.notes, isEmpty);
+      },
+    );
+
+    test('the body names the match, its option, court and notes', () {
+      final draft = rescheduleDraftForMatch(
+        scheduled(),
+        scheduled().eventMatches!.first,
+      ).copyWith(notes: ' later ');
+      expect(buildRescheduleMatchBody(301, draft), {
+        'event': {
+          'event_matches_attributes': [
+            {
+              'id': 301,
+              'request_schedule_options': [
+                {
+                  'place_id': 5,
+                  'start_time': '2030-11-04T17:00Z',
+                  'duration': 90,
+                },
+              ],
+              'place_court_id': 11,
+              'notes_for_match': 'later',
+            },
+          ],
+        },
+      });
+      expect(
+        () => buildRescheduleMatchBody(301, const EventDraft()),
+        throwsStateError,
+      );
+    });
+  });
+
   group('people', () {
     test('status groups', () {
       expect(groupOfStatus('eus_confirmed'), ParticipantGroup.confirmed);

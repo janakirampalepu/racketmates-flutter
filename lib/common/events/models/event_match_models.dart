@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 
 part 'event_match_models.g.dart';
@@ -134,6 +135,28 @@ class EventMatchSide {
   }
 }
 
+/// A time option of one match (`event_match_schedule_options`): it points to
+/// the event-level option that holds the time and venue.
+@JsonSerializable(fieldRename: FieldRename.snake)
+class MatchScheduleOption {
+  const MatchScheduleOption({
+    this.id,
+    this.eventScheduleOptionId,
+    this.eventScheduleOption,
+    this.optionNumber,
+  });
+
+  factory MatchScheduleOption.fromJson(Map<String, dynamic> json) =>
+      _$MatchScheduleOptionFromJson(json);
+
+  final int? id;
+  final int? eventScheduleOptionId;
+  final EventScheduleOption? eventScheduleOption;
+  final int? optionNumber;
+
+  Map<String, dynamic> toJson() => _$MatchScheduleOptionToJson(this);
+}
+
 @JsonSerializable(fieldRename: FieldRename.snake)
 class EventMatch {
   const EventMatch({
@@ -147,6 +170,8 @@ class EventMatch {
     this.decidingSetType,
     this.minimumScoreToWin,
     this.unfinished,
+    this.notesForMatch,
+    this.eventMatchScheduleOptions,
   });
 
   factory EventMatch.fromJson(Map<String, dynamic> json) =>
@@ -162,6 +187,8 @@ class EventMatch {
   final String? decidingSetType;
   final int? minimumScoreToWin;
   final bool? unfinished;
+  final String? notesForMatch;
+  final List<MatchScheduleOption>? eventMatchScheduleOptions;
 
   Map<String, dynamic> toJson() => _$EventMatchToJson(this);
 

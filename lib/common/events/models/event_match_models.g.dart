@@ -78,6 +78,28 @@ Map<String, dynamic> _$EventMatchSideToJson(EventMatchSide instance) =>
       'event_scores': instance.eventScores,
     };
 
+MatchScheduleOption _$MatchScheduleOptionFromJson(Map<String, dynamic> json) =>
+    MatchScheduleOption(
+      id: (json['id'] as num?)?.toInt(),
+      eventScheduleOptionId: (json['event_schedule_option_id'] as num?)
+          ?.toInt(),
+      eventScheduleOption: json['event_schedule_option'] == null
+          ? null
+          : EventScheduleOption.fromJson(
+              json['event_schedule_option'] as Map<String, dynamic>,
+            ),
+      optionNumber: (json['option_number'] as num?)?.toInt(),
+    );
+
+Map<String, dynamic> _$MatchScheduleOptionToJson(
+  MatchScheduleOption instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'event_schedule_option_id': instance.eventScheduleOptionId,
+  'event_schedule_option': instance.eventScheduleOption,
+  'option_number': instance.optionNumber,
+};
+
 EventMatch _$EventMatchFromJson(Map<String, dynamic> json) => EventMatch(
   id: (json['id'] as num?)?.toInt(),
   matchType: json['match_type'] as String?,
@@ -93,6 +115,11 @@ EventMatch _$EventMatchFromJson(Map<String, dynamic> json) => EventMatch(
   decidingSetType: json['deciding_set_type'] as String?,
   minimumScoreToWin: (json['minimum_score_to_win'] as num?)?.toInt(),
   unfinished: json['unfinished'] as bool?,
+  notesForMatch: json['notes_for_match'] as String?,
+  eventMatchScheduleOptions:
+      (json['event_match_schedule_options'] as List<dynamic>?)
+          ?.map((e) => MatchScheduleOption.fromJson(e as Map<String, dynamic>))
+          .toList(),
 );
 
 Map<String, dynamic> _$EventMatchToJson(EventMatch instance) =>
@@ -107,4 +134,6 @@ Map<String, dynamic> _$EventMatchToJson(EventMatch instance) =>
       'deciding_set_type': instance.decidingSetType,
       'minimum_score_to_win': instance.minimumScoreToWin,
       'unfinished': instance.unfinished,
+      'notes_for_match': instance.notesForMatch,
+      'event_match_schedule_options': instance.eventMatchScheduleOptions,
     };

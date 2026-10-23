@@ -107,6 +107,13 @@ void main() {
       (adapter.requests.last.method, adapter.requests.last.path),
       ('DELETE', 'events/7/event_matches/500'),
     );
+    await repo.rescheduleMatches(7, {
+      'event': {'event_matches_attributes': <Object>[]},
+    });
+    expect(
+      (adapter.requests.last.method, adapter.requests.last.path),
+      ('PUT', 'events/7/reschedule_matches'),
+    );
     await repo.updateMatches(7, {
       'event': {'event_matches_attributes': <Object>[]},
     });

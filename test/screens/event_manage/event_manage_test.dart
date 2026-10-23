@@ -11,6 +11,7 @@ import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/screens/create_event_when_where/create_event_when_where_test_ids.dart';
 import 'package:racketmates/screens/event_details/event_details_test_ids.dart';
 import 'package:racketmates/screens/event_manage/event_manage_test_ids.dart';
+import 'package:racketmates/screens/event_manage_schedule/event_manage_schedule_test_ids.dart';
 import 'package:racketmates/screens/event_manage_add_people/event_manage_add_people_test_ids.dart';
 import 'package:racketmates/screens/event_manage_players/event_manage_players_test_ids.dart';
 import 'package:racketmates/screens/event_manage_score_entry/event_manage_score_entry_test_ids.dart';
@@ -119,7 +120,7 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('a game offers scores and cannot be rescheduled here', (
+    testWidgets('a game offers scores and moves its matches one by one', (
       tester,
     ) async {
       final handle = tester.ensureSemantics();
@@ -133,11 +134,11 @@ void main() {
         find.text(
           'Changing the time of this event is not available in this build yet.',
         ),
-        findsOneWidget,
+        findsNothing,
       );
       await tester.tap(_id(EventManageTestIds.schedule));
       await tester.pumpAndSettle();
-      expect(_id(EventManageTestIds.root), findsOneWidget); // did not open
+      expect(_id(EventManageScheduleTestIds.matches), findsOneWidget);
       handle.dispose();
     });
   });

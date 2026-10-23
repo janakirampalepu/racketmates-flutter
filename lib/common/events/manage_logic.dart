@@ -1,5 +1,6 @@
 import 'package:racketmates/common/create_event/event_draft.dart';
 import 'package:racketmates/common/create_event/event_request.dart';
+import 'package:racketmates/common/create_event/match_draft.dart';
 import 'package:racketmates/common/create_event/scoring.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/models/event_match_models.dart';
@@ -189,6 +190,65 @@ Map<String, dynamic> buildRescheduleBody(EventDraft draft) {
           {'place_court_id': courts[i], 'order': i + 1},
       ],
       'notes_for_event': draft.notes.trim(),
+    },
+  };
+}
+
+/// Games are made of matches that are moved one at a time.
+bool canRescheduleMatches(EventDetails event) =>
+    event.isGame && (event.eventMatches?.isNotEmpty ?? false);
+
+/// A create-wizard draft holding the venue, time, court and notes of one
+/// match of [event], so the venue screen can be reused to change them. A
+/// match without its own time option starts from the event's.
+EventDraft rescheduleDraftForMatch(EventDetails event, EventMatch match) {
+  final option =
+      match.eventMatchScheduleOptions?.firstOrNull?.eventScheduleOption ??
+      event.eventScheduleOptions?.firstOrNull;
+  final place = option?.place;
+  final court = match.placeCourt?.id;
+  return EventDraft(
+    eventType: event.eventType,
+    sport: SportKey.fromKey(event.sportType),
+    place: PlaceItem(
+      id: option?.placeId ?? place?.id,
+      name: place?.name,
+      address: place?.address,
+    ),
+    matches: [MatchDraft(matchType: match.matchType ?? MatchKeys.singles)],
+    courtIds: [?court],
+    start: option?.venueStart,
+    durationMinutes: option?.duration ?? 60,
+    timezoneInfoId: option?.timezoneInfoId ?? option?.timezoneInfo?.id,
+    notes: match.notesForMatch ?? '',
+  );
+}
+
+/// Body of `PUT reschedule_matches` for one match (native `rescheduleMatches`):
+/// the new time option, the court and the notes. The venue's zone is not sent
+/// (native leaves `timezone_info_id` out for matches).
+Map<String, dynamic> buildRescheduleMatchBody(int matchId, EventDraft draft) {
+  final start = draft.start;
+  final placeId = draft.place?.id;
+  if (start == null || placeId == null) {
+    throw StateError('incomplete reschedule draft');
+  }
+  return {
+    'event': {
+      'event_matches_attributes': [
+        {
+          'id': matchId,
+          'request_schedule_options': [
+            {
+              'place_id': placeId,
+              'start_time': formatStartTime(start),
+              'duration': draft.durationMinutes,
+            },
+          ],
+          'place_court_id': ?draft.courtIds.firstOrNull,
+          'notes_for_match': draft.notes.trim(),
+        },
+      ],
     },
   };
 }
