@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
+import 'package:racketmates/app/theme/native_theme.dart';
+import 'package:racketmates/common/widgets/native_widgets.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/content/messages.dart';
@@ -26,14 +28,23 @@ class HomeScreen extends ConsumerWidget {
     final state = ref.watch(homeViewModelProvider);
     final vm = ref.read(homeViewModelProvider.notifier);
     final name = ref.watch(userProfileProvider).value?.firstName;
+    final n = context.native;
+    final sdp = context.sdp;
     return Scaffold(
+      backgroundColor: n.backgroundSolidPrimary,
       appBar: AppBar(
+        backgroundColor: n.backgroundSolidPrimary,
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(sdp(1)),
+          child: Container(height: sdp(1), color: n.ndotsColor),
+        ),
         title: TestId(
           HomeTestIds.greeting,
           child: Text(
             (name != null && name.isNotEmpty)
                 ? l10n.homeGreeting(name)
                 : l10n.homePlaceholder,
+            style: NativeText.semibold(sdp(18), n.textPrimary),
           ),
         ),
         actions: [
@@ -54,7 +65,7 @@ class HomeScreen extends ConsumerWidget {
           child: ListView(
             key: const Key(HomeTestIds.list),
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.symmetric(vertical: sdp(8)),
             children: [
               _Section<List<PendingAction>>(
                 id: HomeTestIds.pendingSection,
@@ -68,6 +79,7 @@ class HomeScreen extends ConsumerWidget {
                   l10n.emptyPendingActions,
                 ),
                 isEmpty: (v) => v.isEmpty,
+                emptyIcon: 'ic_pending_actions',
                 onRetry: () => vm.reload(HomeSection.pending),
                 builder: (items) => [
                   for (final a in items) _PendingTile(action: a, l10n: l10n),
@@ -85,6 +97,7 @@ class HomeScreen extends ConsumerWidget {
                   l10n.emptyUpcoming,
                 ),
                 isEmpty: (v) => v.isEmpty,
+                emptyIcon: 'ic_events',
                 onRetry: () => vm.reload(HomeSection.upcoming),
                 seeAllId: HomeTestIds.seeAllUpcoming,
                 onSeeAll: () => context.go(AppRoutes.schedule),
@@ -111,6 +124,7 @@ class HomeScreen extends ConsumerWidget {
                   l10n.emptyLatestUpdates,
                 ),
                 isEmpty: (v) => v.isEmpty,
+                emptyIcon: 'ic_no_last_updates',
                 onRetry: () => vm.reload(HomeSection.updates),
                 builder: (cards) => [
                   for (final c in cards)
@@ -176,6 +190,7 @@ class _Section<T> extends StatelessWidget {
     required this.isEmpty,
     required this.onRetry,
     required this.builder,
+    this.emptyIcon,
     this.seeAllId,
     this.onSeeAll,
   });
@@ -187,13 +202,17 @@ class _Section<T> extends StatelessWidget {
   final bool Function(T) isEmpty;
   final VoidCallback onRetry;
   final List<Widget> Function(T) builder;
+
+  /// The picture of the empty state (native `ic_events` and friends).
+  final String? emptyIcon;
   final String? seeAllId;
   final VoidCallback? onSeeAll;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
+    final n = context.native;
+    final sdp = context.sdp;
     final Widget body = value.when(
       loading: () => const Padding(
         padding: EdgeInsets.all(16),
@@ -201,7 +220,12 @@ class _Section<T> extends StatelessWidget {
       ),
       error: (_, _) => Row(
         children: [
-          Expanded(child: Text(l10n.sectionLoadError)),
+          Expanded(
+            child: Text(
+              l10n.sectionLoadError,
+              style: NativeText.regular(sdp(12), n.textSecondary),
+            ),
+          ),
           TestId(
             HomeTestIds.retry(id),
             child: TextButton(
@@ -213,39 +237,107 @@ class _Section<T> extends StatelessWidget {
       ),
       data: (data) => isEmpty(data)
           ? Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Text(emptyText),
+              padding: EdgeInsets.symmetric(vertical: sdp(8)),
+              child: Row(
+                children: [
+                  if (emptyIcon != null) ...[
+                    SvgIcon(emptyIcon!, size: sdp(62)),
+                    SizedBox(width: sdp(12)),
+                  ],
+                  Expanded(
+                    child: Text(
+                      emptyText,
+                      style: NativeText.medium(sdp(14), n.textPrimary),
+                    ),
+                  ),
+                ],
+              ),
             )
           : Column(children: builder(data)),
     );
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: EdgeInsets.only(bottom: sdp(8)),
       child: TestId(
         id,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Semantics(
-                    header: true,
-                    child: Text(title, style: theme.textTheme.titleLarge),
-                  ),
-                ),
-                if (onSeeAll != null)
-                  TestId(
-                    seeAllId ?? '${id}_see_all',
-                    child: TextButton(
-                      onPressed: onSeeAll,
-                      child: Text(l10n.seeAllAction),
+            Padding(
+              padding: EdgeInsets.fromLTRB(sdp(18), sdp(8), sdp(16), sdp(8)),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        title,
+                        style: NativeText.medium(sdp(16), n.textPrimary),
+                      ),
                     ),
                   ),
-              ],
+                  if (onSeeAll != null)
+                    TestId(
+                      seeAllId ?? '${id}_see_all',
+                      child: InkWell(
+                        onTap: onSeeAll,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            minHeight: 48,
+                            minWidth: 48,
+                          ),
+                          child: Center(
+                            child: Text(
+                              l10n.seeAllAction,
+                              style: NativeText.regular(sdp(14), n.textGreen),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-            const SizedBox(height: 8),
-            body,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: sdp(16)),
+              child: body,
+            ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A card of the home lists (native item layouts): the window colour, a
+/// 1 sdp outline and 12 sdp corners.
+class _HomeCard extends StatelessWidget {
+  const _HomeCard({required this.child, this.onTap});
+
+  final Widget child;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final n = context.native;
+    final sdp = context.sdp;
+    return Padding(
+      padding: EdgeInsets.only(bottom: sdp(12)),
+      child: Material(
+        color: n.windowBackgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(sdp(12)),
+          side: BorderSide(color: n.borderSolidPrimary, width: sdp(1)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 56),
+            child: SizedBox(
+              width: double.infinity,
+              child: Padding(padding: EdgeInsets.all(sdp(12)), child: child),
+            ),
+          ),
         ),
       ),
     );
@@ -260,23 +352,33 @@ class _PendingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final n = context.native;
+    final sdp = context.sdp;
     final who = action.eventParticipantUser?.displayName;
     final title = humanizeKey(action.eventType);
+    final subtitle = [
+      if (who != null && who.isNotEmpty) who,
+      action.eventDate ?? '',
+    ].where((s) => s.isNotEmpty).join(' · ');
     return TestId(
       HomeTestIds.pendingAction(action.eventId ?? 0),
-      child: Card(
-        child: ListTile(
-          minVerticalPadding: 12,
-          title: Text(title),
-          subtitle: Text(
-            [
-              if (who != null && who.isNotEmpty) who,
-              action.eventDate ?? '',
-            ].where((s) => s.isNotEmpty).join(' · '),
-          ),
-          onTap: action.eventId == null
-              ? null
-              : () => context.push(AppRoutes.eventFor(action.eventId!)),
+      child: _HomeCard(
+        onTap: action.eventId == null
+            ? null
+            : () => context.push(AppRoutes.eventFor(action.eventId!)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: NativeText.semibold(sdp(14), n.textPrimary)),
+            if (subtitle.isNotEmpty)
+              Padding(
+                padding: EdgeInsets.only(top: sdp(4)),
+                child: Text(
+                  subtitle,
+                  style: NativeText.regular(sdp(12), n.textSecondary),
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -291,16 +393,28 @@ class _UpdateTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final n = context.native;
+    final sdp = context.sdp;
     return TestId(
       HomeTestIds.update(card.id ?? card.eventId ?? 0),
-      child: Card(
-        child: ListTile(
-          minVerticalPadding: 12,
-          title: Text(card.title ?? card.message ?? ''),
-          subtitle: card.title != null && card.message != null
-              ? Text(card.message!)
-              : null,
-          onTap: onTap,
+      child: _HomeCard(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              card.title ?? card.message ?? '',
+              style: NativeText.semibold(sdp(14), n.textPrimary),
+            ),
+            if (card.title != null && card.message != null)
+              Padding(
+                padding: EdgeInsets.only(top: sdp(4)),
+                child: Text(
+                  card.message!,
+                  style: NativeText.regular(sdp(12), n.textSecondary),
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -315,30 +429,32 @@ class _ActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final n = context.native;
+    final sdp = context.sdp;
     final entries = [
       (l10n.statEvents, stats.totalEvents),
       (l10n.statHours, stats.totalHours),
       (l10n.statWins, stats.wins),
       (l10n.statLosses, stats.losses),
     ];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            for (final (label, value) in entries)
-              Column(
-                children: [
-                  Text(
-                    '${value ?? 0}',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  Text(label),
-                ],
-              ),
-          ],
-        ),
+    return _HomeCard(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          for (final (label, value) in entries)
+            Column(
+              children: [
+                Text(
+                  '${value ?? 0}',
+                  style: NativeText.semibold(sdp(20), n.textPrimary),
+                ),
+                Text(
+                  label,
+                  style: NativeText.regular(sdp(12), n.textSecondary),
+                ),
+              ],
+            ),
+        ],
       ),
     );
   }
