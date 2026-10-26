@@ -2,13 +2,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/events/models/schedule_models.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
+import 'package:racketmates/common/startup/downtime.dart';
 import 'package:racketmates/screens/home/home_state.dart';
 
-enum HomeSection { pending, upcoming, updates, activity, past }
+enum HomeSection { pending, upcoming, activity }
 
 class HomeViewModel extends Notifier<HomeState> {
   @override
   HomeState build() {
+    // Switching the family selection re-fetches every section, aggregated
+    // across the newly selected users (native `onUserSelectChangeClick`).
+    ref.listen(selectedUserIdsProvider, (previous, next) {
+      if (previous != null && previous != next) refresh();
+    });
     // Start loading after the first build so `state` is initialised.
     Future.microtask(refresh);
     return const HomeState();
@@ -20,13 +26,12 @@ class HomeViewModel extends Notifier<HomeState> {
 
   int get _hourFormat => ref.read(hourFormatProvider);
 
-  /// Reloads every section (pull-to-refresh).
-  Future<void> refresh() => Future.wait([
+  /// Reloads every section (pull-to-refresh, family selection change, resume).
+  Future<void> refresh() => Future.wait<void>([
     reload(HomeSection.pending),
     reload(HomeSection.upcoming),
-    reload(HomeSection.updates),
     reload(HomeSection.activity),
-    reload(HomeSection.past),
+    ref.refresh(scheduledMaintenanceProvider.future).then((_) {}),
   ]);
 
   Future<void> reload(HomeSection section) async {
@@ -41,20 +46,10 @@ class HomeViewModel extends Notifier<HomeState> {
           () => _repo.homeUpcoming(userIds: _userIds, hourFormat: _hourFormat),
           (v) => state = state.copyWith(upcoming: v),
         );
-      case HomeSection.updates:
-        await _load<List<PlayerCard>>(
-          () => _repo.latestUpdates(userIds: _userIds),
-          (v) => state = state.copyWith(updates: v),
-        );
       case HomeSection.activity:
         await _load<List<HomePageStats>>(
           () => _repo.activitySummary(userIds: _userIds),
           (v) => state = state.copyWith(activity: v),
-        );
-      case HomeSection.past:
-        await _load<List<ScheduleItem>>(
-          () => _repo.homePast(userIds: _userIds, hourFormat: _hourFormat),
-          (v) => state = state.copyWith(past: v),
         );
     }
   }

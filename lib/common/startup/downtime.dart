@@ -53,13 +53,22 @@ Incident? firstAffecting(Iterable<Incident> incidents, String component) {
 }
 
 abstract class DowntimeRepository {
-  /// The incident taking the API down right now, or null (also when the
-  /// status page cannot be reached: the check never blocks on its own failure).
+  /// The incident taking the API down right now (`unresolved`), or null (also
+  /// when the status page cannot be reached: the check never blocks on its
+  /// own failure). Drives the full-screen gate (native
+  /// `CompleteDowntimeActivity`).
   Future<Incident?> currentIncident();
+
+  /// A maintenance window that is scheduled or under way (`active_maintenance`)
+  /// but does not block use of the app: native's dismissible home-screen
+  /// banner (`showMaintenanceBanner`/iOS `appScheduledDownTimeBanner`), kept
+  /// separate from the blocking check above.
+  Future<Incident?> scheduledMaintenance();
 }
 
-/// Native `refreshServerStatus`: `pages/{id}/incidents/unresolved` and
-/// `.../active_maintenance`, matched on the API component's name.
+/// Native `refreshServerStatus`: `pages/{id}/incidents/unresolved` blocks the
+/// app; `.../active_maintenance` only informs it (see [scheduledMaintenance]).
+/// Both are matched on the API component's name.
 class StatusPageDowntimeRepository implements DowntimeRepository {
   const StatusPageDowntimeRepository({
     required this.dio,
@@ -88,8 +97,18 @@ class StatusPageDowntimeRepository implements DowntimeRepository {
   Future<Incident?> currentIncident() async {
     if (pageId.isEmpty || apiKey.isEmpty) return null;
     try {
-      final open = firstAffecting(await _incidents('unresolved'), component);
-      if (open != null) return open;
+      return firstAffecting(await _incidents('unresolved'), component);
+    } on DioException {
+      return null;
+    } on TypeError {
+      return null;
+    }
+  }
+
+  @override
+  Future<Incident?> scheduledMaintenance() async {
+    if (pageId.isEmpty || apiKey.isEmpty) return null;
+    try {
       return firstAffecting(await _incidents('active_maintenance'), component);
     } on DioException {
       return null;
@@ -114,3 +133,9 @@ final downtimeRepositoryProvider = Provider<DowntimeRepository>((ref) {
     component: config.statusPageComponent,
   );
 });
+
+/// The home screen's dismissible maintenance banner (native
+/// `showMaintenanceBanner`); re-fetched whenever home refreshes.
+final scheduledMaintenanceProvider = FutureProvider.autoDispose<Incident?>(
+  (ref) => ref.watch(downtimeRepositoryProvider).scheduledMaintenance(),
+);

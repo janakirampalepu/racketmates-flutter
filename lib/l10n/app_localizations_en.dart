@@ -397,6 +397,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statHours => 'Hours';
 
   @override
+  String get familyPickerTitle => 'Choose who to show';
+
+  @override
+  String get familyPickerSelectAtLeastOne => 'Select at least one person.';
+
+  @override
+  String get familyPickerSaveAction => 'Save';
+
+  @override
+  String get activityWeeklyAverageLabel => 'Weekly average:';
+
+  @override
+  String get activityLegendGames => 'Games';
+
+  @override
+  String get activityLegendPractice => 'Practice';
+
+  @override
+  String get activityLegendLessons => 'Lessons';
+
+  @override
+  String get activityLegendMeetings => 'Casual Meetings';
+
+  @override
+  String get activityNoActivityTitle => 'No activity yet';
+
+  @override
+  String get activityNoActivityDescription =>
+      'Your games, practices and lessons will show up here.';
+
+  @override
+  String get homeMaintenanceDismiss => 'Dismiss';
+
+  @override
   String get scheduleTitle => 'Schedule';
 
   @override

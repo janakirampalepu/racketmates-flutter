@@ -11,12 +11,21 @@ Future<void> _settle() async {
   }
 }
 
+class _FixedSelectedUsers extends SelectedUsersNotifier {
+  _FixedSelectedUsers(this._ids);
+
+  final List<String> _ids;
+
+  @override
+  List<String> build() => _ids;
+}
+
 void main() {
   ProviderContainer container(FakeScheduleRepository repo) {
     final c = ProviderContainer(
       overrides: [
         scheduleRepositoryProvider.overrideWithValue(repo),
-        selectedUserIdsProvider.overrideWithValue(['7']),
+        selectedUserIdsProvider.overrideWith(() => _FixedSelectedUsers(['7'])),
         hourFormatProvider.overrideWithValue(12),
       ],
     );

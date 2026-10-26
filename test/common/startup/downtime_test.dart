@@ -125,7 +125,7 @@ void main() {
     );
 
     test(
-      'an active maintenance window counts when nothing is unresolved',
+      'an active maintenance window is scheduled maintenance, not a block',
       () async {
         final adapter = _Adapter({
           'pages/p1/incidents/active_maintenance': [
@@ -134,7 +134,9 @@ void main() {
             ], until: '2030-01-02T10:30:00Z'),
           ],
         });
-        final incident = await _repo(adapter).currentIncident();
+        final repo = _repo(adapter);
+        expect(await repo.currentIncident(), isNull);
+        final incident = await repo.scheduledMaintenance();
         expect(incident?.name, 'Maintenance');
         expect(incident?.scheduledUntil, isNotNull);
         expect(adapter.requests.map((r) => r.path), [
@@ -153,28 +155,37 @@ void main() {
           _incident('web', ['Website']),
         ],
       });
-      expect(await _repo(adapter).currentIncident(), isNull);
+      final repo = _repo(adapter);
+      expect(await repo.currentIncident(), isNull);
+      expect(await repo.scheduledMaintenance(), isNull);
     });
 
     test(
       'an unreachable or failing status page never blocks the app',
       () async {
         final adapter = _Adapter({})..status = 500;
-        expect(await _repo(adapter).currentIncident(), isNull);
+        final repo = _repo(adapter);
+        expect(await repo.currentIncident(), isNull);
+        expect(await repo.scheduledMaintenance(), isNull);
       },
     );
 
     test('an unexpected answer is ignored', () async {
       final adapter = _Adapter({
         'pages/p1/incidents/unresolved': {'oops': 1},
+        'pages/p1/incidents/active_maintenance': {'oops': 1},
       });
-      expect(await _repo(adapter).currentIncident(), isNull);
+      final repo = _repo(adapter);
+      expect(await repo.currentIncident(), isNull);
+      expect(await repo.scheduledMaintenance(), isNull);
     });
 
     test('without a page id and key nothing is requested', () async {
       final adapter = _Adapter({});
       expect(await _repo(adapter, page: '').currentIncident(), isNull);
       expect(await _repo(adapter, key: '').currentIncident(), isNull);
+      expect(await _repo(adapter, page: '').scheduledMaintenance(), isNull);
+      expect(await _repo(adapter, key: '').scheduledMaintenance(), isNull);
       expect(adapter.requests, isEmpty);
     });
   });
