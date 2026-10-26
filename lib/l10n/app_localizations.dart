@@ -2512,6 +2512,12 @@ abstract class AppLocalizations {
   /// **'This team is archived.'**
   String get teamArchivedBanner;
 
+  /// No description provided for @teamArchivedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get teamArchivedBadge;
+
   /// No description provided for @teamArchivedCreateEvent.
   ///
   /// In en, this message translates to:

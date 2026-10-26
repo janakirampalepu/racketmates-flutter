@@ -5,6 +5,7 @@ import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/startup/downtime.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
+import 'package:racketmates/common/widgets/family_user_picker.dart';
 import 'package:racketmates/l10n/app_localizations_en.dart';
 import 'package:racketmates/screens/event_details/event_details_test_ids.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
@@ -198,7 +199,7 @@ void main() {
       useTallScreen(tester);
       await tester.pumpWidget(signedInApp());
       await tester.pumpAndSettle();
-      expect(_id(HomeTestIds.familyRow), findsNothing);
+      expect(_id(FamilyPickerTestIds.row), findsNothing);
       handle.dispose();
     });
 
@@ -210,16 +211,16 @@ void main() {
         final repo = _fullRepo();
         await tester.pumpWidget(signedInApp(schedule: repo, users: withKids()));
         await tester.pumpAndSettle();
-        expect(_id(HomeTestIds.familyRow), findsOneWidget);
+        expect(_id(FamilyPickerTestIds.row), findsOneWidget);
 
         repo.calls.clear();
-        await tester.tap(_id(HomeTestIds.familyRow));
+        await tester.tap(_id(FamilyPickerTestIds.row));
         await tester.pumpAndSettle();
-        expect(_id(HomeTestIds.familyPickerSheet), findsOneWidget);
-        expect(_id(HomeTestIds.familyPickerRow(8)), findsOneWidget);
+        expect(_id(FamilyPickerTestIds.sheet), findsOneWidget);
+        expect(_id(FamilyPickerTestIds.memberRow(8)), findsOneWidget);
 
-        await tester.tap(_id(HomeTestIds.familyPickerRow(8)));
-        await tester.tap(_id(HomeTestIds.familyPickerSave));
+        await tester.tap(_id(FamilyPickerTestIds.memberRow(8)));
+        await tester.tap(_id(FamilyPickerTestIds.save));
         await tester.pumpAndSettle();
 
         expect(repo.calls.toSet(), {'pending', 'upcoming', 'activity'});
@@ -232,18 +233,18 @@ void main() {
       useTallScreen(tester);
       await tester.pumpWidget(signedInApp(users: withKids()));
       await tester.pumpAndSettle();
-      await tester.tap(_id(HomeTestIds.familyRow));
+      await tester.tap(_id(FamilyPickerTestIds.row));
       await tester.pumpAndSettle();
 
       // Parent is checked first (its checkbox is the first interactive
       // element in the parent's row); uncheck it and try to save.
       await tester.tap(
         find.descendant(
-          of: _id(HomeTestIds.familyPickerSheet),
+          of: _id(FamilyPickerTestIds.sheet),
           matching: find.byType(Checkbox).first,
         ),
       );
-      await tester.tap(_id(HomeTestIds.familyPickerSave));
+      await tester.tap(_id(FamilyPickerTestIds.save));
       await tester.pumpAndSettle();
       expect(find.text(_l10n.familyPickerSelectAtLeastOne), findsOneWidget);
       handle.dispose();

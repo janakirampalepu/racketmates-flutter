@@ -19,7 +19,7 @@ import 'package:racketmates/common/users/user_profile_provider.dart';
 import 'package:racketmates/common/widgets/event_tile.dart';
 import 'package:racketmates/common/widgets/native_widgets.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
-import 'package:racketmates/screens/home/family_user_picker.dart';
+import 'package:racketmates/common/widgets/family_user_picker.dart';
 import 'package:racketmates/screens/home/home_activity_card.dart';
 import 'package:racketmates/screens/home/home_downtime_banner.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';

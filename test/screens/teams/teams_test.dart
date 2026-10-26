@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
+import 'package:racketmates/common/widgets/family_user_picker.dart';
 import 'package:racketmates/screens/create_team/create_team_test_ids.dart';
 import 'package:racketmates/screens/create_team_members/create_team_members_test_ids.dart';
 import 'package:racketmates/screens/main_shell/main_shell_test_ids.dart';
@@ -32,6 +33,12 @@ const _casuals = Team(
   teamType: TeamTypes.casual,
   memberCount: 1,
   teamSports: [TeamSport(id: 3, sportType: 'st_pickleball')],
+);
+const _retired = Team(
+  id: 33,
+  name: 'Retired Rally',
+  archived: true,
+  memberCount: 4,
 );
 const _alex = AppUser(id: 8, firstName: 'Alex', lastName: 'Kim');
 const _pat = AppUser(id: 9, firstName: 'Pat', lastName: 'Lee');
@@ -69,13 +76,72 @@ void main() {
     expect(teams.myTeamsRequests.single, ['7']);
     expect(_id(TeamsTestIds.tile(31)), findsOneWidget);
     expect(find.text('Sunday Smashers'), findsOneWidget);
-    expect(
-      find.text('Competitive · Tennis, Padel · 12 members'),
-      findsOneWidget,
-    );
-    expect(find.text('Casual · Pickleball · 1 member'), findsOneWidget);
+    // Neither native app shows the team type on this row.
+    expect(find.textContaining('Competitive'), findsNothing);
+    expect(find.text('12 members'), findsOneWidget);
+    expect(find.text('1 member'), findsOneWidget);
+    expect(_id(TeamsTestIds.archivedBadge(31)), findsNothing);
     handle.dispose();
   });
+
+  testWidgets('archived teams are shown inline with a badge, not hidden', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final teams = FakeTeamsRepository(teams: [_smashers, _retired]);
+    await tester.pumpWidget(signedInApp(teams: teams));
+    await _openTeams(tester);
+
+    expect(_id(TeamsTestIds.tile(33)), findsOneWidget);
+    expect(find.text('Retired Rally'), findsOneWidget);
+    expect(_id(TeamsTestIds.archivedBadge(33)), findsOneWidget);
+    expect(find.text('Archived'), findsOneWidget);
+    expect(_id(TeamsTestIds.archivedBadge(31)), findsNothing);
+    handle.dispose();
+  });
+
+  testWidgets('the empty state also offers to create a team', (tester) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(signedInApp());
+    await _openTeams(tester);
+    expect(_id(TeamsTestIds.createInEmpty), findsOneWidget);
+    await _tap(tester, TeamsTestIds.createInEmpty);
+    expect(_id(CreateTeamTestIds.root), findsOneWidget);
+    handle.dispose();
+  });
+
+  testWidgets(
+    'the family picker is hidden without kids, shown and filters with them',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      final teams = FakeTeamsRepository(teams: [_smashers]);
+      await tester.pumpWidget(signedInApp(teams: teams));
+      await _openTeams(tester);
+      expect(_id(FamilyPickerTestIds.row), findsNothing);
+
+      teams.myTeamsRequests.clear();
+      final withKid = FakeUserRepository(
+        profile: const UserDetails(
+          user: AppUser(
+            id: 7,
+            firstName: 'Sam',
+            children: [AppUser(id: 8, firstName: 'Alex')],
+          ),
+        ),
+      );
+      await tester.pumpWidget(signedInApp(teams: teams, users: withKid));
+      await _openTeams(tester);
+      expect(_id(FamilyPickerTestIds.row), findsOneWidget);
+
+      await _tap(tester, FamilyPickerTestIds.row);
+      // Multi-select, like native: checking the kid adds them alongside the
+      // still-checked parent, aggregating both users' data.
+      await _tap(tester, FamilyPickerTestIds.memberRow(8));
+      await _tap(tester, FamilyPickerTestIds.save);
+      expect(teams.myTeamsRequests.last, ['7', '8']);
+      handle.dispose();
+    },
+  );
 
   testWidgets('no teams shows the empty state', (tester) async {
     final handle = tester.ensureSemantics();

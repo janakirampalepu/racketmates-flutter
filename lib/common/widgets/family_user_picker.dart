@@ -6,7 +6,16 @@ import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/common/users/user_profile_provider.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
-import 'package:racketmates/screens/home/home_test_ids.dart';
+
+/// Shared by every screen with its own family-member avatar row (native
+/// reuses the same `FamilyUsersPicker` from Home on the Teams list and
+/// elsewhere).
+abstract final class FamilyPickerTestIds {
+  static const row = 'family_picker_row_widget';
+  static const sheet = 'family_picker_sheet';
+  static const save = 'family_picker_save';
+  static String memberRow(int id) => 'family_picker_member_row_$id';
+}
 
 /// The signed-in user plus every one of their kids (native
 /// `UserProfile.allUserDetails()`), parent first.
@@ -15,10 +24,12 @@ List<AppUser> familyMembers(AppUser user) => [
   ...user.children ?? const [],
 ];
 
-/// Avatar row above the home content (native `layoutUsersList`): hidden
-/// entirely when the signed-in user has no kids, otherwise the parent plus up
-/// to two kids (native `MAX_DISPLAY_CHILDS`) with an expand chevron. Tapping
-/// either opens the multi-select picker.
+/// Avatar row above a screen's content (native `layoutUsersList`, reused on
+/// Home, the Teams list and elsewhere): hidden entirely when the signed-in
+/// user has no kids, otherwise the parent plus up to two kids (native
+/// `MAX_DISPLAY_CHILDS`) with an expand chevron. Tapping either opens the
+/// multi-select picker, which filters every screen that reads
+/// `selectedUserIdsProvider`.
 class FamilyAvatarsRow extends ConsumerWidget {
   const FamilyAvatarsRow({super.key});
 
@@ -33,7 +44,7 @@ class FamilyAvatarsRow extends ConsumerWidget {
     final n = context.native;
     final sdp = context.sdp;
     return TestId(
-      HomeTestIds.familyRow,
+      FamilyPickerTestIds.row,
       child: Padding(
         padding: EdgeInsets.fromLTRB(sdp(12), sdp(4), sdp(12), sdp(4)),
         child: InkWell(
@@ -143,7 +154,7 @@ class _FamilyPickerSheetState extends ConsumerState<_FamilyPickerSheet> {
     final n = context.native;
     final sdp = context.sdp;
     return TestId(
-      HomeTestIds.familyPickerSheet,
+      FamilyPickerTestIds.sheet,
       child: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(sdp(16)),
@@ -180,7 +191,7 @@ class _FamilyPickerSheetState extends ConsumerState<_FamilyPickerSheet> {
                 ),
               SizedBox(height: sdp(12)),
               TestId(
-                HomeTestIds.familyPickerSave,
+                FamilyPickerTestIds.save,
                 child: FilledButton(
                   style: FilledButton.styleFrom(
                     minimumSize: Size.fromHeight(sdp(48)),
@@ -227,7 +238,7 @@ class _FamilyPickerRow extends StatelessWidget {
       member.lastName,
     ].whereType<String>().join(' ');
     return TestId(
-      HomeTestIds.familyPickerRow(member.id ?? 0),
+      FamilyPickerTestIds.memberRow(member.id ?? 0),
       child: InkWell(
         onTap: () => onChanged(!checked),
         child: ConstrainedBox(

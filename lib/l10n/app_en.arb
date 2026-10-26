@@ -549,6 +549,7 @@
   "teamDeletedDone": "Team deleted.",
   "teamActionFailed": "That did not work. Please try again.",
   "teamArchivedBanner": "This team is archived.",
+  "teamArchivedBadge": "Archived",
   "teamArchivedCreateEvent": "An archived team cannot get new events. Unarchive it first.",
   "teamCreateEvent": "Create event",
   "teamRoleCaptain": "Captain",

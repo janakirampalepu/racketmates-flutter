@@ -1330,6 +1330,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teamArchivedBanner => 'This team is archived.';
 
   @override
+  String get teamArchivedBadge => 'Archived';
+
+  @override
   String get teamArchivedCreateEvent =>
       'An archived team cannot get new events. Unarchive it first.';
 

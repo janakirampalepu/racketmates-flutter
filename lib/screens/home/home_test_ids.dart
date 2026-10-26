@@ -5,10 +5,6 @@ abstract final class HomeTestIds {
   static const list = 'home_list';
   static const maintenanceBanner = 'home_maintenance_banner';
   static const maintenanceBannerDismiss = 'home_maintenance_banner_dismiss';
-  static const familyRow = 'home_family_row';
-  static const familyPickerSheet = 'home_family_picker_sheet';
-  static const familyPickerSave = 'home_family_picker_save';
-  static String familyPickerRow(int id) => 'home_family_picker_row_$id';
   static const pendingSection = 'home_pending_actions_section';
   static const upcomingSection = 'home_upcoming_section';
   static const activitySection = 'home_activity_section';

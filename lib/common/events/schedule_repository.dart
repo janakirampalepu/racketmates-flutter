@@ -185,8 +185,16 @@ final scheduleRepositoryProvider = Provider<ScheduleRepository>(
 class SelectedUsersNotifier extends Notifier<List<String>> {
   @override
   List<String> build() {
-    final session = ref.watch(sessionControllerProvider);
-    final id = session is SignedIn ? session.token.user?.id : null;
+    // `.select` so this only rebuilds when the signed-in id actually
+    // changes, not every time `sessionControllerProvider` itself rebuilds
+    // (e.g. a token refresh for the same user) — otherwise every screen that
+    // `ref.watch`es this (built fresh as `['id']` each time, and never `==`
+    // the previous list) would restart its own fetch in a cascade.
+    final id = ref.watch(
+      sessionControllerProvider.select(
+        (s) => s is SignedIn ? s.token.user?.id : null,
+      ),
+    );
     return id == null ? const [] : ['$id'];
   }
 
