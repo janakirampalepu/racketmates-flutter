@@ -1,24 +1,35 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
-import 'package:racketmates/common/widgets/native_widgets.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/content/messages.dart';
+import 'package:racketmates/common/create_event/create_event_flow.dart';
+import 'package:racketmates/common/billing/billing_sync.dart';
 import 'package:racketmates/common/events/event_labels.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/events/models/schedule_models.dart';
+import 'package:racketmates/common/session/access.dart';
+import 'package:racketmates/common/session/session_info_controller.dart';
 import 'package:racketmates/common/users/user_profile_provider.dart';
 import 'package:racketmates/common/widgets/event_tile.dart';
+import 'package:racketmates/common/widgets/native_widgets.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
+import 'package:racketmates/screens/home/family_user_picker.dart';
+import 'package:racketmates/screens/home/home_activity_card.dart';
+import 'package:racketmates/screens/home/home_downtime_banner.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
 import 'package:racketmates/screens/home/home_view_model.dart';
 
-/// Home tab: pending actions, upcoming events, latest updates, activity
-/// summary and recent games (native `HomeFragment`). Read-only for now; RSVP /
-/// swipe actions arrive with the event-management milestone.
+/// Home tab: a maintenance notice, the family picker, upcoming events,
+/// pending actions and activity (native `HomeFragment`/iOS `GlobalHomeView`).
+/// "Latest updates" and "recent games" are left out: neither native app
+/// currently fetches or shows them. RSVP/swipe actions on the cards arrive
+/// with the event-management milestone.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -65,113 +76,24 @@ class HomeScreen extends ConsumerWidget {
           child: ListView(
             key: const Key(HomeTestIds.list),
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(vertical: sdp(8)),
+            padding: EdgeInsets.symmetric(vertical: sdp(4)),
             children: [
-              _Section<List<PendingAction>>(
-                id: HomeTestIds.pendingSection,
-                title: ref.msg(
-                  MessageKeys.homePendingTitle,
-                  l10n.homePendingActions,
-                ),
-                value: state.pending,
-                emptyText: ref.msg(
-                  MessageKeys.homePendingEmpty,
-                  l10n.emptyPendingActions,
-                ),
-                isEmpty: (v) => v.isEmpty,
-                emptyIcon: 'ic_pending_actions',
-                onRetry: () => vm.reload(HomeSection.pending),
-                builder: (items) => [
-                  for (final a in items) _PendingTile(action: a, l10n: l10n),
-                ],
-              ),
-              _Section<List<ScheduleItem>>(
-                id: HomeTestIds.upcomingSection,
-                title: ref.msg(
-                  MessageKeys.homeUpcomingTitle,
-                  l10n.homeUpcoming,
-                ),
+              const HomeDowntimeBanner(),
+              const FamilyAvatarsRow(),
+              _UpcomingSection(
+                l10n: l10n,
                 value: state.upcoming,
-                emptyText: ref.msg(
-                  MessageKeys.homeUpcomingEmpty,
-                  l10n.emptyUpcoming,
-                ),
-                isEmpty: (v) => v.isEmpty,
-                emptyIcon: 'ic_events',
                 onRetry: () => vm.reload(HomeSection.upcoming),
-                seeAllId: HomeTestIds.seeAllUpcoming,
-                onSeeAll: () => context.go(AppRoutes.schedule),
-                builder: (items) => [
-                  for (final item in items)
-                    if (item.eventId != null)
-                      EventTile(
-                        item: item,
-                        testId: HomeTestIds.event('upcoming', item.eventId!),
-                        onTap: () =>
-                            context.push(AppRoutes.eventFor(item.eventId!)),
-                      ),
-                ],
               ),
-              _Section<List<PlayerCard>>(
-                id: HomeTestIds.updatesSection,
-                title: ref.msg(
-                  MessageKeys.homeUpdatesTitle,
-                  l10n.homeLatestUpdates,
-                ),
-                value: state.updates,
-                emptyText: ref.msg(
-                  MessageKeys.homeUpdatesEmpty,
-                  l10n.emptyLatestUpdates,
-                ),
-                isEmpty: (v) => v.isEmpty,
-                emptyIcon: 'ic_no_last_updates',
-                onRetry: () => vm.reload(HomeSection.updates),
-                builder: (cards) => [
-                  for (final c in cards)
-                    _UpdateTile(
-                      card: c,
-                      onTap: c.eventId == null
-                          ? null
-                          : () => context.push(AppRoutes.eventFor(c.eventId!)),
-                    ),
-                ],
+              _PendingSection(
+                l10n: l10n,
+                value: state.pending,
+                onRetry: () => vm.reload(HomeSection.pending),
               ),
-              _Section<List<HomePageStats>>(
-                id: HomeTestIds.activitySection,
-                title: ref.msg(
-                  MessageKeys.homeActivityTitle,
-                  l10n.homeActivity,
-                ),
+              _ActivitySection(
+                l10n: l10n,
                 value: state.activity,
-                emptyText: ref.msg(
-                  MessageKeys.homeActivityEmpty,
-                  l10n.emptyActivity,
-                ),
-                isEmpty: (v) => v.isEmpty,
                 onRetry: () => vm.reload(HomeSection.activity),
-                builder: (stats) => [
-                  for (final s in stats) _ActivityCard(stats: s, l10n: l10n),
-                ],
-              ),
-              _Section<List<ScheduleItem>>(
-                id: HomeTestIds.pastSection,
-                title: l10n.homePast,
-                value: state.past,
-                emptyText: l10n.emptyPast,
-                isEmpty: (v) => v.isEmpty,
-                onRetry: () => vm.reload(HomeSection.past),
-                seeAllId: HomeTestIds.seeAllPast,
-                onSeeAll: () => context.go(AppRoutes.schedule),
-                builder: (items) => [
-                  for (final item in items)
-                    if (item.eventId != null)
-                      EventTile(
-                        item: item,
-                        testId: HomeTestIds.event('past', item.eventId!),
-                        onTap: () =>
-                            context.push(AppRoutes.eventFor(item.eventId!)),
-                      ),
-                ],
               ),
             ],
           ),
@@ -181,30 +103,18 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-class _Section<T> extends StatelessWidget {
-  const _Section({
+/// A section header (native layouts' `txtUpcomingEvent`/`txtPendingActions`/
+/// `txtActivity` rows): title left, optional "See all" link right.
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
     required this.id,
     required this.title,
-    required this.value,
-    required this.emptyText,
-    required this.isEmpty,
-    required this.onRetry,
-    required this.builder,
-    this.emptyIcon,
     this.seeAllId,
     this.onSeeAll,
   });
 
   final String id;
   final String title;
-  final AsyncValue<T> value;
-  final String emptyText;
-  final bool Function(T) isEmpty;
-  final VoidCallback onRetry;
-  final List<Widget> Function(T) builder;
-
-  /// The picture of the empty state (native `ic_events` and friends).
-  final String? emptyIcon;
   final String? seeAllId;
   final VoidCallback? onSeeAll;
 
@@ -213,12 +123,61 @@ class _Section<T> extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final n = context.native;
     final sdp = context.sdp;
-    final Widget body = value.when(
-      loading: () => const Padding(
-        padding: EdgeInsets.all(16),
-        child: Center(child: CircularProgressIndicator()),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(sdp(18), sdp(8), sdp(16), sdp(8)),
+      child: Row(
+        children: [
+          Expanded(
+            child: Semantics(
+              header: true,
+              child: Text(
+                title,
+                style: NativeText.medium(sdp(16), n.textPrimary),
+              ),
+            ),
+          ),
+          if (onSeeAll != null)
+            TestId(
+              seeAllId ?? '${id}_see_all',
+              child: InkWell(
+                onTap: onSeeAll,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: 48,
+                    minWidth: 48,
+                  ),
+                  child: Center(
+                    child: Text(
+                      l10n.seeAllAction,
+                      style: NativeText.regular(sdp(14), n.textGreen),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
-      error: (_, _) => Row(
+    );
+  }
+}
+
+/// Section loading/error chrome shared by the three sections (native
+/// `carosel_shimmer`: one small and one large placeholder card).
+Widget _sectionBody<T>({
+  required BuildContext context,
+  required String sectionId,
+  required AppLocalizations l10n,
+  required AsyncValue<T> value,
+  required VoidCallback onRetry,
+  required Widget Function(T data) data,
+}) => value.when(
+  loading: () => const _ShimmerPlaceholder(),
+  error: (_, _) {
+    final n = context.native;
+    final sdp = context.sdp;
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: sdp(16)),
+      child: Row(
         children: [
           Expanded(
             child: Text(
@@ -227,7 +186,7 @@ class _Section<T> extends StatelessWidget {
             ),
           ),
           TestId(
-            HomeTestIds.retry(id),
+            HomeTestIds.retry(sectionId),
             child: TextButton(
               onPressed: onRetry,
               child: Text(l10n.retryAction),
@@ -235,120 +194,254 @@ class _Section<T> extends StatelessWidget {
           ),
         ],
       ),
-      data: (data) => isEmpty(data)
-          ? Padding(
-              padding: EdgeInsets.symmetric(vertical: sdp(8)),
-              child: Row(
-                children: [
-                  if (emptyIcon != null) ...[
-                    SvgIcon(emptyIcon!, size: sdp(62)),
-                    SizedBox(width: sdp(12)),
-                  ],
-                  Expanded(
-                    child: Text(
-                      emptyText,
-                      style: NativeText.medium(sdp(14), n.textPrimary),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : Column(children: builder(data)),
     );
-    return Padding(
-      padding: EdgeInsets.only(bottom: sdp(8)),
-      child: TestId(
-        id,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(sdp(18), sdp(8), sdp(16), sdp(8)),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Semantics(
-                      header: true,
-                      child: Text(
-                        title,
-                        style: NativeText.medium(sdp(16), n.textPrimary),
-                      ),
-                    ),
-                  ),
-                  if (onSeeAll != null)
-                    TestId(
-                      seeAllId ?? '${id}_see_all',
-                      child: InkWell(
-                        onTap: onSeeAll,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            minHeight: 48,
-                            minWidth: 48,
-                          ),
-                          child: Center(
-                            child: Text(
-                              l10n.seeAllAction,
-                              style: NativeText.regular(sdp(14), n.textGreen),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: sdp(16)),
-              child: body,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+  },
+  data: data,
+);
 
-/// A card of the home lists (native item layouts): the window colour, a
-/// 1 sdp outline and 12 sdp corners.
-class _HomeCard extends StatelessWidget {
-  const _HomeCard({required this.child, this.onTap});
-
-  final Widget child;
-  final VoidCallback? onTap;
+class _ShimmerPlaceholder extends StatelessWidget {
+  const _ShimmerPlaceholder();
 
   @override
   Widget build(BuildContext context) {
     final n = context.native;
     final sdp = context.sdp;
-    return Padding(
-      padding: EdgeInsets.only(bottom: sdp(12)),
-      child: Material(
-        color: n.windowBackgroundColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(sdp(12)),
-          side: BorderSide(color: n.borderSolidPrimary, width: sdp(1)),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 56),
-            child: SizedBox(
-              width: double.infinity,
-              child: Padding(padding: EdgeInsets.all(sdp(12)), child: child),
+    Widget bar(double height) => Container(
+      margin: EdgeInsets.symmetric(horizontal: sdp(12), vertical: sdp(4)),
+      height: sdp(height),
+      decoration: BoxDecoration(
+        color: n.borderSolidPrimary.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(sdp(8)),
+      ),
+    );
+    return Column(children: [bar(16), bar(140)]);
+  }
+}
+
+/// Upcoming events: a swipeable carousel, at most 3 events (native
+/// `upcomingEventsPager`, no page indicator). "See all" switches to the
+/// Schedule tab; the empty state offers to create an event when the
+/// `events.create` permission allows it (native `btnCreateEvent`).
+class _UpcomingSection extends ConsumerWidget {
+  const _UpcomingSection({
+    required this.l10n,
+    required this.value,
+    required this.onRetry,
+  });
+
+  final AppLocalizations l10n;
+  final AsyncValue<List<ScheduleItem>> value;
+  final VoidCallback onRetry;
+
+  Future<void> _create(BuildContext context, WidgetRef ref) async {
+    final session = ref.read(sessionInfoControllerProvider);
+    final access = session.user?.permission('events.create');
+    switch (decideAccess(access, subscribed: session.isSubscribed)) {
+      case AccessDecision.allowed || AccessDecision.hidden:
+        ref.read(createEventFlowProvider.notifier).start();
+        if (context.mounted) unawaited(context.push(AppRoutes.createEvent));
+      case AccessDecision.needsSubscription || AccessDecision.blocked:
+        final needsSubscription =
+            decideAccess(access, subscribed: session.isSubscribed) ==
+            AccessDecision.needsSubscription;
+        final text = (access?.message ?? '').isNotEmpty
+            ? access!.message!
+            : (needsSubscription
+                  ? l10n.accessNeedsSubscription
+                  : l10n.accessBlocked);
+        if (!context.mounted) return;
+        await showDialog<void>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            content: Text(text),
+            actions: [
+              if (needsSubscription && ref.read(billingSupportedProvider))
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                    context.push(AppRoutes.subscription);
+                  },
+                  child: Text(l10n.accessUpgradeAction),
+                ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text(l10n.closeAction),
+              ),
+            ],
+          ),
+        );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final sdp = context.sdp;
+    final session = ref.watch(sessionInfoControllerProvider);
+    final canOfferCreate =
+        decideAccess(
+          session.user?.permission('events.create'),
+          subscribed: session.isSubscribed,
+        ) !=
+        AccessDecision.hidden;
+    return TestId(
+      HomeTestIds.upcomingSection,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SectionHeader(
+            id: HomeTestIds.upcomingSection,
+            title: ref.msg(MessageKeys.homeUpcomingTitle, l10n.homeUpcoming),
+            seeAllId: HomeTestIds.seeAllUpcoming,
+            onSeeAll: () => context.go(AppRoutes.schedule),
+          ),
+          _sectionBody<List<ScheduleItem>>(
+            context: context,
+            sectionId: HomeTestIds.upcomingSection,
+            l10n: l10n,
+            value: value,
+            onRetry: onRetry,
+            data: (items) {
+              final events = [
+                for (final item in items)
+                  if (item.eventId != null) item,
+              ];
+              if (events.isEmpty) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: sdp(16)),
+                  child: Column(
+                    children: [
+                      const SvgIcon('ic_events', size: 62),
+                      SizedBox(height: sdp(8)),
+                      Text(
+                        ref.msg(
+                          MessageKeys.homeUpcomingEmpty,
+                          l10n.emptyUpcoming,
+                        ),
+                        textAlign: TextAlign.center,
+                        style: NativeText.medium(
+                          sdp(14),
+                          context.native.textPrimary,
+                        ),
+                      ),
+                      if (canOfferCreate) ...[
+                        SizedBox(height: sdp(8)),
+                        TestId(
+                          HomeTestIds.createEvent,
+                          child: FilledButton(
+                            onPressed: () => _create(context, ref),
+                            child: Text(l10n.addEventAction),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              }
+              return SizedBox(
+                height: sdp(176),
+                child: PageView.builder(
+                  itemCount: events.length,
+                  padEnds: false,
+                  controller: PageController(viewportFraction: 0.94),
+                  itemBuilder: (context, i) => Padding(
+                    padding: EdgeInsets.symmetric(horizontal: sdp(4)),
+                    child: EventTile(
+                      item: events[i],
+                      testId: HomeTestIds.event('upcoming', events[i].eventId!),
+                      onTap: () =>
+                          context.push(AppRoutes.eventFor(events[i].eventId!)),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Pending actions: a plain horizontal scroll (native `rvPendingActions`, a
+/// `LinearLayoutManager` row - no snap paging), shown in full (the backend is
+/// not asked for a page size here).
+class _PendingSection extends ConsumerWidget {
+  const _PendingSection({
+    required this.l10n,
+    required this.value,
+    required this.onRetry,
+  });
+
+  final AppLocalizations l10n;
+  final AsyncValue<List<PendingAction>> value;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final sdp = context.sdp;
+    return TestId(
+      HomeTestIds.pendingSection,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SectionHeader(
+            id: HomeTestIds.pendingSection,
+            title: ref.msg(
+              MessageKeys.homePendingTitle,
+              l10n.homePendingActions,
             ),
           ),
-        ),
+          _sectionBody<List<PendingAction>>(
+            context: context,
+            sectionId: HomeTestIds.pendingSection,
+            l10n: l10n,
+            value: value,
+            onRetry: onRetry,
+            data: (items) => items.isEmpty
+                ? Padding(
+                    padding: EdgeInsets.symmetric(horizontal: sdp(16)),
+                    child: Row(
+                      children: [
+                        const SvgIcon('ic_pending_actions', size: 62),
+                        SizedBox(width: sdp(12)),
+                        Expanded(
+                          child: Text(
+                            ref.msg(
+                              MessageKeys.homePendingEmpty,
+                              l10n.emptyPendingActions,
+                            ),
+                            style: NativeText.medium(
+                              sdp(14),
+                              context.native.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : SizedBox(
+                    height: sdp(84),
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: EdgeInsets.symmetric(horizontal: sdp(12)),
+                      itemCount: items.length,
+                      itemBuilder: (context, i) => SizedBox(
+                        width: sdp(260),
+                        child: _PendingTile(action: items[i]),
+                      ),
+                    ),
+                  ),
+          ),
+        ],
       ),
     );
   }
 }
 
 class _PendingTile extends StatelessWidget {
-  const _PendingTile({required this.action, required this.l10n});
+  const _PendingTile({required this.action});
 
   final PendingAction action;
-  final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
@@ -362,98 +455,88 @@ class _PendingTile extends StatelessWidget {
     ].where((s) => s.isNotEmpty).join(' · ');
     return TestId(
       HomeTestIds.pendingAction(action.eventId ?? 0),
-      child: _HomeCard(
-        onTap: action.eventId == null
-            ? null
-            : () => context.push(AppRoutes.eventFor(action.eventId!)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: NativeText.semibold(sdp(14), n.textPrimary)),
-            if (subtitle.isNotEmpty)
-              Padding(
-                padding: EdgeInsets.only(top: sdp(4)),
-                child: Text(
-                  subtitle,
-                  style: NativeText.regular(sdp(12), n.textSecondary),
+      child: Padding(
+        padding: EdgeInsets.only(right: sdp(8)),
+        child: Material(
+          color: n.windowBackgroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(sdp(12)),
+            side: BorderSide(color: n.borderSolidPrimary, width: sdp(1)),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: action.eventId == null
+                ? null
+                : () => context.push(AppRoutes.eventFor(action.eventId!)),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 56),
+              child: Padding(
+                padding: EdgeInsets.all(sdp(12)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: NativeText.semibold(sdp(14), n.textPrimary),
+                    ),
+                    if (subtitle.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.only(top: sdp(4)),
+                        child: Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: NativeText.regular(sdp(12), n.textSecondary),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _UpdateTile extends StatelessWidget {
-  const _UpdateTile({required this.card, this.onTap});
-
-  final PlayerCard card;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final n = context.native;
-    final sdp = context.sdp;
-    return TestId(
-      HomeTestIds.update(card.id ?? card.eventId ?? 0),
-      child: _HomeCard(
-        onTap: onTap,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              card.title ?? card.message ?? '',
-              style: NativeText.semibold(sdp(14), n.textPrimary),
             ),
-            if (card.title != null && card.message != null)
-              Padding(
-                padding: EdgeInsets.only(top: sdp(4)),
-                child: Text(
-                  card.message!,
-                  style: NativeText.regular(sdp(12), n.textSecondary),
-                ),
-              ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _ActivityCard extends StatelessWidget {
-  const _ActivityCard({required this.stats, required this.l10n});
+/// Activity: one page per year with a dot indicator, only when there is more
+/// than one year (native `fragment_home_activity_stats` + `TabLayoutMediator`).
+class _ActivitySection extends ConsumerWidget {
+  const _ActivitySection({
+    required this.l10n,
+    required this.value,
+    required this.onRetry,
+  });
 
-  final HomePageStats stats;
   final AppLocalizations l10n;
+  final AsyncValue<List<HomePageStats>> value;
+  final VoidCallback onRetry;
 
   @override
-  Widget build(BuildContext context) {
-    final n = context.native;
-    final sdp = context.sdp;
-    final entries = [
-      (l10n.statEvents, stats.totalEvents),
-      (l10n.statHours, stats.totalHours),
-      (l10n.statWins, stats.wins),
-      (l10n.statLosses, stats.losses),
-    ];
-    return _HomeCard(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+  Widget build(BuildContext context, WidgetRef ref) {
+    return TestId(
+      HomeTestIds.activitySection,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (final (label, value) in entries)
-            Column(
-              children: [
-                Text(
-                  '${value ?? 0}',
-                  style: NativeText.semibold(sdp(20), n.textPrimary),
-                ),
-                Text(
-                  label,
-                  style: NativeText.regular(sdp(12), n.textSecondary),
-                ),
-              ],
-            ),
+          _SectionHeader(
+            id: HomeTestIds.activitySection,
+            title: ref.msg(MessageKeys.homeActivityTitle, l10n.homeActivity),
+          ),
+          _sectionBody<List<HomePageStats>>(
+            context: context,
+            sectionId: HomeTestIds.activitySection,
+            l10n: l10n,
+            value: value,
+            onRetry: onRetry,
+            data: (years) => years.isEmpty
+                ? const SizedBox.shrink()
+                : HomeActivityCard(years: years),
+          ),
         ],
       ),
     );

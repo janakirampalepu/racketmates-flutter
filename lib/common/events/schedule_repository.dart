@@ -179,13 +179,29 @@ final scheduleRepositoryProvider = Provider<ScheduleRepository>(
   (ref) => ScheduleRepositoryImpl(ref.watch(scheduleApiProvider)),
 );
 
-/// Users whose events are shown (`user_ids[]`). Native default: the signed-in
-/// user; the family picker (parents with kids) is a later addition.
-final selectedUserIdsProvider = Provider<List<String>>((ref) {
-  final session = ref.watch(sessionControllerProvider);
-  final id = session is SignedIn ? session.token.user?.id : null;
-  return id == null ? const [] : ['$id'];
-});
+/// Users whose events are shown (`user_ids[]`). Defaults to the signed-in
+/// user; the family picker (native `FamilyUsersPicker`) lets a parent add
+/// their children to the selection, aggregating every selected user's data.
+class SelectedUsersNotifier extends Notifier<List<String>> {
+  @override
+  List<String> build() {
+    final session = ref.watch(sessionControllerProvider);
+    final id = session is SignedIn ? session.token.user?.id : null;
+    return id == null ? const [] : ['$id'];
+  }
+
+  /// Native `FamilyUsersPicker.saveSelections`: at least one user stays
+  /// selected (the picker itself refuses to save an empty choice).
+  void select(List<String> ids) {
+    if (ids.isEmpty) return;
+    state = ids;
+  }
+}
+
+final selectedUserIdsProvider =
+    NotifierProvider<SelectedUsersNotifier, List<String>>(
+      SelectedUsersNotifier.new,
+    );
 
 /// `hour_format` query value: 24 when the device uses a 24-hour clock.
 final hourFormatProvider = Provider<int>(

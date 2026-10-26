@@ -852,15 +852,25 @@ class FakeNativeSessionSource implements NativeSessionSource {
 }
 
 class FakeDowntimeRepository implements DowntimeRepository {
-  FakeDowntimeRepository([this.incident]);
+  FakeDowntimeRepository([this.incident, this.maintenance]);
+
+  FakeDowntimeRepository.withMaintenance(this.maintenance) : incident = null;
 
   Incident? incident;
+  Incident? maintenance;
   int checks = 0;
+  int maintenanceChecks = 0;
 
   @override
   Future<Incident?> currentIncident() async {
     checks++;
     return incident;
+  }
+
+  @override
+  Future<Incident?> scheduledMaintenance() async {
+    maintenanceChecks++;
+    return maintenance;
   }
 }
 

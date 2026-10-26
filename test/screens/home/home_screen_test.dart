@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
+import 'package:racketmates/common/startup/downtime.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
+import 'package:racketmates/l10n/app_localizations_en.dart';
 import 'package:racketmates/screens/event_details/event_details_test_ids.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
 import 'package:racketmates/screens/schedule/schedule_test_ids.dart';
@@ -13,6 +15,8 @@ import '../../support/app_harness.dart';
 import '../../support/fakes.dart';
 import '../../support/fixtures.dart';
 
+final _l10n = AppLocalizationsEn();
+
 Finder _id(String id) => find.bySemanticsIdentifier(id);
 
 FakeScheduleRepository _fullRepo() => FakeScheduleRepository(
@@ -20,7 +24,6 @@ FakeScheduleRepository _fullRepo() => FakeScheduleRepository(
     scheduleItem(1),
     scheduleItem(2, type: 'et_practice'),
   ],
-  past: [scheduleItem(3, date: '2026-10-01')],
   pending: const [
     PendingAction(
       eventId: 4,
@@ -30,14 +33,17 @@ FakeScheduleRepository _fullRepo() => FakeScheduleRepository(
     ),
   ],
   activity: const [
-    HomePageStats(wins: 5, losses: 3, totalEvents: 9, totalHours: 18),
-  ],
-  updates: const [
-    PlayerCard(
-      id: 55,
-      title: 'Game result',
-      message: 'You won 6-4',
-      eventId: 98,
+    HomePageStats(
+      year: 2026,
+      wins: 5,
+      losses: 3,
+      totalEvents: 9,
+      totalHours: 18,
+      gamesHours: 10,
+      practiceHours: 5,
+      lessonHours: 2,
+      meetingHours: 1,
+      weeklyAverageValue: '2h',
     ),
   ],
   event: EventDetailsResponse.fromJson(apiFixture('events_show')).event,
@@ -58,34 +64,29 @@ void main() {
       expect(_id(HomeTestIds.pendingAction(4)), findsOneWidget);
       expect(_id(HomeTestIds.event('upcoming', 1)), findsOneWidget);
       expect(_id(HomeTestIds.event('upcoming', 2)), findsOneWidget);
-      expect(_id(HomeTestIds.update(55)), findsOneWidget);
-      expect(find.text('Game result'), findsOneWidget);
       expect(find.text('Wins'), findsOneWidget);
       expect(find.text('5'), findsOneWidget);
-      expect(_id(HomeTestIds.event('past', 3)), findsOneWidget);
-      expect(repo.calls.toSet(), {
-        'pending',
-        'upcoming',
-        'updates',
-        'activity',
-        'past',
-      });
+      expect(_id(HomeTestIds.activityYear), findsOneWidget);
+      expect(find.text('2026'), findsOneWidget);
+      // Neither native app currently fetches these.
+      expect(repo.calls.toSet(), {'pending', 'upcoming', 'activity'});
       handle.dispose();
     },
   );
 
-  testWidgets('empty sections show their empty text', (tester) async {
-    final handle = tester.ensureSemantics();
-    useTallScreen(tester);
-    await tester.pumpWidget(signedInApp());
-    await tester.pumpAndSettle();
-    expect(find.text('Nothing needs your attention.'), findsOneWidget);
-    expect(find.text('No upcoming events.'), findsOneWidget);
-    expect(find.text('No updates yet.'), findsOneWidget);
-    expect(find.text('No activity yet.'), findsOneWidget);
-    expect(find.text('No past events.'), findsOneWidget);
-    handle.dispose();
-  });
+  testWidgets(
+    'empty upcoming offers to create an event; pending shows its empty text',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      await tester.pumpWidget(signedInApp());
+      await tester.pumpAndSettle();
+      expect(find.text(_l10n.emptyPendingActions), findsOneWidget);
+      expect(find.text(_l10n.emptyUpcoming), findsOneWidget);
+      expect(_id(HomeTestIds.createEvent), findsOneWidget);
+      handle.dispose();
+    },
+  );
 
   testWidgets('one failing section shows retry while the others still render', (
     tester,
@@ -96,14 +97,13 @@ void main() {
     await tester.pumpWidget(signedInApp(schedule: repo));
     await tester.pumpAndSettle();
 
-    expect(find.text('Could not load this section.'), findsOneWidget);
+    expect(find.text(_l10n.sectionLoadError), findsOneWidget);
     expect(_id(HomeTestIds.pendingAction(4)), findsOneWidget);
-    expect(_id(HomeTestIds.event('past', 3)), findsOneWidget);
 
     repo.failing.clear();
     await tester.tap(_id(HomeTestIds.retry(HomeTestIds.upcomingSection)));
     await tester.pumpAndSettle();
-    expect(find.text('Could not load this section.'), findsNothing);
+    expect(find.text(_l10n.sectionLoadError), findsNothing);
     expect(_id(HomeTestIds.event('upcoming', 1)), findsOneWidget);
     handle.dispose();
   });
@@ -120,13 +120,7 @@ void main() {
       const Offset(0, 500),
     );
     await tester.pumpAndSettle();
-    expect(repo.calls.toSet(), {
-      'pending',
-      'upcoming',
-      'updates',
-      'activity',
-      'past',
-    });
+    expect(repo.calls.toSet(), {'pending', 'upcoming', 'activity'});
     handle.dispose();
   });
 
@@ -185,6 +179,107 @@ void main() {
       findsOneWidget,
     );
     handle.dispose();
+  });
+
+  group('family picker', () {
+    FakeUserRepository withKids() => FakeUserRepository(
+      profile: const UserDetails(
+        user: AppUser(
+          id: 7,
+          firstName: 'Sam',
+          lastName: 'Lee',
+          children: [AppUser(id: 8, firstName: 'Alex', lastName: 'Lee')],
+        ),
+      ),
+    );
+
+    testWidgets('hidden for a user with no kids', (tester) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      await tester.pumpWidget(signedInApp());
+      await tester.pumpAndSettle();
+      expect(_id(HomeTestIds.familyRow), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets(
+      'shown for a parent, and selecting a kid reloads every section',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        useTallScreen(tester);
+        final repo = _fullRepo();
+        await tester.pumpWidget(signedInApp(schedule: repo, users: withKids()));
+        await tester.pumpAndSettle();
+        expect(_id(HomeTestIds.familyRow), findsOneWidget);
+
+        repo.calls.clear();
+        await tester.tap(_id(HomeTestIds.familyRow));
+        await tester.pumpAndSettle();
+        expect(_id(HomeTestIds.familyPickerSheet), findsOneWidget);
+        expect(_id(HomeTestIds.familyPickerRow(8)), findsOneWidget);
+
+        await tester.tap(_id(HomeTestIds.familyPickerRow(8)));
+        await tester.tap(_id(HomeTestIds.familyPickerSave));
+        await tester.pumpAndSettle();
+
+        expect(repo.calls.toSet(), {'pending', 'upcoming', 'activity'});
+        handle.dispose();
+      },
+    );
+
+    testWidgets('refuses to save with nobody selected', (tester) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      await tester.pumpWidget(signedInApp(users: withKids()));
+      await tester.pumpAndSettle();
+      await tester.tap(_id(HomeTestIds.familyRow));
+      await tester.pumpAndSettle();
+
+      // Parent is checked first (its checkbox is the first interactive
+      // element in the parent's row); uncheck it and try to save.
+      await tester.tap(
+        find.descendant(
+          of: _id(HomeTestIds.familyPickerSheet),
+          matching: find.byType(Checkbox).first,
+        ),
+      );
+      await tester.tap(_id(HomeTestIds.familyPickerSave));
+      await tester.pumpAndSettle();
+      expect(find.text(_l10n.familyPickerSelectAtLeastOne), findsOneWidget);
+      handle.dispose();
+    });
+  });
+
+  group('maintenance banner', () {
+    testWidgets('shows a scheduled maintenance window and can be dismissed', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      const incident = Incident(name: 'Planned maintenance');
+      await tester.pumpWidget(
+        signedInApp(downtime: FakeDowntimeRepository.withMaintenance(incident)),
+      );
+      await tester.pumpAndSettle();
+      expect(_id(HomeTestIds.maintenanceBanner), findsOneWidget);
+      expect(find.text('Planned maintenance'), findsOneWidget);
+
+      await tester.tap(_id(HomeTestIds.maintenanceBannerDismiss));
+      await tester.pumpAndSettle();
+      expect(_id(HomeTestIds.maintenanceBanner), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('does not show when there is no maintenance window', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      await tester.pumpWidget(signedInApp());
+      await tester.pumpAndSettle();
+      expect(_id(HomeTestIds.maintenanceBanner), findsNothing);
+      handle.dispose();
+    });
   });
 
   for (final mode in [ThemeMode.light, ThemeMode.dark]) {

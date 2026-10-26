@@ -3,15 +3,19 @@ abstract final class HomeTestIds {
   static const settingsButton = 'home_settings_button';
   static const greeting = 'home_greeting';
   static const list = 'home_list';
+  static const maintenanceBanner = 'home_maintenance_banner';
+  static const maintenanceBannerDismiss = 'home_maintenance_banner_dismiss';
+  static const familyRow = 'home_family_row';
+  static const familyPickerSheet = 'home_family_picker_sheet';
+  static const familyPickerSave = 'home_family_picker_save';
+  static String familyPickerRow(int id) => 'home_family_picker_row_$id';
   static const pendingSection = 'home_pending_actions_section';
   static const upcomingSection = 'home_upcoming_section';
-  static const updatesSection = 'home_latest_updates_section';
   static const activitySection = 'home_activity_section';
-  static const pastSection = 'home_past_section';
+  static const activityYear = 'home_activity_year';
   static const seeAllUpcoming = 'home_see_all_upcoming';
-  static const seeAllPast = 'home_see_all_past';
+  static const createEvent = 'home_create_event_button';
   static String event(String section, int id) => 'home_${section}_event_$id';
   static String pendingAction(int id) => 'home_pending_action_$id';
-  static String update(int id) => 'home_update_$id';
   static String retry(String section) => 'home_${section}_retry';
 }

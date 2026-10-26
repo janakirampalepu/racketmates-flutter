@@ -69,7 +69,7 @@ void main() {
     useTallScreen(tester);
     await tester.pumpWidget(signedInApp(contentCache: _cachedContent()));
     await tester.pumpAndSettle();
-    expect(find.text('Recent games'), findsOneWidget); // no server key set
+    expect(find.text('Activity'), findsOneWidget); // no server key set
     expect(find.text('No upcoming events.'), findsOneWidget);
     handle.dispose();
   });

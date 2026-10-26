@@ -820,6 +820,72 @@ abstract class AppLocalizations {
   /// **'Hours'**
   String get statHours;
 
+  /// No description provided for @familyPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose who to show'**
+  String get familyPickerTitle;
+
+  /// No description provided for @familyPickerSelectAtLeastOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least one person.'**
+  String get familyPickerSelectAtLeastOne;
+
+  /// No description provided for @familyPickerSaveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get familyPickerSaveAction;
+
+  /// No description provided for @activityWeeklyAverageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly average:'**
+  String get activityWeeklyAverageLabel;
+
+  /// No description provided for @activityLegendGames.
+  ///
+  /// In en, this message translates to:
+  /// **'Games'**
+  String get activityLegendGames;
+
+  /// No description provided for @activityLegendPractice.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice'**
+  String get activityLegendPractice;
+
+  /// No description provided for @activityLegendLessons.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons'**
+  String get activityLegendLessons;
+
+  /// No description provided for @activityLegendMeetings.
+  ///
+  /// In en, this message translates to:
+  /// **'Casual Meetings'**
+  String get activityLegendMeetings;
+
+  /// No description provided for @activityNoActivityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity yet'**
+  String get activityNoActivityTitle;
+
+  /// No description provided for @activityNoActivityDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your games, practices and lessons will show up here.'**
+  String get activityNoActivityDescription;
+
+  /// No description provided for @homeMaintenanceDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get homeMaintenanceDismiss;
+
   /// No description provided for @scheduleTitle.
   ///
   /// In en, this message translates to:
