@@ -1,7 +1,9 @@
+import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
+import 'package:racketmates/common/network/network_inspector.dart';
 import 'package:racketmates/common/auth/session_controller.dart';
 import 'package:racketmates/common/auth/session_state.dart';
 import 'package:racketmates/common/create_event/create_event_flow.dart';
@@ -148,6 +150,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ..onDispose(refresh.dispose);
 
   return GoRouter(
+    // Lets the in-app network inspector push its own screens; ignored
+    // unless `bootstrap()` enabled one for a non-production environment
+    // (see `common/network/network_inspector.dart`).
+    navigatorKey: networkInspectorEnabled ? ChuckerFlutter.navigatorKey : null,
     initialLocation: AppRoutes.splash,
     refreshListenable: refresh,
     redirect: (context, state) => computeRedirect(

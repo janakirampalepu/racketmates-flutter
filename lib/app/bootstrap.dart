@@ -6,6 +6,7 @@ import 'package:racketmates/app/config_error_app.dart';
 import 'package:racketmates/app/config/environment_config.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:racketmates/common/config/config_providers.dart';
+import 'package:racketmates/common/network/network_inspector.dart';
 import 'package:racketmates/common/network/network_providers.dart';
 import 'package:racketmates/common/network/ssl_pinning.dart';
 
@@ -17,6 +18,9 @@ Future<void> bootstrap(AppEnvironment environment) async {
   if (problems.isNotEmpty) {
     runApp(ConfigErrorApp(problems: problems));
     return;
+  }
+  if (environment != AppEnvironment.production) {
+    enableNetworkInspector();
   }
   final appVersion = (await PackageInfo.fromPlatform()).version;
   final pins = pinsFor(sslPinning: environment.sslPinning);
