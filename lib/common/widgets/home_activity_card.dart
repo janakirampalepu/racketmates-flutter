@@ -165,7 +165,13 @@ class _YearPage extends StatelessWidget {
                       child: Column(
                         children: [
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            // The legend list is vertically centered
+                            // against the ring (native's `circularStatus`
+                            // HStack default-centers its two children) —
+                            // was top-aligned, which looked fine only when
+                            // the legend happened to fill the ring's full
+                            // height.
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               _ActivityRing(stats: stats, l10n: l10n),
                               SizedBox(width: sdp(12)),
