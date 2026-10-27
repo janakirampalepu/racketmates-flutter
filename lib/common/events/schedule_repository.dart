@@ -88,15 +88,21 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
         );
       }
       throw failure;
-    } on Object catch (e) {
+    } on Object catch (e, stack) {
       // A response-shape mismatch doesn't always surface as a `TypeError`
       // (e.g. calling a method on an unexpectedly-null value throws
       // `NoSuchMethodError`, not `TypeError`) — catching only `TypeError`
       // let other cast/shape failures escape uncaught, past this repository
       // entirely, so the UI never even reached its error state's generic
       // text. Keep the real failure's message (e.g. "type 'X' is not a
-      // subtype of type 'Y' in type cast") instead of swallowing it.
-      if (kDebugMode) debugPrint('ScheduleRepository parse failure: $e');
+      // subtype of type 'Y' in type cast') instead of swallowing it.
+      // The message alone doesn't name the field (Dart's cast error is
+      // generic); the top of the stack trace does — it's a line inside
+      // the generated `*.g.dart` `fromJson`, naming the exact field.
+      if (kDebugMode) {
+        debugPrint('ScheduleRepository parse failure: $e');
+        debugPrint('$stack');
+      }
       throw ParseFailure(e.toString());
     }
   }
