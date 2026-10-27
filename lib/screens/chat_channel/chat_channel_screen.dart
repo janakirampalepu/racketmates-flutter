@@ -39,6 +39,10 @@ class ChatChannelScreen extends ConsumerWidget {
       backgroundColor: n.backgroundSolidPrimary,
       appBar: AppBar(
         backgroundColor: n.backgroundSolidPrimary,
+        // Native's toolbar never centers this row (it just follows the
+        // back button); `AppBar.centerTitle` defaults to `true` on
+        // iOS/macOS, which centered the avatar+title instead.
+        centerTitle: false,
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(1),
           child: Container(height: 1, color: n.ndotsColor),
