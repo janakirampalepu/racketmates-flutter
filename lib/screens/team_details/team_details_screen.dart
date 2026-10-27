@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
+import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/create_event/create_event_flow.dart';
@@ -78,12 +79,16 @@ class TeamDetailsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final team = ref.watch(teamDetailsProvider(teamId));
 
+    final n = context.native;
+
     Widget loaded(Team t) {
       final ranking = t.enablePlayerRanking ?? false;
       return DefaultTabController(
         length: ranking ? 3 : 2,
         child: Scaffold(
+          backgroundColor: n.backgroundSolidPrimary,
           appBar: AppBar(
+            backgroundColor: n.backgroundSolidPrimary,
             automaticallyImplyLeading: false,
             leading: BackButton(onPressed: () => context.pop()),
             title: TestId(
@@ -173,6 +178,7 @@ class TeamDetailsScreen extends ConsumerWidget {
                         ),
                         if (t.sportKeys.isNotEmpty) teamSportsText(l10n, t),
                       ].join(' · '),
+                      style: TextStyle(color: n.textSecondary, fontSize: 12),
                     ),
                   ),
                 ),
@@ -197,7 +203,9 @@ class TeamDetailsScreen extends ConsumerWidget {
 
     return team.when(
       loading: () => Scaffold(
+        backgroundColor: n.backgroundSolidPrimary,
         appBar: AppBar(
+          backgroundColor: n.backgroundSolidPrimary,
           automaticallyImplyLeading: false,
           leading: BackButton(onPressed: () => context.pop()),
         ),
@@ -207,7 +215,9 @@ class TeamDetailsScreen extends ConsumerWidget {
         ),
       ),
       error: (_, _) => Scaffold(
+        backgroundColor: n.backgroundSolidPrimary,
         appBar: AppBar(
+          backgroundColor: n.backgroundSolidPrimary,
           automaticallyImplyLeading: false,
           leading: BackButton(onPressed: () => context.pop()),
         ),
@@ -249,6 +259,7 @@ class _ArchivedBanner extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final n = context.native;
     final canUnarchive =
         memberAccess(
           team,
@@ -258,68 +269,77 @@ class _ArchivedBanner extends ConsumerWidget {
         AccessDecision.hidden;
     return TestId(
       TeamHomeActionIds.archivedBanner,
-      child: Material(
-        color: Theme.of(context).colorScheme.secondaryContainer,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: Row(
-            children: [
-              Expanded(child: Text(l10n.teamArchivedBanner)),
-              if (canUnarchive)
-                TestId(
-                  TeamHomeActionIds.unarchiveButton,
-                  child: TextButton(
-                    onPressed: () async {
-                      final messenger = ScaffoldMessenger.of(context);
-                      if (!await checkTeamAccess(
-                            context,
-                            ref,
-                            team,
-                            TeamSettingsPermissions.unarchive,
-                          ) ||
-                          !context.mounted) {
-                        return;
-                      }
-                      final ok = await showDialog<bool>(
-                        context: context,
-                        builder: (dialogContext) => AlertDialog(
-                          title: Text(l10n.teamUnarchiveTitle(team.name ?? '')),
-                          content: Text(l10n.teamUnarchiveText),
-                          actions: [
-                            TextButton(
-                              onPressed: () =>
-                                  Navigator.of(dialogContext).pop(false),
-                              child: Text(l10n.teamActionNo),
-                            ),
-                            FilledButton(
-                              onPressed: () =>
-                                  Navigator.of(dialogContext).pop(true),
-                              child: Text(l10n.teamActionYes),
-                            ),
-                          ],
-                        ),
+      // Same tinted-card convention as Home's own banner
+      // (`HomeDowntimeBanner`), not a generic Material container color.
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: n.colorPrimary.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                l10n.teamArchivedBanner,
+                style: TextStyle(color: n.textPrimary),
+              ),
+            ),
+            if (canUnarchive)
+              TestId(
+                TeamHomeActionIds.unarchiveButton,
+                child: TextButton(
+                  onPressed: () async {
+                    final messenger = ScaffoldMessenger.of(context);
+                    if (!await checkTeamAccess(
+                          context,
+                          ref,
+                          team,
+                          TeamSettingsPermissions.unarchive,
+                        ) ||
+                        !context.mounted) {
+                      return;
+                    }
+                    final ok = await showDialog<bool>(
+                      context: context,
+                      builder: (dialogContext) => AlertDialog(
+                        title: Text(l10n.teamUnarchiveTitle(team.name ?? '')),
+                        content: Text(l10n.teamUnarchiveText),
+                        actions: [
+                          TextButton(
+                            onPressed: () =>
+                                Navigator.of(dialogContext).pop(false),
+                            child: Text(l10n.teamActionNo),
+                          ),
+                          FilledButton(
+                            onPressed: () =>
+                                Navigator.of(dialogContext).pop(true),
+                            child: Text(l10n.teamActionYes),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (ok != true) return;
+                    try {
+                      await ref
+                          .read(teamsRepositoryProvider)
+                          .unarchive(team.id ?? 0);
+                      ref.invalidate(myTeamsProvider);
+                      onChanged();
+                      messenger.showSnackBar(
+                        SnackBar(content: Text(l10n.teamUnarchivedDone)),
                       );
-                      if (ok != true) return;
-                      try {
-                        await ref
-                            .read(teamsRepositoryProvider)
-                            .unarchive(team.id ?? 0);
-                        ref.invalidate(myTeamsProvider);
-                        onChanged();
-                        messenger.showSnackBar(
-                          SnackBar(content: Text(l10n.teamUnarchivedDone)),
-                        );
-                      } on AppFailure {
-                        messenger.showSnackBar(
-                          SnackBar(content: Text(l10n.teamActionFailed)),
-                        );
-                      }
-                    },
-                    child: Text(l10n.teamUnarchive),
-                  ),
+                    } on AppFailure {
+                      messenger.showSnackBar(
+                        SnackBar(content: Text(l10n.teamActionFailed)),
+                      );
+                    }
+                  },
+                  child: Text(l10n.teamUnarchive),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );

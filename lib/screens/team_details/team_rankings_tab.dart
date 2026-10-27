@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/content/content_controller.dart';
 import 'package:racketmates/common/content/reference_data.dart';
@@ -58,7 +59,7 @@ class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
     final sports = team.sportKeys;
     final sport = _sport ?? (sports.isEmpty ? null : sports.first);
     final period = _period ?? periods.firstOrNull?.key;
-    final theme = Theme.of(context);
+    final n = context.native;
 
     Widget table() {
       if (sport == null) {
@@ -136,9 +137,13 @@ class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
                                       change > 0
                                           ? Icons.arrow_upward
                                           : Icons.arrow_downward,
+                                      // Native-matching status colors (the
+                                      // same ones the activity card uses
+                                      // for wins/losses), not a generic
+                                      // Material color scheme.
                                       color: change > 0
-                                          ? theme.colorScheme.primary
-                                          : theme.colorScheme.error,
+                                          ? n.statusColorsLightGreen
+                                          : n.statusColorsLightRed,
                                     ),
                                   ),
                           ),

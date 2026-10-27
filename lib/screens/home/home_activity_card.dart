@@ -162,7 +162,10 @@ class _YearPage extends StatelessWidget {
                           icon: 'ic_stats_wins',
                           value: stats.wins,
                           label: l10n.statWins,
-                          color: n.textPrimary,
+                          // Native's wins count is the brand lime
+                          // (`image_primery_color`), not a neutral color
+                          // like the events tile.
+                          color: n.imagePrimeryColor,
                         ),
                         SizedBox(width: sdp(6)),
                         _StatTile(

@@ -362,9 +362,9 @@ class _UpcomingSection extends ConsumerWidget {
   }
 }
 
-/// Pending actions: a plain horizontal scroll (native `rvPendingActions`, a
-/// `LinearLayoutManager` row - no snap paging), shown in full (the backend is
-/// not asked for a page size here).
+/// Pending actions: a plain vertical list (native `rvPendingActions`, a
+/// `LinearLayoutManager` column, not a horizontal row), shown in full (the
+/// backend is not asked for a page size here).
 class _PendingSection extends ConsumerWidget {
   const _PendingSection({
     required this.l10n,
@@ -419,16 +419,13 @@ class _PendingSection extends ConsumerWidget {
                       ],
                     ),
                   )
-                : SizedBox(
-                    height: sdp(84),
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.symmetric(horizontal: sdp(12)),
-                      itemCount: items.length,
-                      itemBuilder: (context, i) => SizedBox(
-                        width: sdp(260),
-                        child: _PendingTile(action: items[i]),
-                      ),
+                : Padding(
+                    padding: EdgeInsets.symmetric(horizontal: sdp(12)),
+                    child: Column(
+                      children: [
+                        for (final action in items)
+                          _PendingTile(action: action),
+                      ],
                     ),
                   ),
           ),
@@ -456,7 +453,7 @@ class _PendingTile extends StatelessWidget {
     return TestId(
       HomeTestIds.pendingAction(action.eventId ?? 0),
       child: Padding(
-        padding: EdgeInsets.only(right: sdp(8)),
+        padding: EdgeInsets.only(bottom: sdp(8)),
         child: Material(
           color: n.windowBackgroundColor,
           shape: RoundedRectangleBorder(
