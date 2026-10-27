@@ -42,6 +42,26 @@ class OtherEvents {
   Map<String, dynamic> toJson() => _$OtherEventsToJson(this);
 }
 
+/// A schedule item's primary action on either edge (native iOS
+/// `PermissionAccessDetails`: `action` is an `EventViewAction`/
+/// `PermissionActionType` raw value shared with the pending-actions card,
+/// e.g. `event_view_action_accept`; `access` gates whether it can be used
+/// right now — `up_enabled`/`up_disabled`/`up_not_available`/
+/// `up_requires_subscription`).
+@JsonSerializable(fieldRename: FieldRename.snake)
+class EventSwipeAction {
+  const EventSwipeAction({this.action, this.access, this.message});
+
+  factory EventSwipeAction.fromJson(Map<String, dynamic> json) =>
+      _$EventSwipeActionFromJson(json);
+
+  final String? action;
+  final String? access;
+  final String? message;
+
+  Map<String, dynamic> toJson() => _$EventSwipeActionToJson(this);
+}
+
 /// One row of a schedule list. Status and sport values are kept as the
 /// backend's strings (`es_*`, `pes_*`, `st_*`); labels are server-provided.
 @JsonSerializable(fieldRename: FieldRename.snake)
@@ -73,6 +93,8 @@ class ScheduleItem {
     this.additionalParticipants,
     this.onMultipleDates,
     this.eventUsers,
+    this.swipeLeft,
+    this.swipeRight,
   });
 
   factory ScheduleItem.fromJson(Map<String, dynamic> json) =>
@@ -121,6 +143,13 @@ class ScheduleItem {
   final int? additionalParticipants;
   final bool? onMultipleDates;
   final List<AppUser>? eventUsers;
+
+  /// The card's primary action buttons (native `EventListListRow
+  /// .actionButtonsForUpcomingEvents`): both shown side by side when both
+  /// are available, otherwise just the one that is, otherwise a fallback
+  /// "View event" button.
+  final EventSwipeAction? swipeLeft;
+  final EventSwipeAction? swipeRight;
 
   Map<String, dynamic> toJson() => _$ScheduleItemToJson(this);
 

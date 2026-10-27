@@ -2980,6 +2980,24 @@ abstract class AppLocalizations {
   /// **'Manage event'**
   String get eventManageAction;
 
+  /// No description provided for @eventViewAction.
+  ///
+  /// In en, this message translates to:
+  /// **'View event'**
+  String get eventViewAction;
+
+  /// No description provided for @eventGetDirections.
+  ///
+  /// In en, this message translates to:
+  /// **'Get directions'**
+  String get eventGetDirections;
+
+  /// No description provided for @eventNoNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes'**
+  String get eventNoNotes;
+
   /// No description provided for @eventManageTitle.
   ///
   /// In en, this message translates to:

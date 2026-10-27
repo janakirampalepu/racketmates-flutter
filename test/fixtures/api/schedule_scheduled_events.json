@@ -23,7 +23,8 @@
       "event_users": [
         {"id": 7, "first_name": "Sam", "last_name": "Lee", "thumbnail_attachment_url": null}
       ],
-      "swipe_left": {"title": "Decline"},
+      "swipe_left": {"action": "event_view_action_decline", "access": "up_enabled"},
+      "swipe_right": {"action": "event_view_action_accept", "access": "up_enabled"},
       "unknown_future_field": 42
     },
     {

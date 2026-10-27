@@ -291,7 +291,10 @@ class UpcomingEventsSection extends StatelessWidget {
                     );
                   }
                   return SizedBox(
-                    height: sdp(176),
+                    // Taller than before: EventTile now has a third
+                    // (court/coach/notes + avatars) row and an action
+                    // button row, matching native's richer card.
+                    height: sdp(248),
                     child: PageView.builder(
                       itemCount: events.length,
                       padEnds: false,

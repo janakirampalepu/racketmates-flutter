@@ -1574,6 +1574,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventManageAction => 'Manage event';
 
   @override
+  String get eventViewAction => 'View event';
+
+  @override
+  String get eventGetDirections => 'Get directions';
+
+  @override
+  String get eventNoNotes => 'No notes';
+
+  @override
   String get eventManageTitle => 'Manage event';
 
   @override

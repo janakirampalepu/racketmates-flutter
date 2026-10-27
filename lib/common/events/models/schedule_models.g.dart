@@ -44,6 +44,20 @@ Map<String, dynamic> _$OtherEventsToJson(OtherEvents instance) =>
       'to_be_rescheduled_label': instance.toBeRescheduledLabel,
     };
 
+EventSwipeAction _$EventSwipeActionFromJson(Map<String, dynamic> json) =>
+    EventSwipeAction(
+      action: json['action'] as String?,
+      access: json['access'] as String?,
+      message: json['message'] as String?,
+    );
+
+Map<String, dynamic> _$EventSwipeActionToJson(EventSwipeAction instance) =>
+    <String, dynamic>{
+      'action': instance.action,
+      'access': instance.access,
+      'message': instance.message,
+    };
+
 ScheduleItem _$ScheduleItemFromJson(Map<String, dynamic> json) => ScheduleItem(
   eventId: (json['event_id'] as num?)?.toInt(),
   eventDate: json['event_date'] as String?,
@@ -73,6 +87,12 @@ ScheduleItem _$ScheduleItemFromJson(Map<String, dynamic> json) => ScheduleItem(
   eventUsers: (json['event_users'] as List<dynamic>?)
       ?.map((e) => AppUser.fromJson(e as Map<String, dynamic>))
       .toList(),
+  swipeLeft: json['swipe_left'] == null
+      ? null
+      : EventSwipeAction.fromJson(json['swipe_left'] as Map<String, dynamic>),
+  swipeRight: json['swipe_right'] == null
+      ? null
+      : EventSwipeAction.fromJson(json['swipe_right'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$ScheduleItemToJson(ScheduleItem instance) =>
@@ -103,4 +123,6 @@ Map<String, dynamic> _$ScheduleItemToJson(ScheduleItem instance) =>
       'additional_participants': instance.additionalParticipants,
       'on_multiple_dates': instance.onMultipleDates,
       'event_users': instance.eventUsers,
+      'swipe_left': instance.swipeLeft,
+      'swipe_right': instance.swipeRight,
     };

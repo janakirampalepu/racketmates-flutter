@@ -29,6 +29,8 @@ void main() {
     // field the backend also sends as a number was still typed String?.
     expect(first.userParticipantCount, 4);
     expect(first.eventUsers!.single.firstName, 'Sam');
+    expect(first.swipeLeft!.action, 'event_view_action_decline');
+    expect(first.swipeRight!.action, 'event_view_action_accept');
     expect(items[1].additionalVenues, 2);
     expect(items[1].notes, isNull);
     expect(items[1].eventUsers, isNull);

@@ -26,6 +26,30 @@ class EventStatusStyle {
   final Color statusText;
 }
 
+/// Color of the small status dot + label above the event title (native iOS
+/// `AppColors.eventPresentStatusTextColor(EventPresentStatus)`, for the
+/// event's own `es_*` status — not the signed-in user's RSVP status, which
+/// is [eventStatusStyle] above). iOS's `scheduled`/`draft`/default case
+/// returns a confusingly-named `StatusColors.white` token that is actually
+/// an adaptive near-black/near-white neutral, not literal white; mapped to
+/// `textSecondary` here as the closest existing token.
+Color eventPresentStatusColor(NativePalette n, String? eventStatus) {
+  switch (eventStatus) {
+    case 'es_to_be_scheduled' || 'es_to_be_finalized':
+      return n.statusColorsLightOrange;
+    case 'es_cancelled':
+      return n.statusColorsLightRed;
+    case 'es_in_progress':
+      return n.statusColorsLightBlue;
+    case 'es_completed':
+      return n.statusColorsLightGreen;
+    case 'es_mixed':
+      return n.statusColorsLightPurple;
+    default:
+      return n.textSecondary;
+  }
+}
+
 EventStatusStyle eventStatusStyle(NativePalette n, String? status) {
   switch (status) {
     case 'eus_confirmed' || 'eus_confirmed_with_other_courts':

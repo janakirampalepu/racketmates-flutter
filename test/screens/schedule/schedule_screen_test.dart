@@ -39,6 +39,8 @@ void main() {
     expect(_id(ScheduleTestIds.event('upcoming', 2)), findsOneWidget);
     expect(find.text('Practice'), findsOneWidget);
     expect(find.text('6:00 PM - 7:30 PM'), findsWidgets);
+    // No swipeLeft/swipeRight on this fixture: falls back to "View event".
+    expect(find.text('View event'), findsWidgets);
 
     await tester.tap(_id(ScheduleTestIds.event('upcoming', 1)));
     await tester.pumpAndSettle();
