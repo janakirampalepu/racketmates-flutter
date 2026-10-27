@@ -8,8 +8,16 @@ import 'package:racketmates/common/chat/chat_ui.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/chat/chat_test_ids.dart';
 
-/// The chat tab (native `UIKitChannelListFragment`): the user's Sendbird
+/// The chat tab (native `CustomChannelListFragment`): the user's Sendbird
 /// channels, once connected.
+///
+/// Native hosts the Sendbird channel-list fragment inside its own toolbar
+/// (title "Chat", a create-channel icon action) and hides the UIKit's own
+/// header (`headerComponent.rootView.visibility = GONE`); mirrored here by
+/// always wrapping the list in our own `AppBar` and suppressing the UIKit's
+/// built-in header (see `SendbirdChatUi.channelList`), so the tab's header
+/// matches Home/Teams instead of being drawn unclipped behind the status
+/// bar (which also made the top channel rows mis-register taps).
 class ChatScreen extends ConsumerWidget {
   const ChatScreen({super.key});
 
@@ -47,52 +55,65 @@ class ChatScreen extends ConsumerWidget {
       ),
     );
 
-    if (status == ChatStatus.connected) {
-      // The UIKit list brings its own header.
-      return TestId(
-        ChatTestIds.root,
-        child: TestId(
-          ChatTestIds.list,
-          child: ref
-              .watch(chatUiProvider)
-              .channelList(
-                context,
-                onOpen: (url) => context.push(AppRoutes.chatChannelFor(url)),
-                onCreate: () => context.push(AppRoutes.chatNew),
-              ),
-        ),
-      );
-    }
+    void openNewChat() => context.push(AppRoutes.chatNew);
+
     return Scaffold(
       appBar: AppBar(
         title: TestId(
           ChatTestIds.title,
           child: Semantics(header: true, child: Text(l10n.navChat)),
         ),
+        actions: status == ChatStatus.connected
+            ? [
+                TestId(
+                  ChatTestIds.newChatButton,
+                  child: IconButton(
+                    tooltip: l10n.chatNewAction,
+                    icon: const Icon(Icons.add_comment_outlined),
+                    onPressed: openNewChat,
+                  ),
+                ),
+              ]
+            : null,
       ),
-      body: TestId(
-        ChatTestIds.root,
-        child: switch (status) {
-          ChatStatus.unavailable => message(
-            ChatTestIds.unavailable,
-            l10n.chatUnavailable,
-          ),
-          ChatStatus.failed => message(
-            ChatTestIds.failed,
-            l10n.chatFailed,
-            retry: true,
-          ),
-          _ => Center(
-            child: TestId(
-              ChatTestIds.connecting,
-              child: Semantics(
-                label: l10n.chatConnecting,
-                child: const CircularProgressIndicator(),
+      body: status == ChatStatus.connected
+          ? TestId(
+              ChatTestIds.root,
+              child: TestId(
+                ChatTestIds.list,
+                child: ref
+                    .watch(chatUiProvider)
+                    .channelList(
+                      context,
+                      onOpen: (url) =>
+                          context.push(AppRoutes.chatChannelFor(url)),
+                      onCreate: openNewChat,
+                    ),
               ),
+            )
+          : TestId(
+              ChatTestIds.root,
+              child: switch (status) {
+                ChatStatus.unavailable => message(
+                  ChatTestIds.unavailable,
+                  l10n.chatUnavailable,
+                ),
+                ChatStatus.failed => message(
+                  ChatTestIds.failed,
+                  l10n.chatFailed,
+                  retry: true,
+                ),
+                _ => Center(
+                  child: TestId(
+                    ChatTestIds.connecting,
+                    child: Semantics(
+                      label: l10n.chatConnecting,
+                      child: const CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+              },
             ),
-          ),
-        },
-      ),
     );
   }
 }

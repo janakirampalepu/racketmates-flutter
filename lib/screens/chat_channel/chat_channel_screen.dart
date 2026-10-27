@@ -6,9 +6,9 @@ import 'package:racketmates/common/chat/chat_ui.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/chat/chat_test_ids.dart';
 
-/// One conversation (native `UIKitChannelFragment`). Opens from the channel
-/// list, a chat push or the support entry in settings; waits for the chat
-/// connection if it is not up yet.
+/// One conversation (native `CustomChannelFragment`/`UIKitChannelFragment`).
+/// Opens from the channel list, a chat push or the support entry in
+/// settings; waits for the chat connection if it is not up yet.
 class ChatChannelScreen extends ConsumerWidget {
   const ChatChannelScreen({required this.channelUrl, super.key});
 
@@ -19,11 +19,23 @@ class ChatChannelScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final status = ref.watch(chatControllerProvider);
     if (status == ChatStatus.connected) {
-      return TestId(
-        ChatTestIds.channelRoot,
-        child: ref
-            .watch(chatUiProvider)
-            .channel(context, channelUrl: channelUrl),
+      // The UIKit channel screen draws its own header (avatar, channel
+      // name, typing status and a working back button — native disables
+      // this screen's own `ChannelHeaderComponent` the same way and relies
+      // on its *own* toolbar instead). This route is pushed full-screen
+      // with no Scaffold/AppBar of ours above it, so without a SafeArea
+      // that header rendered under the status bar/notch: the title looked
+      // missing and the back button sat behind the status bar, out of
+      // reach.
+      return Scaffold(
+        body: SafeArea(
+          child: TestId(
+            ChatTestIds.channelRoot,
+            child: ref
+                .watch(chatUiProvider)
+                .channel(context, channelUrl: channelUrl),
+          ),
+        ),
       );
     }
     final failed =

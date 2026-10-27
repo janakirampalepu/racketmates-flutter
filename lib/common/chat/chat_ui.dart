@@ -36,6 +36,14 @@ class SendbirdChatUi implements ChatUi {
       child: SBUGroupChannelListScreen(
         onCreateButtonClicked: onCreate,
         onListItemClicked: (channel) => onOpen(channel.channelUrl),
+        // The host screen (`ChatScreen`) draws its own AppBar (title +
+        // create action), matching native's own toolbar which hides the
+        // UIKit's header entirely (`UIKitChannelListFragment.
+        // onBindHeaderComponent`); without this the UIKit's 56dp header row
+        // renders unclipped at the very top of the tab (the shell has no
+        // AppBar of its own to provide a safe area), overlapping the status
+        // bar so it looked missing and the first rows mis-registered taps.
+        customHeader: (_, _, _, _) => const SizedBox.shrink(),
       ),
     );
   }
