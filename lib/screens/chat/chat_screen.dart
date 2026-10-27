@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
+import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/chat/chat_controller.dart';
 import 'package:racketmates/common/chat/chat_ui.dart';
@@ -25,6 +26,8 @@ class ChatScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final status = ref.watch(chatControllerProvider);
+    final n = context.native;
+    final sdp = context.sdp;
 
     Widget message(String id, String text, {bool retry = false}) => Center(
       child: Padding(
@@ -59,6 +62,14 @@ class ChatScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        // Matches native's own chat-list toolbar (`fragment_custom_channel_
+        // list.xml`): `background_solid_primary` background and a hairline
+        // divider under it, same pattern as Home's app bar.
+        backgroundColor: n.backgroundSolidPrimary,
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(sdp(1)),
+          child: Container(height: sdp(1), color: n.ndotsColor),
+        ),
         title: TestId(
           ChatTestIds.title,
           child: Semantics(header: true, child: Text(l10n.navChat)),
@@ -69,7 +80,9 @@ class ChatScreen extends ConsumerWidget {
                   ChatTestIds.newChatButton,
                   child: IconButton(
                     tooltip: l10n.chatNewAction,
-                    icon: const Icon(Icons.add_comment_outlined),
+                    // Native's `add_channel` icon (`add_club_img.xml`) is a
+                    // plain plus, tinted `icon_primary` (the brand lime).
+                    icon: Icon(Icons.add, color: n.iconPrimary),
                     onPressed: openNewChat,
                   ),
                 ),
