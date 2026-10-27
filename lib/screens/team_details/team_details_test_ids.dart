@@ -9,9 +9,7 @@ abstract final class TeamDetailsTestIds {
   /// `team_member_<teamPlayerId>`.
   static String member(int id) => 'team_member_$id';
 
-  static const tabSchedule = 'team_tab_schedule';
   static const tabRankings = 'team_tab_rankings';
-  static const tabMembers = 'team_tab_members';
 
   // Schedule
   static const scheduleUpcoming = 'team_schedule_upcoming_button';
@@ -86,6 +84,33 @@ abstract final class TeamHomeActionIds {
   static const createEvent = 'team_home_create_event_button';
   static const archivedBanner = 'team_home_archived_banner';
   static const unarchiveButton = 'team_home_unarchive_button';
+
+  // Dashboard sections shared with Home (`common/widgets/home_sections.dart`).
+  static const upcomingSection = 'team_home_upcoming_section';
+  static const upcomingSeeAll = 'team_home_upcoming_see_all';
+  static const upcomingRetry = 'team_home_upcoming_retry';
+  static const upcomingCreateEvent = 'team_home_upcoming_create_event_button';
+
+  /// `team_home_upcoming_event_<eventId>`.
+  static String upcomingEvent(int id) => 'team_home_upcoming_event_$id';
+
+  static const pendingSection = 'team_home_pending_section';
+  static const pendingRetry = 'team_home_pending_retry';
+
+  /// `team_home_pending_action_<eventId>`.
+  static String pendingAction(int id) => 'team_home_pending_action_$id';
+
+  static const activitySection = 'team_home_activity_section';
+  static const activityRetry = 'team_home_activity_retry';
+  static const activityYear = 'team_home_activity_year';
+
+  // Team-only members preview.
+  static const membersSection = 'team_home_members_section';
+  static const membersSeeAll = 'team_home_members_see_all';
+  static const manageMembers = 'team_home_manage_members_button';
+
+  /// `team_home_member_preview_<teamPlayerId>`.
+  static String memberPreview(int id) => 'team_home_member_preview_$id';
 }
 
 abstract final class TeamSettingsTestIds {

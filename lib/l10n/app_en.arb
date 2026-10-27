@@ -481,6 +481,8 @@
   "teamTabSchedule": "Schedule",
   "teamTabRankings": "Rankings",
   "teamTabMembers": "Members",
+  "teamHomeMembersTitle": "Team members",
+  "teamHomeManageMembers": "Manage members",
   "teamScheduleUpcoming": "Upcoming",
   "teamSchedulePast": "Past",
   "teamScheduleEmptyUpcoming": "The team has no upcoming events.",

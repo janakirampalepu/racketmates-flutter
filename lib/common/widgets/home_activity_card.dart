@@ -4,16 +4,23 @@ import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/widgets/native_widgets.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
-import 'package:racketmates/screens/home/home_test_ids.dart';
 
-/// Home's "Activity" section (native `fragment_home_activity_stats`): one
-/// page per year, swiped with a dot indicator shown only when there is more
-/// than one year (native `TabLayoutMediator`, wired only when
-/// `activityStats.size > 1`).
+/// The "Activity" section shared by Home and Team Home (native
+/// `fragment_home_activity_stats`, reused by both `HomeFragment` and
+/// `TeamHomeFragment`): one page per year, swiped with a dot indicator
+/// shown only when there is more than one year (native `TabLayoutMediator`,
+/// wired only when `activityStats.size > 1`).
 class HomeActivityCard extends StatefulWidget {
-  const HomeActivityCard({required this.years, super.key});
+  const HomeActivityCard({
+    required this.years,
+    required this.yearBadgeId,
+    super.key,
+  });
 
   final List<HomePageStats> years;
+
+  /// Test id for the year badge (differs between Home and Team Home).
+  final String yearBadgeId;
 
   @override
   State<HomeActivityCard> createState() => _HomeActivityCardState();
@@ -41,7 +48,8 @@ class _HomeActivityCardState extends State<HomeActivityCard> {
             controller: _controller,
             itemCount: years.length,
             onPageChanged: (i) => setState(() => _page = i),
-            itemBuilder: (context, i) => _YearPage(stats: years[i]),
+            itemBuilder: (context, i) =>
+                _YearPage(stats: years[i], yearBadgeId: widget.yearBadgeId),
           ),
         ),
         if (years.length > 1)
@@ -71,9 +79,10 @@ class _HomeActivityCardState extends State<HomeActivityCard> {
 }
 
 class _YearPage extends StatelessWidget {
-  const _YearPage({required this.stats});
+  const _YearPage({required this.stats, required this.yearBadgeId});
 
   final HomePageStats stats;
+  final String yearBadgeId;
 
   bool get _isEmpty =>
       (stats.totalEvents ?? 0) == 0 && (stats.totalHours ?? 0) == 0;
@@ -102,7 +111,7 @@ class _YearPage extends StatelessWidget {
                 const Spacer(),
               if (stats.year != null)
                 TestId(
-                  HomeTestIds.activityYear,
+                  yearBadgeId,
                   child: Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: sdp(10),

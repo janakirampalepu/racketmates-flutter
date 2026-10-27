@@ -2176,6 +2176,18 @@ abstract class AppLocalizations {
   /// **'Members'**
   String get teamTabMembers;
 
+  /// No description provided for @teamHomeMembersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Team members'**
+  String get teamHomeMembersTitle;
+
+  /// No description provided for @teamHomeManageMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage members'**
+  String get teamHomeManageMembers;
+
   /// No description provided for @teamScheduleUpcoming.
   ///
   /// In en, this message translates to:

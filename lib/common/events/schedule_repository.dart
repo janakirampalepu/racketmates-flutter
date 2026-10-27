@@ -32,9 +32,13 @@ const homeEventsCount = 3;
 const schedulePageSize = 10;
 
 abstract class ScheduleRepository {
+  /// [teamId] scopes this to one team's events instead of the signed-in
+  /// user's own (native `HomeFragmentViewModel`/`TeamHomeFragment` share one
+  /// view-model, parameterized the same way).
   Future<List<ScheduleItem>> homeUpcoming({
     required List<String> userIds,
     required int hourFormat,
+    int? teamId,
   });
 
   Future<List<ScheduleItem>> homePast({
@@ -51,9 +55,15 @@ abstract class ScheduleRepository {
     int? teamId,
   });
 
-  Future<List<PendingAction>> pendingActions({required List<String> userIds});
+  Future<List<PendingAction>> pendingActions({
+    required List<String> userIds,
+    int? teamId,
+  });
 
-  Future<List<HomePageStats>> activitySummary({required List<String> userIds});
+  Future<List<HomePageStats>> activitySummary({
+    required List<String> userIds,
+    int? teamId,
+  });
 
   Future<List<PlayerCard>> latestUpdates({required List<String> userIds});
 
@@ -79,12 +89,14 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
   Future<List<ScheduleItem>> homeUpcoming({
     required List<String> userIds,
     required int hourFormat,
+    int? teamId,
   }) async {
     final response = await _guard(
       () => api.scheduledEvents(
         perPage: homeEventsCount,
         page: 1,
         eventsFor: 'home_page_upcoming',
+        teamId: teamId,
         userIds: userIds,
         eventRoles: defaultEventRoles,
         hourFormat: hourFormat,
@@ -135,16 +147,21 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
   @override
   Future<List<PendingAction>> pendingActions({
     required List<String> userIds,
+    int? teamId,
   }) async =>
-      (await _guard(() => api.pendingActions(userIds: userIds)))
-          .pendingActions ??
+      (await _guard(
+        () => api.pendingActions(teamId: teamId, userIds: userIds),
+      )).pendingActions ??
       const [];
 
   @override
   Future<List<HomePageStats>> activitySummary({
     required List<String> userIds,
+    int? teamId,
   }) async =>
-      (await _guard(() => api.statsSummary(userIds: userIds))).homePageStats ??
+      (await _guard(
+        () => api.statsSummary(teamId: teamId, userIds: userIds),
+      )).homePageStats ??
       const [];
 
   @override

@@ -7,7 +7,15 @@ import 'package:racketmates/screens/home/home_state.dart';
 
 enum HomeSection { pending, upcoming, activity }
 
+/// [_teamId] scopes every section to one team instead of the signed-in
+/// user's own data — native shares this exact view-model between the Home
+/// tab and Team Home (`HomeFragmentViewModel`, parameterized the same way),
+/// so a `null` key here is the Home tab and an `int` key is a team's home.
 class HomeViewModel extends Notifier<HomeState> {
+  HomeViewModel(this._teamId);
+
+  final int? _teamId;
+
   @override
   HomeState build() {
     // Switching the family selection re-fetches every section, aggregated
@@ -38,17 +46,21 @@ class HomeViewModel extends Notifier<HomeState> {
     switch (section) {
       case HomeSection.pending:
         await _load<List<PendingAction>>(
-          () => _repo.pendingActions(userIds: _userIds),
+          () => _repo.pendingActions(userIds: _userIds, teamId: _teamId),
           (v) => state = state.copyWith(pending: v),
         );
       case HomeSection.upcoming:
         await _load<List<ScheduleItem>>(
-          () => _repo.homeUpcoming(userIds: _userIds, hourFormat: _hourFormat),
+          () => _repo.homeUpcoming(
+            userIds: _userIds,
+            hourFormat: _hourFormat,
+            teamId: _teamId,
+          ),
           (v) => state = state.copyWith(upcoming: v),
         );
       case HomeSection.activity:
         await _load<List<HomePageStats>>(
-          () => _repo.activitySummary(userIds: _userIds),
+          () => _repo.activitySummary(userIds: _userIds, teamId: _teamId),
           (v) => state = state.copyWith(activity: v),
         );
     }
@@ -68,5 +80,7 @@ class HomeViewModel extends Notifier<HomeState> {
   }
 }
 
-final homeViewModelProvider =
-    NotifierProvider.autoDispose<HomeViewModel, HomeState>(HomeViewModel.new);
+/// `homeViewModelProvider(null)` is the Home tab; `homeViewModelProvider(id)`
+/// is Team Home for that team.
+final homeViewModelProvider = NotifierProvider.autoDispose
+    .family<HomeViewModel, HomeState, int?>((teamId) => HomeViewModel(teamId));

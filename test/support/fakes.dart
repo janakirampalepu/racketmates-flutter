@@ -518,11 +518,20 @@ class FakeScheduleRepository implements ScheduleRepository {
     return value();
   }
 
+  /// `teamId` each team-scoped method was last called with.
+  int? upcomingTeamId;
+  int? pendingTeamId;
+  int? activityTeamId;
+
   @override
   Future<List<ScheduleItem>> homeUpcoming({
     required List<String> userIds,
     required int hourFormat,
-  }) => _run('upcoming', () => upcoming);
+    int? teamId,
+  }) {
+    upcomingTeamId = teamId;
+    return _run('upcoming', () => upcoming);
+  }
 
   @override
   Future<List<ScheduleItem>> homePast({
@@ -549,13 +558,22 @@ class FakeScheduleRepository implements ScheduleRepository {
   }
 
   @override
-  Future<List<PendingAction>> pendingActions({required List<String> userIds}) =>
-      _run('pending', () => pending);
+  Future<List<PendingAction>> pendingActions({
+    required List<String> userIds,
+    int? teamId,
+  }) {
+    pendingTeamId = teamId;
+    return _run('pending', () => pending);
+  }
 
   @override
   Future<List<HomePageStats>> activitySummary({
     required List<String> userIds,
-  }) => _run('activity', () => activity);
+    int? teamId,
+  }) {
+    activityTeamId = teamId;
+    return _run('activity', () => activity);
+  }
 
   @override
   Future<List<PlayerCard>> latestUpdates({required List<String> userIds}) =>

@@ -101,9 +101,15 @@ class _ScheduleApi implements ScheduleApi {
   }
 
   @override
-  Future<StatsSummaryResponse> statsSummary({List<String>? userIds}) async {
+  Future<StatsSummaryResponse> statsSummary({
+    int? teamId,
+    List<String>? userIds,
+  }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'user_ids[]': userIds};
+    final queryParameters = <String, dynamic>{
+      r'team_id': teamId,
+      r'user_ids[]': userIds,
+    };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;

@@ -8,6 +8,7 @@ import 'package:racketmates/screens/create_team/create_team_test_ids.dart';
 import 'package:racketmates/screens/create_team_members/create_team_members_test_ids.dart';
 import 'package:racketmates/screens/main_shell/main_shell_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
+import 'package:racketmates/screens/team_details/team_members_tab.dart';
 import 'package:racketmates/screens/teams/teams_test_ids.dart';
 
 import '../../support/app_harness.dart';
@@ -16,6 +17,12 @@ import '../../support/fakes.dart';
 Finder _id(String id) => find.bySemanticsIdentifier(id);
 Finder _field(String id) =>
     find.descendant(of: _id(id), matching: find.byType(TextField));
+
+/// Scopes a text finder to the pushed full member list, since the
+/// dashboard's `TeamMembersPreview` (left mounted underneath the push) can
+/// show the same member names/roles.
+Finder _inMembers(Finder matching) =>
+    find.descendant(of: find.byType(TeamMembersTab), matching: matching);
 
 const _smashers = Team(
   id: 31,
@@ -166,6 +173,7 @@ void main() {
 
   testWidgets('a team opens with its members and roles', (tester) async {
     final handle = tester.ensureSemantics();
+    useTallScreen(tester);
     final teams = FakeTeamsRepository(
       teams: [_smashers],
       membersByTeam: {
@@ -188,10 +196,10 @@ void main() {
     expect(_id(TeamDetailsTestIds.root), findsOneWidget);
     expect(find.text('Sunday Smashers'), findsOneWidget);
     expect(find.textContaining('Tennis, Padel'), findsOneWidget);
-    await _tap(tester, TeamDetailsTestIds.tabMembers);
-    expect(find.text('Alex Kim'), findsOneWidget);
-    expect(find.text('Captain, Player'), findsOneWidget);
-    expect(find.text('Coach'), findsOneWidget);
+    await _tap(tester, TeamHomeActionIds.manageMembers);
+    expect(_inMembers(find.text('Alex Kim')), findsOneWidget);
+    expect(_inMembers(find.text('Captain, Player')), findsOneWidget);
+    expect(_inMembers(find.text('Coach')), findsOneWidget);
     handle.dispose();
   });
 
@@ -201,7 +209,7 @@ void main() {
     await tester.pumpWidget(signedInApp(teams: teams));
     await _openTeams(tester);
     await _tap(tester, TeamsTestIds.tile(31));
-    await _tap(tester, TeamDetailsTestIds.tabMembers);
+    await _tap(tester, TeamHomeActionIds.manageMembers);
     expect(_id(TeamDetailsTestIds.membersError), findsOneWidget);
     teams.membersFail = false;
     await tester.tap(find.text('Try again'));

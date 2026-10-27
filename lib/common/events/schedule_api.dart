@@ -35,6 +35,7 @@ abstract class ScheduleApi {
 
   @GET('current_session/stats_summary')
   Future<StatsSummaryResponse> statsSummary({
+    @Query('team_id') int? teamId,
     @Query('user_ids[]') List<String>? userIds,
   });
 

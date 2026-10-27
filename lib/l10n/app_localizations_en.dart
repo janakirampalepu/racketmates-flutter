@@ -1128,6 +1128,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teamTabMembers => 'Members';
 
   @override
+  String get teamHomeMembersTitle => 'Team members';
+
+  @override
+  String get teamHomeManageMembers => 'Manage members';
+
+  @override
   String get teamScheduleUpcoming => 'Upcoming';
 
   @override

@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/models/schedule_models.dart';
-import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/session/session_info_models.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
@@ -11,12 +10,24 @@ import 'package:racketmates/screens/event_details/event_details_test_ids.dart';
 import 'package:racketmates/screens/main_shell/main_shell_test_ids.dart';
 import 'package:racketmates/screens/subscription/subscription_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
+import 'package:racketmates/screens/team_details/team_members_tab.dart';
+import 'package:racketmates/screens/team_details/team_rankings_tab.dart';
 import 'package:racketmates/screens/teams/teams_test_ids.dart';
 
 import '../../support/app_harness.dart';
 import '../../support/fakes.dart';
 
 Finder _id(String id) => find.bySemanticsIdentifier(id);
+
+/// Scopes a text finder to the pushed full member list, since the
+/// dashboard's `TeamMembersPreview` (left mounted underneath the push) can
+/// show the same member names/roles.
+Finder _inMembers(Finder matching) =>
+    find.descendant(of: find.byType(TeamMembersTab), matching: matching);
+
+/// Same idea for the pushed rankings screen.
+Finder _inRankings(Finder matching) =>
+    find.descendant(of: find.byType(TeamRankingsTab), matching: matching);
 
 const _alex = AppUser(id: 8, uid: 'u8', firstName: 'Alex', lastName: 'Kim');
 const _pat = AppUser(id: 9, uid: 'u9', firstName: 'Pat', lastName: 'Ng');
@@ -117,40 +128,52 @@ FakeTeamsRepository _repo({
     FakeTeamsRepository(teams: [team ?? _team()], membersByTeam: {31: members});
 
 void main() {
-  group('schedule', () {
+  group('dashboard', () {
     testWidgets('upcoming events of the team, opening one', (tester) async {
       final handle = tester.ensureSemantics();
       useTallScreen(tester);
-      final schedule = FakeScheduleRepository(
-        event: const EventDetails(id: 101, eventType: 'et_practice'),
-        pages: {
-          ScheduleTab.upcoming: [
-            [
-              const ScheduleItem(
-                eventId: 101,
-                eventDate: '2026-11-02',
-                eventType: 'et_practice',
-                placeName: 'Central Courts',
-                timeSlot: '7-8 PM',
-              ),
-            ],
-          ],
-        },
-      );
+      final schedule = FakeScheduleRepository()
+        ..upcoming = const [
+          ScheduleItem(
+            eventId: 101,
+            eventDate: '2026-11-02',
+            eventType: 'et_practice',
+            placeName: 'Central Courts',
+            timeSlot: '7-8 PM',
+          ),
+        ]
+        ..event = const EventDetails(id: 101, eventType: 'et_practice');
       await _openTeam(tester, teams: _repo(), schedule: schedule);
-      expect(schedule.requestedTeams.last, 31);
+      // The dashboard's Upcoming section, team-scoped (native
+      // `HomeFragmentViewModel` parameterized by this team, same as Home).
+      expect(schedule.upcomingTeamId, 31);
       expect(find.textContaining('Central Courts'), findsOneWidget);
-      await tester.tap(_id(TeamDetailsTestIds.scheduleEvent(101)));
+      await tester.tap(_id(TeamHomeActionIds.upcomingEvent(101)));
       await tester.pumpAndSettle();
       expect(_id(EventDetailsTestIds.root), findsOneWidget);
       handle.dispose();
     });
 
+    testWidgets('pending actions of the team are team-scoped', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final schedule = FakeScheduleRepository();
+      await _openTeam(tester, teams: _repo(), schedule: schedule);
+      expect(schedule.pendingTeamId, 31);
+      expect(schedule.activityTeamId, 31);
+      handle.dispose();
+    });
+  });
+
+  group('full schedule screen', () {
     testWidgets('past events, empty and failing states', (tester) async {
       final handle = tester.ensureSemantics();
       useTallScreen(tester);
       final schedule = FakeScheduleRepository();
       await _openTeam(tester, teams: _repo(), schedule: schedule);
+      await _tap(tester, TeamHomeActionIds.upcomingSeeAll);
       expect(_id(TeamDetailsTestIds.scheduleEmpty), findsOneWidget);
       schedule.failing.add('page-past');
       await _tap(tester, TeamDetailsTestIds.schedulePast);
@@ -170,6 +193,7 @@ void main() {
         teams: _repo(team: _team(archived: true)),
         schedule: schedule,
       );
+      await _tap(tester, TeamHomeActionIds.upcomingSeeAll);
       expect(schedule.calls, contains('page-past'));
       expect(schedule.calls, isNot(contains('page-upcoming')));
       handle.dispose();
@@ -206,7 +230,7 @@ void main() {
         period: 'rpd_all_time',
         matchType: null,
       ));
-      expect(find.text('Alex Kim'), findsOneWidget);
+      expect(_inRankings(find.text('Alex Kim')), findsOneWidget);
       expect(find.text('3W - 1L · 120 pts'), findsOneWidget);
       expect(find.byIcon(Icons.arrow_upward), findsOneWidget);
       expect(find.byIcon(Icons.arrow_downward), findsOneWidget);
@@ -240,7 +264,7 @@ void main() {
         ..rankingFails = false
         ..ranking = [ranked(501, _alex, 1, null, 10)];
       await _tap(tester, TeamDetailsTestIds.rankingsRetry);
-      expect(find.text('Alex Kim'), findsOneWidget);
+      expect(_inRankings(find.text('Alex Kim')), findsOneWidget);
       handle.dispose();
     });
 
@@ -264,13 +288,13 @@ void main() {
       useTallScreen(tester);
       final teams = _repo();
       await _openTeam(tester, teams: teams);
-      await _tap(tester, TeamDetailsTestIds.tabMembers);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
       await openMenu(tester, 501, TeamDetailsTestIds.actionEdit);
       expect(_id(TeamDetailsTestIds.rolesDialog), findsOneWidget);
       await _tap(tester, TeamDetailsTestIds.rolesCoach);
       await _tap(tester, TeamDetailsTestIds.rolesSave);
       expect(teams.memberCalls, ['roles:31:501:-op']);
-      expect(find.text('Player, Coach'), findsOneWidget);
+      expect(_inMembers(find.text('Player, Coach')), findsOneWidget);
       handle.dispose();
     });
 
@@ -279,7 +303,7 @@ void main() {
       useTallScreen(tester);
       final teams = _repo();
       await _openTeam(tester, teams: teams);
-      await _tap(tester, TeamDetailsTestIds.tabMembers);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
       await openMenu(tester, 501, TeamDetailsTestIds.actionEdit);
       await _tap(tester, TeamDetailsTestIds.rolesPlayer);
       await _tap(tester, TeamDetailsTestIds.rolesSave);
@@ -293,7 +317,7 @@ void main() {
       useTallScreen(tester);
       final teams = _repo();
       await _openTeam(tester, teams: teams);
-      await _tap(tester, TeamDetailsTestIds.tabMembers);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
       await openMenu(tester, 500, TeamDetailsTestIds.actionEdit);
       await _tap(tester, TeamDetailsTestIds.rolesCaptain);
       await _tap(tester, TeamDetailsTestIds.rolesSave);
@@ -309,21 +333,23 @@ void main() {
       useTallScreen(tester);
       final teams = _repo();
       await _openTeam(tester, teams: teams);
-      await _tap(tester, TeamDetailsTestIds.tabMembers);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
       await openMenu(tester, 501, TeamDetailsTestIds.actionDeactivate);
       await _tap(tester, TeamDetailsTestIds.confirmNo);
       expect(teams.memberCalls, isEmpty);
       await openMenu(tester, 501, TeamDetailsTestIds.actionDeactivate);
       await _tap(tester, TeamDetailsTestIds.confirmYes);
       expect(teams.memberCalls, ['inactivate:31:501']);
-      expect(find.text('Alex Kim'), findsNothing); // active members only
+      // active members only (also true of the dashboard preview, so this
+      // one is safe unscoped: neither shows Alex).
+      expect(find.text('Alex Kim'), findsNothing);
       await _tap(tester, TeamDetailsTestIds.showInactive);
-      expect(find.text('Alex Kim'), findsOneWidget);
-      expect(find.textContaining('Deactivated'), findsOneWidget);
+      expect(_inMembers(find.text('Alex Kim')), findsOneWidget);
+      expect(_inMembers(find.textContaining('Deactivated')), findsOneWidget);
       await openMenu(tester, 501, TeamDetailsTestIds.actionReactivate);
       await _tap(tester, TeamDetailsTestIds.confirmYes);
       expect(teams.memberCalls.last, 'reactivate:31:501');
-      expect(find.textContaining('Deactivated'), findsNothing);
+      expect(_inMembers(find.textContaining('Deactivated')), findsNothing);
       handle.dispose();
     });
 
@@ -332,7 +358,7 @@ void main() {
       useTallScreen(tester);
       final teams = _repo();
       await _openTeam(tester, teams: teams);
-      await _tap(tester, TeamDetailsTestIds.tabMembers);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
       await openMenu(tester, 502, TeamDetailsTestIds.actionRemove);
       await _tap(tester, TeamDetailsTestIds.confirmYes);
       expect(teams.memberCalls, ['remove:31:502']);
@@ -347,7 +373,7 @@ void main() {
       useTallScreen(tester);
       final teams = _repo();
       await _openTeam(tester, teams: teams);
-      await _tap(tester, TeamDetailsTestIds.tabMembers);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
       await openMenu(tester, 500, TeamDetailsTestIds.actionDeactivate);
       expect(find.textContaining('needs a captain'), findsOneWidget);
       await _tap(tester, TeamDetailsTestIds.accessDialogClose);
@@ -365,14 +391,14 @@ void main() {
       useTallScreen(tester);
       final teams = _repo()..changeFailure = const OfflineFailure();
       await _openTeam(tester, teams: teams);
-      await _tap(tester, TeamDetailsTestIds.tabMembers);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
       await openMenu(tester, 502, TeamDetailsTestIds.actionRemove);
       await _tap(tester, TeamDetailsTestIds.confirmYes);
       expect(
         find.text('The change could not be saved. Please try again.'),
         findsOneWidget,
       );
-      expect(find.text('Pat Ng'), findsOneWidget);
+      expect(_inMembers(find.text('Pat Ng')), findsOneWidget);
       handle.dispose();
     });
 
@@ -385,8 +411,8 @@ void main() {
         tester,
         teams: _repo(team: _team(permissions: const {})),
       );
-      await _tap(tester, TeamDetailsTestIds.tabMembers);
-      expect(find.text('Alex Kim'), findsOneWidget);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
+      expect(_inMembers(find.text('Alex Kim')), findsOneWidget);
       expect(_id(TeamDetailsTestIds.memberActions(501)), findsNothing);
       expect(_id(TeamDetailsTestIds.addMembers), findsNothing);
       handle.dispose();
@@ -406,7 +432,7 @@ void main() {
         ),
       );
       await _openTeam(tester, teams: teams);
-      await _tap(tester, TeamDetailsTestIds.tabMembers);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
       await openMenu(tester, 502, TeamDetailsTestIds.actionRemove);
       expect(
         find.text('Members cannot be removed during a season.'),
@@ -444,7 +470,7 @@ void main() {
           ),
         ),
       );
-      await _tap(tester, TeamDetailsTestIds.tabMembers);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
       await openMenu(tester, 502, TeamDetailsTestIds.actionRemove);
       expect(_id(SubscriptionTestIds.root), findsOneWidget);
       expect(teams.memberCalls, isEmpty);
@@ -458,7 +484,7 @@ void main() {
       useTallScreen(tester);
       final teams = _repo()..candidates = const [_alex, _pat];
       await _openTeam(tester, teams: teams);
-      await _tap(tester, TeamDetailsTestIds.tabMembers);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
       await _tap(tester, TeamDetailsTestIds.addMembers);
       expect(_id(TeamAddMembersTestIds.root), findsOneWidget);
       expect(teams.candidateSearches.last.sports, ['st_tennis', 'st_padel']);
@@ -488,7 +514,7 @@ void main() {
       useTallScreen(tester);
       final teams = _repo()..candidates = const [_alex];
       await _openTeam(tester, teams: teams);
-      await _tap(tester, TeamDetailsTestIds.tabMembers);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
       await _tap(tester, TeamDetailsTestIds.addMembers);
       await _tap(tester, TeamAddMembersTestIds.role(8, 'player'));
       await _tap(tester, TeamAddMembersTestIds.role(8, 'player'));
@@ -509,7 +535,7 @@ void main() {
         ..candidates = const [_alex]
         ..changeFailure = const OfflineFailure();
       await _openTeam(tester, teams: teams);
-      await _tap(tester, TeamDetailsTestIds.tabMembers);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
       await _tap(tester, TeamDetailsTestIds.addMembers);
       await _tap(tester, TeamAddMembersTestIds.role(8, 'player'));
       await _tap(tester, TeamAddMembersTestIds.save);
@@ -523,7 +549,7 @@ void main() {
       useTallScreen(tester);
       final teams = _repo();
       await _openTeam(tester, teams: teams);
-      await _tap(tester, TeamDetailsTestIds.tabMembers);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
       await _tap(tester, TeamDetailsTestIds.addMembers);
       expect(_id(TeamAddMembersTestIds.empty), findsOneWidget);
       teams.membersFail = true;
@@ -546,7 +572,7 @@ void main() {
           : Brightness.light;
       addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
       await _openTeam(tester, teams: _repo());
-      await _tap(tester, TeamDetailsTestIds.tabMembers);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
       await expectLater(tester, meetsGuideline(textContrastGuideline));
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
       await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
