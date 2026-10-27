@@ -219,20 +219,46 @@ class SendbirdChatUi implements ChatUi {
     }
   }
 
+  /// A placeholder cover Sendbird itself assigns to new group channels;
+  /// the UIKit's own avatar rule (below) treats it as "no cover".
+  static const _sampleCoverPrefix =
+      'https://static.sendbird.com/sample/cover/cover_';
+
   ChatChannelInfo _toInfo(GroupChannel channel) {
     final myId = SendbirdChat.currentUser?.userId;
-    final others = channel.members.where((m) => m.userId != myId).toList();
+    final others = channel.members.where((m) => m.userId != myId).toList()
+      ..sort((a, b) => a.nickname.compareTo(b.nickname));
     String nameOf(User user) =>
         user.nickname.isNotEmpty ? user.nickname : user.userId;
     final title = channel.name.isNotEmpty
         ? channel.name
         : others.map(nameOf).join(', ');
-    final avatarUrl = others.length == 1
-        ? others.first.profileUrl
-        : channel.coverUrl;
+
+    // Mirrors the UIKit's own `getGroupChannelAvatarComponent` (used by
+    // the channel list, which is why it already showed the right image):
+    // the channel's own cover unless it's one of Sendbird's sample
+    // placeholders, else a member's photo — the UIKit composites up to 4
+    // members into a grid; a single `CircleAvatar` here just shows the
+    // first other member who has one, rather than channel.coverUrl alone
+    // (empty for most group channels, which is why this showed the
+    // UIKit's own default person icon for every group chat).
+    final hasRealCover =
+        channel.coverUrl.isNotEmpty &&
+        !channel.coverUrl.startsWith(_sampleCoverPrefix);
+    String? avatarUrl;
+    if (hasRealCover) {
+      avatarUrl = channel.coverUrl;
+    } else {
+      for (final member in others) {
+        if (member.profileUrl.isNotEmpty) {
+          avatarUrl = member.profileUrl;
+          break;
+        }
+      }
+    }
     return ChatChannelInfo(
       title: title.isNotEmpty ? title : channel.channelUrl,
-      avatarUrl: avatarUrl.isNotEmpty ? avatarUrl : null,
+      avatarUrl: avatarUrl,
       isMuted: channel.myPushTriggerOption == GroupChannelPushTriggerOption.off,
       isArchived: channel.isHidden,
       members: channel.members
