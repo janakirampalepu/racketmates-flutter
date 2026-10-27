@@ -94,7 +94,6 @@ class TeamDetailsScreen extends ConsumerWidget {
         appBar: AppBar(
           backgroundColor: n.backgroundSolidPrimary,
           automaticallyImplyLeading: false,
-          leading: BackButton(onPressed: () => context.pop()),
           title: TestId(
             TeamDetailsTestIds.title,
             child: Semantics(header: true, child: Text(t.name ?? '')),
@@ -195,8 +194,7 @@ class TeamDetailsScreen extends ConsumerWidget {
                   retryId: TeamHomeActionIds.upcomingRetry,
                   createEventId: TeamHomeActionIds.upcomingCreateEvent,
                   eventIdFor: TeamHomeActionIds.upcomingEvent,
-                  onSeeAll: () =>
-                      context.push(AppRoutes.teamScheduleFor(teamId)),
+                  onSeeAll: () => context.go(AppRoutes.teamScheduleFor(teamId)),
                   canOfferCreate:
                       memberAccess(
                         t,
@@ -239,7 +237,6 @@ class TeamDetailsScreen extends ConsumerWidget {
         appBar: AppBar(
           backgroundColor: n.backgroundSolidPrimary,
           automaticallyImplyLeading: false,
-          leading: BackButton(onPressed: () => context.pop()),
         ),
         body: TestId(
           TeamDetailsTestIds.root,
@@ -251,7 +248,6 @@ class TeamDetailsScreen extends ConsumerWidget {
         appBar: AppBar(
           backgroundColor: n.backgroundSolidPrimary,
           automaticallyImplyLeading: false,
-          leading: BackButton(onPressed: () => context.pop()),
         ),
         body: TestId(
           TeamDetailsTestIds.root,

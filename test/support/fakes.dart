@@ -1766,23 +1766,30 @@ class FakeChatClient implements ChatClient {
 /// Stands in for the Sendbird screens; shows the url and lets a test "tap" a
 /// channel.
 class FakeChatUi implements ChatUi {
+  /// The `customTypesFilter` passed to the most recent [channelList] call.
+  List<String>? lastCustomTypesFilter;
+
   @override
   Widget channelList(
     BuildContext context, {
     required void Function(String url) onOpen,
     required VoidCallback onCreate,
-  }) => Scaffold(
-    body: Column(
-      children: [
-        const Text('fake channel list'),
-        TextButton(onPressed: onCreate, child: const Text('new chat')),
-        TextButton(
-          onPressed: () => onOpen('channel-1'),
-          child: const Text('open channel-1'),
-        ),
-      ],
-    ),
-  );
+    List<String>? customTypesFilter,
+  }) {
+    lastCustomTypesFilter = customTypesFilter;
+    return Scaffold(
+      body: Column(
+        children: [
+          const Text('fake channel list'),
+          TextButton(onPressed: onCreate, child: const Text('new chat')),
+          TextButton(
+            onPressed: () => onOpen('channel-1'),
+            child: const Text('open channel-1'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget channel(BuildContext context, {required String channelUrl}) =>

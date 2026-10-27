@@ -9,6 +9,7 @@ import 'package:racketmates/screens/create_team_members/create_team_members_test
 import 'package:racketmates/screens/main_shell/main_shell_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_members_tab.dart';
+import 'package:racketmates/screens/team_shell/team_shell_test_ids.dart';
 import 'package:racketmates/screens/teams/teams_test_ids.dart';
 
 import '../../support/app_harness.dart';
@@ -205,6 +206,7 @@ void main() {
 
   testWidgets('team details: no members and load failures', (tester) async {
     final handle = tester.ensureSemantics();
+    useTallScreen(tester);
     final teams = FakeTeamsRepository(teams: [_smashers])..membersFail = true;
     await tester.pumpWidget(signedInApp(teams: teams));
     await _openTeams(tester);
@@ -361,7 +363,7 @@ void main() {
         await check(); // list
         await _tap(tester, TeamsTestIds.tile(31));
         await check(); // details
-        await tester.pageBack();
+        await _tap(tester, TeamShellTestIds.navClose);
         await tester.pumpAndSettle();
         await _tap(tester, TeamsTestIds.create);
         await _tap(tester, CreateTeamTestIds.next); // with errors

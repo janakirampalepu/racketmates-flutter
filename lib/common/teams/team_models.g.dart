@@ -72,6 +72,10 @@ Team _$TeamFromJson(Map<String, dynamic> json) => Team(
   userPermissions: (json['user_permissions'] as Map<String, dynamic>?)?.map(
     (k, e) => MapEntry(k, AccessInfo.fromJson(e as Map<String, dynamic>)),
   ),
+  chatRoomTypesForFiltering:
+      (json['chat_room_types_for_filtering'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
 );
 
 Map<String, dynamic> _$TeamToJson(Team instance) => <String, dynamic>{
@@ -88,6 +92,7 @@ Map<String, dynamic> _$TeamToJson(Team instance) => <String, dynamic>{
   'schedule_events_count': instance.scheduleEventsCount,
   'future_events_count': instance.futureEventsCount,
   'team_players': instance.teamPlayers,
+  'chat_room_types_for_filtering': instance.chatRoomTypesForFiltering,
   'user_permissions': instance.userPermissions,
 };
 

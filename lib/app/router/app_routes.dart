@@ -147,6 +147,7 @@ abstract final class AppRoutes {
   static String teamAddMembersFor(int id) => '$team/$id/add-members';
   static String teamSettingsFor(int id) => '$team/$id/settings';
   static String teamScheduleFor(int id) => '$team/$id/schedule';
+  static String teamChatFor(int id) => '$team/$id/chat';
   static String teamRankingsFor(int id) => '$team/$id/rankings';
   static String teamMembersFor(int id) => '$team/$id/members';
   static const appUpdate = '/app-update';

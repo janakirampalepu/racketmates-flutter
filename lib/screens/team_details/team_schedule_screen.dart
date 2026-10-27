@@ -46,10 +46,8 @@ class TeamScheduleScreen extends ConsumerWidget {
             ],
           ),
         ),
-        data: (t) => TeamScheduleTab(
-          teamId: teamId,
-          archived: t.archived ?? false,
-        ),
+        data: (t) =>
+            TeamScheduleTab(teamId: teamId, archived: t.archived ?? false),
       ),
     );
   }

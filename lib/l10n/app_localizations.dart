@@ -2188,6 +2188,18 @@ abstract class AppLocalizations {
   /// **'Members'**
   String get teamTabMembers;
 
+  /// No description provided for @teamChatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat - {teamName}'**
+  String teamChatTitle(String teamName);
+
+  /// No description provided for @exitTeamContext.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit team'**
+  String get exitTeamContext;
+
   /// No description provided for @teamHomeMembersTitle.
   ///
   /// In en, this message translates to:

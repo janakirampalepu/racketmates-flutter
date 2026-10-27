@@ -87,6 +87,7 @@ class Team {
     this.futureEventsCount,
     this.teamPlayers,
     this.userPermissions,
+    this.chatRoomTypesForFiltering,
   });
 
   factory Team.fromJson(Map<String, dynamic> json) => _$TeamFromJson(json);
@@ -104,6 +105,11 @@ class Team {
   final int? scheduleEventsCount;
   final int? futureEventsCount;
   final List<TeamPlayer>? teamPlayers;
+
+  /// Sendbird channel `customType` values that belong to this team (native
+  /// `Team.filteredCustomTypeChatRoom`), used to scope the team's chat tab
+  /// to its own channels (`GroupChannelListQuery.customTypesFilter`).
+  final List<String>? chatRoomTypesForFiltering;
 
   /// What the signed-in user may do with the team, keyed like the backend
   /// (`team.team_players.update`, `team.events.create`, ...).

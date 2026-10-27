@@ -53,9 +53,7 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('the back button in the header also goes back', (
-      tester,
-    ) async {
+    testWidgets('the back button in the header also goes back', (tester) async {
       final handle = tester.ensureSemantics();
       useTallScreen(tester);
       await tester.pumpWidget(signedInApp());
@@ -77,7 +75,11 @@ void main() {
           ..info = const ChatChannelInfo(
             title: 'Alex Morgan',
             members: [
-              ChatChannelMember(userId: 'u1', nickname: 'Alex Morgan', isMe: false),
+              ChatChannelMember(
+                userId: 'u1',
+                nickname: 'Alex Morgan',
+                isMe: false,
+              ),
               ChatChannelMember(userId: 'u2', nickname: 'Me', isMe: true),
             ],
             isMuted: false,
@@ -109,22 +111,14 @@ void main() {
       await tester.tap(_id(ChatTestIds.channelHeader));
       await tester.pumpAndSettle();
       expect(
-        tester
-            .widget<SwitchListTile>(
-              find.byType(SwitchListTile),
-            )
-            .value,
+        tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value,
         isFalse,
       );
       await tester.tap(_id(ChatChannelDetailsTestIds.muteSwitch));
       await tester.pumpAndSettle();
       expect(chatUi.muteCalls, [('channel-1', true)]);
       expect(
-        tester
-            .widget<SwitchListTile>(
-              find.byType(SwitchListTile),
-            )
-            .value,
+        tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value,
         isTrue,
       );
       handle.dispose();

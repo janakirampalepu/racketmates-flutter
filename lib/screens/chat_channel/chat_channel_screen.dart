@@ -117,9 +117,8 @@ class ChatChannelScreen extends ConsumerWidget {
       body: TestId(
         ChatTestIds.channelRoot,
         child: switch (status) {
-          ChatStatus.connected => ref
-              .watch(chatUiProvider)
-              .channel(context, channelUrl: channelUrl),
+          ChatStatus.connected =>
+            ref.watch(chatUiProvider).channel(context, channelUrl: channelUrl),
           ChatStatus.unavailable || ChatStatus.failed => Center(
             child: Padding(
               padding: const EdgeInsets.all(24),

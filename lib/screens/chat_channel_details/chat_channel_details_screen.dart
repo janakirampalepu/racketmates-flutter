@@ -166,7 +166,10 @@ class _DetailsBodyState extends ConsumerState<_DetailsBody> {
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: Text(
             l10n.chatChannelDetailsMembers,
-            style: TextStyle(color: n.textSecondary, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              color: n.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         for (final member in members)
@@ -223,7 +226,9 @@ class _DetailsBodyState extends ConsumerState<_DetailsBody> {
             ChatChannelDetailsTestIds.archiveButton,
             child: ListTile(
               leading: Icon(
-                info.isArchived ? Icons.unarchive_outlined : Icons.archive_outlined,
+                info.isArchived
+                    ? Icons.unarchive_outlined
+                    : Icons.archive_outlined,
                 color: n.textPrimary,
               ),
               title: Text(

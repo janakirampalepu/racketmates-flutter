@@ -65,11 +65,13 @@ import 'package:racketmates/screens/schedule/schedule_screen.dart';
 import 'package:racketmates/screens/create_team/create_team_screen.dart';
 import 'package:racketmates/screens/create_team_members/create_team_members_screen.dart';
 import 'package:racketmates/screens/team_add_members/team_add_members_screen.dart';
+import 'package:racketmates/screens/team_details/team_chat_screen.dart';
 import 'package:racketmates/screens/team_details/team_details_screen.dart';
 import 'package:racketmates/screens/team_details/team_members_screen.dart';
 import 'package:racketmates/screens/team_details/team_rankings_screen.dart';
 import 'package:racketmates/screens/team_details/team_schedule_screen.dart';
 import 'package:racketmates/screens/team_settings/team_settings_screen.dart';
+import 'package:racketmates/screens/team_shell/team_shell_screen.dart';
 import 'package:racketmates/screens/event_reminders/event_reminders_screen.dart';
 import 'package:racketmates/screens/notification_settings/notification_settings_screen.dart';
 import 'package:racketmates/screens/change_phone/change_phone_screen.dart';
@@ -535,16 +537,69 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      // Team Context (native `TeamsHostActivity`, iOS `TeamTabView`): its
+      // own bottom-nav shell, entered by pushing `/team/:id` on top of the
+      // global shell. The `:id` param lives on this outer route — a
+      // `StatefulShellBranch`'s own default route cannot carry a required
+      // parameter (go_router asserts `defaultGoRoute!.pathParameters.
+      // isEmpty`), and a `GoRoute.path` cannot be the empty string either —
+      // so Team Home is `.../home` (a plain relative segment, no `:id` of
+      // its own) and the bare `/team/:id` silently redirects there; every
+      // other call site keeps using `AppRoutes.teamFor`, unaffected. A
+      // malformed id (e.g. from a bad deep link) falls back to the teams
+      // tab, same as before this was a shell.
       GoRoute(
         path: '${AppRoutes.team}/:id',
-        // A malformed id (e.g. from a bad deep link) falls back to the teams tab.
-        redirect: (context, state) =>
-            int.tryParse(state.pathParameters['id'] ?? '') == null
-            ? AppRoutes.teams
-            : null,
-        builder: (context, state) =>
-            TeamDetailsScreen(teamId: int.parse(state.pathParameters['id']!)),
+        redirect: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          if (id == null) return AppRoutes.teams;
+          return state.uri.path == AppRoutes.teamFor(id)
+              ? '${AppRoutes.teamFor(id)}/home'
+              : null;
+        },
         routes: [
+          StatefulShellRoute.indexedStack(
+            builder: (context, state, shell) => TeamShellScreen(
+              navigationShell: shell,
+              teamId: int.parse(state.pathParameters['id']!),
+            ),
+            branches: [
+              StatefulShellBranch(
+                routes: [
+                  GoRoute(
+                    path: 'home',
+                    builder: (context, state) => TeamDetailsScreen(
+                      teamId: int.parse(state.pathParameters['id']!),
+                    ),
+                  ),
+                ],
+              ),
+              StatefulShellBranch(
+                routes: [
+                  GoRoute(
+                    path: 'schedule',
+                    builder: (context, state) => TeamScheduleScreen(
+                      teamId: int.parse(state.pathParameters['id']!),
+                    ),
+                  ),
+                ],
+              ),
+              StatefulShellBranch(
+                routes: [
+                  GoRoute(
+                    path: 'chat',
+                    builder: (context, state) => TeamChatScreen(
+                      teamId: int.parse(state.pathParameters['id']!),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          // Pushed on top of the team shell (outside the StatefulShellRoute,
+          // so they cover the bottom nav entirely — native hides its bottom
+          // bar for every destination but the 3 top-level ones,
+          // `handleBottomNavigation`).
           GoRoute(
             path: 'settings',
             builder: (context, state) => TeamSettingsScreen(
@@ -554,12 +609,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'add-members',
             builder: (context, state) => TeamAddMembersScreen(
-              teamId: int.parse(state.pathParameters['id']!),
-            ),
-          ),
-          GoRoute(
-            path: 'schedule',
-            builder: (context, state) => TeamScheduleScreen(
               teamId: int.parse(state.pathParameters['id']!),
             ),
           ),

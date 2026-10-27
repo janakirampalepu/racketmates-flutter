@@ -57,10 +57,16 @@ class ChatChannelInfo {
 /// live connection, so tests replace them.
 abstract class ChatUi {
   /// The user's channels; [onOpen] gets the url of the one tapped.
+  ///
+  /// [customTypesFilter] scopes the list to a team's own channels (native
+  /// `Team.filteredCustomTypeChatRoom` fed into `queryParams.
+  /// customTypesFilter`); omit it for the global chat tab, which shows
+  /// every channel.
   Widget channelList(
     BuildContext context, {
     required void Function(String url) onOpen,
     required VoidCallback onCreate,
+    List<String>? customTypesFilter,
   });
 
   /// One conversation.
@@ -154,10 +160,14 @@ class SendbirdChatUi implements ChatUi {
     BuildContext context, {
     required void Function(String url) onOpen,
     required VoidCallback onCreate,
+    List<String>? customTypesFilter,
   }) {
     _theme(context);
     return SendbirdUIKit.provider(
       child: SBUGroupChannelListScreen(
+        query: customTypesFilter == null
+            ? null
+            : (GroupChannelListQuery()..customTypesFilter = customTypesFilter),
         onCreateButtonClicked: onCreate,
         onListItemClicked: (channel) => onOpen(channel.channelUrl),
         // The host screen (`ChatScreen`) draws its own AppBar (title +
@@ -193,9 +203,8 @@ class SendbirdChatUi implements ChatUi {
     // to a network call when the channel is not already cached, and with no
     // timeout a stalled request would leave the header/details screen
     // showing a spinner indefinitely with no way to retry.
-    final channel = await GroupChannel.getChannel(
-      channelUrl,
-    ).timeout(const Duration(seconds: 15));
+    final channel = await GroupChannel.getChannel(channelUrl)
+        .timeout(const Duration(seconds: 15));
     return _toInfo(channel);
   }
 

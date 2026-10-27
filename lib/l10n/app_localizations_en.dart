@@ -1134,6 +1134,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teamTabMembers => 'Members';
 
   @override
+  String teamChatTitle(String teamName) {
+    return 'Chat - $teamName';
+  }
+
+  @override
+  String get exitTeamContext => 'Exit team';
+
+  @override
   String get teamHomeMembersTitle => 'Team members';
 
   @override

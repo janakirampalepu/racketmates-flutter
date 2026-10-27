@@ -11,7 +11,9 @@ import 'package:racketmates/screens/main_shell/main_shell_test_ids.dart';
 import 'package:racketmates/screens/subscription/subscription_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_members_tab.dart';
+import 'package:racketmates/screens/team_details/team_chat_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_rankings_tab.dart';
+import 'package:racketmates/screens/team_shell/team_shell_test_ids.dart';
 import 'package:racketmates/screens/teams/teams_test_ids.dart';
 
 import '../../support/app_harness.dart';
@@ -45,6 +47,7 @@ Team _team({
   Map<String, AccessInfo>? permissions = _all,
   bool ranking = true,
   bool archived = false,
+  List<String>? chatRoomTypes,
 }) => Team(
   id: 31,
   name: 'Sunday Smashers',
@@ -56,6 +59,7 @@ Team _team({
     TeamSport(id: 2, sportType: 'st_padel'),
   ],
   userPermissions: permissions,
+  chatRoomTypesForFiltering: chatRoomTypes,
 );
 
 const _captain = TeamPlayer(
@@ -100,12 +104,14 @@ Future<void> _openTeam(
   required FakeTeamsRepository teams,
   FakeScheduleRepository? schedule,
   FakeSessionInfoRepository? sessionInfo,
+  FakeChatUi? chatUi,
 }) async {
   await tester.pumpWidget(
     signedInApp(
       teams: teams,
       schedule: schedule,
       sessionInfo: sessionInfo,
+      chatUi: chatUi,
       content: FakeContentRepository(reference: _reference),
     ),
   );
@@ -128,6 +134,55 @@ FakeTeamsRepository _repo({
     FakeTeamsRepository(teams: [team ?? _team()], membersByTeam: {31: members});
 
 void main() {
+  group('team context shell', () {
+    testWidgets(
+      'bottom nav switches between Home, Schedule and Chat; close exits',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        useTallScreen(tester);
+        final schedule = FakeScheduleRepository();
+        final chatUi = FakeChatUi();
+        await _openTeam(
+          tester,
+          teams: _repo(team: _team(chatRoomTypes: const ['team_31_chat'])),
+          schedule: schedule,
+          chatUi: chatUi,
+        );
+        expect(_id(TeamDetailsTestIds.root), findsOneWidget);
+
+        await _tap(tester, TeamShellTestIds.navSchedule);
+        expect(_id(TeamDetailsTestIds.scheduleEmpty), findsOneWidget);
+
+        await _tap(tester, TeamShellTestIds.navChat);
+        expect(_id(TeamChatTestIds.list), findsOneWidget);
+
+        await _tap(tester, TeamShellTestIds.navHome);
+        expect(_id(TeamDetailsTestIds.root), findsOneWidget);
+
+        await _tap(tester, TeamShellTestIds.navClose);
+        expect(_id(TeamsTestIds.tile(31)), findsOneWidget);
+        handle.dispose();
+      },
+    );
+
+    testWidgets("the team chat tab is scoped to the team's own channels", (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final chatUi = FakeChatUi();
+      await _openTeam(
+        tester,
+        teams: _repo(team: _team(chatRoomTypes: const ['team_31_players'])),
+        schedule: FakeScheduleRepository(),
+        chatUi: chatUi,
+      );
+      await _tap(tester, TeamShellTestIds.navChat);
+      expect(chatUi.lastCustomTypesFilter, ['team_31_players']);
+      handle.dispose();
+    });
+  });
+
   group('dashboard', () {
     testWidgets('upcoming events of the team, opening one', (tester) async {
       final handle = tester.ensureSemantics();
@@ -154,9 +209,7 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('pending actions of the team are team-scoped', (
-      tester,
-    ) async {
+    testWidgets('pending actions of the team are team-scoped', (tester) async {
       final handle = tester.ensureSemantics();
       useTallScreen(tester);
       final schedule = FakeScheduleRepository();
