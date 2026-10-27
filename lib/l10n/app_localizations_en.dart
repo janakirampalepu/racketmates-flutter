@@ -341,10 +341,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatChannelDetailsMute => 'Mute notifications';
 
   @override
+  String get chatChannelDetailsMuteSubtitle =>
+      'You will not receive push notifications for this chat.';
+
+  @override
   String get chatChannelDetailsYou => 'You';
 
   @override
   String get chatChannelDetailsError => 'The conversation could not be loaded.';
+
+  @override
+  String get chatChannelDetailsArchive => 'Archive chat';
+
+  @override
+  String get chatChannelDetailsUnarchive => 'Unarchive chat';
+
+  @override
+  String get seeLessAction => 'See less';
 
   @override
   String navChatUnread(int count) {

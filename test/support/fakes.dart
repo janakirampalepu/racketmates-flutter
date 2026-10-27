@@ -1795,6 +1795,22 @@ class FakeChatUi implements ChatUi {
       avatarUrl: info.avatarUrl,
       members: info.members,
       isMuted: muted,
+      isArchived: info.isArchived,
+    );
+  }
+
+  /// Recorded `(channelUrl, archived)` calls to [setArchived].
+  final List<(String, bool)> archiveCalls = [];
+
+  @override
+  Future<void> setArchived(String channelUrl, {required bool archived}) async {
+    archiveCalls.add((channelUrl, archived));
+    info = ChatChannelInfo(
+      title: info.title,
+      avatarUrl: info.avatarUrl,
+      members: info.members,
+      isMuted: info.isMuted,
+      isArchived: archived,
     );
   }
 }

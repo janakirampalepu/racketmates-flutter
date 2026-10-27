@@ -724,6 +724,12 @@ abstract class AppLocalizations {
   /// **'Mute notifications'**
   String get chatChannelDetailsMute;
 
+  /// No description provided for @chatChannelDetailsMuteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You will not receive push notifications for this chat.'**
+  String get chatChannelDetailsMuteSubtitle;
+
   /// No description provided for @chatChannelDetailsYou.
   ///
   /// In en, this message translates to:
@@ -735,6 +741,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The conversation could not be loaded.'**
   String get chatChannelDetailsError;
+
+  /// No description provided for @chatChannelDetailsArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive chat'**
+  String get chatChannelDetailsArchive;
+
+  /// No description provided for @chatChannelDetailsUnarchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Unarchive chat'**
+  String get chatChannelDetailsUnarchive;
+
+  /// No description provided for @seeLessAction.
+  ///
+  /// In en, this message translates to:
+  /// **'See less'**
+  String get seeLessAction;
 
   /// Spoken label of the chat tab badge.
   ///

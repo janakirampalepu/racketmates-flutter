@@ -5,6 +5,13 @@ import 'package:sendbird_chat_sdk/sendbird_chat_sdk.dart';
 import 'package:sendbird_uikit/sendbird_uikit.dart';
 
 /// One member of a conversation, for the channel-details screen.
+///
+/// Native Android splits this list into active and "past" (left) members
+/// (`ChatroomDetailsPicker.getActiveChatMembers`/`getLeftChatMembers`,
+/// keyed off `Member.memberState == LEFT`); the Flutter SDK's
+/// `MemberState` enum has no `left` value — a `GroupChannel.members` list
+/// here only ever contains current members — so that split is not
+/// reproduced; everyone in [ChatChannelInfo.members] is a current member.
 class ChatChannelMember {
   const ChatChannelMember({
     required this.userId,
@@ -35,6 +42,7 @@ class ChatChannelInfo {
     required this.title,
     required this.members,
     required this.isMuted,
+    this.isArchived = false,
     this.avatarUrl,
   });
 
@@ -42,6 +50,7 @@ class ChatChannelInfo {
   final String? avatarUrl;
   final List<ChatChannelMember> members;
   final bool isMuted;
+  final bool isArchived;
 }
 
 /// The chat screens, behind an interface: the Sendbird UIKit widgets need a
@@ -62,6 +71,10 @@ abstract class ChatUi {
 
   /// Mutes or unmutes push notifications for that conversation.
   Future<void> setMuted(String channelUrl, {required bool muted});
+
+  /// Archives (hides) or unarchives (unhides) that conversation from the
+  /// channel list (native's archive/unarchive action).
+  Future<void> setArchived(String channelUrl, {required bool archived});
 }
 
 class SendbirdChatUi implements ChatUi {
@@ -176,7 +189,13 @@ class SendbirdChatUi implements ChatUi {
 
   @override
   Future<ChatChannelInfo> channelInfo(String channelUrl) async {
-    final channel = await GroupChannel.getChannel(channelUrl);
+    // A bounded wait rather than none: `GroupChannel.getChannel` falls back
+    // to a network call when the channel is not already cached, and with no
+    // timeout a stalled request would leave the header/details screen
+    // showing a spinner indefinitely with no way to retry.
+    final channel = await GroupChannel.getChannel(
+      channelUrl,
+    ).timeout(const Duration(seconds: 15));
     return _toInfo(channel);
   }
 
@@ -188,6 +207,16 @@ class SendbirdChatUi implements ChatUi {
           ? GroupChannelPushTriggerOption.off
           : GroupChannelPushTriggerOption.all,
     );
+  }
+
+  @override
+  Future<void> setArchived(String channelUrl, {required bool archived}) async {
+    final channel = await GroupChannel.getChannel(channelUrl);
+    if (archived) {
+      await channel.hide();
+    } else {
+      await channel.unhide();
+    }
   }
 
   ChatChannelInfo _toInfo(GroupChannel channel) {
@@ -205,6 +234,7 @@ class SendbirdChatUi implements ChatUi {
       title: title.isNotEmpty ? title : channel.channelUrl,
       avatarUrl: avatarUrl.isNotEmpty ? avatarUrl : null,
       isMuted: channel.myPushTriggerOption == GroupChannelPushTriggerOption.off,
+      isArchived: channel.isHidden,
       members: channel.members
           .map(
             (m) => ChatChannelMember(

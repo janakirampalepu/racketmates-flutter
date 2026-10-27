@@ -59,6 +59,7 @@ class ChatChannelScreen extends ConsumerWidget {
                   onTap: () =>
                       context.push(AppRoutes.chatChannelDetailsFor(channelUrl)),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       TestId(
                         ChatTestIds.channelAvatar,
@@ -78,13 +79,25 @@ class ChatChannelScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Expanded(
+                      // `Flexible` (not `Expanded`): this `Row` is sized to
+                      // its own content (`MainAxisSize.min`) inside the
+                      // AppBar's bounded title slot, so the text shrinks to
+                      // whatever is left after the avatar rather than
+                      // forcing the row itself to the full slot width.
+                      // `maxLines`/`softWrap: false` keep a long title
+                      // (e.g. several members' names joined together) from
+                      // wrapping to a second line and overflowing the
+                      // toolbar's fixed height — ellipsis alone does not
+                      // prevent that without also forcing a single line.
+                      Flexible(
                         child: TestId(
                           ChatTestIds.channelTitle,
                           child: Semantics(
                             header: true,
                             child: Text(
                               title,
+                              maxLines: 1,
+                              softWrap: false,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(color: n.textPrimary),
                             ),
