@@ -81,11 +81,14 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
       return await call();
     } on DioException catch (e) {
       throw mapDioException(e);
-    } on TypeError catch (e) {
-      // Keep the real cast failure (e.g. "type 'X' is not a subtype of
-      // type 'Y' in type cast") instead of swallowing it — a bare
-      // ParseFailure() with no message leaves both the user and whoever
-      // reads the error with nothing to diagnose a response-shape mismatch.
+    } on Object catch (e) {
+      // A response-shape mismatch doesn't always surface as a `TypeError`
+      // (e.g. calling a method on an unexpectedly-null value throws
+      // `NoSuchMethodError`, not `TypeError`) — catching only `TypeError`
+      // let other cast/shape failures escape uncaught, past this repository
+      // entirely, so the UI never even reached its error state's generic
+      // text. Keep the real failure's message (e.g. "type 'X' is not a
+      // subtype of type 'Y' in type cast") instead of swallowing it.
       if (kDebugMode) debugPrint('ScheduleRepository parse failure: $e');
       throw ParseFailure(e.toString());
     }

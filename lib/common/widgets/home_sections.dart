@@ -99,17 +99,18 @@ Widget _sectionBody<T>({
   error: (error, _) {
     final n = context.native;
     final sdp = context.sdp;
-    // A `ParseFailure`'s message is a raw Dart type-cast error — useful
-    // for diagnosing a response-shape mismatch, too technical to show a
-    // user in production. Server-provided messages (`ServerFailure` etc.)
-    // are already meant to be user-facing.
-    final serverMessage = (error is AppFailure && error is! ParseFailure)
+    // A `ParseFailure`/`UnknownFailure`'s message is a raw Dart exception —
+    // useful for diagnosing a response-shape mismatch, too technical to
+    // show a user in production. Server-provided messages (`ServerFailure`
+    // etc.) are already meant to be user-facing.
+    final isTechnical = error is ParseFailure || error is UnknownFailure;
+    final serverMessage = (error is AppFailure && !isTechnical)
         ? error.message
         : null;
     final text = (serverMessage != null && serverMessage.isNotEmpty)
         ? serverMessage
         : l10n.sectionLoadError;
-    final debugDetail = kDebugMode && error is ParseFailure
+    final debugDetail = (kDebugMode && error is AppFailure && isTechnical)
         ? error.message
         : null;
     return Padding(

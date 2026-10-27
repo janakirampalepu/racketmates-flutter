@@ -61,8 +61,14 @@ AppFailure mapDioException(DioException e) {
       if (status == 401) return UnauthorizedFailure(message);
       return ServerFailure(status, message);
     case DioExceptionType.cancel:
-    case DioExceptionType.badCertificate:
-    case DioExceptionType.unknown:
       return const UnknownFailure();
+    case DioExceptionType.badCertificate:
+      return UnknownFailure(e.message);
+    case DioExceptionType.unknown:
+      // dio wraps a non-Dio exception raised while handling the request
+      // (e.g. a cast error from a response-shape mismatch surfacing here
+      // instead of at the call site) as `type: unknown` with the real
+      // exception in `error`; keep that instead of discarding it.
+      return UnknownFailure(e.message ?? e.error?.toString());
   }
 }
