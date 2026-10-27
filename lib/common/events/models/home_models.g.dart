@@ -28,6 +28,7 @@ PendingAction _$PendingActionFromJson(Map<String, dynamic> json) =>
               json['event_participant_user'] as Map<String, dynamic>,
             ),
       eventType: json['event_type'] as String?,
+      primarySwipeAction: json['primary_swipe_action'] as String?,
       sportType: json['sport_type'] as String?,
     );
 
@@ -37,6 +38,7 @@ Map<String, dynamic> _$PendingActionToJson(PendingAction instance) =>
       'event_id': instance.eventId,
       'event_participant_user': instance.eventParticipantUser,
       'event_type': instance.eventType,
+      'primary_swipe_action': instance.primarySwipeAction,
       'sport_type': instance.sportType,
     };
 

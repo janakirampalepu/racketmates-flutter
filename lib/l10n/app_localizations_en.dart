@@ -434,6 +434,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get familyPickerSaveAction => 'Save';
 
   @override
+  String get activityTotalLabel => 'Total';
+
+  @override
   String get activityWeeklyAverageLabel => 'Weekly average:';
 
   @override
@@ -1920,6 +1923,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventScoreErrorNumber => 'Scores are whole numbers.';
+
+  @override
+  String get eventSubmitScores => 'Submit scores';
 
   @override
   String get eventConfirmScores => 'Confirm scores';

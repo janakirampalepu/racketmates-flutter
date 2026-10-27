@@ -33,6 +33,7 @@ void main() {
     ).pendingActions!.single;
     expect(pending.eventId, 103);
     expect(pending.eventParticipantUser!.displayName, 'Sam Lee');
+    expect(pending.primarySwipeAction, 'user_action_submit_scores');
 
     final stats = StatsSummaryResponse.fromJson(
       apiFixture('current_session_stats_summary'),

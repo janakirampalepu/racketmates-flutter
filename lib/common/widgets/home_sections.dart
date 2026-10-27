@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
@@ -11,6 +12,8 @@ import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/events/event_labels.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/events/models/schedule_models.dart';
+import 'package:racketmates/common/sign_up/sign_up_draft.dart';
+import 'package:racketmates/common/sign_up/sport_labels.dart';
 import 'package:racketmates/common/widgets/event_tile.dart';
 import 'package:racketmates/common/widgets/home_activity_card.dart';
 import 'package:racketmates/common/widgets/native_widgets.dart';
@@ -183,7 +186,10 @@ class UpcomingEventsSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               HomeSectionHeader(
-                title: ref.msg(MessageKeys.homeUpcomingTitle, l10n.homeUpcoming),
+                title: ref.msg(
+                  MessageKeys.homeUpcomingTitle,
+                  l10n.homeUpcoming,
+                ),
                 seeAllId: seeAllId,
                 onSeeAll: onSeeAll,
               ),
@@ -258,9 +264,12 @@ class UpcomingEventsSection extends StatelessWidget {
   }
 }
 
-/// Pending actions: a plain vertical list (native `rvPendingActions`, a
-/// `LinearLayoutManager` column, not a horizontal row), shown in full (the
-/// backend is not asked for a page size here).
+/// Pending actions: a horizontally-scrolling row of rich cards (native iOS
+/// `pendingActionSectionContent`/`PendingActionCard` — a date badge, the
+/// event-type title, a decorative sport-icon watermark and a primary action
+/// button driven by the server's `primary_swipe_action`; Android's
+/// `rvPendingActions` is a plain vertical list, but the iOS design is the
+/// one the product screenshots confirm as current).
 class PendingActionsSection extends StatelessWidget {
   const PendingActionsSection({
     required this.l10n,
@@ -325,16 +334,17 @@ class PendingActionsSection extends StatelessWidget {
                           ],
                         ),
                       )
-                    : Padding(
-                        padding: EdgeInsets.symmetric(horizontal: sdp(12)),
-                        child: Column(
-                          children: [
-                            for (final action in items)
-                              _PendingTile(
-                                action: action,
-                                testId: actionIdFor(action.eventId ?? 0),
-                              ),
-                          ],
+                    : SizedBox(
+                        height: sdp(168),
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          padding: EdgeInsets.symmetric(horizontal: sdp(16)),
+                          itemCount: items.length,
+                          separatorBuilder: (_, _) => SizedBox(width: sdp(12)),
+                          itemBuilder: (context, i) => _PendingTile(
+                            action: items[i],
+                            testId: actionIdFor(items[i].eventId ?? 0),
+                          ),
                         ),
                       ),
               ),
@@ -346,8 +356,15 @@ class PendingActionsSection extends StatelessWidget {
   }
 }
 
+/// One pending-action card (native iOS `PendingActionCard`): a date badge,
+/// the event-type title, a faint sport-icon watermark top-trailing, and a
+/// primary action button chosen from `primarySwipeAction`. Buttons open the
+/// event itself (same as tapping the card) rather than acting in place,
+/// since the accept/decline/scores flows already live on the event screen.
 class _PendingTile extends StatelessWidget {
   const _PendingTile({required this.action, required this.testId});
+
+  static const double _width = 190;
 
   final PendingAction action;
   final String testId;
@@ -356,58 +373,186 @@ class _PendingTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final n = context.native;
     final sdp = context.sdp;
-    final who = action.eventParticipantUser?.displayName;
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    final date = DateTime.tryParse(action.eventDate ?? '');
+    final day = date == null ? '' : DateFormat('dd', locale).format(date);
+    final month = date == null
+        ? ''
+        : DateFormat('MMM', locale).format(date).toUpperCase();
     final title = humanizeKey(action.eventType);
-    final subtitle = [
-      if (who != null && who.isNotEmpty) who,
-      action.eventDate ?? '',
-    ].where((s) => s.isNotEmpty).join(' · ');
+    final sport = SportKey.fromKey(action.sportType);
+    final sportIcon = sport == null ? null : sportIconName(sport);
+    final onTap = action.eventId == null
+        ? null
+        : () => context.push(AppRoutes.eventFor(action.eventId!));
     return TestId(
       testId,
-      child: Padding(
-        padding: EdgeInsets.only(bottom: sdp(8)),
-        child: Material(
-          color: n.windowBackgroundColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(sdp(12)),
-            side: BorderSide(color: n.borderSolidPrimary, width: sdp(1)),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: action.eventId == null
-                ? null
-                : () => context.push(AppRoutes.eventFor(action.eventId!)),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 56),
-              child: Padding(
-                padding: EdgeInsets.all(sdp(12)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: NativeText.semibold(sdp(14), n.textPrimary),
+      child: Material(
+        color: n.windowBackgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(sdp(12)),
+          side: BorderSide(color: n.borderSolidPrimary, width: sdp(1)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: SizedBox(
+            width: sdp(_width),
+            child: Stack(
+              children: [
+                if (sportIcon != null)
+                  Positioned(
+                    top: -sdp(8),
+                    right: -sdp(8),
+                    child: Opacity(
+                      opacity: 0.12,
+                      child: SvgIcon(sportIcon, size: sdp(64)),
                     ),
-                    if (subtitle.isNotEmpty)
-                      Padding(
-                        padding: EdgeInsets.only(top: sdp(4)),
-                        child: Text(
-                          subtitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: NativeText.regular(sdp(12), n.textSecondary),
-                        ),
+                  ),
+                Padding(
+                  padding: EdgeInsets.all(sdp(12)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _DateBadge(day: day, month: month),
+                      SizedBox(height: sdp(12)),
+                      Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: NativeText.semibold(sdp(14), n.textPrimary),
                       ),
-                  ],
+                      const Spacer(),
+                      _PendingActionButton(
+                        primarySwipeAction: action.primarySwipeAction,
+                        l10n: l10n,
+                        onTap: onTap,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _DateBadge extends StatelessWidget {
+  const _DateBadge({required this.day, required this.month});
+
+  final String day;
+  final String month;
+
+  @override
+  Widget build(BuildContext context) {
+    final n = context.native;
+    final sdp = context.sdp;
+    return Container(
+      decoration: BoxDecoration(
+        color: n.borderSolidPrimary,
+        borderRadius: BorderRadius.circular(sdp(4)),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: sdp(8), vertical: sdp(2)),
+      child: Column(
+        children: [
+          Text(month, style: NativeText.medium(sdp(10), n.textPrimary)),
+          Text(day, style: NativeText.medium(sdp(14), n.textPrimary)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Native iOS `EventViewAction` raw values handled by `PendingActionCard`'s
+/// `actionButtonsView`; anything else (or `null`) shows no button, matching
+/// native's `default: Color.clear` case.
+const _submitScoresAction = 'user_action_submit_scores';
+const _confirmScoresAction = 'user_action_confirm_scores';
+const _acceptAction = 'event_view_action_accept';
+const _joinWaitlistAction = 'event_view_action_join_waitlist';
+
+class _PendingActionButton extends StatelessWidget {
+  const _PendingActionButton({
+    required this.primarySwipeAction,
+    required this.l10n,
+    required this.onTap,
+  });
+
+  final String? primarySwipeAction;
+  final AppLocalizations l10n;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final sdp = context.sdp;
+    return SizedBox(
+      height: sdp(36),
+      width: double.infinity,
+      child: switch (primarySwipeAction) {
+        _submitScoresAction => FilledButton.tonalIcon(
+          onPressed: onTap,
+          icon: const Icon(Icons.scoreboard_outlined, size: 16),
+          label: Text(
+            l10n.eventSubmitScores,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        _confirmScoresAction => FilledButton.tonalIcon(
+          onPressed: onTap,
+          icon: const Icon(Icons.check_circle_outline, size: 16),
+          label: Text(
+            l10n.eventConfirmScores,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        _joinWaitlistAction => FilledButton.tonalIcon(
+          onPressed: onTap,
+          icon: const Icon(Icons.hourglass_bottom, size: 16),
+          label: Text(
+            l10n.rsvpJoinWaitlist,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        _acceptAction => Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: onTap,
+                style: const ButtonStyle(
+                  padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                ),
+                child: Text(
+                  l10n.rsvpDecline,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: FilledButton(
+                onPressed: onTap,
+                style: const ButtonStyle(
+                  padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                ),
+                child: Text(
+                  l10n.rsvpAccept,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ],
+        ),
+        _ => const SizedBox.shrink(),
+      },
     );
   }
 }

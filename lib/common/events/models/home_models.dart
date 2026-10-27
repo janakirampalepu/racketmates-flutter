@@ -26,6 +26,7 @@ class PendingAction {
     this.eventId,
     this.eventParticipantUser,
     this.eventType,
+    this.primarySwipeAction,
     this.sportType,
   });
 
@@ -36,6 +37,12 @@ class PendingAction {
   final int? eventId;
   final AppUser? eventParticipantUser;
   final String? eventType;
+
+  /// The card's primary action (native iOS `EventViewAction`, e.g.
+  /// `user_action_submit_scores`, `user_action_confirm_scores`,
+  /// `event_view_action_accept`, `event_view_action_join_waitlist`); `null`/
+  /// unrecognized values show the card with no action button.
+  final String? primarySwipeAction;
   final String? sportType;
 
   Map<String, dynamic> toJson() => _$PendingActionToJson(this);

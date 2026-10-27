@@ -31,6 +31,7 @@ FakeScheduleRepository _fullRepo() => FakeScheduleRepository(
       eventType: 'et_game',
       eventDate: '2026-11-04',
       eventParticipantUser: AppUser(firstName: 'Sam', lastName: 'Lee'),
+      primarySwipeAction: 'user_action_submit_scores',
     ),
   ],
   activity: const [
@@ -63,10 +64,12 @@ void main() {
       expect(_id(HomeTestIds.root), findsOneWidget);
       expect(find.text('Hi, Sam'), findsOneWidget);
       expect(_id(HomeTestIds.pendingAction(4)), findsOneWidget);
+      expect(find.text(_l10n.eventSubmitScores), findsOneWidget);
       expect(_id(HomeTestIds.event('upcoming', 1)), findsOneWidget);
       expect(_id(HomeTestIds.event('upcoming', 2)), findsOneWidget);
       expect(find.text('Wins'), findsOneWidget);
       expect(find.text('5'), findsOneWidget);
+      expect(find.text('18h'), findsOneWidget);
       expect(_id(HomeTestIds.activityYear), findsOneWidget);
       expect(find.text('2026'), findsOneWidget);
       // Neither native app currently fetches these.

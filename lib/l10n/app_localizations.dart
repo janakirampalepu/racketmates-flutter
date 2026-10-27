@@ -892,6 +892,12 @@ abstract class AppLocalizations {
   /// **'Save'**
   String get familyPickerSaveAction;
 
+  /// No description provided for @activityTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get activityTotalLabel;
+
   /// No description provided for @activityWeeklyAverageLabel.
   ///
   /// In en, this message translates to:
@@ -3639,6 +3645,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scores are whole numbers.'**
   String get eventScoreErrorNumber;
+
+  /// No description provided for @eventSubmitScores.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit scores'**
+  String get eventSubmitScores;
 
   /// No description provided for @eventConfirmScores.
   ///

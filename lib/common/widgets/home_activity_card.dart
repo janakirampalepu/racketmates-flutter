@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
@@ -194,29 +196,38 @@ class _YearPage extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          Wrap(
-                            spacing: sdp(8),
-                            runSpacing: sdp(4),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _Legend(
-                                color: n.colorPrimary,
-                                hours: stats.gamesHours,
-                                label: l10n.activityLegendGames,
-                              ),
-                              _Legend(
-                                color: n.textTertiary,
-                                hours: stats.practiceHours,
-                                label: l10n.activityLegendPractice,
-                              ),
-                              _Legend(
-                                color: n.statusColorsLightBlue,
-                                hours: stats.lessonHours,
-                                label: l10n.activityLegendLessons,
-                              ),
-                              _Legend(
-                                color: n.lightRed,
-                                hours: stats.meetingHours,
-                                label: l10n.activityLegendMeetings,
+                              _ActivityRing(stats: stats, l10n: l10n),
+                              SizedBox(width: sdp(12)),
+                              Expanded(
+                                child: Wrap(
+                                  spacing: sdp(8),
+                                  runSpacing: sdp(4),
+                                  children: [
+                                    _Legend(
+                                      color: n.colorPrimary,
+                                      hours: stats.gamesHours,
+                                      label: l10n.activityLegendGames,
+                                    ),
+                                    _Legend(
+                                      color: n.textTertiary,
+                                      hours: stats.practiceHours,
+                                      label: l10n.activityLegendPractice,
+                                    ),
+                                    _Legend(
+                                      color: n.statusColorsLightBlue,
+                                      hours: stats.lessonHours,
+                                      label: l10n.activityLegendLessons,
+                                    ),
+                                    _Legend(
+                                      color: n.lightRed,
+                                      hours: stats.meetingHours,
+                                      label: l10n.activityLegendMeetings,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -339,5 +350,128 @@ class _Legend extends StatelessWidget {
         Text(label, style: NativeText.regular(sdp(12), n.textSecondary)),
       ],
     );
+  }
+}
+
+/// The hours-breakdown donut (native iOS `CircularProgressView`): one
+/// rounded-cap arc segment per category, in the same order and colors as
+/// [_Legend] below it, with the total hours in the center. Android has no
+/// equivalent (legend only); the product's iOS screenshots are the design
+/// reference here.
+class _ActivityRing extends StatelessWidget {
+  const _ActivityRing({required this.stats, required this.l10n});
+
+  final HomePageStats stats;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final n = context.native;
+    final sdp = context.sdp;
+    final total = stats.totalHours ?? 0;
+    final size = sdp(88);
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CustomPaint(
+            size: Size(size, size),
+            painter: _ActivityRingPainter(
+              total: total,
+              segments: [
+                (stats.gamesHours ?? 0, n.colorPrimary),
+                (stats.practiceHours ?? 0, n.textTertiary),
+                (stats.lessonHours ?? 0, n.statusColorsLightBlue),
+                (stats.meetingHours ?? 0, n.lightRed),
+              ],
+              strokeWidth: sdp(10),
+              trackColor: n.borderSolidPrimary,
+            ),
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '${total}h',
+                style: NativeText.semibold(sdp(16), n.textPrimary),
+              ),
+              Text(
+                l10n.activityTotalLabel,
+                style: NativeText.regular(sdp(10), n.textSecondary),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActivityRingPainter extends CustomPainter {
+  _ActivityRingPainter({
+    required this.total,
+    required this.segments,
+    required this.strokeWidth,
+    required this.trackColor,
+  });
+
+  final int total;
+  final List<(int, Color)> segments;
+  final double strokeWidth;
+  final Color trackColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Rect.fromLTWH(
+      strokeWidth / 2,
+      strokeWidth / 2,
+      size.width - strokeWidth,
+      size.height - strokeWidth,
+    );
+    canvas.drawArc(
+      rect,
+      0,
+      2 * math.pi,
+      false,
+      Paint()
+        ..color = trackColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth,
+    );
+    if (total <= 0) return;
+    var startFraction = 0.0;
+    for (final (value, color) in segments) {
+      if (value <= 0) continue;
+      final fraction = value / total;
+      canvas.drawArc(
+        rect,
+        -math.pi / 2 + startFraction * 2 * math.pi,
+        fraction * 2 * math.pi,
+        false,
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth
+          ..strokeCap = StrokeCap.round,
+      );
+      startFraction += fraction;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _ActivityRingPainter oldDelegate) =>
+      oldDelegate.total != total ||
+      oldDelegate.strokeWidth != strokeWidth ||
+      oldDelegate.trackColor != trackColor ||
+      !_segmentsEqual(oldDelegate.segments, segments);
+
+  static bool _segmentsEqual(List<(int, Color)> a, List<(int, Color)> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 }
