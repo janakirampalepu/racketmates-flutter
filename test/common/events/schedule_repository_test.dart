@@ -145,4 +145,18 @@ void main() {
       ),
     );
   });
+
+  test('a response-shape mismatch becomes a ParseFailure carrying the real cast error', () async {
+    adapter.responses['schedule/scheduled_events'] = {
+      'schedule_items': [
+        {'event_id': 'not-an-int'},
+      ],
+    };
+    await expectLater(
+      repo.homeUpcoming(userIds: const ['7'], hourFormat: 12),
+      throwsA(
+        isA<ParseFailure>().having((f) => f.message, 'message', isNotEmpty),
+      ),
+    );
+  });
 }

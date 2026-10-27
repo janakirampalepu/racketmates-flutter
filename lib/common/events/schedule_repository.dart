@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:racketmates/common/auth/auth_providers.dart';
@@ -80,8 +81,13 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
       return await call();
     } on DioException catch (e) {
       throw mapDioException(e);
-    } on TypeError {
-      throw const ParseFailure();
+    } on TypeError catch (e) {
+      // Keep the real cast failure (e.g. "type 'X' is not a subtype of
+      // type 'Y' in type cast") instead of swallowing it — a bare
+      // ParseFailure() with no message leaves both the user and whoever
+      // reads the error with nothing to diagnose a response-shape mismatch.
+      if (kDebugMode) debugPrint('ScheduleRepository parse failure: $e');
+      throw ParseFailure(e.toString());
     }
   }
 
@@ -149,9 +155,8 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
     required List<String> userIds,
     int? teamId,
   }) async =>
-      (await _guard(
-        () => api.pendingActions(teamId: teamId, userIds: userIds),
-      )).pendingActions ??
+      (await _guard(() => api.pendingActions(teamId: teamId, userIds: userIds)))
+          .pendingActions ??
       const [];
 
   @override
@@ -159,9 +164,8 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
     required List<String> userIds,
     int? teamId,
   }) async =>
-      (await _guard(
-        () => api.statsSummary(teamId: teamId, userIds: userIds),
-      )).homePageStats ??
+      (await _guard(() => api.statsSummary(teamId: teamId, userIds: userIds)))
+          .homePageStats ??
       const [];
 
   @override

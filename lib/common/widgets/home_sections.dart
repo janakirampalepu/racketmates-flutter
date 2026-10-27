@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -98,27 +99,49 @@ Widget _sectionBody<T>({
   error: (error, _) {
     final n = context.native;
     final sdp = context.sdp;
-    final serverMessage = error is AppFailure ? error.message : null;
+    // A `ParseFailure`'s message is a raw Dart type-cast error — useful
+    // for diagnosing a response-shape mismatch, too technical to show a
+    // user in production. Server-provided messages (`ServerFailure` etc.)
+    // are already meant to be user-facing.
+    final serverMessage = (error is AppFailure && error is! ParseFailure)
+        ? error.message
+        : null;
     final text = (serverMessage != null && serverMessage.isNotEmpty)
         ? serverMessage
         : l10n.sectionLoadError;
+    final debugDetail = kDebugMode && error is ParseFailure
+        ? error.message
+        : null;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: sdp(16)),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Text(
-              text,
-              style: NativeText.regular(sdp(12), n.textSecondary),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  text,
+                  style: NativeText.regular(sdp(12), n.textSecondary),
+                ),
+              ),
+              TestId(
+                retryId,
+                child: TextButton(
+                  onPressed: onRetry,
+                  child: Text(l10n.retryAction),
+                ),
+              ),
+            ],
           ),
-          TestId(
-            retryId,
-            child: TextButton(
-              onPressed: onRetry,
-              child: Text(l10n.retryAction),
+          if (debugDetail != null && debugDetail.isNotEmpty)
+            Padding(
+              padding: EdgeInsets.only(top: sdp(4)),
+              child: Text(
+                debugDetail,
+                style: NativeText.regular(sdp(10), n.textSecondary),
+              ),
             ),
-          ),
         ],
       ),
     );
