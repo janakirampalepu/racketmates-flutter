@@ -99,21 +99,6 @@ class TeamDetailsScreen extends ConsumerWidget {
             child: Semantics(header: true, child: Text(t.name ?? '')),
           ),
           actions: [
-            // Placement not confirmed against a native device: native keeps
-            // the ranking table on its own screen (`TeamMemberRankingFragment`)
-            // but no XML/code reviewed here said how it's reached from Team
-            // Home, so this icon is a reasonable, low-risk entry point, not
-            // a verified match.
-            if (ranking)
-              TestId(
-                TeamDetailsTestIds.tabRankings,
-                child: IconButton(
-                  tooltip: l10n.teamTabRankings,
-                  icon: const Icon(Icons.leaderboard_outlined),
-                  onPressed: () =>
-                      context.push(AppRoutes.teamRankingsFor(teamId)),
-                ),
-              ),
             if (memberAccess(
                   t,
                   TeamSettingsPermissions.settings,
@@ -214,7 +199,7 @@ class TeamDetailsScreen extends ConsumerWidget {
                   actionIdFor: TeamHomeActionIds.pendingAction,
                 ),
                 SizedBox(height: context.sdp(32)),
-                TeamMembersPreview(teamId: teamId),
+                TeamMembersPreview(teamId: teamId, rankingEnabled: ranking),
                 SizedBox(height: context.sdp(32)),
                 HomeActivitySection(
                   l10n: l10n,

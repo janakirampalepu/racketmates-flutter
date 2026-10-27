@@ -65,6 +65,11 @@ Future<void> _tap(WidgetTester tester, String id) async {
 Future<void> _openSettings(WidgetTester tester) =>
     _tap(tester, TeamHomeActionIds.settingsButton);
 
+/// Opens the archive/delete overflow sheet (the "⋮" in the settings
+/// toolbar) before tapping one of its rows.
+Future<void> _openActionsMenu(WidgetTester tester) =>
+    _tap(tester, TeamSettingsTestIds.actionsMenu);
+
 SessionInfoResponse _free() => const SessionInfoResponse(
   user: SessionInfoUser(
     id: 7,
@@ -183,9 +188,11 @@ void main() {
       useTallScreen(tester);
       final teams = await _openTeam(tester);
       await _openSettings(tester);
+      await _openActionsMenu(tester);
       await _tap(tester, TeamSettingsTestIds.archive);
       await _tap(tester, TeamSettingsTestIds.confirmNo);
       expect(teams.teamCalls, isEmpty);
+      await _openActionsMenu(tester);
       await _tap(tester, TeamSettingsTestIds.archive);
       await _tap(tester, TeamSettingsTestIds.confirmYes);
       expect(teams.teamCalls, ['archive:31']);
@@ -215,6 +222,7 @@ void main() {
       useTallScreen(tester);
       final teams = await _openTeam(tester, team: _team(archived: true));
       await _openSettings(tester);
+      await _openActionsMenu(tester);
       expect(_id(TeamSettingsTestIds.archive), findsNothing);
       await _tap(tester, TeamSettingsTestIds.unarchive);
       await _tap(tester, TeamSettingsTestIds.confirmYes);
@@ -230,6 +238,7 @@ void main() {
       useTallScreen(tester);
       final teams = await _openTeam(tester);
       await _openSettings(tester);
+      await _openActionsMenu(tester);
       await _tap(tester, TeamSettingsTestIds.delete);
       await _tap(tester, TeamSettingsTestIds.confirmYes);
       expect(teams.teamCalls, ['delete:31']);
@@ -245,6 +254,7 @@ void main() {
       final teams = await _openTeam(tester);
       await _openSettings(tester);
       teams.teamChangeFailure = const OfflineFailure();
+      await _openActionsMenu(tester);
       await _tap(tester, TeamSettingsTestIds.delete);
       await _tap(tester, TeamSettingsTestIds.confirmYes);
       expect(_id(TeamSettingsTestIds.actionFailed), findsOneWidget);
@@ -264,8 +274,9 @@ void main() {
         ),
       );
       await _openSettings(tester);
-      expect(_id(TeamSettingsTestIds.archive), findsNothing);
-      expect(_id(TeamSettingsTestIds.delete), findsNothing);
+      // No archive/destroy permission at all: the overflow menu itself
+      // isn't offered (native shows no "⋮" when it would be empty).
+      expect(_id(TeamSettingsTestIds.actionsMenu), findsNothing);
       handle.dispose();
     });
 

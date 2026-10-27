@@ -116,6 +116,7 @@ abstract final class TeamHomeActionIds {
 abstract final class TeamSettingsTestIds {
   static const root = 'team_settings_screen';
   static const title = 'team_settings_title';
+  static const actionsMenu = 'team_settings_actions_menu';
   static const name = 'team_settings_name_field';
   static const nameError = 'team_settings_name_error';
   static const typeError = 'team_settings_type_error';

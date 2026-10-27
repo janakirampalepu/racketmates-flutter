@@ -33,20 +33,33 @@ class TeamSettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final team = ref.watch(teamDetailsProvider(teamId));
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leading: BackButton(onPressed: () => context.pop()),
-        title: TestId(
-          TeamSettingsTestIds.title,
-          child: Semantics(header: true, child: Text(l10n.teamSettingsTitle)),
+    return team.when(
+      loading: () => Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          leading: BackButton(onPressed: () => context.pop()),
+          title: TestId(
+            TeamSettingsTestIds.title,
+            child: Semantics(header: true, child: Text(l10n.teamSettingsTitle)),
+          ),
+        ),
+        body: const TestId(
+          TeamSettingsTestIds.root,
+          child: Center(child: CircularProgressIndicator()),
         ),
       ),
-      body: TestId(
-        TeamSettingsTestIds.root,
-        child: team.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => Center(
+      error: (_, _) => Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          leading: BackButton(onPressed: () => context.pop()),
+          title: TestId(
+            TeamSettingsTestIds.title,
+            child: Semantics(header: true, child: Text(l10n.teamSettingsTitle)),
+          ),
+        ),
+        body: TestId(
+          TeamSettingsTestIds.root,
+          child: Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -65,9 +78,13 @@ class TeamSettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          data: (t) => _Form(team: t),
         ),
       ),
+      // `_Form` owns its own Scaffold+AppBar once the team is loaded: the
+      // archive/delete actions (native's overflow-menu sheet, see below)
+      // need `_FormState`'s busy/confirm plumbing, which the AppBar's
+      // actions can't reach from out here.
+      data: (t) => _Form(team: t),
     );
   }
 }
@@ -166,6 +183,102 @@ class _FormState extends ConsumerState<_Form> {
         false;
   }
 
+  /// The archive/unarchive/delete overflow sheet (native's team action
+  /// menu, reached from a "⋮" in the toolbar — a close "X" plus one row per
+  /// offered action, not the inline buttons this used to be).
+  Future<void> _openActionSheet(Team team) async {
+    final l10n = AppLocalizations.of(context);
+    final archived = team.archived ?? false;
+    final name = team.name ?? '';
+    bool offered(String key) =>
+        memberAccess(team, key, subscribed: true) != AccessDecision.hidden;
+    final showArchive = !archived && offered(TeamSettingsPermissions.archive);
+    final showUnarchive =
+        archived && offered(TeamSettingsPermissions.unarchive);
+    final showDelete = offered(TeamSettingsPermissions.destroy);
+    if (!showArchive && !showUnarchive && !showDelete) return;
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.of(sheetContext).pop(),
+              ),
+            ),
+            if (showArchive)
+              TestId(
+                TeamSettingsTestIds.archive,
+                child: ListTile(
+                  leading: const Icon(Icons.archive_outlined),
+                  title: Text(l10n.teamArchive),
+                  onTap: () {
+                    Navigator.of(sheetContext).pop();
+                    _teamAction(
+                      TeamSettingsPermissions.archive,
+                      l10n.teamArchiveTitle(name),
+                      l10n.teamArchiveText,
+                      (repo) => repo.archive(_id),
+                      l10n.teamArchivedDone,
+                    );
+                  },
+                ),
+              ),
+            if (showUnarchive)
+              TestId(
+                TeamSettingsTestIds.unarchive,
+                child: ListTile(
+                  leading: const Icon(Icons.unarchive_outlined),
+                  title: Text(l10n.teamUnarchive),
+                  onTap: () {
+                    Navigator.of(sheetContext).pop();
+                    _teamAction(
+                      TeamSettingsPermissions.unarchive,
+                      l10n.teamUnarchiveTitle(name),
+                      l10n.teamUnarchiveText,
+                      (repo) => repo.unarchive(_id),
+                      l10n.teamUnarchivedDone,
+                    );
+                  },
+                ),
+              ),
+            if (showDelete)
+              TestId(
+                TeamSettingsTestIds.delete,
+                child: ListTile(
+                  leading: Icon(
+                    Icons.delete_outline,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  title: Text(
+                    l10n.teamDelete,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(sheetContext).pop();
+                    _teamAction(
+                      TeamSettingsPermissions.destroy,
+                      l10n.teamDeleteTitle(name),
+                      l10n.teamDeleteText,
+                      (repo) => repo.deleteTeam(_id),
+                      l10n.teamDeletedDone,
+                      leaves: true,
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// Archive, unarchive or delete after the permission and a confirmation.
   Future<void> _teamAction(
     String permission,
@@ -233,9 +346,8 @@ class _FormState extends ConsumerState<_Form> {
     bool offered(String key) =>
         memberAccess(team, key, subscribed: true) != AccessDecision.hidden;
     final archived = team.archived ?? false;
-    final name = team.name ?? '';
 
-    return ListView(
+    final body = ListView(
       padding: const EdgeInsets.all(16),
       children: [
         TestId(
@@ -335,74 +447,37 @@ class _FormState extends ConsumerState<_Form> {
                 : Text(l10n.teamSettingsSave),
           ),
         ),
-        const Divider(height: 48),
         if (_actionFailed)
           error(TeamSettingsTestIds.actionFailed, l10n.teamActionFailed),
-        if (!archived && offered(TeamSettingsPermissions.archive))
-          TestId(
-            TeamSettingsTestIds.archive,
-            child: OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
-              ),
-              icon: const Icon(Icons.archive_outlined),
-              label: Text(l10n.teamArchive),
-              onPressed: _busy
-                  ? null
-                  : () => _teamAction(
-                      TeamSettingsPermissions.archive,
-                      l10n.teamArchiveTitle(name),
-                      l10n.teamArchiveText,
-                      (repo) => repo.archive(_id),
-                      l10n.teamArchivedDone,
-                    ),
-            ),
-          ),
-        if (archived && offered(TeamSettingsPermissions.unarchive))
-          TestId(
-            TeamSettingsTestIds.unarchive,
-            child: OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
-              ),
-              icon: const Icon(Icons.unarchive_outlined),
-              label: Text(l10n.teamUnarchive),
-              onPressed: _busy
-                  ? null
-                  : () => _teamAction(
-                      TeamSettingsPermissions.unarchive,
-                      l10n.teamUnarchiveTitle(name),
-                      l10n.teamUnarchiveText,
-                      (repo) => repo.unarchive(_id),
-                      l10n.teamUnarchivedDone,
-                    ),
-            ),
-          ),
-        if (offered(TeamSettingsPermissions.destroy)) ...[
-          const SizedBox(height: 12),
-          TestId(
-            TeamSettingsTestIds.delete,
-            child: OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
-                foregroundColor: errorColor,
-              ),
-              icon: const Icon(Icons.delete_outline),
-              label: Text(l10n.teamDelete),
-              onPressed: _busy
-                  ? null
-                  : () => _teamAction(
-                      TeamSettingsPermissions.destroy,
-                      l10n.teamDeleteTitle(name),
-                      l10n.teamDeleteText,
-                      (repo) => repo.deleteTeam(_id),
-                      l10n.teamDeletedDone,
-                      leaves: true,
-                    ),
-            ),
-          ),
-        ],
       ],
+    );
+
+    final showMenu =
+        (!archived && offered(TeamSettingsPermissions.archive)) ||
+        (archived && offered(TeamSettingsPermissions.unarchive)) ||
+        offered(TeamSettingsPermissions.destroy);
+
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: BackButton(onPressed: () => context.pop()),
+        title: TestId(
+          TeamSettingsTestIds.title,
+          child: Semantics(header: true, child: Text(l10n.teamSettingsTitle)),
+        ),
+        actions: [
+          if (showMenu)
+            TestId(
+              TeamSettingsTestIds.actionsMenu,
+              child: IconButton(
+                tooltip: l10n.moreOptionsLabel,
+                icon: const Icon(Icons.more_vert),
+                onPressed: () => _openActionSheet(team),
+              ),
+            ),
+        ],
+      ),
+      body: TestId(TeamSettingsTestIds.root, child: body),
     );
   }
 }

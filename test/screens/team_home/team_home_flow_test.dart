@@ -276,7 +276,7 @@ void main() {
           ranked(502, _pat, 2, 1, 90),
         ];
       await _openTeam(tester, teams: teams);
-      await _tap(tester, TeamDetailsTestIds.tabRankings);
+      await _tap(tester, TeamHomeActionIds.membersSeeAll);
       expect(teams.rankingRequests.last, (
         team: 31,
         sport: 'st_tennis',
@@ -295,7 +295,7 @@ void main() {
       useTallScreen(tester);
       final teams = _repo();
       await _openTeam(tester, teams: teams);
-      await _tap(tester, TeamDetailsTestIds.tabRankings);
+      await _tap(tester, TeamHomeActionIds.membersSeeAll);
       await _tap(tester, TeamDetailsTestIds.rankingSport('st_padel'));
       expect(teams.rankingRequests.last.sport, 'st_padel');
       await _tap(tester, TeamDetailsTestIds.rankingMatch('mt_doubles'));
@@ -311,7 +311,7 @@ void main() {
       useTallScreen(tester);
       final teams = _repo()..rankingFails = true;
       await _openTeam(tester, teams: teams);
-      await _tap(tester, TeamDetailsTestIds.tabRankings);
+      await _tap(tester, TeamHomeActionIds.membersSeeAll);
       expect(_id(TeamDetailsTestIds.rankingsError), findsOneWidget);
       teams
         ..rankingFails = false
@@ -321,13 +321,19 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('no ranking tab when the team has none', (tester) async {
-      final handle = tester.ensureSemantics();
-      useTallScreen(tester);
-      await _openTeam(tester, teams: _repo(team: _team(ranking: false)));
-      expect(_id(TeamDetailsTestIds.tabRankings), findsNothing);
-      handle.dispose();
-    });
+    testWidgets(
+      'See all on Members opens the member list, not rankings, when the '
+      'team has none',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        useTallScreen(tester);
+        await _openTeam(tester, teams: _repo(team: _team(ranking: false)));
+        await _tap(tester, TeamHomeActionIds.membersSeeAll);
+        expect(find.byType(TeamMembersTab), findsOneWidget);
+        expect(find.byType(TeamRankingsTab), findsNothing);
+        handle.dispose();
+      },
+    );
   });
 
   group('members', () {

@@ -262,38 +262,44 @@ class UpcomingEventsSection extends StatelessWidget {
                       if (item.eventId != null) item,
                   ];
                   if (events.isEmpty) {
-                    return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: sdp(16)),
-                      child: Column(
-                        children: [
-                          SvgIcon(
-                            'ic_events',
-                            size: 62,
-                            color: context.native.imagePrimeryColor,
-                          ),
-                          SizedBox(height: sdp(8)),
-                          Text(
-                            ref.msg(
-                              MessageKeys.homeUpcomingEmpty,
-                              l10n.emptyUpcoming,
+                    // Centered icon-over-text (native's `EmptyStateCard`:
+                    // `HStack { Spacer(); VStack {...}; Spacer() }`), not
+                    // left-aligned like the rest of the section.
+                    return Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: sdp(16)),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SvgIcon(
+                              'ic_events',
+                              size: 62,
+                              color: context.native.imagePrimeryColor,
                             ),
-                            textAlign: TextAlign.center,
-                            style: NativeText.medium(
-                              sdp(14),
-                              context.native.textPrimary,
-                            ),
-                          ),
-                          if (canOfferCreate) ...[
                             SizedBox(height: sdp(8)),
-                            TestId(
-                              createEventId,
-                              child: FilledButton(
-                                onPressed: () => onCreateEvent(context, ref),
-                                child: Text(l10n.addEventAction),
+                            Text(
+                              ref.msg(
+                                MessageKeys.homeUpcomingEmpty,
+                                l10n.emptyUpcoming,
+                              ),
+                              textAlign: TextAlign.center,
+                              style: NativeText.medium(
+                                sdp(14),
+                                context.native.textPrimary,
                               ),
                             ),
+                            if (canOfferCreate) ...[
+                              SizedBox(height: sdp(8)),
+                              TestId(
+                                createEventId,
+                                child: FilledButton(
+                                  onPressed: () => onCreateEvent(context, ref),
+                                  child: Text(l10n.addEventAction),
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     );
                   }
@@ -377,29 +383,34 @@ class PendingActionsSection extends StatelessWidget {
                 value: value,
                 onRetry: onRetry,
                 data: (items) => items.isEmpty
-                    ? Padding(
-                        padding: EdgeInsets.symmetric(horizontal: sdp(16)),
-                        child: Row(
-                          children: [
-                            SvgIcon(
-                              'ic_pending_actions',
-                              size: 62,
-                              color: context.native.imagePrimeryColor,
-                            ),
-                            SizedBox(width: sdp(12)),
-                            Expanded(
-                              child: Text(
+                    // Centered icon-over-text, matching native's shared
+                    // `EmptyStateCard` (same layout the Upcoming section's
+                    // empty state uses), not the Row this used to be.
+                    ? Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: sdp(16)),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SvgIcon(
+                                'ic_pending_actions',
+                                size: 62,
+                                color: context.native.imagePrimeryColor,
+                              ),
+                              SizedBox(height: sdp(8)),
+                              Text(
                                 ref.msg(
                                   MessageKeys.homePendingEmpty,
                                   l10n.emptyPendingActions,
                                 ),
+                                textAlign: TextAlign.center,
                                 style: NativeText.medium(
                                   sdp(14),
                                   context.native.textPrimary,
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       )
                     : SizedBox(
