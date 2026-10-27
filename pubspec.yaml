@@ -55,26 +55,16 @@ dependencies:
   flutter_svg: ^2.3.0
   video_player: ^2.14.1
   # In-app network inspector (native `Chucker`); only wired up for
-  # non-production environments (common/network/network_inspector.dart).
-  # `alice`/`alice_dio` was tried first (more recently updated, and its
-  # share_plus ^13.3.0 constraint needs no override) but its
-  # permission_handler_android dependency requires compileSdk 37, above
-  # this project's compileSdk 36 and the max this AGP version (9.1.0)
-  # recommends — a real Android build breaks with it. chucker_flutter pulls
-  # in no such native dependency.
-  chucker_flutter: ^1.9.2
+  # non-production environments (common/network/network_inspector.dart),
+  # shown via a floating button rather than Alice's shake gesture.
+  alice: ^2.0.0
+  alice_dio: ^1.4.0
 
 dependency_overrides:
   # Same package with an Android build file that works with AGP 9 (see
   # third_party/video_thumbnail/PATCHED.md).
   video_thumbnail:
     path: third_party/video_thumbnail
-  # chucker_flutter 1.9.2 (its latest, last published 5 months ago) pins
-  # share_plus ^12.0.1; its only use of share_plus is one
-  # `SharePlus.instance.share(ShareParams(text: ..., sharePositionOrigin: ...))`
-  # call (api_detail_page.dart) sharing a request/response as text, an API
-  # unchanged between share_plus 12 and 13 — verified by reading its source.
-  share_plus: ^13.3.1
 
 dev_dependencies:
   flutter_test:

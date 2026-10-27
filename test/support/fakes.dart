@@ -1769,6 +1769,34 @@ class FakeChatUi implements ChatUi {
   @override
   Widget channel(BuildContext context, {required String channelUrl}) =>
       Scaffold(body: Text('fake channel $channelUrl'));
+
+  /// What [channelInfo] answers; tests override per case.
+  ChatChannelInfo info = const ChatChannelInfo(
+    title: 'Fake channel',
+    members: [],
+    isMuted: false,
+  );
+  AppFailure? infoFailure;
+
+  /// Recorded `(channelUrl, muted)` calls to [setMuted].
+  final List<(String, bool)> muteCalls = [];
+
+  @override
+  Future<ChatChannelInfo> channelInfo(String channelUrl) async {
+    if (infoFailure != null) throw infoFailure!;
+    return info;
+  }
+
+  @override
+  Future<void> setMuted(String channelUrl, {required bool muted}) async {
+    muteCalls.add((channelUrl, muted));
+    info = ChatChannelInfo(
+      title: info.title,
+      avatarUrl: info.avatarUrl,
+      members: info.members,
+      isMuted: muted,
+    );
+  }
 }
 
 const monthlyPlan = StorePlan(

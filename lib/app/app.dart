@@ -10,6 +10,7 @@ import 'package:racketmates/app/theme/app_theme.dart';
 import 'package:racketmates/common/billing/billing_sync.dart';
 import 'package:racketmates/common/billing/subscription_prompt.dart';
 import 'package:racketmates/common/chat/chat_controller.dart';
+import 'package:racketmates/common/network/network_inspector.dart';
 import 'package:racketmates/common/session/session_info_controller.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 
@@ -29,6 +30,12 @@ class RacketmatesApp extends ConsumerWidget {
       ..watch(chatSyncProvider) // Sendbird connection
       ..watch(billingSyncProvider) // store purchases
       ..watch(subscriptionPromptSyncProvider); // trial reminders
+    // The floating overlay bubble that opens the network inspector needs
+    // the router's `Navigator`/`Overlay` to exist first; harmless to repeat
+    // on every rebuild (it's a no-op once already showing).
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => networkInspector?.showOverlayBubble(),
+    );
     return MaterialApp.router(
       title: brand.displayName,
       theme: AppTheme.light(brand),

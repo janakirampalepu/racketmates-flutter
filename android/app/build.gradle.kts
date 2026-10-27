@@ -18,7 +18,11 @@ fun signingValue(propName: String, envName: String): String? =
 
 android {
     namespace = "io.appsmaker.racketmates"
-    compileSdk = flutter.compileSdkVersion
+    // Flutter's own default (flutter.compileSdkVersion) is 36; raised to 37
+    // because alice's permission_handler_android dependency compiles
+    // against 37 and AGP enforces that a plugin's compileSdk never exceed
+    // the app's own. Backward compatible per Android/Flutter's own guidance.
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

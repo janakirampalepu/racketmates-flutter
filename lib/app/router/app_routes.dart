@@ -10,6 +10,7 @@ abstract final class AppRoutes {
   static const drafts = '/drafts';
   static const chat = '/chat';
   static const chatChannel = '/chat/channel';
+  static const chatChannelDetails = '/chat/channel/details';
   static const locations = '/locations';
   static const chatNew = '/chat/new';
   static const subscription = '/subscription';
@@ -113,6 +114,10 @@ abstract final class AppRoutes {
   /// One chat conversation, by its Sendbird channel url.
   static String chatChannelFor(String url) =>
       Uri(path: chatChannel, queryParameters: {'url': url}).toString();
+
+  /// That conversation's details screen.
+  static String chatChannelDetailsFor(String url) =>
+      Uri(path: chatChannelDetails, queryParameters: {'url': url}).toString();
   static String eventManageFor(int id) => '$event/$id/manage';
   static String eventManageSettingsFor(int id) => '$event/$id/manage/settings';
   static String eventManagePlayersFor(int id) => '$event/$id/manage/players';

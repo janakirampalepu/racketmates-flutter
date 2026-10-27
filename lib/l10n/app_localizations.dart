@@ -706,6 +706,36 @@ abstract class AppLocalizations {
   /// **'Chat is not available on this build.'**
   String get chatUnavailable;
 
+  /// No description provided for @chatChannelDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat details'**
+  String get chatChannelDetailsTitle;
+
+  /// No description provided for @chatChannelDetailsMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get chatChannelDetailsMembers;
+
+  /// No description provided for @chatChannelDetailsMute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute notifications'**
+  String get chatChannelDetailsMute;
+
+  /// No description provided for @chatChannelDetailsYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get chatChannelDetailsYou;
+
+  /// No description provided for @chatChannelDetailsError.
+  ///
+  /// In en, this message translates to:
+  /// **'The conversation could not be loaded.'**
+  String get chatChannelDetailsError;
+
   /// Spoken label of the chat tab badge.
   ///
   /// In en, this message translates to:

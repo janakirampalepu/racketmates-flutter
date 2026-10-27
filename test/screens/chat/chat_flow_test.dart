@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:racketmates/common/chat/chat_client.dart';
+import 'package:racketmates/common/chat/chat_ui.dart';
 import 'package:racketmates/common/notifications/push_models.dart';
 import 'package:racketmates/common/session/session_info_models.dart';
 import 'package:racketmates/screens/chat/chat_test_ids.dart';
+import 'package:racketmates/screens/chat_channel_details/chat_channel_details_test_ids.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
 import 'package:racketmates/screens/main_shell/main_shell_test_ids.dart';
 import 'package:racketmates/screens/settings/settings_test_ids.dart';
@@ -48,6 +50,83 @@ void main() {
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(find.text('fake channel list'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('the back button in the header also goes back', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      await tester.pumpWidget(signedInApp());
+      await _openChatTab(tester);
+      await tester.tap(find.text('open channel-1'));
+      await tester.pumpAndSettle();
+      await tester.tap(_id(ChatTestIds.channelBackButton));
+      await tester.pumpAndSettle();
+      expect(find.text('fake channel list'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets(
+      'the header shows the resolved title and opens the details screen',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        useTallScreen(tester);
+        final chatUi = FakeChatUi()
+          ..info = const ChatChannelInfo(
+            title: 'Alex Morgan',
+            members: [
+              ChatChannelMember(userId: 'u1', nickname: 'Alex Morgan', isMe: false),
+              ChatChannelMember(userId: 'u2', nickname: 'Me', isMe: true),
+            ],
+            isMuted: false,
+          );
+        await tester.pumpWidget(signedInApp(chatUi: chatUi));
+        await _openChatTab(tester);
+        await tester.tap(find.text('open channel-1'));
+        await tester.pumpAndSettle();
+        expect(find.text('Alex Morgan'), findsOneWidget);
+        await tester.tap(_id(ChatTestIds.channelHeader));
+        await tester.pumpAndSettle();
+        expect(_id(ChatChannelDetailsTestIds.root), findsOneWidget);
+        expect(_id(ChatChannelDetailsTestIds.title), findsOneWidget);
+        expect(find.text('Me (You)'), findsOneWidget);
+        handle.dispose();
+      },
+    );
+
+    testWidgets('muting from the details screen flips the switch', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final chatUi = FakeChatUi();
+      await tester.pumpWidget(signedInApp(chatUi: chatUi));
+      await _openChatTab(tester);
+      await tester.tap(find.text('open channel-1'));
+      await tester.pumpAndSettle();
+      await tester.tap(_id(ChatTestIds.channelHeader));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<SwitchListTile>(
+              find.byType(SwitchListTile),
+            )
+            .value,
+        isFalse,
+      );
+      await tester.tap(_id(ChatChannelDetailsTestIds.muteSwitch));
+      await tester.pumpAndSettle();
+      expect(chatUi.muteCalls, [('channel-1', true)]);
+      expect(
+        tester
+            .widget<SwitchListTile>(
+              find.byType(SwitchListTile),
+            )
+            .value,
+        isTrue,
+      );
       handle.dispose();
     });
 

@@ -332,6 +332,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatUnavailable => 'Chat is not available on this build.';
 
   @override
+  String get chatChannelDetailsTitle => 'Chat details';
+
+  @override
+  String get chatChannelDetailsMembers => 'Members';
+
+  @override
+  String get chatChannelDetailsMute => 'Mute notifications';
+
+  @override
+  String get chatChannelDetailsYou => 'You';
+
+  @override
+  String get chatChannelDetailsError => 'The conversation could not be loaded.';
+
+  @override
   String navChatUnread(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

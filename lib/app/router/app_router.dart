@@ -1,4 +1,3 @@
-import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -54,6 +53,7 @@ import 'package:racketmates/screens/chat/chat_screen.dart';
 import 'package:racketmates/screens/subscription/subscription_screen.dart';
 import 'package:racketmates/screens/subscription/subscription_success_screen.dart';
 import 'package:racketmates/screens/chat_channel/chat_channel_screen.dart';
+import 'package:racketmates/screens/chat_channel_details/chat_channel_details_screen.dart';
 import 'package:racketmates/screens/chat_new/new_chat_screen.dart';
 import 'package:racketmates/screens/locations/locations_screen.dart';
 import 'package:racketmates/screens/venue_details/venue_screen.dart';
@@ -153,7 +153,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     // Lets the in-app network inspector push its own screens; ignored
     // unless `bootstrap()` enabled one for a non-production environment
     // (see `common/network/network_inspector.dart`).
-    navigatorKey: networkInspectorEnabled ? ChuckerFlutter.navigatorKey : null,
+    navigatorKey: networkInspectorNavigatorKey,
     initialLocation: AppRoutes.splash,
     refreshListenable: refresh,
     redirect: (context, state) => computeRedirect(
@@ -320,6 +320,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             : null,
         builder: (context, state) =>
             ChatChannelScreen(channelUrl: state.uri.queryParameters['url']!),
+      ),
+      GoRoute(
+        path: AppRoutes.chatChannelDetails,
+        redirect: (context, state) =>
+            (state.uri.queryParameters['url'] ?? '').isEmpty
+            ? AppRoutes.chat
+            : null,
+        builder: (context, state) => ChatChannelDetailsScreen(
+          channelUrl: state.uri.queryParameters['url']!,
+        ),
       ),
       GoRoute(
         path: '${AppRoutes.event}/:id',

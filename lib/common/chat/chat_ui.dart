@@ -1,6 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:racketmates/app/theme/native_theme.dart';
+import 'package:sendbird_chat_sdk/sendbird_chat_sdk.dart';
 import 'package:sendbird_uikit/sendbird_uikit.dart';
+
+/// One member of a conversation, for the channel-details screen.
+class ChatChannelMember {
+  const ChatChannelMember({
+    required this.userId,
+    required this.nickname,
+    required this.isMe,
+    this.avatarUrl,
+  });
+
+  final String userId;
+  final String nickname;
+  final bool isMe;
+  final String? avatarUrl;
+}
+
+/// Display info for a conversation's header and details screen: title,
+/// avatar, members and whether the signed-in user has muted it.
+///
+/// The exact title-resolution rule native uses is considerably more
+/// involved — it branches on one-to-one/support/event/announcement
+/// channels and decodes a JSON blob off the channel for event names
+/// (`getGroupChannelItemTitle` in `TextUtils.kt`). This follows the
+/// simpler, generic rule the Sendbird UIKit itself uses instead (the
+/// channel's own name, else the other members' nicknames), since that is
+/// what is safely verifiable from the public SDK without a live backend;
+/// native's richer per-channel-type rule is a documented follow-up.
+class ChatChannelInfo {
+  const ChatChannelInfo({
+    required this.title,
+    required this.members,
+    required this.isMuted,
+    this.avatarUrl,
+  });
+
+  final String title;
+  final String? avatarUrl;
+  final List<ChatChannelMember> members;
+  final bool isMuted;
+}
 
 /// The chat screens, behind an interface: the Sendbird UIKit widgets need a
 /// live connection, so tests replace them.
@@ -14,15 +56,84 @@ abstract class ChatUi {
 
   /// One conversation.
   Widget channel(BuildContext context, {required String channelUrl});
+
+  /// Display info for that conversation's header and details screen.
+  Future<ChatChannelInfo> channelInfo(String channelUrl);
+
+  /// Mutes or unmutes push notifications for that conversation.
+  Future<void> setMuted(String channelUrl, {required bool muted});
 }
 
 class SendbirdChatUi implements ChatUi {
   const SendbirdChatUi();
 
-  /// The UIKit has its own light/dark switch; follow the app's.
+  /// The app does not use the UIKit's own purple/green brand palette: native
+  /// re-skins it by shadowing the UIKit's own Android resource names
+  /// (`primary_main`, `background_50`..`background_700`, in `colors.xml`)
+  /// with the app's own brand colors, leaving every other UIKit color (the
+  /// ones native never names in `colors.xml`: `secondary_*`, `error_*`,
+  /// `overlay_*`, `information_*`, `highlight`, the light/dark text-emphasis
+  /// tiers) at the UIKit's own defaults. `SBUColors.setColors` is the
+  /// Flutter UIKit's equivalent override point — same field names as the
+  /// Android resources — so this reproduces the Android override exactly:
+  /// the `primary*`/`background*` fields come from [NativePalette] (the
+  /// generated Dart form of the same `colors.xml` entries Android shadows),
+  /// everything else is read back from `SBUColors` itself, unchanged.
+  void _applyBrand(BuildContext context) {
+    final n = context.native;
+    SBUColors.setColors(
+      primaryExtraDark: n.primaryExtraDark,
+      primaryDark: n.primaryDark,
+      primaryMain: n.primaryMain,
+      primaryLight: n.primaryLight,
+      // Android: `primary_extra_light` = `@android:color/transparent`.
+      primaryExtraLight: Colors.transparent,
+      secondaryExtraDark: SBUColors.secondaryExtraDark,
+      secondaryDark: SBUColors.secondaryDark,
+      secondaryMain: SBUColors.secondaryMain,
+      secondaryLight: SBUColors.secondaryLight,
+      secondaryExtraLight: SBUColors.secondaryExtraLight,
+      errorExtraDark: SBUColors.errorExtraDark,
+      errorDark: SBUColors.errorDark,
+      errorMain: SBUColors.errorMain,
+      errorLight: SBUColors.errorLight,
+      errorExtraLight: SBUColors.errorExtraLight,
+      background700: n.background700,
+      background600: n.background600,
+      background500: n.background500,
+      background400: n.background400,
+      background300: n.background300,
+      background200: n.background200,
+      background100: n.background100,
+      background50: n.background50,
+      overlayDark: SBUColors.overlayDark,
+      overlayLight: SBUColors.overlayLight,
+      informationExtraDark: SBUColors.informationExtraDark,
+      informationDark: SBUColors.informationDark,
+      informationMain: SBUColors.informationMain,
+      informationLight: SBUColors.informationLight,
+      informationExtraLight: SBUColors.informationExtraLight,
+      highlight: SBUColors.highlight,
+      lightThemeTextHighEmphasis: SBUColors.lightThemeTextHighEmphasis,
+      lightThemeTextMidEmphasis: SBUColors.lightThemeTextMidEmphasis,
+      lightThemeTextLowEmphasis: SBUColors.lightThemeTextLowEmphasis,
+      lightThemeTextDisabled: SBUColors.lightThemeTextDisabled,
+      darkThemeTextHighEmphasis: SBUColors.darkThemeTextHighEmphasis,
+      darkThemeTextMidEmphasis: SBUColors.darkThemeTextMidEmphasis,
+      darkThemeTextLowEmphasis: SBUColors.darkThemeTextLowEmphasis,
+      darkThemeTextDisabled: SBUColors.darkThemeTextDisabled,
+    );
+  }
+
+  /// The UIKit has its own light/dark switch; follow the app's. `background600`
+  /// and `background100` differ between the app's light/dark palettes (they
+  /// come from `background_solid_primary`/`others_msg_bg_color`, both
+  /// day/night-qualified on Android), so the brand colors are re-applied
+  /// every time this runs, not just once.
   void _theme(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     SBUThemeProvider().setTheme(dark ? SBUTheme.dark : SBUTheme.light);
+    _applyBrand(context);
   }
 
   @override
@@ -52,9 +163,67 @@ class SendbirdChatUi implements ChatUi {
   Widget channel(BuildContext context, {required String channelUrl}) {
     _theme(context);
     return SendbirdUIKit.provider(
-      child: SBUGroupChannelScreen(channelUrl: channelUrl),
+      child: SBUGroupChannelScreen(
+        channelUrl: channelUrl,
+        // `ChatChannelScreen` draws its own header (avatar, title, a tap
+        // to the details screen) matching native's own toolbar, which
+        // likewise blanks the UIKit's title and buttons
+        // (`UIKitChannelFragment.onBindChannelHeaderComponent`).
+        customHeader: (_, _, _, _) => const SizedBox.shrink(),
+      ),
+    );
+  }
+
+  @override
+  Future<ChatChannelInfo> channelInfo(String channelUrl) async {
+    final channel = await GroupChannel.getChannel(channelUrl);
+    return _toInfo(channel);
+  }
+
+  @override
+  Future<void> setMuted(String channelUrl, {required bool muted}) async {
+    final channel = await GroupChannel.getChannel(channelUrl);
+    await channel.setMyPushTriggerOption(
+      muted
+          ? GroupChannelPushTriggerOption.off
+          : GroupChannelPushTriggerOption.all,
+    );
+  }
+
+  ChatChannelInfo _toInfo(GroupChannel channel) {
+    final myId = SendbirdChat.currentUser?.userId;
+    final others = channel.members.where((m) => m.userId != myId).toList();
+    String nameOf(User user) =>
+        user.nickname.isNotEmpty ? user.nickname : user.userId;
+    final title = channel.name.isNotEmpty
+        ? channel.name
+        : others.map(nameOf).join(', ');
+    final avatarUrl = others.length == 1
+        ? others.first.profileUrl
+        : channel.coverUrl;
+    return ChatChannelInfo(
+      title: title.isNotEmpty ? title : channel.channelUrl,
+      avatarUrl: avatarUrl.isNotEmpty ? avatarUrl : null,
+      isMuted: channel.myPushTriggerOption == GroupChannelPushTriggerOption.off,
+      members: channel.members
+          .map(
+            (m) => ChatChannelMember(
+              userId: m.userId,
+              nickname: nameOf(m),
+              isMe: m.userId == myId,
+              avatarUrl: m.profileUrl.isNotEmpty ? m.profileUrl : null,
+            ),
+          )
+          .toList(),
     );
   }
 }
 
 final chatUiProvider = Provider<ChatUi>((ref) => const SendbirdChatUi());
+
+/// Shared between the channel header and the details screen so opening the
+/// details screen (which re-reads this same provider) does not re-fetch.
+final chatChannelInfoProvider = FutureProvider.autoDispose
+    .family<ChatChannelInfo, String>(
+      (ref, channelUrl) => ref.watch(chatUiProvider).channelInfo(channelUrl),
+    );
