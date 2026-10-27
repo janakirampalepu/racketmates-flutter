@@ -112,6 +112,43 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('a server failure message replaces the generic text', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    useTallScreen(tester);
+    final repo = _fullRepo()
+      ..failing.add('upcoming')
+      ..failure = const ServerFailure(500, 'The schedule service is down.');
+    await tester.pumpWidget(signedInApp(schedule: repo));
+    await tester.pumpAndSettle();
+
+    expect(find.text('The schedule service is down.'), findsOneWidget);
+    expect(find.text(_l10n.sectionLoadError), findsNothing);
+    handle.dispose();
+  });
+
+  testWidgets(
+    'a pending action with no recognized swipe action still offers a button',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final repo = _fullRepo()
+        ..pending = const [
+          PendingAction(
+            eventId: 9,
+            eventType: 'et_game',
+            eventDate: '2026-11-04',
+          ),
+        ];
+      await tester.pumpWidget(signedInApp(schedule: repo));
+      await tester.pumpAndSettle();
+
+      expect(find.text(_l10n.homePendingViewDetails), findsOneWidget);
+      handle.dispose();
+    },
+  );
+
   testWidgets('pull to refresh reloads all sections', (tester) async {
     final handle = tester.ensureSemantics();
     useTallScreen(tester, height: 900);

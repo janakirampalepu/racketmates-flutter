@@ -377,6 +377,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homePendingActions => 'Pending actions';
 
   @override
+  String get homePendingViewDetails => 'View details';
+
+  @override
   String get homeUpcoming => 'Upcoming';
 
   @override

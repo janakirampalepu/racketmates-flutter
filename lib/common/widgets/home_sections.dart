@@ -9,6 +9,7 @@ import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/content/messages.dart';
+import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/events/event_labels.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/events/models/schedule_models.dart';
@@ -94,16 +95,20 @@ Widget _sectionBody<T>({
   required Widget Function(T data) data,
 }) => value.when(
   loading: () => const _ShimmerPlaceholder(),
-  error: (_, _) {
+  error: (error, _) {
     final n = context.native;
     final sdp = context.sdp;
+    final serverMessage = error is AppFailure ? error.message : null;
+    final text = (serverMessage != null && serverMessage.isNotEmpty)
+        ? serverMessage
+        : l10n.sectionLoadError;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: sdp(16)),
       child: Row(
         children: [
           Expanded(
             child: Text(
-              l10n.sectionLoadError,
+              text,
               style: NativeText.regular(sdp(12), n.textSecondary),
             ),
           ),
@@ -209,7 +214,11 @@ class UpcomingEventsSection extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: sdp(16)),
                       child: Column(
                         children: [
-                          const SvgIcon('ic_events', size: 62),
+                          SvgIcon(
+                            'ic_events',
+                            size: 62,
+                            color: context.native.imagePrimeryColor,
+                          ),
                           SizedBox(height: sdp(8)),
                           Text(
                             ref.msg(
@@ -317,7 +326,11 @@ class PendingActionsSection extends StatelessWidget {
                         padding: EdgeInsets.symmetric(horizontal: sdp(16)),
                         child: Row(
                           children: [
-                            const SvgIcon('ic_pending_actions', size: 62),
+                            SvgIcon(
+                              'ic_pending_actions',
+                              size: 62,
+                              color: context.native.imagePrimeryColor,
+                            ),
                             SizedBox(width: sdp(12)),
                             Expanded(
                               child: Text(
@@ -405,9 +418,17 @@ class _PendingTile extends StatelessWidget {
                   Positioned(
                     top: -sdp(8),
                     right: -sdp(8),
-                    child: Opacity(
-                      opacity: 0.12,
-                      child: SvgIcon(sportIcon, size: sdp(64)),
+                    child: SvgIcon(
+                      sportIcon,
+                      size: sdp(64),
+                      // Native's own background art is a dedicated,
+                      // single-color "pending action" ball icon tinted
+                      // `icon_primary` at 15% alpha (`ic_*_sport_background`,
+                      // `AppUtils.setSportTypeBallIcon`); this reuses the
+                      // existing multi-color sport-chip icon tinted the same
+                      // way, rather than porting 4 more complex vector
+                      // patterns for a decorative watermark.
+                      color: n.imagePrimeryColor.withValues(alpha: 0.15),
                     ),
                   ),
                 Padding(
@@ -551,7 +572,22 @@ class _PendingActionButton extends StatelessWidget {
             ),
           ],
         ),
-        _ => const SizedBox.shrink(),
+        // Native (both platforms) shows no button at all for an
+        // unrecognized/absent `primarySwipeAction`. Deliberate deviation:
+        // show a generic fallback instead, so a card is never left without
+        // any visible action — the whole-card tap target is easy to miss,
+        // and this is the same destination either way.
+        _ => OutlinedButton(
+          onPressed: onTap,
+          style: const ButtonStyle(
+            padding: WidgetStatePropertyAll(EdgeInsets.zero),
+          ),
+          child: Text(
+            l10n.homePendingViewDetails,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       },
     );
   }

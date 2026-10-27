@@ -778,6 +778,12 @@ abstract class AppLocalizations {
   /// **'Pending actions'**
   String get homePendingActions;
 
+  /// No description provided for @homePendingViewDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'View details'**
+  String get homePendingViewDetails;
+
   /// No description provided for @homeUpcoming.
   ///
   /// In en, this message translates to:

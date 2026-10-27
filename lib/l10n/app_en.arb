@@ -156,6 +156,7 @@
   "@navChatUnread": {"description": "Spoken label of the chat tab badge.", "placeholders": {"count": {"type": "int"}}},
   "navTeams": "Teams",
   "homePendingActions": "Pending actions",
+  "homePendingViewDetails": "View details",
   "homeUpcoming": "Upcoming",
   "homeLatestUpdates": "Latest updates",
   "homeActivity": "Activity",

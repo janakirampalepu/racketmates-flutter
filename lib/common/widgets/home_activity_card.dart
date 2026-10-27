@@ -137,7 +137,11 @@ class _YearPage extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SvgIcon('ic_no_activity', size: 62),
+                    SvgIcon(
+                      'ic_no_activity',
+                      size: 62,
+                      color: n.imagePrimeryColor,
+                    ),
                     SizedBox(height: sdp(8)),
                     Text(
                       l10n.activityNoActivityTitle,
@@ -304,7 +308,7 @@ class _StatTile extends StatelessWidget {
                   style: NativeText.semibold(sdp(20), color),
                 ),
                 SizedBox(width: sdp(4)),
-                SvgIcon(icon, size: sdp(14)),
+                SvgIcon(icon, size: sdp(14), color: color),
               ],
             ),
             Text(label, style: NativeText.regular(sdp(12), n.textSecondary)),
@@ -379,7 +383,6 @@ class _ActivityRing extends StatelessWidget {
           CustomPaint(
             size: Size(size, size),
             painter: _ActivityRingPainter(
-              total: total,
               segments: [
                 (stats.gamesHours ?? 0, n.colorPrimary),
                 (stats.practiceHours ?? 0, n.textTertiary),
@@ -387,7 +390,6 @@ class _ActivityRing extends StatelessWidget {
                 (stats.meetingHours ?? 0, n.lightRed),
               ],
               strokeWidth: sdp(10),
-              trackColor: n.borderSolidPrimary,
             ),
           ),
           Column(
@@ -409,18 +411,17 @@ class _ActivityRing extends StatelessWidget {
   }
 }
 
+/// Mirrors native's Highcharts donut exactly (`ActivityStatsAdapter
+/// .displayChartInfo`: `HIPie` with `innerSize: "80%"`, `borderWidth: 0`,
+/// no legend/tooltip/hover). No background "track" ring — the 4 segments
+/// are the whole pie, abutting with flat (not rounded) ends, each segment's
+/// share computed against the sum of all 4 values (Highcharts normalizes a
+/// pie's slices by their own total, not by a separate `totalHours` field).
 class _ActivityRingPainter extends CustomPainter {
-  _ActivityRingPainter({
-    required this.total,
-    required this.segments,
-    required this.strokeWidth,
-    required this.trackColor,
-  });
+  _ActivityRingPainter({required this.segments, required this.strokeWidth});
 
-  final int total;
   final List<(int, Color)> segments;
   final double strokeWidth;
-  final Color trackColor;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -430,16 +431,7 @@ class _ActivityRingPainter extends CustomPainter {
       size.width - strokeWidth,
       size.height - strokeWidth,
     );
-    canvas.drawArc(
-      rect,
-      0,
-      2 * math.pi,
-      false,
-      Paint()
-        ..color = trackColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth,
-    );
+    final total = segments.fold<int>(0, (sum, s) => sum + s.$1);
     if (total <= 0) return;
     var startFraction = 0.0;
     for (final (value, color) in segments) {
@@ -453,8 +445,7 @@ class _ActivityRingPainter extends CustomPainter {
         Paint()
           ..color = color
           ..style = PaintingStyle.stroke
-          ..strokeWidth = strokeWidth
-          ..strokeCap = StrokeCap.round,
+          ..strokeWidth = strokeWidth,
       );
       startFraction += fraction;
     }
@@ -462,9 +453,7 @@ class _ActivityRingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _ActivityRingPainter oldDelegate) =>
-      oldDelegate.total != total ||
       oldDelegate.strokeWidth != strokeWidth ||
-      oldDelegate.trackColor != trackColor ||
       !_segmentsEqual(oldDelegate.segments, segments);
 
   static bool _segmentsEqual(List<(int, Color)> a, List<(int, Color)> b) {
