@@ -534,6 +534,11 @@ class _DateBadge extends StatelessWidget {
     final n = context.native;
     final sdp = context.sdp;
     return Container(
+      // Fixed width (matches EventTile's own date badge): the month strip
+      // below uses `width: double.infinity` to fill it edge-to-edge, which
+      // without this expands to the full card width instead of just the
+      // badge's own — exactly the "calendar fills the whole card" bug.
+      width: sdp(40),
       decoration: BoxDecoration(
         color: n.statusColorsDarkGray,
         borderRadius: BorderRadius.circular(sdp(4)),
