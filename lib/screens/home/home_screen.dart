@@ -137,6 +137,9 @@ class HomeScreen extends ConsumerWidget {
                 canOfferCreate: canOfferCreate,
                 onCreateEvent: _createEvent,
               ),
+              // Native `homePageSections`: a `VStack(spacing:
+              // SpacingConstants.space32)` between every section.
+              SizedBox(height: sdp(32)),
               PendingActionsSection(
                 l10n: l10n,
                 value: state.pending,
@@ -145,6 +148,7 @@ class HomeScreen extends ConsumerWidget {
                 retryId: HomeTestIds.retry(HomeTestIds.pendingSection),
                 actionIdFor: HomeTestIds.pendingAction,
               ),
+              SizedBox(height: sdp(32)),
               HomeActivitySection(
                 l10n: l10n,
                 value: state.activity,

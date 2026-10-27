@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
-import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/widgets/native_widgets.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
@@ -13,16 +12,9 @@ import 'package:racketmates/l10n/app_localizations.dart';
 /// shown only when there is more than one year (native `TabLayoutMediator`,
 /// wired only when `activityStats.size > 1`).
 class HomeActivityCard extends StatefulWidget {
-  const HomeActivityCard({
-    required this.years,
-    required this.yearBadgeId,
-    super.key,
-  });
+  const HomeActivityCard({required this.years, super.key});
 
   final List<HomePageStats> years;
-
-  /// Test id for the year badge (differs between Home and Team Home).
-  final String yearBadgeId;
 
   @override
   State<HomeActivityCard> createState() => _HomeActivityCardState();
@@ -50,8 +42,7 @@ class _HomeActivityCardState extends State<HomeActivityCard> {
             controller: _controller,
             itemCount: years.length,
             onPageChanged: (i) => setState(() => _page = i),
-            itemBuilder: (context, i) =>
-                _YearPage(stats: years[i], yearBadgeId: widget.yearBadgeId),
+            itemBuilder: (context, i) => _YearPage(stats: years[i]),
           ),
         ),
         if (years.length > 1)
@@ -81,10 +72,9 @@ class _HomeActivityCardState extends State<HomeActivityCard> {
 }
 
 class _YearPage extends StatelessWidget {
-  const _YearPage({required this.stats, required this.yearBadgeId});
+  const _YearPage({required this.stats});
 
   final HomePageStats stats;
-  final String yearBadgeId;
 
   bool get _isEmpty =>
       (stats.totalEvents ?? 0) == 0 && (stats.totalHours ?? 0) == 0;
@@ -100,37 +90,8 @@ class _YearPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              if (who != null && who.isNotEmpty)
-                Expanded(
-                  child: Text(
-                    "$who's",
-                    style: NativeText.semibold(sdp(14), n.textPrimary),
-                  ),
-                )
-              else
-                const Spacer(),
-              if (stats.year != null)
-                TestId(
-                  yearBadgeId,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: sdp(10),
-                      vertical: sdp(4),
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: n.colorPrimary),
-                      borderRadius: BorderRadius.circular(sdp(24)),
-                    ),
-                    child: Text(
-                      '${stats.year}',
-                      style: NativeText.medium(sdp(12), n.textPrimary),
-                    ),
-                  ),
-                ),
-            ],
-          ),
+          if (who != null && who.isNotEmpty)
+            Text("$who's", style: NativeText.semibold(sdp(14), n.textPrimary)),
           if (_isEmpty)
             Expanded(
               child: Center(
@@ -170,7 +131,8 @@ class _YearPage extends StatelessWidget {
                           icon: 'ic_stats_event',
                           value: stats.totalEvents,
                           label: l10n.statEvents,
-                          color: n.textPrimary,
+                          color: n.textSecondary,
+                          background: n.statusColorsDarkGray,
                         ),
                         SizedBox(width: sdp(6)),
                         _StatTile(
@@ -181,13 +143,15 @@ class _YearPage extends StatelessWidget {
                           // (`image_primery_color`), not a neutral color
                           // like the events tile.
                           color: n.imagePrimeryColor,
+                          background: n.backgroundGradientGreen10p,
                         ),
                         SizedBox(width: sdp(6)),
                         _StatTile(
                           icon: 'ic_stats_lose',
                           value: stats.losses,
                           label: l10n.statLosses,
-                          color: n.noClubsColor,
+                          color: n.statusColorsLightRed,
+                          background: n.statusColorsDarkRed,
                         ),
                       ],
                     ),
@@ -209,27 +173,39 @@ class _YearPage extends StatelessWidget {
                                 child: Wrap(
                                   spacing: sdp(8),
                                   runSpacing: sdp(4),
+                                  // Native hides a category's legend row
+                                  // entirely when its hours are 0
+                                  // (`ActivityStatsAdapter`'s
+                                  // `layout*Legend?.visibility = GONE`;
+                                  // iOS's `circularStatus` only renders an
+                                  // `eventType(...)` row `if hours > 0`) —
+                                  // this used to show every category
+                                  // unconditionally, including "0h".
                                   children: [
-                                    _Legend(
-                                      color: n.colorPrimary,
-                                      hours: stats.gamesHours,
-                                      label: l10n.activityLegendGames,
-                                    ),
-                                    _Legend(
-                                      color: n.textTertiary,
-                                      hours: stats.practiceHours,
-                                      label: l10n.activityLegendPractice,
-                                    ),
-                                    _Legend(
-                                      color: n.statusColorsLightBlue,
-                                      hours: stats.lessonHours,
-                                      label: l10n.activityLegendLessons,
-                                    ),
-                                    _Legend(
-                                      color: n.lightRed,
-                                      hours: stats.meetingHours,
-                                      label: l10n.activityLegendMeetings,
-                                    ),
+                                    if ((stats.gamesHours ?? 0) > 0)
+                                      _Legend(
+                                        color: n.colorPrimary,
+                                        hours: stats.gamesHours,
+                                        label: l10n.activityLegendGames,
+                                      ),
+                                    if ((stats.practiceHours ?? 0) > 0)
+                                      _Legend(
+                                        color: n.textTertiary,
+                                        hours: stats.practiceHours,
+                                        label: l10n.activityLegendPractice,
+                                      ),
+                                    if ((stats.lessonHours ?? 0) > 0)
+                                      _Legend(
+                                        color: n.statusColorsLightBlue,
+                                        hours: stats.lessonHours,
+                                        label: l10n.activityLegendLessons,
+                                      ),
+                                    if ((stats.meetingHours ?? 0) > 0)
+                                      _Legend(
+                                        color: n.lightRed,
+                                        hours: stats.meetingHours,
+                                        label: l10n.activityLegendMeetings,
+                                      ),
                                   ],
                                 ),
                               ),
@@ -280,12 +256,14 @@ class _StatTile extends StatelessWidget {
     required this.value,
     required this.label,
     required this.color,
+    required this.background,
   });
 
   final String icon;
   final int? value;
   final String label;
   final Color color;
+  final Color background;
 
   @override
   Widget build(BuildContext context) {
@@ -295,7 +273,7 @@ class _StatTile extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: sdp(8), horizontal: sdp(4)),
         decoration: BoxDecoration(
-          color: n.windowBackgroundColor,
+          color: background,
           borderRadius: BorderRadius.circular(sdp(8)),
         ),
         child: Column(
@@ -311,7 +289,12 @@ class _StatTile extends StatelessWidget {
                 SvgIcon(icon, size: sdp(14), color: color),
               ],
             ),
-            Text(label, style: NativeText.regular(sdp(12), n.textSecondary)),
+            // Native uses `Text.secondary` for this label on all 3 tiles,
+            // but against these specific tinted backgrounds that fails
+            // this project's enforced WCAG AA contrast test (3.8-4.3:1 vs
+            // the 4.5:1 minimum) — `textPrimary` keeps the same background
+            // colors while staying accessible.
+            Text(label, style: NativeText.regular(sdp(12), n.textPrimary)),
           ],
         ),
       ),

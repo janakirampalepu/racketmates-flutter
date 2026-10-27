@@ -35,12 +35,18 @@ class HomeSectionHeader extends StatelessWidget {
     required this.title,
     this.seeAllId,
     this.onSeeAll,
+    this.trailing,
     super.key,
   });
 
   final String title;
   final String? seeAllId;
   final VoidCallback? onSeeAll;
+
+  /// An extra widget at the row's end, before "See all" (native's Activity
+  /// section puts its year badge directly in this header row, not inside
+  /// the per-year pager).
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -56,10 +62,11 @@ class HomeSectionHeader extends StatelessWidget {
               header: true,
               child: Text(
                 title,
-                style: NativeText.medium(sdp(16), n.textPrimary),
+                style: NativeText.semibold(sdp(16), n.textPrimary),
               ),
             ),
           ),
+          ?trailing,
           if (onSeeAll != null)
             TestId(
               seeAllId!,
@@ -510,6 +517,12 @@ class _PendingTile extends StatelessWidget {
   }
 }
 
+/// Native iOS `PendingActionCard.dateBoxView`: the month strip and the day
+/// area are two different fixed colors (not the per-participant-status
+/// colors `EventTile`'s date badge uses, since a pending action has no
+/// `participantStatus`) — month = `Border.Solid.primary`, day = (the whole
+/// box's own background, showing through under the month strip) =
+/// `StatusColors.darkGray`.
 class _DateBadge extends StatelessWidget {
   const _DateBadge({required this.day, required this.month});
 
@@ -522,14 +535,33 @@ class _DateBadge extends StatelessWidget {
     final sdp = context.sdp;
     return Container(
       decoration: BoxDecoration(
-        color: n.borderSolidPrimary,
+        color: n.statusColorsDarkGray,
         borderRadius: BorderRadius.circular(sdp(4)),
       ),
-      padding: EdgeInsets.symmetric(horizontal: sdp(8), vertical: sdp(2)),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(month, style: NativeText.medium(sdp(10), n.textPrimary)),
-          Text(day, style: NativeText.medium(sdp(14), n.textPrimary)),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: sdp(2)),
+            decoration: BoxDecoration(
+              color: n.borderSolidPrimary,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(sdp(4))),
+            ),
+            child: Text(
+              month,
+              textAlign: TextAlign.center,
+              style: NativeText.medium(sdp(10), n.textPrimary),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: sdp(8), vertical: sdp(2)),
+            child: Text(
+              day,
+              textAlign: TextAlign.center,
+              style: NativeText.medium(sdp(14), n.textPrimary),
+            ),
+          ),
         ],
       ),
     );
@@ -664,26 +696,67 @@ class HomeActivitySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer(
-      builder: (context, ref, _) => TestId(
-        sectionId,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            HomeSectionHeader(
-              title: ref.msg(MessageKeys.homeActivityTitle, l10n.homeActivity),
-            ),
-            _sectionBody<List<HomePageStats>>(
-              context: context,
-              retryId: retryId,
-              l10n: l10n,
-              value: value,
-              onRetry: onRetry,
-              data: (years) => years.isEmpty
-                  ? const SizedBox.shrink()
-                  : HomeActivityCard(years: years, yearBadgeId: yearBadgeId),
-            ),
-          ],
+      builder: (context, ref, _) {
+        // Native puts the year badge in the section header itself, showing
+        // the first year's value (`stats.first?.year`) — not per-page, and
+        // not shown at all while loading/empty/errored.
+        final firstYear = value.value?.firstOrNull?.year;
+        return TestId(
+          sectionId,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              HomeSectionHeader(
+                title: ref.msg(
+                  MessageKeys.homeActivityTitle,
+                  l10n.homeActivity,
+                ),
+                trailing: firstYear == null
+                    ? null
+                    : _YearBadge(year: firstYear, testId: yearBadgeId),
+              ),
+              _sectionBody<List<HomePageStats>>(
+                context: context,
+                retryId: retryId,
+                l10n: l10n,
+                value: value,
+                onRetry: onRetry,
+                data: (years) => years.isEmpty
+                    ? const SizedBox.shrink()
+                    : HomeActivityCard(years: years),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Native `activityCardsSection`: a tinted, bordered badge next to the
+/// section title — `stats.first?.year`, background `Background.Solid
+/// .Green.green4`, border `Main.primary`, `cornerRadius: 4` (not a pill).
+class _YearBadge extends StatelessWidget {
+  const _YearBadge({required this.year, required this.testId});
+
+  final int year;
+  final String testId;
+
+  @override
+  Widget build(BuildContext context) {
+    final n = context.native;
+    final sdp = context.sdp;
+    return TestId(
+      testId,
+      child: Container(
+        margin: EdgeInsets.only(left: sdp(8)),
+        padding: EdgeInsets.symmetric(horizontal: sdp(10), vertical: sdp(4)),
+        decoration: BoxDecoration(
+          color: n.backgroundSolidGreen4,
+          borderRadius: BorderRadius.circular(sdp(4)),
+          border: Border.all(color: n.colorPrimary, width: sdp(1)),
         ),
+        child: Text('$year', style: NativeText.regular(sdp(12), n.textPrimary)),
       ),
     );
   }

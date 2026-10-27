@@ -167,7 +167,8 @@ class TeamDetailsScreen extends ConsumerWidget {
                 if (t.archived ?? false)
                   _ArchivedBanner(
                     team: t,
-                    onChanged: () => ref.invalidate(teamDetailsProvider(teamId)),
+                    onChanged: () =>
+                        ref.invalidate(teamDetailsProvider(teamId)),
                   ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -205,6 +206,7 @@ class TeamDetailsScreen extends ConsumerWidget {
                       AccessDecision.hidden,
                   onCreateEvent: (ctx, r) => _createEvent(ctx, r, t),
                 ),
+                SizedBox(height: context.sdp(32)),
                 PendingActionsSection(
                   l10n: l10n,
                   value: state.pending,
@@ -213,7 +215,9 @@ class TeamDetailsScreen extends ConsumerWidget {
                   retryId: TeamHomeActionIds.pendingRetry,
                   actionIdFor: TeamHomeActionIds.pendingAction,
                 ),
+                SizedBox(height: context.sdp(32)),
                 TeamMembersPreview(teamId: teamId),
+                SizedBox(height: context.sdp(32)),
                 HomeActivitySection(
                   l10n: l10n,
                   value: state.activity,
