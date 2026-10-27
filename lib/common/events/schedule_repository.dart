@@ -80,7 +80,14 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
     try {
       return await call();
     } on DioException catch (e) {
-      throw mapDioException(e);
+      final failure = mapDioException(e);
+      if (kDebugMode) {
+        debugPrint(
+          'ScheduleRepository request failure: ${e.requestOptions.path} '
+          '-> $failure (${e.response?.statusCode}, ${e.type})',
+        );
+      }
+      throw failure;
     } on Object catch (e) {
       // A response-shape mismatch doesn't always surface as a `TypeError`
       // (e.g. calling a method on an unexpectedly-null value throws

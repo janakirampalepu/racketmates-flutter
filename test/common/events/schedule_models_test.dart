@@ -20,6 +20,11 @@ void main() {
     expect(first.eventType, 'et_game');
     expect(first.sportType, 'st_tennis');
     expect(first.additionalTimings, 1);
+    // Sent as a JSON number by the backend (iOS's own model for this same
+    // endpoint, and this app's own EventParticipant.waitlistNumber for the
+    // related endpoint, both type it as a number) — confirms the field
+    // tolerates a numeric value instead of throwing a cast error.
+    expect(first.waitlistNumber, 3);
     expect(first.eventUsers!.single.firstName, 'Sam');
     expect(items[1].additionalVenues, 2);
     expect(items[1].notes, isNull);

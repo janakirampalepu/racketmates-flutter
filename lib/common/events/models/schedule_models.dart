@@ -99,8 +99,25 @@ class ScheduleItem {
   final String? coachLabel;
   final String? startTimeText;
   final String? endTimeText;
+
+  /// Declared `String?` in Android's own `CurrentScheduleItem.kt` too, but
+  /// not present at all in iOS's model for this endpoint to cross-check,
+  /// and not read anywhere in Android's own codebase either (so Android's
+  /// Gson never actually had to coerce it) — left as `String?`. If this
+  /// also turns out to be a JSON number, it would fail the exact same way
+  /// `waitlistNumber` did below.
   final String? userParticipantCount;
-  final String? waitlistNumber;
+
+  /// `int?` here (not `String?`, Android's own `CurrentScheduleItem.kt`
+  /// typing): iOS's `ScheduleItems.waitlistNumber` for this same endpoint,
+  /// and this app's own `EventParticipant.waitlistNumber` for the related
+  /// `event_participants` endpoint, both type it `Int?`/`int?` — the
+  /// backend sends a JSON number. Android's Gson silently coerces a number
+  /// token into a Kotlin `String` when read as one (`JsonReader.nextString`
+  /// accepts a NUMBER token), so Android never saw a problem; Dart's
+  /// `as String?` cast is strict and throws for a non-string JSON value,
+  /// which is why this specific field broke parsing the whole response.
+  final int? waitlistNumber;
   final int? additionalTimings;
   final int? additionalVenues;
   final int? additionalParticipants;

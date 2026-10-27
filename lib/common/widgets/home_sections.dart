@@ -85,6 +85,23 @@ class HomeSectionHeader extends StatelessWidget {
   }
 }
 
+/// Debug-only detail for a section's error state: always something, even
+/// for failure types whose `message` is null by design (`OfflineFailure`/
+/// `TimeoutFailure`) or whose body didn't match `extractServerMessage`'s
+/// expected keys — a failure with no message would otherwise look
+/// identical to one that was never caught at all.
+String? _debugDetail(Object? error) {
+  if (error is ServerFailure) {
+    final message = error.message;
+    return 'HTTP ${error.statusCode}${message != null && message.isNotEmpty ? ': $message' : ''}';
+  }
+  if (error is AppFailure) {
+    final message = error.message;
+    return '${error.runtimeType}${message != null && message.isNotEmpty ? ': $message' : ''}';
+  }
+  return error?.toString();
+}
+
 /// Section loading/error chrome shared by the three sections (native
 /// `carosel_shimmer`: one small and one large placeholder card).
 Widget _sectionBody<T>({
@@ -110,9 +127,13 @@ Widget _sectionBody<T>({
     final text = (serverMessage != null && serverMessage.isNotEmpty)
         ? serverMessage
         : l10n.sectionLoadError;
-    final debugDetail = (kDebugMode && error is AppFailure && isTechnical)
-        ? error.message
-        : null;
+    // Every failure type gets a debug line, even ones whose `message` is
+    // always null by design (`OfflineFailure`/`TimeoutFailure`) or whose
+    // body didn't match `extractServerMessage`'s expected keys — otherwise
+    // a failure with no message looks identical to one that was never
+    // caught at all, which is indistinguishable from the screen's own
+    // "nothing extra showed up" report.
+    final debugDetail = kDebugMode ? _debugDetail(error) : null;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: sdp(16)),
       child: Column(
