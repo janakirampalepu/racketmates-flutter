@@ -100,13 +100,11 @@ class ScheduleItem {
   final String? startTimeText;
   final String? endTimeText;
 
-  /// Declared `String?` in Android's own `CurrentScheduleItem.kt` too, but
-  /// not present at all in iOS's model for this endpoint to cross-check,
-  /// and not read anywhere in Android's own codebase either (so Android's
-  /// Gson never actually had to coerce it) — left as `String?`. If this
-  /// also turns out to be a JSON number, it would fail the exact same way
-  /// `waitlistNumber` did below.
-  final String? userParticipantCount;
+  /// `int?` (not `String?` — Android's `CurrentScheduleItem.kt` types it
+  /// `String?`, same mistake as `waitlistNumber` below, confirmed live:
+  /// `type 'int' is not a subtype of type 'String?' in type cast` was the
+  /// actual parse failure left after fixing `waitlistNumber` alone).
+  final int? userParticipantCount;
 
   /// `int?` here (not `String?`, Android's own `CurrentScheduleItem.kt`
   /// typing): iOS's `ScheduleItems.waitlistNumber` for this same endpoint,

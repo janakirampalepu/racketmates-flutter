@@ -25,6 +25,9 @@ void main() {
     // related endpoint, both type it as a number) — confirms the field
     // tolerates a numeric value instead of throwing a cast error.
     expect(first.waitlistNumber, 3);
+    // Same bug, confirmed live after fixing waitlistNumber alone: a second
+    // field the backend also sends as a number was still typed String?.
+    expect(first.userParticipantCount, 4);
     expect(first.eventUsers!.single.firstName, 'Sam');
     expect(items[1].additionalVenues, 2);
     expect(items[1].notes, isNull);

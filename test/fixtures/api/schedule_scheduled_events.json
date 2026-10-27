@@ -19,6 +19,7 @@
       "on_multiple_dates": false,
       "notes": "Bring balls",
       "waitlist_number": 3,
+      "user_participant_count": 4,
       "event_users": [
         {"id": 7, "first_name": "Sam", "last_name": "Lee", "thumbnail_attachment_url": null}
       ],

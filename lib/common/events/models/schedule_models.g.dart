@@ -64,7 +64,7 @@ ScheduleItem _$ScheduleItemFromJson(Map<String, dynamic> json) => ScheduleItem(
   coachLabel: json['coach_label'] as String?,
   startTimeText: json['start_time_text'] as String?,
   endTimeText: json['end_time_text'] as String?,
-  userParticipantCount: json['user_participant_count'] as String?,
+  userParticipantCount: (json['user_participant_count'] as num?)?.toInt(),
   waitlistNumber: (json['waitlist_number'] as num?)?.toInt(),
   additionalTimings: (json['additional_timings'] as num?)?.toInt(),
   additionalVenues: (json['additional_venues'] as num?)?.toInt(),
