@@ -186,7 +186,7 @@ class SendbirdChatUi implements ChatUi {
     final query = GroupChannelListQuery()
       ..customTypesFilter = customTypesFilter ?? const []
       ..hiddenChannelFilter = archived
-          ? HiddenChannelFilter.hiddenPreventAutoUnhide
+          ? HiddenChannelFilter.hidden
           : HiddenChannelFilter.unhidden;
     return SendbirdUIKit.provider(
       child: SBUGroupChannelListScreen(
@@ -259,7 +259,13 @@ class SendbirdChatUi implements ChatUi {
   Future<void> setArchived(String channelUrl, {required bool archived}) async {
     final channel = await GroupChannel.getChannel(channelUrl);
     if (archived) {
-      await channel.hide();
+      // Native (`GroupChatViewModel.archiveChat`: `groupChannel.hide(false,
+      // false)`) hides WITHOUT auto-unhide — the channel stays archived even
+      // after a new message arrives, unlike the SDK's own default
+      // (`allowAutoUnhide: true`, which un-archives on the next message).
+      // The read side must filter for the same hidden mode (see below) or
+      // the archived tab never finds what this just hid.
+      await channel.hide(allowAutoUnhide: false);
     } else {
       await channel.unhide();
     }
@@ -269,7 +275,9 @@ class SendbirdChatUi implements ChatUi {
   Future<bool> hasArchivedChannels({List<String>? customTypesFilter}) async {
     final query = GroupChannelListQuery()
       ..customTypesFilter = customTypesFilter ?? const []
-      ..hiddenChannelFilter = HiddenChannelFilter.hiddenPreventAutoUnhide
+      // Native queries `HiddenChannelFilter.HIDDEN` (any hidden state), not
+      // the auto-unhide-specific subset — matched here.
+      ..hiddenChannelFilter = HiddenChannelFilter.hidden
       ..limit = 1;
     final channels = await query.next();
     return channels.isNotEmpty;
