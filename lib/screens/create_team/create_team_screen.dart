@@ -11,6 +11,7 @@ import 'package:racketmates/common/teams/create_team_flow.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/common/users/user_profile_provider.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
+import 'package:racketmates/common/widgets/sport_select_row.dart';
 import 'package:racketmates/common/widgets/team_type_cards.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_team/create_team_test_ids.dart';
@@ -132,22 +133,20 @@ class _CreateTeamScreenState extends ConsumerState<CreateTeamScreen> {
           ),
         ),
         for (final sport in SportKey.values)
-          TestId(
-            CreateTeamTestIds.sport(sport.key),
-            child: CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(sportLabel(l10n, sport)),
-              value: draft.sports.contains(sport),
-              onChanged: (_) {
-                flow.toggleSport(sport);
-                setState(
-                  () => _errors = [
-                    for (final e in _errors)
-                      if (e != TeamDetailsError.sportRequired) e,
-                  ],
-                );
-              },
-            ),
+          SportSelectRow(
+            testId: CreateTeamTestIds.sport(sport.key),
+            icon: sportIconName(sport),
+            label: sportLabel(l10n, sport),
+            selected: draft.sports.contains(sport),
+            onChanged: (_) {
+              flow.toggleSport(sport);
+              setState(
+                () => _errors = [
+                  for (final e in _errors)
+                    if (e != TeamDetailsError.sportRequired) e,
+                ],
+              );
+            },
           ),
         if (_errors.contains(TeamDetailsError.sportRequired))
           error(CreateTeamTestIds.sportError, l10n.createTeamSportRequired),

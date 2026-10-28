@@ -101,4 +101,20 @@ abstract class TeamsApi {
 
   @DELETE('teams/{id}')
   Future<void> deleteTeam(@Path('id') int id);
+
+  /// Manually credits a player with ranking points for a match.
+  /// `{team_player_points_history: {earned_points, match_type, sport_type}}`.
+  @POST('team_players/{teamPlayerId}/team_player_points_histories')
+  Future<void> addRankingPoints(
+    @Path('teamPlayerId') int teamPlayerId,
+    @Body() Map<String, dynamic> body,
+  );
+
+  /// Resets every player's ranking for one sport back to zero.
+  /// `{sport_type}`.
+  @PUT('teams/{id}/reset_players_ranking')
+  Future<void> resetRanking(
+    @Path('id') int id,
+    @Body() Map<String, dynamic> body,
+  );
 }

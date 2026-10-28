@@ -43,12 +43,23 @@ final opponentTeamsProvider = FutureProvider.autoDispose
           ),
     );
 
-/// Members of a team, with or without the deactivated ones.
+/// Members of a team, with or without the deactivated ones, optionally
+/// filtered by name search and/or sport (native `TeamActiveParticipantFragment`'s
+/// search box and sport filter — both already supported by `members()`,
+/// just not previously wired into any screen's filter UI).
 final teamRosterProvider = FutureProvider.autoDispose
-    .family<List<TeamPlayer>, ({int teamId, bool inactive})>(
+    .family<
+      List<TeamPlayer>,
+      ({int teamId, bool inactive, String search, String? sportKey})
+    >(
       (ref, args) => ref
           .watch(teamsRepositoryProvider)
-          .members(args.teamId, includeInactive: args.inactive),
+          .members(
+            args.teamId,
+            includeInactive: args.inactive,
+            query: args.search,
+            sportKey: args.sportKey,
+          ),
     );
 
 /// The team's ranking table for a sport, period and match type.

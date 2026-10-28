@@ -17,6 +17,7 @@ import 'package:racketmates/common/teams/team_edit.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/teams/teams_repository.dart';
+import 'package:racketmates/common/widgets/sport_select_row.dart';
 import 'package:racketmates/common/widgets/team_type_cards.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/team_details/team_access.dart';
@@ -424,25 +425,23 @@ class _FormState extends ConsumerState<_Form> {
           ),
         ),
         for (final sport in SportKey.values)
-          TestId(
-            TeamSettingsTestIds.sport(sport.key),
-            child: CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(sportLabel(l10n, sport)),
-              value: _edit.sports.contains(sport),
-              onChanged: (v) {
-                setState(
-                  () => _edit = _edit.copyWith(
-                    sports: [
-                      for (final s in _edit.sports)
-                        if (s != sport) s,
-                      if (v ?? false) sport,
-                    ],
-                  ),
-                );
-                _clear(TeamDetailsError.sportRequired);
-              },
-            ),
+          SportSelectRow(
+            testId: TeamSettingsTestIds.sport(sport.key),
+            icon: sportIconName(sport),
+            label: sportLabel(l10n, sport),
+            selected: _edit.sports.contains(sport),
+            onChanged: (v) {
+              setState(
+                () => _edit = _edit.copyWith(
+                  sports: [
+                    for (final s in _edit.sports)
+                      if (s != sport) s,
+                    if (v) sport,
+                  ],
+                ),
+              );
+              _clear(TeamDetailsError.sportRequired);
+            },
           ),
         if (_errors.contains(TeamDetailsError.sportRequired))
           error(TeamSettingsTestIds.sportError, l10n.createTeamSportRequired),

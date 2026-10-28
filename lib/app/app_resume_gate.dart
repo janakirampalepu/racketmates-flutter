@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:racketmates/common/session/session_info_controller.dart';
 import 'package:racketmates/common/startup/app_gate.dart';
+import 'package:racketmates/common/startup/downtime.dart';
 
 /// Re-runs the device and downtime checks whenever the app comes back to the
 /// foreground (native `checkAppUpdateResuming` / the rooted check on resume),
@@ -31,6 +32,14 @@ class _AppResumeGateState extends ConsumerState<AppResumeGate> {
     // Nothing blocks the app: refresh the subscription and permissions.
     if (mounted && ref.read(appGateProvider) == null) {
       unawaited(ref.read(sessionInfoControllerProvider.notifier).refresh());
+    }
+    // Home's own dismissible scheduled-maintenance banner (as opposed to
+    // the blocking downtime gate `checkOnResume` already re-checked above)
+    // — native re-shows it on every resume (`HomeFragment.onResume`'s
+    // `showMaintenanceBanner()`); here it otherwise only refreshed via
+    // Home's own pull-to-refresh or a family-selection change.
+    if (mounted) {
+      ref.invalidate(scheduledMaintenanceProvider);
     }
   }
 

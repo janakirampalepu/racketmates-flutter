@@ -28,9 +28,19 @@ abstract final class TeamDetailsTestIds {
   static const rankingsError = 'team_rankings_error';
   static const rankingsRetry = 'team_rankings_retry';
   static const rankingsPeriod = 'team_rankings_period';
+  static const rankingReset = 'team_rankings_reset_button';
+  static const rankingPointsDialog = 'team_ranking_points_dialog';
+  static const rankingPointsField = 'team_ranking_points_field';
+  static const rankingPointsSave = 'team_ranking_points_save_button';
+  static const rankingPointsFailed = 'team_ranking_points_failed';
+  static const rankingResetConfirmYes = 'team_ranking_reset_confirm_yes';
+  static const rankingResetFailed = 'team_ranking_reset_failed';
 
   /// `team_rank_sport_<sportKey>`.
   static String rankingSport(String key) => 'team_rank_sport_$key';
+
+  /// `team_rank_add_points_<teamPlayerId>`.
+  static String rankingAddPoints(int id) => 'team_rank_add_points_$id';
 
   /// `team_rank_match_<matchKey|all>`.
   static String rankingMatch(String key) => 'team_rank_match_$key';
@@ -41,6 +51,11 @@ abstract final class TeamDetailsTestIds {
   // Members
   static const showInactive = 'team_members_show_inactive_switch';
   static const addMembers = 'team_members_add_button';
+  static const membersSearch = 'team_members_search_field';
+
+  /// `team_members_sport_filter_<sportKey|all>`.
+  static String membersSportFilter(String key) =>
+      'team_members_sport_filter_$key';
   static const accessDialog = 'team_members_access_dialog';
   static const accessDialogClose = 'team_members_access_dialog_close';
   static const accessDialogUpgrade = 'team_members_access_dialog_upgrade';

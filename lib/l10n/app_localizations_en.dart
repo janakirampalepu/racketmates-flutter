@@ -1207,7 +1207,45 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get teamRankingAddPoints => 'Add points';
+
+  @override
+  String teamRankingAddPointsTitle(String name) {
+    return 'Add points for $name';
+  }
+
+  @override
+  String get teamRankingPointsLabel => 'Points earned';
+
+  @override
+  String get teamRankingPointsRequired => 'Enter the points earned.';
+
+  @override
+  String get teamRankingPointsFailed => 'The points could not be saved.';
+
+  @override
+  String get teamRankingReset => 'Reset ranking';
+
+  @override
+  String teamRankingResetTitle(String sport) {
+    return 'Reset the $sport ranking?';
+  }
+
+  @override
+  String get teamRankingResetText =>
+      'Every player\'s rank and points for this sport go back to zero. This cannot be undone.';
+
+  @override
+  String get teamRankingResetFailed => 'The ranking could not be reset.';
+
+  @override
   String get teamMembersShowInactive => 'Show deactivated members';
+
+  @override
+  String get teamMembersSearchHint => 'Search members';
+
+  @override
+  String get teamMembersSportAll => 'All';
 
   @override
   String get teamMemberInactive => 'Deactivated';

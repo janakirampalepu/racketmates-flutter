@@ -7,6 +7,8 @@ import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/chat/chat_controller.dart';
 import 'package:racketmates/common/chat/chat_ui.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
+import 'package:racketmates/common/users/user_profile_provider.dart';
+import 'package:racketmates/common/widgets/family_user_picker.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/team_details/team_chat_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
@@ -104,17 +106,25 @@ class TeamChatScreen extends ConsumerWidget {
               ),
               data: (t) => TestId(
                 TeamChatTestIds.root,
-                child: TestId(
-                  TeamChatTestIds.list,
-                  child: ref
-                      .watch(chatUiProvider)
-                      .channelList(
-                        context,
-                        customTypesFilter: t.chatRoomTypesForFiltering ?? [],
-                        onOpen: (url) =>
-                            context.push(AppRoutes.chatChannelFor(url)),
-                        onCreate: () {},
+                child: Column(
+                  children: [
+                    _TeamFamilyRow(teamId: teamId),
+                    Expanded(
+                      child: TestId(
+                        TeamChatTestIds.list,
+                        child: ref
+                            .watch(chatUiProvider)
+                            .channelList(
+                              context,
+                              customTypesFilter:
+                                  t.chatRoomTypesForFiltering ?? [],
+                              onOpen: (url) =>
+                                  context.push(AppRoutes.chatChannelFor(url)),
+                              onCreate: () {},
+                            ),
                       ),
+                    ),
+                  ],
                 ),
               ),
             )
@@ -141,6 +151,60 @@ class TeamChatScreen extends ConsumerWidget {
                 ),
               },
             ),
+    );
+  }
+}
+
+/// Native `CustomChannelListFragment.handleTeamSelectedPlayers`: the
+/// signed-in user's own family (parent + kids, `getTeamFamilySelectedUsers`)
+/// who are ALSO on this team's roster — shown only when there is more than
+/// one, same `MAX_DISPLAY_CHILDS`-style overlapping-avatar row the global
+/// chat/Home/Teams screens already use. Traced in full: selecting a member
+/// here never touches the channel-list query on either native app (only
+/// `team.filteredCustomTypeChatRoom` does, already wired above) — it is
+/// purely a cosmetic "who's chatting" indicator, so this stays
+/// non-interactive rather than wiring a selection that would do nothing.
+class _TeamFamilyRow extends ConsumerWidget {
+  const _TeamFamilyRow({required this.teamId});
+
+  final int teamId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userProfileProvider).value;
+    final roster = ref
+        .watch(
+          teamRosterProvider((
+            teamId: teamId,
+            inactive: false,
+            search: '',
+            sportKey: null,
+          )),
+        )
+        .value;
+    if (user == null || roster == null) return const SizedBox.shrink();
+    final rosterUserIds = {for (final m in roster) m.userId};
+    final members = [
+      for (final m in familyMembers(user))
+        if (rosterUserIds.contains(m.id)) m,
+    ];
+    if (members.length <= 1) return const SizedBox.shrink();
+    final sdp = context.sdp;
+    return TestId(
+      FamilyPickerTestIds.row,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(sdp(12), sdp(8), sdp(12), 0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final (i, member) in members.take(3).indexed)
+              Padding(
+                padding: EdgeInsets.only(left: i == 0 ? 0 : sdp(8)),
+                child: FamilyAvatar(member: member, isSelected: false),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

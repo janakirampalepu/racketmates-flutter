@@ -5,19 +5,50 @@ import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/startup/downtime.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+/// Remembers, across restarts, which scheduled-maintenance incident the
+/// home banner was dismissed for (previously session-only: the dismissal
+/// was lost on every app restart, same pattern as `distanceFilterStore`).
+abstract class MaintenanceDismissalStore {
+  Future<String?> dismissedName();
+  Future<void> dismiss(String name);
+}
+
+class PrefsMaintenanceDismissalStore implements MaintenanceDismissalStore {
+  PrefsMaintenanceDismissalStore([SharedPreferencesAsync? prefs])
+    : _prefs = prefs ?? SharedPreferencesAsync();
+
+  final SharedPreferencesAsync _prefs;
+
+  static const _key = 'dismissed_maintenance_name';
+
+  @override
+  Future<String?> dismissedName() => _prefs.getString(_key);
+
+  @override
+  Future<void> dismiss(String name) => _prefs.setString(_key, name);
+}
+
+final maintenanceDismissalStoreProvider = Provider<MaintenanceDismissalStore>(
+  (ref) => PrefsMaintenanceDismissalStore(),
+);
 
 /// The incident name (if any) the home banner was last dismissed for;
 /// cleared when a different incident starts.
-class _DismissedMaintenanceNotifier extends Notifier<String?> {
+class _DismissedMaintenanceNotifier extends AsyncNotifier<String?> {
   @override
-  String? build() => null;
+  Future<String?> build() =>
+      ref.read(maintenanceDismissalStoreProvider).dismissedName();
 
-  // ignore: use_setters_to_change_properties
-  void dismiss(String name) => state = name;
+  Future<void> dismiss(String name) async {
+    state = AsyncData(name);
+    await ref.read(maintenanceDismissalStoreProvider).dismiss(name);
+  }
 }
 
 final _dismissedMaintenanceProvider =
-    NotifierProvider<_DismissedMaintenanceNotifier, String?>(
+    AsyncNotifierProvider<_DismissedMaintenanceNotifier, String?>(
       _DismissedMaintenanceNotifier.new,
     );
 
@@ -30,7 +61,7 @@ class HomeDowntimeBanner extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final maintenance = ref.watch(scheduledMaintenanceProvider).value;
-    final dismissed = ref.watch(_dismissedMaintenanceProvider);
+    final dismissed = ref.watch(_dismissedMaintenanceProvider).value;
     if (maintenance == null || maintenance.name == dismissed) {
       return const SizedBox.shrink();
     }

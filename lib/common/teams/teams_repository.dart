@@ -94,6 +94,18 @@ abstract class TeamsRepository {
 
   /// `POST teams`; returns the created team.
   Future<Team> create(Map<String, dynamic> body);
+
+  /// Credits [teamPlayerId] with [earnedPoints] for one match (native's
+  /// manual ranking-points entry).
+  Future<void> addRankingPoints(
+    int teamPlayerId, {
+    required int earnedPoints,
+    required String sportType,
+    String? matchType,
+  });
+
+  /// Resets every player's ranking for [sportType] back to zero.
+  Future<void> resetRanking(int teamId, {required String sportType});
 }
 
 class TeamsRepositoryImpl implements TeamsRepository {
@@ -293,6 +305,26 @@ class TeamsRepositoryImpl implements TeamsRepository {
     if (team == null) throw const ParseFailure('team missing');
     return team;
   }
+
+  @override
+  Future<void> addRankingPoints(
+    int teamPlayerId, {
+    required int earnedPoints,
+    required String sportType,
+    String? matchType,
+  }) => _guard(
+    () => api.addRankingPoints(teamPlayerId, {
+      'team_player_points_history': {
+        'earned_points': earnedPoints,
+        'sport_type': sportType,
+        'match_type': ?matchType,
+      },
+    }),
+  );
+
+  @override
+  Future<void> resetRanking(int teamId, {required String sportType}) =>
+      _guard(() => api.resetRanking(teamId, {'sport_type': sportType}));
 }
 
 final teamsRepositoryProvider = Provider<TeamsRepository>(

@@ -2308,11 +2308,77 @@ abstract class AppLocalizations {
   /// **'Rank {rank}'**
   String teamRankingRank(int rank);
 
+  /// No description provided for @teamRankingAddPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Add points'**
+  String get teamRankingAddPoints;
+
+  /// No description provided for @teamRankingAddPointsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add points for {name}'**
+  String teamRankingAddPointsTitle(String name);
+
+  /// No description provided for @teamRankingPointsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Points earned'**
+  String get teamRankingPointsLabel;
+
+  /// No description provided for @teamRankingPointsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the points earned.'**
+  String get teamRankingPointsRequired;
+
+  /// No description provided for @teamRankingPointsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The points could not be saved.'**
+  String get teamRankingPointsFailed;
+
+  /// No description provided for @teamRankingReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset ranking'**
+  String get teamRankingReset;
+
+  /// No description provided for @teamRankingResetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset the {sport} ranking?'**
+  String teamRankingResetTitle(String sport);
+
+  /// No description provided for @teamRankingResetText.
+  ///
+  /// In en, this message translates to:
+  /// **'Every player\'s rank and points for this sport go back to zero. This cannot be undone.'**
+  String get teamRankingResetText;
+
+  /// No description provided for @teamRankingResetFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The ranking could not be reset.'**
+  String get teamRankingResetFailed;
+
   /// No description provided for @teamMembersShowInactive.
   ///
   /// In en, this message translates to:
   /// **'Show deactivated members'**
   String get teamMembersShowInactive;
+
+  /// No description provided for @teamMembersSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search members'**
+  String get teamMembersSearchHint;
+
+  /// No description provided for @teamMembersSportAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get teamMembersSportAll;
 
   /// No description provided for @teamMemberInactive.
   ///

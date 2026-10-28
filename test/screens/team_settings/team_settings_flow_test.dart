@@ -4,6 +4,7 @@ import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/session/session_info_models.dart';
 import 'package:racketmates/common/teams/team_models.dart';
+import 'package:racketmates/common/widgets/sport_select_row.dart';
 import 'package:racketmates/screens/create_event_sport/create_event_sport_test_ids.dart';
 import 'package:racketmates/screens/create_event_settings/create_event_settings_test_ids.dart';
 import 'package:racketmates/screens/create_event_team_choice/create_event_team_choice_test_ids.dart';
@@ -104,13 +105,12 @@ void main() {
             .text,
         'Sunday Smashers',
       );
-      final tennis = tester.widget<CheckboxListTile>(
-        find.descendant(
-          of: _id(TeamSettingsTestIds.sport('st_tennis')),
-          matching: find.byType(CheckboxListTile),
-        ),
-      );
-      expect(tennis.value, isTrue);
+      final tennis = tester
+          .widgetList<SportSelectRow>(find.byType(SportSelectRow))
+          .firstWhere(
+            (w) => w.testId == TeamSettingsTestIds.sport('st_tennis'),
+          );
+      expect(tennis.selected, isTrue);
       handle.dispose();
     });
 

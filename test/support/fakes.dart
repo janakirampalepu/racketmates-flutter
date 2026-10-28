@@ -49,6 +49,7 @@ import 'package:racketmates/common/share/share_service.dart';
 import 'package:racketmates/common/support/support_repository.dart';
 import 'package:racketmates/common/location/location_platform.dart';
 import 'package:racketmates/common/location/user_location.dart';
+import 'package:racketmates/screens/home/home_downtime_banner.dart';
 import 'package:racketmates/common/chat/chat_client.dart';
 import 'package:racketmates/common/create_event/drafts_models.dart';
 import 'package:racketmates/common/create_event/drafts_repository.dart';
@@ -1098,6 +1099,7 @@ List<Override> contentOverrides({
   InMemoryPromptStore? promptStore,
   FakeLocationPlatform? location,
   InMemoryDistanceStore? distanceStore,
+  InMemoryMaintenanceDismissalStore? maintenanceDismissal,
   FakeSupportRepository? support,
   FakeShareService? share,
   FakePhotoPicker? photoPicker,
@@ -1149,6 +1151,9 @@ List<Override> contentOverrides({
   ),
   distanceFilterStoreProvider.overrideWithValue(
     distanceStore ?? InMemoryDistanceStore(),
+  ),
+  maintenanceDismissalStoreProvider.overrideWithValue(
+    maintenanceDismissal ?? InMemoryMaintenanceDismissalStore(),
   ),
   supportRepositoryProvider.overrideWithValue(
     support ?? FakeSupportRepository(),
@@ -1553,6 +1558,34 @@ class FakeTeamsRepository implements TeamsRepository {
     if (createFailure != null) throw createFailure!;
     created = body;
     return Team(id: createdId);
+  }
+
+  /// `(teamPlayerId, earnedPoints, sportType, matchType)` calls to
+  /// [addRankingPoints].
+  final List<(int, int, String, String?)> pointsAdded = [];
+  AppFailure? pointsFailure;
+
+  @override
+  Future<void> addRankingPoints(
+    int teamPlayerId, {
+    required int earnedPoints,
+    required String sportType,
+    String? matchType,
+  }) async {
+    await Future<void>.delayed(Duration.zero);
+    if (pointsFailure != null) throw pointsFailure!;
+    pointsAdded.add((teamPlayerId, earnedPoints, sportType, matchType));
+  }
+
+  /// `(teamId, sportType)` calls to [resetRanking].
+  final List<(int, String)> rankingResets = [];
+  AppFailure? resetFailure;
+
+  @override
+  Future<void> resetRanking(int teamId, {required String sportType}) async {
+    await Future<void>.delayed(Duration.zero);
+    if (resetFailure != null) throw resetFailure!;
+    rankingResets.add((teamId, sportType));
   }
 }
 
@@ -2025,6 +2058,16 @@ class InMemoryDistanceStore implements DistanceFilterStore {
 
   @override
   Future<void> write(int distance) async => value = distance;
+}
+
+class InMemoryMaintenanceDismissalStore implements MaintenanceDismissalStore {
+  String? value;
+
+  @override
+  Future<String?> dismissedName() async => value;
+
+  @override
+  Future<void> dismiss(String name) async => value = name;
 }
 
 class FakeDraftsRepository implements DraftsRepository {

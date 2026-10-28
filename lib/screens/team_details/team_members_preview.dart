@@ -38,7 +38,12 @@ class TeamMembersPreview extends ConsumerWidget {
     final n = context.native;
     final sdp = context.sdp;
     final roster = ref.watch(
-      teamRosterProvider((teamId: teamId, inactive: false)),
+      teamRosterProvider((
+        teamId: teamId,
+        inactive: false,
+        search: '',
+        sportKey: null,
+      )),
     );
 
     void openMembers() => context.push(AppRoutes.teamMembersFor(teamId));

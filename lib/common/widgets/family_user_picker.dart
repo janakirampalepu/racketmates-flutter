@@ -58,7 +58,7 @@ class FamilyAvatarsRow extends ConsumerWidget {
                 for (final (i, member) in members.take(3).indexed)
                   Padding(
                     padding: EdgeInsets.only(left: i == 0 ? 0 : sdp(8)),
-                    child: _FamilyAvatar(
+                    child: FamilyAvatar(
                       member: member,
                       isSelected: selected.contains('${member.id}'),
                     ),
@@ -74,8 +74,12 @@ class FamilyAvatarsRow extends ConsumerWidget {
   }
 }
 
-class _FamilyAvatar extends StatelessWidget {
-  const _FamilyAvatar({required this.member, required this.isSelected});
+class FamilyAvatar extends StatelessWidget {
+  const FamilyAvatar({
+    required this.member,
+    required this.isSelected,
+    super.key,
+  });
 
   final AppUser member;
   final bool isSelected;

@@ -6,6 +6,7 @@ import 'package:racketmates/common/events/models/schedule_models.dart';
 import 'package:racketmates/common/session/session_info_models.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
+import 'package:racketmates/common/widgets/family_user_picker.dart';
 import 'package:racketmates/screens/event_details/event_details_test_ids.dart';
 import 'package:racketmates/screens/main_shell/main_shell_test_ids.dart';
 import 'package:racketmates/screens/subscription/subscription_test_ids.dart';
@@ -105,6 +106,7 @@ Future<void> _openTeam(
   FakeScheduleRepository? schedule,
   FakeSessionInfoRepository? sessionInfo,
   FakeChatUi? chatUi,
+  FakeUserRepository? users,
 }) async {
   await tester.pumpWidget(
     signedInApp(
@@ -112,6 +114,7 @@ Future<void> _openTeam(
       schedule: schedule,
       sessionInfo: sessionInfo,
       chatUi: chatUi,
+      users: users,
       content: FakeContentRepository(reference: _reference),
     ),
   );
@@ -164,6 +167,51 @@ void main() {
         handle.dispose();
       },
     );
+
+    testWidgets('the family row is hidden with no kid on the roster', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      // The signed-in captain (_sam, id 7) and a coach (_pat, id 9) who
+      // isn't family.
+      await _openTeam(
+        tester,
+        teams: _repo(),
+        schedule: FakeScheduleRepository(),
+      );
+      await _tap(tester, TeamShellTestIds.navChat);
+      expect(_id(FamilyPickerTestIds.row), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('the family row shows when a kid is also on the roster', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      // _pat (id 9, already on the default roster as a coach) is now
+      // _sam's kid, so both show in the team's own family row.
+      await _openTeam(
+        tester,
+        teams: _repo(),
+        schedule: FakeScheduleRepository(),
+        users: FakeUserRepository(
+          profile: const UserDetails(
+            user: AppUser(
+              id: 7,
+              uid: 'uid-7',
+              firstName: 'Sam',
+              lastName: 'Lee',
+              children: [_pat],
+            ),
+          ),
+        ),
+      );
+      await _tap(tester, TeamShellTestIds.navChat);
+      expect(_id(FamilyPickerTestIds.row), findsOneWidget);
+      handle.dispose();
+    });
 
     testWidgets("the team chat tab is scoped to the team's own channels", (
       tester,
@@ -303,6 +351,46 @@ void main() {
       await _tap(tester, TeamDetailsTestIds.rankingMatch('all'));
       expect(teams.rankingRequests.last.matchType, isNull);
       expect(_id(TeamDetailsTestIds.rankingsEmpty), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('adding points for a player sends the request', (tester) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final teams = _repo()..ranking = [ranked(501, _alex, 1, null, 10)];
+      await _openTeam(tester, teams: teams);
+      await _tap(tester, TeamHomeActionIds.membersSeeAll);
+      await _tap(tester, TeamDetailsTestIds.rankingAddPoints(501));
+      await tester.enterText(
+        find.descendant(
+          of: _id(TeamDetailsTestIds.rankingPointsDialog),
+          matching: find.byType(TextField),
+        ),
+        '15',
+      );
+      await _tap(tester, TeamDetailsTestIds.rankingPointsSave);
+      expect(teams.pointsAdded, [(501, 15, 'st_tennis', null)]);
+      handle.dispose();
+    });
+
+    testWidgets('resetting the ranking asks first and sends the request', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final teams = _repo(
+        team: _team(
+          permissions: {
+            ..._all,
+            'team.settings': const AccessInfo(access: 'up_enabled'),
+          },
+        ),
+      )..ranking = [ranked(501, _alex, 1, null, 10)];
+      await _openTeam(tester, teams: teams);
+      await _tap(tester, TeamHomeActionIds.membersSeeAll);
+      await _tap(tester, TeamDetailsTestIds.rankingReset);
+      await _tap(tester, TeamDetailsTestIds.rankingResetConfirmYes);
+      expect(teams.rankingResets, [(31, 'st_tennis')]);
       handle.dispose();
     });
 
@@ -474,6 +562,30 @@ void main() {
       expect(_inMembers(find.text('Alex Kim')), findsOneWidget);
       expect(_id(TeamDetailsTestIds.memberActions(501)), findsNothing);
       expect(_id(TeamDetailsTestIds.addMembers), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('search and sport filter are sent with the member query', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final teams = _repo();
+      await _openTeam(tester, teams: teams);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
+      await tester.enterText(
+        find.descendant(
+          of: _id(TeamDetailsTestIds.membersSearch),
+          matching: find.byType(TextField),
+        ),
+        'Alex',
+      );
+      await tester.pumpAndSettle();
+      expect(teams.memberSearches.last.query, 'Alex');
+      await _tap(tester, TeamDetailsTestIds.membersSportFilter('st_padel'));
+      expect(teams.memberSearches.last.sport, 'st_padel');
+      await _tap(tester, TeamDetailsTestIds.membersSportFilter('all'));
+      expect(teams.memberSearches.last.sport, isNull);
       handle.dispose();
     });
 

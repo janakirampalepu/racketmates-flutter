@@ -8,6 +8,8 @@ import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/session/access.dart';
 import 'package:racketmates/common/session/session_info_controller.dart';
+import 'package:racketmates/common/sign_up/sign_up_draft.dart';
+import 'package:racketmates/common/sign_up/sport_labels.dart';
 import 'package:racketmates/common/teams/member_rules.dart';
 import 'package:racketmates/common/teams/team_labels.dart';
 import 'package:racketmates/common/teams/team_models.dart';
@@ -35,8 +37,17 @@ class TeamMembersTab extends ConsumerStatefulWidget {
 class _TeamMembersTabState extends ConsumerState<TeamMembersTab> {
   bool _inactive = false;
   bool _busy = false;
+  String _search = '';
+  String? _sportFilter;
+  late final _searchController = TextEditingController();
 
   int get _teamId => widget.team.id ?? 0;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   AccessDecision _access(String key) => memberAccess(
     widget.team,
@@ -234,7 +245,12 @@ class _TeamMembersTabState extends ConsumerState<TeamMembersTab> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final roster = ref.watch(
-      teamRosterProvider((teamId: _teamId, inactive: _inactive)),
+      teamRosterProvider((
+        teamId: _teamId,
+        inactive: _inactive,
+        search: _search,
+        sportKey: _sportFilter,
+      )),
     );
     final canAdd = _access(TeamPermissions.addMembers) != AccessDecision.hidden;
 
@@ -267,6 +283,48 @@ class _TeamMembersTabState extends ConsumerState<TeamMembersTab> {
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: TestId(
+            TeamDetailsTestIds.membersSearch,
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: l10n.teamMembersSearchHint,
+                prefixIcon: const Icon(Icons.search),
+                isDense: true,
+              ),
+              onChanged: (v) => setState(() => _search = v.trim()),
+            ),
+          ),
+        ),
+        if (widget.team.sportKeys.length > 1)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Wrap(
+              spacing: 8,
+              children: [
+                TestId(
+                  TeamDetailsTestIds.membersSportFilter('all'),
+                  child: ChoiceChip(
+                    label: Text(l10n.teamMembersSportAll),
+                    selected: _sportFilter == null,
+                    onSelected: (_) => setState(() => _sportFilter = null),
+                  ),
+                ),
+                for (final key in widget.team.sportKeys)
+                  if (SportKey.fromKey(key) case final sport?)
+                    TestId(
+                      TeamDetailsTestIds.membersSportFilter(key),
+                      child: ChoiceChip(
+                        label: Text(sportLabel(l10n, sport)),
+                        selected: _sportFilter == key,
+                        onSelected: (_) => setState(() => _sportFilter = key),
+                      ),
+                    ),
+              ],
+            ),
+          ),
         if (_busy) const LinearProgressIndicator(),
         Expanded(
           child: roster.when(
