@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/chat/chat_avatar.dart';
+import 'package:racketmates/common/chat/chat_channel_display.dart';
 import 'package:racketmates/common/chat/chat_controller.dart';
 import 'package:racketmates/common/chat/chat_ui.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
@@ -34,6 +36,9 @@ class ChatChannelScreen extends ConsumerWidget {
         : null;
     final title = info?.value?.title ?? l10n.navChat;
     final avatarUrl = info?.value?.avatarUrl;
+    final iconAsset = info?.value?.iconAsset ?? 'ic_chat_unknown';
+    final iconBackground =
+        info?.value?.iconBackground ?? ChatIconBackground.none;
 
     return Scaffold(
       backgroundColor: n.backgroundSolidPrimary,
@@ -67,19 +72,11 @@ class ChatChannelScreen extends ConsumerWidget {
                     children: [
                       TestId(
                         ChatTestIds.channelAvatar,
-                        child: CircleAvatar(
-                          radius: 17,
-                          backgroundColor: n.background200,
-                          backgroundImage: avatarUrl != null
-                              ? NetworkImage(avatarUrl)
-                              : null,
-                          child: avatarUrl == null
-                              ? Icon(
-                                  Icons.person,
-                                  color: n.textSecondary,
-                                  size: 18,
-                                )
-                              : null,
+                        child: ChatAvatar(
+                          avatarUrl: avatarUrl,
+                          iconAsset: iconAsset,
+                          iconBackground: iconBackground,
+                          size: 34,
                         ),
                       ),
                       const SizedBox(width: 8),

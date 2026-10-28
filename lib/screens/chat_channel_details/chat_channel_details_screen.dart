@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/chat/chat_avatar.dart';
 import 'package:racketmates/common/chat/chat_ui.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/chat_channel_details/chat_channel_details_test_ids.dart';
@@ -129,15 +130,11 @@ class _DetailsBodyState extends ConsumerState<_DetailsBody> {
             children: [
               TestId(
                 ChatChannelDetailsTestIds.avatar,
-                child: CircleAvatar(
-                  radius: 36,
-                  backgroundColor: n.background200,
-                  backgroundImage: info.avatarUrl != null
-                      ? NetworkImage(info.avatarUrl!)
-                      : null,
-                  child: info.avatarUrl == null
-                      ? Icon(Icons.group, color: n.textSecondary, size: 36)
-                      : null,
+                child: ChatAvatar(
+                  avatarUrl: info.avatarUrl,
+                  iconAsset: info.iconAsset,
+                  iconBackground: info.iconBackground,
+                  size: 72,
                 ),
               ),
               const SizedBox(height: 12),

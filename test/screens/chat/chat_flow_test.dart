@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:racketmates/common/chat/chat_channel_display.dart';
 import 'package:racketmates/common/chat/chat_client.dart';
 import 'package:racketmates/common/chat/chat_ui.dart';
+import 'package:racketmates/common/widgets/native_widgets.dart';
 import 'package:racketmates/common/notifications/push_models.dart';
 import 'package:racketmates/common/session/session_info_models.dart';
 import 'package:racketmates/screens/chat/chat_test_ids.dart';
@@ -97,6 +99,40 @@ void main() {
         handle.dispose();
       },
     );
+
+    testWidgets('a group/event channel with no photo shows its resolved icon, '
+        'not a generic person/group glyph', (tester) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final chatUi = FakeChatUi()
+        ..info = const ChatChannelInfo(
+          title: 'Tennis practice',
+          members: [
+            ChatChannelMember(userId: 'u1', nickname: 'Alex', isMe: false),
+            ChatChannelMember(userId: 'u2', nickname: 'Me', isMe: true),
+          ],
+          isMuted: false,
+          iconAsset: 'ic_chat_tennis',
+          iconBackground: ChatIconBackground.sportGreen,
+        );
+      await tester.pumpWidget(signedInApp(chatUi: chatUi));
+      await _openChatTab(tester);
+      await tester.tap(find.text('open channel-1'));
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.person), findsNothing);
+      expect(
+        tester.widget<SvgIcon>(find.byType(SvgIcon)).name,
+        'ic_chat_tennis',
+      );
+      await tester.tap(_id(ChatTestIds.channelHeader));
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.group), findsNothing);
+      expect(
+        tester.widget<SvgIcon>(find.byType(SvgIcon)).name,
+        'ic_chat_tennis',
+      );
+      handle.dispose();
+    });
 
     testWidgets('muting from the details screen flips the switch', (
       tester,
