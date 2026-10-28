@@ -332,6 +332,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatUnavailable => 'Chat is not available on this build.';
 
   @override
+  String get chatUnknownChannel => 'Unknown';
+
+  @override
+  String get chatActiveTab => 'Active';
+
+  @override
+  String get chatArchivedTab => 'Archived';
+
+  @override
+  String get chatNoRoomsText => 'No chat rooms available yet';
+
+  @override
   String get chatChannelDetailsTitle => 'Chat details';
 
   @override

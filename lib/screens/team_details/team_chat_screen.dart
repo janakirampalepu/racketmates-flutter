@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/chat/chat_archive_tabs.dart';
 import 'package:racketmates/common/chat/chat_controller.dart';
 import 'package:racketmates/common/chat/chat_ui.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
@@ -22,18 +23,27 @@ import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
 /// Native hides the "add channel" button in this context
 /// (`addChannel.visibility = View.GONE`) and titles the toolbar
 /// "&lt;Chat&gt; - &lt;team name&gt;"; both are mirrored here.
-class TeamChatScreen extends ConsumerWidget {
+class TeamChatScreen extends ConsumerStatefulWidget {
   const TeamChatScreen({required this.teamId, super.key});
 
   final int teamId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TeamChatScreen> createState() => _TeamChatScreenState();
+}
+
+class _TeamChatScreenState extends ConsumerState<TeamChatScreen> {
+  bool _archived = false;
+  Future<bool>? _hasArchived;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final n = context.native;
     final sdp = context.sdp;
     final status = ref.watch(chatControllerProvider);
-    final team = ref.watch(teamDetailsProvider(teamId));
+    final team = ref.watch(teamDetailsProvider(widget.teamId));
+    final chatUi = ref.watch(chatUiProvider);
 
     Widget message(String id, String text, {bool retry = false}) => Center(
       child: Padding(
@@ -95,8 +105,9 @@ class TeamChatScreen extends ConsumerWidget {
                       TestId(
                         TeamDetailsTestIds.retry,
                         child: TextButton(
-                          onPressed: () =>
-                              ref.invalidate(teamDetailsProvider(teamId)),
+                          onPressed: () => ref.invalidate(
+                            teamDetailsProvider(widget.teamId),
+                          ),
                           child: Text(l10n.retryAction),
                         ),
                       ),
@@ -104,29 +115,45 @@ class TeamChatScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              data: (t) => TestId(
-                TeamChatTestIds.root,
-                child: Column(
-                  children: [
-                    _TeamFamilyRow(teamId: teamId),
-                    Expanded(
-                      child: TestId(
-                        TeamChatTestIds.list,
-                        child: ref
-                            .watch(chatUiProvider)
-                            .channelList(
-                              context,
-                              customTypesFilter:
-                                  t.chatRoomTypesForFiltering ?? [],
-                              onOpen: (url) =>
-                                  context.push(AppRoutes.chatChannelFor(url)),
-                              onCreate: () {},
-                            ),
+              data: (t) {
+                final customTypesFilter = t.chatRoomTypesForFiltering ?? [];
+                _hasArchived ??= chatUi.hasArchivedChannels(
+                  customTypesFilter: customTypesFilter,
+                );
+                return TestId(
+                  TeamChatTestIds.root,
+                  child: Column(
+                    children: [
+                      _TeamFamilyRow(teamId: widget.teamId),
+                      FutureBuilder<bool>(
+                        future: _hasArchived,
+                        builder: (context, snapshot) => (snapshot.data ?? false)
+                            ? ChatArchiveTabs(
+                                archived: _archived,
+                                onChanged: (value) =>
+                                    setState(() => _archived = value),
+                                activeTabId: TeamChatTestIds.tabActive,
+                                archivedTabId: TeamChatTestIds.tabArchived,
+                              )
+                            : const SizedBox.shrink(),
                       ),
-                    ),
-                  ],
-                ),
-              ),
+                      Expanded(
+                        child: TestId(
+                          TeamChatTestIds.list,
+                          child: chatUi.channelList(
+                            context,
+                            customTypesFilter: customTypesFilter,
+                            archived: _archived,
+                            onOpen: (url) =>
+                                context.push(AppRoutes.chatChannelFor(url)),
+                            onCreate: () {},
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             )
           : TestId(
               TeamChatTestIds.root,

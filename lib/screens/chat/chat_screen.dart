@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/chat/chat_archive_tabs.dart';
 import 'package:racketmates/common/chat/chat_controller.dart';
 import 'package:racketmates/common/chat/chat_ui.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
@@ -19,15 +20,30 @@ import 'package:racketmates/screens/chat/chat_test_ids.dart';
 /// built-in header (see `SendbirdChatUi.channelList`), so the tab's header
 /// matches Home/Teams instead of being drawn unclipped behind the status
 /// bar (which also made the top channel rows mis-register taps).
-class ChatScreen extends ConsumerWidget {
+class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends ConsumerState<ChatScreen> {
+  // Native defaults every list to the active tab on open/restart
+  // (`displayActiveChatList` is the initial state on both platforms); the
+  // archived toggle itself only appears once there's something archived.
+  bool _archived = false;
+  Future<bool>? _hasArchived;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final status = ref.watch(chatControllerProvider);
     final n = context.native;
     final sdp = context.sdp;
+    final chatUi = ref.watch(chatUiProvider);
+    _hasArchived ??= status == ChatStatus.connected
+        ? chatUi.hasArchivedChannels()
+        : null;
 
     Widget message(String id, String text, {bool retry = false}) => Center(
       child: Padding(
@@ -92,16 +108,35 @@ class ChatScreen extends ConsumerWidget {
       body: status == ChatStatus.connected
           ? TestId(
               ChatTestIds.root,
-              child: TestId(
-                ChatTestIds.list,
-                child: ref
-                    .watch(chatUiProvider)
-                    .channelList(
-                      context,
-                      onOpen: (url) =>
-                          context.push(AppRoutes.chatChannelFor(url)),
-                      onCreate: openNewChat,
-                    ),
+              child: FutureBuilder<bool>(
+                future: _hasArchived,
+                builder: (context, snapshot) {
+                  final showTabs = snapshot.data ?? false;
+                  return Column(
+                    children: [
+                      if (showTabs)
+                        ChatArchiveTabs(
+                          archived: _archived,
+                          onChanged: (value) =>
+                              setState(() => _archived = value),
+                          activeTabId: ChatTestIds.tabActive,
+                          archivedTabId: ChatTestIds.tabArchived,
+                        ),
+                      Expanded(
+                        child: TestId(
+                          ChatTestIds.list,
+                          child: chatUi.channelList(
+                            context,
+                            archived: _archived,
+                            onOpen: (url) =>
+                                context.push(AppRoutes.chatChannelFor(url)),
+                            onCreate: openNewChat,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             )
           : TestId(

@@ -1802,18 +1802,26 @@ class FakeChatUi implements ChatUi {
   /// The `customTypesFilter` passed to the most recent [channelList] call.
   List<String>? lastCustomTypesFilter;
 
+  /// The `archived` flag passed to the most recent [channelList] call.
+  bool lastArchived = false;
+
+  /// What [hasArchivedChannels] answers; tests override per case.
+  bool hasArchived = false;
+
   @override
   Widget channelList(
     BuildContext context, {
     required void Function(String url) onOpen,
     required VoidCallback onCreate,
     List<String>? customTypesFilter,
+    bool archived = false,
   }) {
     lastCustomTypesFilter = customTypesFilter;
+    lastArchived = archived;
     return Scaffold(
       body: Column(
         children: [
-          const Text('fake channel list'),
+          Text(archived ? 'fake archived channel list' : 'fake channel list'),
           TextButton(onPressed: onCreate, child: const Text('new chat')),
           TextButton(
             onPressed: () => onOpen('channel-1'),
@@ -1823,6 +1831,10 @@ class FakeChatUi implements ChatUi {
       ),
     );
   }
+
+  @override
+  Future<bool> hasArchivedChannels({List<String>? customTypesFilter}) async =>
+      hasArchived;
 
   @override
   Widget channel(BuildContext context, {required String channelUrl}) =>
@@ -1852,6 +1864,8 @@ class FakeChatUi implements ChatUi {
       title: info.title,
       avatarUrl: info.avatarUrl,
       members: info.members,
+      iconAsset: info.iconAsset,
+      iconBackground: info.iconBackground,
       isMuted: muted,
       isArchived: info.isArchived,
     );
@@ -1867,6 +1881,8 @@ class FakeChatUi implements ChatUi {
       title: info.title,
       avatarUrl: info.avatarUrl,
       members: info.members,
+      iconAsset: info.iconAsset,
+      iconBackground: info.iconBackground,
       isMuted: info.isMuted,
       isArchived: archived,
     );

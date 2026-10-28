@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
+import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/chat/chat_avatar.dart';
+import 'package:racketmates/common/chat/chat_channel_display.dart';
+import 'package:racketmates/common/content/content_text.dart';
+import 'package:racketmates/common/content/messages.dart';
+import 'package:racketmates/l10n/app_localizations.dart';
+import 'package:racketmates/screens/chat/chat_test_ids.dart';
 import 'package:sendbird_chat_sdk/sendbird_chat_sdk.dart';
 import 'package:sendbird_uikit/sendbird_uikit.dart';
 
@@ -29,25 +37,27 @@ class ChatChannelMember {
 /// Display info for a conversation's header and details screen: title,
 /// avatar, members and whether the signed-in user has muted it.
 ///
-/// The exact title-resolution rule native uses is considerably more
-/// involved — it branches on one-to-one/support/event/announcement
-/// channels and decodes a JSON blob off the channel for event names
-/// (`getGroupChannelItemTitle` in `TextUtils.kt`). This follows the
-/// simpler, generic rule the Sendbird UIKit itself uses instead (the
-/// channel's own name, else the other members' nicknames), since that is
-/// what is safely verifiable from the public SDK without a live backend;
-/// native's richer per-channel-type rule is a documented follow-up.
+/// Title and avatar now use native's own richer, per-channel-type rule
+/// (`resolveChannelDisplay`/`getGroupChannelItemTitle` in `TextUtils.kt`,
+/// confirmed to match iOS exactly), not the Sendbird UIKit's generic one
+/// (channel name, else member nicknames) this used to fall back to —
+/// [title] can still be empty when `channel.data` is missing/unreadable,
+/// same as native; callers supply their own fallback for that case.
 class ChatChannelInfo {
   const ChatChannelInfo({
     required this.title,
     required this.members,
     required this.isMuted,
+    this.iconAsset = 'ic_chat_unknown',
+    this.iconBackground = ChatIconBackground.none,
     this.isArchived = false,
     this.avatarUrl,
   });
 
   final String title;
   final String? avatarUrl;
+  final String iconAsset;
+  final ChatIconBackground iconBackground;
   final List<ChatChannelMember> members;
   final bool isMuted;
   final bool isArchived;
@@ -61,12 +71,15 @@ abstract class ChatUi {
   /// [customTypesFilter] scopes the list to a team's own channels (native
   /// `Team.filteredCustomTypeChatRoom` fed into `queryParams.
   /// customTypesFilter`); omit it for the global chat tab, which shows
-  /// every channel.
+  /// every channel. [archived] shows hidden (archived) channels instead of
+  /// the normal active list (native `displayActiveChatList`/
+  /// `displayArchiveChatList`'s `hiddenChannelFilter` toggle).
   Widget channelList(
     BuildContext context, {
     required void Function(String url) onOpen,
     required VoidCallback onCreate,
     List<String>? customTypesFilter,
+    bool archived = false,
   });
 
   /// One conversation.
@@ -81,6 +94,12 @@ abstract class ChatUi {
   /// Archives (hides) or unarchives (unhides) that conversation from the
   /// channel list (native's archive/unarchive action).
   Future<void> setArchived(String channelUrl, {required bool archived});
+
+  /// Whether at least one channel (in [customTypesFilter]'s scope, when
+  /// given) is archived — native only shows the Active/Archived toggle at
+  /// all once there is something to switch to (`displayArchiveBanner`/
+  /// `displayArchivedBanner`, both gated on a non-empty archived count).
+  Future<bool> hasArchivedChannels({List<String>? customTypesFilter});
 }
 
 class SendbirdChatUi implements ChatUi {
@@ -161,13 +180,17 @@ class SendbirdChatUi implements ChatUi {
     required void Function(String url) onOpen,
     required VoidCallback onCreate,
     List<String>? customTypesFilter,
+    bool archived = false,
   }) {
     _theme(context);
+    final query = GroupChannelListQuery()
+      ..customTypesFilter = customTypesFilter ?? const []
+      ..hiddenChannelFilter = archived
+          ? HiddenChannelFilter.hiddenPreventAutoUnhide
+          : HiddenChannelFilter.unhidden;
     return SendbirdUIKit.provider(
       child: SBUGroupChannelListScreen(
-        query: customTypesFilter == null
-            ? null
-            : (GroupChannelListQuery()..customTypesFilter = customTypesFilter),
+        query: query,
         onCreateButtonClicked: onCreate,
         onListItemClicked: (channel) => onOpen(channel.channelUrl),
         // The host screen (`ChatScreen`) draws its own AppBar (title +
@@ -178,6 +201,13 @@ class SendbirdChatUi implements ChatUi {
         // AppBar of its own to provide a safe area), overlapping the status
         // bar so it looked missing and the first rows mis-registered taps.
         customHeader: (_, _, _, _) => const SizedBox.shrink(),
+        // Native's own list row uses its rich title/icon rule, not the
+        // UIKit's generic one — see `resolveChannelDisplay`.
+        customListItem: (context, theme, strings, collection, index, channel) =>
+            _ChannelRow(
+              channel: channel,
+              onTap: () => onOpen(channel.channelUrl),
+            ),
       ),
     );
   }
@@ -228,46 +258,37 @@ class SendbirdChatUi implements ChatUi {
     }
   }
 
-  /// A placeholder cover Sendbird itself assigns to new group channels;
-  /// the UIKit's own avatar rule (below) treats it as "no cover".
-  static const _sampleCoverPrefix =
-      'https://static.sendbird.com/sample/cover/cover_';
+  @override
+  Future<bool> hasArchivedChannels({List<String>? customTypesFilter}) async {
+    final query = GroupChannelListQuery()
+      ..customTypesFilter = customTypesFilter ?? const []
+      ..hiddenChannelFilter = HiddenChannelFilter.hiddenPreventAutoUnhide
+      ..limit = 1;
+    final channels = await query.next();
+    return channels.isNotEmpty;
+  }
 
   ChatChannelInfo _toInfo(GroupChannel channel) {
     final myId = SendbirdChat.currentUser?.userId;
-    final others = channel.members.where((m) => m.userId != myId).toList()
-      ..sort((a, b) => a.nickname.compareTo(b.nickname));
     String nameOf(User user) =>
         user.nickname.isNotEmpty ? user.nickname : user.userId;
-    final title = channel.name.isNotEmpty
-        ? channel.name
-        : others.map(nameOf).join(', ');
-
-    // Mirrors the UIKit's own `getGroupChannelAvatarComponent` (used by
-    // the channel list, which is why it already showed the right image):
-    // the channel's own cover unless it's one of Sendbird's sample
-    // placeholders, else a member's photo — the UIKit composites up to 4
-    // members into a grid; a single `CircleAvatar` here just shows the
-    // first other member who has one, rather than channel.coverUrl alone
-    // (empty for most group channels, which is why this showed the
-    // UIKit's own default person icon for every group chat).
-    final hasRealCover =
-        channel.coverUrl.isNotEmpty &&
-        !channel.coverUrl.startsWith(_sampleCoverPrefix);
-    String? avatarUrl;
-    if (hasRealCover) {
-      avatarUrl = channel.coverUrl;
-    } else {
-      for (final member in others) {
-        if (member.profileUrl.isNotEmpty) {
-          avatarUrl = member.profileUrl;
-          break;
-        }
-      }
-    }
+    final display = resolveChannelDisplay(channel, myUserId: myId);
+    // Native's own resolution leaves the title empty when `channel.data`
+    // is missing/unreadable; fall back to the channel's own name, else
+    // the other members' nicknames, rather than show nothing.
+    final title = display.title.isNotEmpty
+        ? display.title
+        : (channel.name.isNotEmpty
+              ? channel.name
+              : channel.members
+                    .where((m) => m.userId != myId)
+                    .map(nameOf)
+                    .join(', '));
     return ChatChannelInfo(
       title: title.isNotEmpty ? title : channel.channelUrl,
-      avatarUrl: avatarUrl,
+      avatarUrl: display.avatarUrl,
+      iconAsset: display.iconAsset,
+      iconBackground: display.iconBackground,
       isMuted: channel.myPushTriggerOption == GroupChannelPushTriggerOption.off,
       isArchived: channel.isHidden,
       members: channel.members
@@ -280,6 +301,106 @@ class SendbirdChatUi implements ChatUi {
             ),
           )
           .toList(),
+    );
+  }
+}
+
+/// One row of the channel list (native `CustomChannelListAdapter`): the
+/// resolved avatar/icon, the resolved title (falling back to "Unknown" —
+/// native's own fallback for this exact row, unlike the header's richer
+/// fallback chain), the last message preview and its time, and an unread
+/// badge.
+class _ChannelRow extends StatelessWidget {
+  const _ChannelRow({required this.channel, required this.onTap});
+
+  final GroupChannel channel;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final n = context.native;
+    final myId = SendbirdChat.currentUser?.userId;
+    final display = resolveChannelDisplay(channel, myUserId: myId);
+    final lastMessage = channel.lastMessage?.message ?? '';
+    final time = channel.lastMessage != null
+        ? DateFormat.jm().format(
+            DateTime.fromMillisecondsSinceEpoch(channel.lastMessage!.createdAt),
+          )
+        : null;
+    final unread = channel.unreadMessageCount;
+    return Consumer(
+      builder: (context, ref, _) {
+        final l10n = AppLocalizations.of(context);
+        return TestId(
+          ChatTestIds.row(channel.channelUrl),
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(
+                children: [
+                  ChatAvatar(
+                    avatarUrl: display.avatarUrl,
+                    iconAsset: display.iconAsset,
+                    iconBackground: display.iconBackground,
+                    size: 48,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          display.title.isNotEmpty
+                              ? display.title
+                              : ref.msg(
+                                  MessageKeys.globalUnknown,
+                                  l10n.chatUnknownChannel,
+                                ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: n.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        if (lastMessage.isNotEmpty)
+                          Text(
+                            lastMessage,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: n.textSecondary,
+                              fontSize: 13,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (time != null)
+                        Text(
+                          time,
+                          style: TextStyle(
+                            color: n.textSecondary,
+                            fontSize: 11,
+                          ),
+                        ),
+                      if (unread > 0) ...[
+                        const SizedBox(height: 4),
+                        Badge(label: Text(unread > 99 ? '99+' : '$unread')),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

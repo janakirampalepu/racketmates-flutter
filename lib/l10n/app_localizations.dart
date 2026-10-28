@@ -706,6 +706,30 @@ abstract class AppLocalizations {
   /// **'Chat is not available on this build.'**
   String get chatUnavailable;
 
+  /// No description provided for @chatUnknownChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get chatUnknownChannel;
+
+  /// No description provided for @chatActiveTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get chatActiveTab;
+
+  /// No description provided for @chatArchivedTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get chatArchivedTab;
+
+  /// No description provided for @chatNoRoomsText.
+  ///
+  /// In en, this message translates to:
+  /// **'No chat rooms available yet'**
+  String get chatNoRoomsText;
+
   /// No description provided for @chatChannelDetailsTitle.
   ///
   /// In en, this message translates to:

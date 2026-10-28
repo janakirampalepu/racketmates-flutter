@@ -12,4 +12,11 @@ abstract final class ChatTestIds {
   static const channelHeader = 'chat_channel_header';
   static const channelAvatar = 'chat_channel_avatar';
   static const channelTitle = 'chat_channel_title';
+  static const tabActive = 'chat_tab_active';
+  static const tabArchived = 'chat_tab_archived';
+  static const empty = 'chat_empty';
+
+  /// `chat_row_<channelUrl>` (URLs aren't valid bare identifiers, but this
+  /// app's `TestId`/Appium convention doesn't require that).
+  static String row(String channelUrl) => 'chat_row_$channelUrl';
 }

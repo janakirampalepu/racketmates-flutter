@@ -165,6 +165,36 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('no archive tabs when nothing is archived', (tester) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final chatUi = FakeChatUi();
+      await tester.pumpWidget(signedInApp(chatUi: chatUi));
+      await _openChatTab(tester);
+      expect(_id(ChatTestIds.tabActive), findsNothing);
+      expect(_id(ChatTestIds.tabArchived), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('switching to the archived tab queries archived channels', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final chatUi = FakeChatUi()..hasArchived = true;
+      await tester.pumpWidget(signedInApp(chatUi: chatUi));
+      await _openChatTab(tester);
+      expect(_id(ChatTestIds.tabActive), findsOneWidget);
+      expect(_id(ChatTestIds.tabArchived), findsOneWidget);
+      expect(find.text('fake channel list'), findsOneWidget);
+      expect(chatUi.lastArchived, isFalse);
+      await tester.tap(_id(ChatTestIds.tabArchived));
+      await tester.pumpAndSettle();
+      expect(find.text('fake archived channel list'), findsOneWidget);
+      expect(chatUi.lastArchived, isTrue);
+      handle.dispose();
+    });
+
     for (final dark in [false, true]) {
       testWidgets('connecting and failed states meet guidelines '
           '(${dark ? 'dark' : 'light'})', (tester) async {

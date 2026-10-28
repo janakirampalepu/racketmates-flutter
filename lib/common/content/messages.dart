@@ -120,6 +120,11 @@ abstract final class MessageKeys {
   static const buttonCancel = 'global.buttons.cancel';
   static const buttonContinue = 'global.buttons.continue';
   static const errorGeneral = 'global.errors.generic_server_error_general';
+  static const globalUnknown = 'global.common_texts.unknown';
+
+  static const chatActiveListTabTitle = 'chat.active_list_tab_title';
+  static const chatArchivedListTabTitle = 'chat.archived_list_tab_title';
+  static const chatNoRoomsText = 'chat.no_chat_rooms_text';
 
   static const createEventTitle = 'events.create.nav_title';
   static const createTypeTitle = 'events.create.event_type_selection_title';

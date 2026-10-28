@@ -6,4 +6,6 @@ abstract final class TeamChatTestIds {
   static const failed = 'team_chat_failed';
   static const connecting = 'team_chat_connecting';
   static const retry = 'team_chat_retry';
+  static const tabActive = 'team_chat_tab_active';
+  static const tabArchived = 'team_chat_tab_archived';
 }
