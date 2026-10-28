@@ -269,6 +269,14 @@ class SendbirdChatUi implements ChatUi {
     } else {
       await channel.unhide();
     }
+    // The SDK's own `hide()` only flips the channel's cached `isHidden`
+    // when the hide response carries a changed `ts_message_offset` — null
+    // or unchanged (common for a quiet/freshly-created channel) silently
+    // skips it, leaving the in-memory channel (and the details screen's
+    // archive switch) stuck on the old state even though the server side
+    // succeeded. A full refresh re-reads the channel directly from the
+    // server, which has no such gap.
+    await GroupChannel.refresh(channelUrl);
   }
 
   @override

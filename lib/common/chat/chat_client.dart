@@ -61,6 +61,18 @@ class SendbirdChatClient implements ChatClient {
 
       await SendbirdUIKit.init(
         appId: appId,
+        // Local collection caching (on by default) reads a channel's
+        // `isHidden` flag from an on-device DB that the SDK's own `hide()`
+        // only writes conditionally (skipped whenever the hide response's
+        // `ts_message_offset` is null or unchanged from the channel's
+        // current one — common for a freshly-created or quiet channel), so
+        // the Active list can keep showing a just-archived channel straight
+        // from a stale local row instead of ever re-asking the server.
+        // Turning caching off makes every channel-list load a genuine
+        // network query (`GroupChannelListQuery.next()`), which reflects
+        // the server's authoritative hidden state either way; this app has
+        // no offline-chat requirement to trade away for that.
+        options: SendbirdChatOptions(useCollectionCaching: false),
         takePhoto: () => pick(ImageSource.camera),
         takeVideo: () => pick(ImageSource.camera, video: true),
         choosePhoto: () => pick(ImageSource.gallery),
