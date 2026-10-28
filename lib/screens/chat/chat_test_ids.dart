@@ -15,6 +15,9 @@ abstract final class ChatTestIds {
   static const tabActive = 'chat_tab_active';
   static const tabArchived = 'chat_tab_archived';
   static const empty = 'chat_empty';
+  static const listError = 'chat_list_error';
+  static const listRetry = 'chat_list_retry';
+  static const listLoading = 'chat_list_loading';
 
   /// `chat_row_<channelUrl>` (URLs aren't valid bare identifiers, but this
   /// app's `TestId`/Appium convention doesn't require that).

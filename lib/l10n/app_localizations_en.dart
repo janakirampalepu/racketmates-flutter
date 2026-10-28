@@ -347,6 +347,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatNoRoomsText => 'No chat rooms available yet';
 
   @override
+  String get chatListLoadError => 'Conversations could not be loaded.';
+
+  @override
   String get chatChannelDetailsTitle => 'Chat details';
 
   @override

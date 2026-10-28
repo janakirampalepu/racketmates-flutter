@@ -148,6 +148,7 @@
   "chatActiveTab": "Active",
   "chatArchivedTab": "Archived",
   "chatNoRoomsText": "No chat rooms available yet",
+  "chatListLoadError": "Conversations could not be loaded.",
   "chatChannelDetailsTitle": "Chat details",
   "chatChannelDetailsMembers": "Members",
   "chatChannelDetailsMute": "Mute notifications",

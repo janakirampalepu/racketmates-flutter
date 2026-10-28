@@ -182,40 +182,23 @@ class SendbirdChatUi implements ChatUi {
     List<String>? customTypesFilter,
     bool archived = false,
   }) {
-    _theme(context);
-    final query = GroupChannelListQuery()
-      ..customTypesFilter = customTypesFilter ?? const []
-      ..hiddenChannelFilter = archived
-          ? HiddenChannelFilter.hidden
-          : HiddenChannelFilter.unhidden;
-    return SendbirdUIKit.provider(
-      child: SBUGroupChannelListScreen(
-        // Without a key that changes with `archived`/`customTypesFilter`,
-        // Flutter reuses the same State object across rebuilds (same
-        // widget type, same position in the tree) and the UIKit screen
-        // never re-queries with the new `query` — switching the Active/
-        // Archived tab kept showing the first tab's list. A key forces a
-        // fresh State (and a fresh query) whenever either changes.
-        key: ValueKey('chat-list-$archived-${customTypesFilter?.join(',')}'),
-        query: query,
-        onCreateButtonClicked: onCreate,
-        onListItemClicked: (channel) => onOpen(channel.channelUrl),
-        // The host screen (`ChatScreen`) draws its own AppBar (title +
-        // create action), matching native's own toolbar which hides the
-        // UIKit's header entirely (`UIKitChannelListFragment.
-        // onBindHeaderComponent`); without this the UIKit's 56dp header row
-        // renders unclipped at the very top of the tab (the shell has no
-        // AppBar of its own to provide a safe area), overlapping the status
-        // bar so it looked missing and the first rows mis-registered taps.
-        customHeader: (_, _, _, _) => const SizedBox.shrink(),
-        // Native's own list row uses its rich title/icon rule, not the
-        // UIKit's generic one — see `resolveChannelDisplay`.
-        customListItem: (context, theme, strings, collection, index, channel) =>
-            _ChannelRow(
-              channel: channel,
-              onTap: () => onOpen(channel.channelUrl),
-            ),
-      ),
+    // Deliberately NOT `SBUGroupChannelListScreen` any more: that widget
+    // reads its own `GroupChannelListQuery` once in `initState` and never
+    // re-queries from `didUpdateWidget` (confirmed by reading the package
+    // source, `sbu_group_channel_list_screen.dart`), so it depends on being
+    // *remounted* with a fresh key to pick up a changed `archived`/
+    // `customTypesFilter` — which works in isolation (verified with a
+    // throwaway widget test reproducing the exact pattern) but, combined
+    // with the SDK's own local collection cache and a separate bug in
+    // `GroupChannel.hide()` (see `setArchived`), still wasn't reliably
+    // showing the right list end-to-end. `_ChannelListBody` below fetches
+    // directly with `GroupChannelListQuery.next()` and re-fetches in its
+    // own `didUpdateWidget` — no UIKit collection, no local cache, no
+    // dependence on key-triggered remounting.
+    return _ChannelListBody(
+      archived: archived,
+      customTypesFilter: customTypesFilter,
+      onOpen: onOpen,
     );
   }
 
@@ -326,6 +309,184 @@ class SendbirdChatUi implements ChatUi {
           .toList(),
     );
   }
+}
+
+/// The channel list's own fetch and pagination, built directly on
+/// `GroupChannelListQuery` (see the comment on `channelList` for why this
+/// replaced `SBUGroupChannelListScreen`). Re-fetches from scratch whenever
+/// [archived] or [customTypesFilter] change.
+class _ChannelListBody extends StatefulWidget {
+  const _ChannelListBody({
+    required this.archived,
+    required this.customTypesFilter,
+    required this.onOpen,
+  });
+
+  final bool archived;
+  final List<String>? customTypesFilter;
+  final void Function(String url) onOpen;
+
+  @override
+  State<_ChannelListBody> createState() => _ChannelListBodyState();
+}
+
+class _ChannelListBodyState extends State<_ChannelListBody> {
+  final _scrollController = ScrollController();
+  GroupChannelListQuery? _query;
+  List<GroupChannel> _channels = [];
+  bool _loading = true;
+  bool _error = false;
+  // Bumped on every reload so a slow, now-superseded fetch can't overwrite
+  // a newer one's result when it finally completes.
+  int _requestId = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_maybeLoadMore);
+    _reload();
+  }
+
+  @override
+  void didUpdateWidget(covariant _ChannelListBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final sameFilter = _listEquals(
+      oldWidget.customTypesFilter,
+      widget.customTypesFilter,
+    );
+    if (oldWidget.archived != widget.archived || !sameFilter) {
+      _reload();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _reload() {
+    final requestId = ++_requestId;
+    setState(() {
+      _channels = [];
+      _loading = true;
+      _error = false;
+    });
+    _query = GroupChannelListQuery()
+      ..customTypesFilter = widget.customTypesFilter ?? const []
+      ..hiddenChannelFilter = widget.archived
+          ? HiddenChannelFilter.hidden
+          : HiddenChannelFilter.unhidden;
+    _loadMore(requestId);
+  }
+
+  Future<void> _loadMore(int requestId) async {
+    final query = _query;
+    if (query == null || query.isLoading || !query.hasNext) return;
+    try {
+      final channels = await query.next();
+      if (!mounted || requestId != _requestId) return;
+      setState(() {
+        _channels = [..._channels, ...channels];
+        _loading = false;
+      });
+    } on Object {
+      if (!mounted || requestId != _requestId) return;
+      setState(() {
+        _loading = false;
+        _error = _channels.isEmpty;
+      });
+    }
+  }
+
+  void _maybeLoadMore() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 400) {
+      _loadMore(_requestId);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final n = context.native;
+
+    if (_loading && _channels.isEmpty) {
+      return Center(
+        child: TestId(
+          ChatTestIds.listLoading,
+          child: const CircularProgressIndicator(),
+        ),
+      );
+    }
+    if (_error && _channels.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TestId(
+                ChatTestIds.listError,
+                child: Text(
+                  l10n.chatListLoadError,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: n.textSecondary),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TestId(
+                ChatTestIds.listRetry,
+                child: FilledButton(
+                  onPressed: _reload,
+                  child: Text(l10n.retryAction),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (_channels.isEmpty) {
+      return Center(
+        child: TestId(
+          ChatTestIds.empty,
+          child: Consumer(
+            builder: (context, ref, _) => Text(
+              ref.msg(MessageKeys.chatNoRoomsText, l10n.chatNoRoomsText),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: n.textSecondary),
+            ),
+          ),
+        ),
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: () async => _reload(),
+      child: ListView.builder(
+        controller: _scrollController,
+        itemCount: _channels.length,
+        itemBuilder: (context, index) {
+          final channel = _channels[index];
+          return _ChannelRow(
+            channel: channel,
+            onTap: () => widget.onOpen(channel.channelUrl),
+          );
+        },
+      ),
+    );
+  }
+}
+
+bool _listEquals(List<String>? a, List<String>? b) {
+  final aa = a ?? const <String>[];
+  final bb = b ?? const <String>[];
+  if (aa.length != bb.length) return false;
+  for (var i = 0; i < aa.length; i++) {
+    if (aa[i] != bb[i]) return false;
+  }
+  return true;
 }
 
 /// One row of the channel list (native `CustomChannelListAdapter`): the

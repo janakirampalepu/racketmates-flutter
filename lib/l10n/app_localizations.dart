@@ -736,6 +736,12 @@ abstract class AppLocalizations {
   /// **'No chat rooms available yet'**
   String get chatNoRoomsText;
 
+  /// No description provided for @chatListLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversations could not be loaded.'**
+  String get chatListLoadError;
+
   /// No description provided for @chatChannelDetailsTitle.
   ///
   /// In en, this message translates to:
