@@ -11,6 +11,7 @@ import 'package:racketmates/screens/create_event_type/create_event_type_test_ids
 import 'package:racketmates/screens/main_shell/main_shell_test_ids.dart';
 import 'package:racketmates/screens/subscription/subscription_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
+import 'package:racketmates/screens/team_shell/team_shell_test_ids.dart';
 import 'package:racketmates/screens/teams/teams_test_ids.dart';
 
 import '../../support/app_harness.dart';
@@ -64,6 +65,10 @@ Future<void> _tap(WidgetTester tester, String id) async {
 
 Future<void> _openSettings(WidgetTester tester) =>
     _tap(tester, TeamHomeActionIds.settingsButton);
+
+/// Create event now lives on Team Schedule, not Team Home.
+Future<void> _openTeamSchedule(WidgetTester tester) =>
+    _tap(tester, TeamShellTestIds.navSchedule);
 
 /// Opens the archive/delete overflow sheet (the "⋮" in the settings
 /// toolbar) before tapping one of its rows.
@@ -287,7 +292,8 @@ void main() {
       useTallScreen(tester);
       await _openTeam(tester, team: _team(permissions: const {}));
       expect(_id(TeamHomeActionIds.settingsButton), findsNothing);
-      expect(_id(TeamHomeActionIds.createEvent), findsNothing);
+      await _openTeamSchedule(tester);
+      expect(_id(TeamDetailsTestIds.scheduleCreateEvent), findsNothing);
       handle.dispose();
     });
 
@@ -357,7 +363,8 @@ void main() {
       final handle = tester.ensureSemantics();
       useTallScreen(tester);
       await _openTeam(tester);
-      await _tap(tester, TeamHomeActionIds.createEvent);
+      await _openTeamSchedule(tester);
+      await _tap(tester, TeamDetailsTestIds.scheduleCreateEvent);
       expect(_id(CreateEventTypeTestIds.root), findsOneWidget);
       // Team events only: no individual lesson or ball machine.
       expect(
@@ -384,7 +391,8 @@ void main() {
       final handle = tester.ensureSemantics();
       useTallScreen(tester);
       await _openTeam(tester, team: _team(archived: true));
-      await _tap(tester, TeamHomeActionIds.createEvent);
+      await _openTeamSchedule(tester);
+      await _tap(tester, TeamDetailsTestIds.scheduleCreateEvent);
       expect(
         find.textContaining('archived team cannot get new events'),
         findsOneWidget,
@@ -409,7 +417,8 @@ void main() {
           },
         ),
       );
-      await _tap(tester, TeamHomeActionIds.createEvent);
+      await _openTeamSchedule(tester);
+      await _tap(tester, TeamDetailsTestIds.scheduleCreateEvent);
       expect(find.text('Ask the captain.'), findsOneWidget);
       expect(_id(CreateEventTypeTestIds.root), findsNothing);
       handle.dispose();
@@ -431,7 +440,8 @@ void main() {
           ),
           sessionInfo: FakeSessionInfoRepository(response: _free()),
         );
-        await _tap(tester, TeamHomeActionIds.createEvent);
+        await _openTeamSchedule(tester);
+        await _tap(tester, TeamDetailsTestIds.scheduleCreateEvent);
         expect(_id(SubscriptionTestIds.root), findsOneWidget);
         handle.dispose();
       },

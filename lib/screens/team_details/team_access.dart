@@ -6,9 +6,13 @@ import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/billing/billing_sync.dart';
+import 'package:racketmates/common/content/content_text.dart';
+import 'package:racketmates/common/content/messages.dart';
+import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/session/access.dart';
 import 'package:racketmates/common/session/session_info_controller.dart';
 import 'package:racketmates/common/teams/member_rules.dart';
+import 'package:racketmates/common/teams/team_edit.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
@@ -57,4 +61,48 @@ Future<bool> checkTeamAccess(
       await explain(message.isNotEmpty ? message : l10n.accessBlocked);
       return false;
   }
+}
+
+/// Starts the create-event wizard for [team]'s own event (native: the
+/// create-event entry lives on the team's schedule, not its home screen —
+/// `TeamScheduleScreen` calls this, mirroring the global Schedule tab's own
+/// "Add event" button). An archived team cannot get events; permissions
+/// decide the rest.
+Future<void> startTeamCreateEvent(
+  BuildContext context,
+  WidgetRef ref,
+  Team team,
+) async {
+  final l10n = AppLocalizations.of(context);
+  if (!await checkTeamAccess(
+        context,
+        ref,
+        team,
+        TeamSettingsPermissions.createEvent,
+      ) ||
+      !context.mounted) {
+    return;
+  }
+  if (team.archived ?? false) {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        content: Text(
+          ref.msg(
+            MessageKeys.teamArchivedCreateEvent,
+            l10n.teamArchivedCreateEvent,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.closeAction),
+          ),
+        ],
+      ),
+    );
+    return;
+  }
+  ref.read(createEventFlowProvider.notifier).startForTeam(team);
+  unawaited(context.push(AppRoutes.createEvent));
 }

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,8 +5,6 @@ import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/content/content_text.dart';
-import 'package:racketmates/common/content/messages.dart';
-import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/session/access.dart';
 import 'package:racketmates/common/teams/member_rules.dart';
@@ -36,47 +32,6 @@ class TeamDetailsScreen extends ConsumerWidget {
   const TeamDetailsScreen({required this.teamId, super.key});
 
   final int teamId;
-
-  /// Starts the create-event wizard for [team]: its team event. An archived
-  /// team cannot get events; permissions decide the rest.
-  Future<void> _createEvent(
-    BuildContext context,
-    WidgetRef ref,
-    Team team,
-  ) async {
-    final l10n = AppLocalizations.of(context);
-    if (!await checkTeamAccess(
-          context,
-          ref,
-          team,
-          TeamSettingsPermissions.createEvent,
-        ) ||
-        !context.mounted) {
-      return;
-    }
-    if (team.archived ?? false) {
-      await showDialog<void>(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-          content: Text(
-            ref.msg(
-              MessageKeys.teamArchivedCreateEvent,
-              l10n.teamArchivedCreateEvent,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(l10n.closeAction),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
-    ref.read(createEventFlowProvider.notifier).startForTeam(team);
-    unawaited(context.push(AppRoutes.createEvent));
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -126,22 +81,6 @@ class TeamDetailsScreen extends ConsumerWidget {
               ),
           ],
         ),
-        floatingActionButton:
-            memberAccess(
-                  t,
-                  TeamSettingsPermissions.createEvent,
-                  subscribed: true,
-                ) ==
-                AccessDecision.hidden
-            ? null
-            : TestId(
-                TeamHomeActionIds.createEvent,
-                child: FloatingActionButton.extended(
-                  icon: const Icon(Icons.add),
-                  label: Text(l10n.teamCreateEvent),
-                  onPressed: () => _createEvent(context, ref, t),
-                ),
-              ),
         body: TestId(
           TeamDetailsTestIds.root,
           child: RefreshIndicator(
@@ -180,14 +119,11 @@ class TeamDetailsScreen extends ConsumerWidget {
                   createEventId: TeamHomeActionIds.upcomingCreateEvent,
                   eventIdFor: TeamHomeActionIds.upcomingEvent,
                   onSeeAll: () => context.go(AppRoutes.teamScheduleFor(teamId)),
-                  canOfferCreate:
-                      memberAccess(
-                        t,
-                        TeamSettingsPermissions.createEvent,
-                        subscribed: true,
-                      ) !=
-                      AccessDecision.hidden,
-                  onCreateEvent: (ctx, r) => _createEvent(ctx, r, t),
+                  // Create event lives on Team Schedule now (native: the
+                  // same place the global Schedule tab's own FAB is), not
+                  // on Team Home.
+                  canOfferCreate: false,
+                  onCreateEvent: (_, _) async {},
                 ),
                 SizedBox(height: context.sdp(32)),
                 PendingActionsSection(
