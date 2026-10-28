@@ -190,6 +190,13 @@ class SendbirdChatUi implements ChatUi {
           : HiddenChannelFilter.unhidden;
     return SendbirdUIKit.provider(
       child: SBUGroupChannelListScreen(
+        // Without a key that changes with `archived`/`customTypesFilter`,
+        // Flutter reuses the same State object across rebuilds (same
+        // widget type, same position in the tree) and the UIKit screen
+        // never re-queries with the new `query` — switching the Active/
+        // Archived tab kept showing the first tab's list. A key forces a
+        // fresh State (and a fresh query) whenever either changes.
+        key: ValueKey('chat-list-$archived-${customTypesFilter?.join(',')}'),
         query: query,
         onCreateButtonClicked: onCreate,
         onListItemClicked: (channel) => onOpen(channel.channelUrl),

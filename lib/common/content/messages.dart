@@ -125,6 +125,10 @@ abstract final class MessageKeys {
   static const chatActiveListTabTitle = 'chat.active_list_tab_title';
   static const chatArchivedListTabTitle = 'chat.archived_list_tab_title';
   static const chatNoRoomsText = 'chat.no_chat_rooms_text';
+  static const chatNew1To1ChatTitle = 'chat.new_1_to_1_chat_title';
+  static const chatNoPersonsError = 'chat.no_persons_error';
+  static const globalHintSearchByNameOrPhone =
+      'global.hint_texts.search_por_person';
 
   static const createEventTitle = 'events.create.nav_title';
   static const createTypeTitle = 'events.create.event_type_selection_title';

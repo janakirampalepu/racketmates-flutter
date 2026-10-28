@@ -281,10 +281,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navChat => 'Chat';
 
   @override
-  String get chatNewTitle => 'New chat';
+  String get chatNewTitle => 'New direct chat';
 
   @override
-  String get chatNewSearchHint => 'Search players';
+  String get chatNewSearchHint => 'Search by name or phone no';
 
   @override
   String get chatNewEmpty => 'No players found.';
@@ -301,6 +301,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatNewAction => 'Start a new chat';
+
+  @override
+  String get chatNewViewProfile => 'View profile';
 
   @override
   String get eventChatAction => 'Chat';

@@ -1,6 +1,7 @@
 abstract final class NewChatTestIds {
   static const root = 'new_chat_screen';
   static const title = 'new_chat_title';
+  static const close = 'new_chat_close_button';
   static const search = 'new_chat_search_field';
   static const loading = 'new_chat_loading';
   static const empty = 'new_chat_empty';

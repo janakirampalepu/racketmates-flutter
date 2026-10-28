@@ -613,13 +613,13 @@ abstract class AppLocalizations {
   /// No description provided for @chatNewTitle.
   ///
   /// In en, this message translates to:
-  /// **'New chat'**
+  /// **'New direct chat'**
   String get chatNewTitle;
 
   /// No description provided for @chatNewSearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search players'**
+  /// **'Search by name or phone no'**
   String get chatNewSearchHint;
 
   /// No description provided for @chatNewEmpty.
@@ -651,6 +651,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start a new chat'**
   String get chatNewAction;
+
+  /// No description provided for @chatNewViewProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'View profile'**
+  String get chatNewViewProfile;
 
   /// No description provided for @eventChatAction.
   ///
