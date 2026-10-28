@@ -2479,7 +2479,7 @@ abstract class AppLocalizations {
   /// No description provided for @teamSettingsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Team settings'**
+  /// **'Team Settings'**
   String get teamSettingsTitle;
 
   /// No description provided for @teamSettingsAction.
@@ -2671,7 +2671,7 @@ abstract class AppLocalizations {
   /// No description provided for @createTeamTypeLabel.
   ///
   /// In en, this message translates to:
-  /// **'Team type'**
+  /// **'Type of team'**
   String get createTeamTypeLabel;
 
   /// No description provided for @createTeamTypeRequired.
@@ -2683,7 +2683,7 @@ abstract class AppLocalizations {
   /// No description provided for @createTeamSportsLabel.
   ///
   /// In en, this message translates to:
-  /// **'Sports'**
+  /// **'Sport(s)'**
   String get createTeamSportsLabel;
 
   /// No description provided for @createTeamSportRequired.
@@ -2695,13 +2695,13 @@ abstract class AppLocalizations {
   /// No description provided for @createTeamRankingLabel.
   ///
   /// In en, this message translates to:
-  /// **'Player ranking'**
+  /// **'Ranking'**
   String get createTeamRankingLabel;
 
   /// No description provided for @createTeamRankingHint.
   ///
   /// In en, this message translates to:
-  /// **'Rank players by their results in team events.'**
+  /// **'Enable to calculate team rankings based on event results.'**
   String get createTeamRankingHint;
 
   /// No description provided for @createTeamParticipatingLabel.

@@ -88,7 +88,8 @@ class TeamDraft {
 /// Native `NewTeamFragment.checkValidation`: a name, a type and a sport.
 List<TeamDetailsError> validateTeamDetails(TeamDraft draft) => [
   if (draft.name.trim().isEmpty) TeamDetailsError.nameRequired,
-  if (draft.teamType == null) TeamDetailsError.typeRequired,
+  if (draft.teamType == null || draft.teamType!.isEmpty)
+    TeamDetailsError.typeRequired,
   if (draft.sports.isEmpty) TeamDetailsError.sportRequired,
 ];
 

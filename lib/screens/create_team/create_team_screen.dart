@@ -8,11 +8,10 @@ import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
 import 'package:racketmates/common/sign_up/sport_labels.dart';
 import 'package:racketmates/common/teams/create_team_flow.dart';
-import 'package:racketmates/common/teams/team_labels.dart';
-import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/common/users/user_profile_provider.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
+import 'package:racketmates/common/widgets/team_type_cards.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_team/create_team_test_ids.dart';
 
@@ -71,7 +70,7 @@ class _CreateTeamScreenState extends ConsumerState<CreateTeamScreen> {
     return StepScaffold(
       rootId: CreateTeamTestIds.root,
       titleId: CreateTeamTestIds.title,
-      title: l10n.createTeamTitle,
+      title: ref.msg(MessageKeys.teamCreateNavTitle, l10n.createTeamTitle),
       primaryLabel: ref.msg(MessageKeys.buttonNext, l10n.nextAction),
       primaryId: CreateTeamTestIds.next,
       onPrimary: () {
@@ -87,7 +86,10 @@ class _CreateTeamScreenState extends ConsumerState<CreateTeamScreen> {
             controller: _name,
             textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
-              labelText: l10n.createTeamNameLabel,
+              labelText: ref.msg(
+                MessageKeys.teamCreateNameLabel,
+                l10n.createTeamNameLabel,
+              ),
               border: const OutlineInputBorder(),
             ),
             onChanged: (v) {
@@ -105,23 +107,14 @@ class _CreateTeamScreenState extends ConsumerState<CreateTeamScreen> {
         ),
         if (_errors.contains(TeamDetailsError.nameRequired))
           error(CreateTeamTestIds.nameError, l10n.createTeamNameRequired),
-        heading(l10n.createTeamTypeLabel),
-        SegmentedButton<String>(
-          showSelectedIcon: false,
-          emptySelectionAllowed: true,
-          segments: [
-            for (final key in [TeamTypes.casual, TeamTypes.competitive])
-              ButtonSegment(
-                value: key,
-                label: TestId(
-                  CreateTeamTestIds.type(key),
-                  child: Text(ref.refLabel(key, teamTypeLabel(l10n, key))),
-                ),
-              ),
-          ],
-          selected: {?draft.teamType},
-          onSelectionChanged: (s) {
-            if (s.isNotEmpty) flow.setType(s.first);
+        heading(
+          ref.msg(MessageKeys.teamCreateTypeLabel, l10n.createTeamTypeLabel),
+        ),
+        TeamTypeCards(
+          selected: draft.teamType,
+          testIdFor: CreateTeamTestIds.type,
+          onSelect: (key) {
+            flow.setType(key);
             setState(
               () => _errors = [
                 for (final e in _errors)
@@ -132,7 +125,12 @@ class _CreateTeamScreenState extends ConsumerState<CreateTeamScreen> {
         ),
         if (_errors.contains(TeamDetailsError.typeRequired))
           error(CreateTeamTestIds.typeError, l10n.createTeamTypeRequired),
-        heading(l10n.createTeamSportsLabel),
+        heading(
+          ref.msg(
+            MessageKeys.teamCreateSportsLabel,
+            l10n.createTeamSportsLabel,
+          ),
+        ),
         for (final sport in SportKey.values)
           TestId(
             CreateTeamTestIds.sport(sport.key),
@@ -158,8 +156,18 @@ class _CreateTeamScreenState extends ConsumerState<CreateTeamScreen> {
           CreateTeamTestIds.ranking,
           child: SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: Text(l10n.createTeamRankingLabel),
-            subtitle: Text(l10n.createTeamRankingHint),
+            title: Text(
+              ref.msg(
+                MessageKeys.teamCreateRankingLabel,
+                l10n.createTeamRankingLabel,
+              ),
+            ),
+            subtitle: Text(
+              ref.msg(
+                MessageKeys.teamCreateRankingSubText,
+                l10n.createTeamRankingHint,
+              ),
+            ),
             value: draft.enablePlayerRanking,
             onChanged: (v) => flow.setRanking(value: v),
           ),

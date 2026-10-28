@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/content/content_text.dart';
+import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/session/access.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
@@ -13,10 +14,10 @@ import 'package:racketmates/common/sign_up/sport_labels.dart';
 import 'package:racketmates/common/teams/create_team_flow.dart';
 import 'package:racketmates/common/teams/member_rules.dart';
 import 'package:racketmates/common/teams/team_edit.dart';
-import 'package:racketmates/common/teams/team_labels.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/teams/teams_repository.dart';
+import 'package:racketmates/common/widgets/team_type_cards.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/team_details/team_access.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
@@ -40,7 +41,15 @@ class TeamSettingsScreen extends ConsumerWidget {
           leading: BackButton(onPressed: () => context.pop()),
           title: TestId(
             TeamSettingsTestIds.title,
-            child: Semantics(header: true, child: Text(l10n.teamSettingsTitle)),
+            child: Semantics(
+              header: true,
+              child: Text(
+                ref.msg(
+                  MessageKeys.teamSettingsNavTitle,
+                  l10n.teamSettingsTitle,
+                ),
+              ),
+            ),
           ),
         ),
         body: const TestId(
@@ -54,7 +63,15 @@ class TeamSettingsScreen extends ConsumerWidget {
           leading: BackButton(onPressed: () => context.pop()),
           title: TestId(
             TeamSettingsTestIds.title,
-            child: Semantics(header: true, child: Text(l10n.teamSettingsTitle)),
+            child: Semantics(
+              header: true,
+              child: Text(
+                ref.msg(
+                  MessageKeys.teamSettingsNavTitle,
+                  l10n.teamSettingsTitle,
+                ),
+              ),
+            ),
           ),
         ),
         body: TestId(
@@ -215,7 +232,12 @@ class _FormState extends ConsumerState<_Form> {
                 TeamSettingsTestIds.archive,
                 child: ListTile(
                   leading: const Icon(Icons.archive_outlined),
-                  title: Text(l10n.teamArchive),
+                  title: Text(
+                    ref.msg(
+                      MessageKeys.teamSettingsArchiveButton,
+                      l10n.teamArchive,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.of(sheetContext).pop();
                     _teamAction(
@@ -233,7 +255,12 @@ class _FormState extends ConsumerState<_Form> {
                 TeamSettingsTestIds.unarchive,
                 child: ListTile(
                   leading: const Icon(Icons.unarchive_outlined),
-                  title: Text(l10n.teamUnarchive),
+                  title: Text(
+                    ref.msg(
+                      MessageKeys.teamSettingsUnarchiveButton,
+                      l10n.teamUnarchive,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.of(sheetContext).pop();
                     _teamAction(
@@ -255,7 +282,10 @@ class _FormState extends ConsumerState<_Form> {
                     color: Theme.of(context).colorScheme.error,
                   ),
                   title: Text(
-                    l10n.teamDelete,
+                    ref.msg(
+                      MessageKeys.teamSettingsDeleteButton,
+                      l10n.teamDelete,
+                    ),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                     ),
@@ -356,7 +386,10 @@ class _FormState extends ConsumerState<_Form> {
             controller: _name,
             textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
-              labelText: l10n.createTeamNameLabel,
+              labelText: ref.msg(
+                MessageKeys.teamCreateNameLabel,
+                l10n.createTeamNameLabel,
+              ),
               border: const OutlineInputBorder(),
             ),
             onChanged: (v) {
@@ -367,25 +400,16 @@ class _FormState extends ConsumerState<_Form> {
         ),
         if (_errors.contains(TeamDetailsError.nameRequired))
           error(TeamSettingsTestIds.nameError, l10n.createTeamNameRequired),
-        heading(l10n.createTeamTypeLabel),
-        SegmentedButton<String>(
-          showSelectedIcon: false,
-          emptySelectionAllowed: true,
-          segments: [
-            for (final key in [TeamTypes.casual, TeamTypes.competitive])
-              ButtonSegment(
-                value: key,
-                label: TestId(
-                  TeamSettingsTestIds.type(key),
-                  child: Text(ref.refLabel(key, teamTypeLabel(l10n, key))),
-                ),
-              ),
-          ],
-          selected: {?_edit.teamType},
-          onSelectionChanged: (s) {
+        heading(
+          ref.msg(MessageKeys.teamCreateTypeLabel, l10n.createTeamTypeLabel),
+        ),
+        TeamTypeCards(
+          selected: _edit.teamType,
+          testIdFor: TeamSettingsTestIds.type,
+          onSelect: (key) {
             setState(
               () => _edit = _edit.copyWith(
-                teamType: () => s.isEmpty ? null : s.first,
+                teamType: () => key.isEmpty ? null : key,
               ),
             );
             _clear(TeamDetailsError.typeRequired);
@@ -393,7 +417,12 @@ class _FormState extends ConsumerState<_Form> {
         ),
         if (_errors.contains(TeamDetailsError.typeRequired))
           error(TeamSettingsTestIds.typeError, l10n.createTeamTypeRequired),
-        heading(l10n.createTeamSportsLabel),
+        heading(
+          ref.msg(
+            MessageKeys.teamCreateSportsLabel,
+            l10n.createTeamSportsLabel,
+          ),
+        ),
         for (final sport in SportKey.values)
           TestId(
             TeamSettingsTestIds.sport(sport.key),
@@ -422,8 +451,18 @@ class _FormState extends ConsumerState<_Form> {
           TeamSettingsTestIds.ranking,
           child: SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: Text(l10n.createTeamRankingLabel),
-            subtitle: Text(l10n.createTeamRankingHint),
+            title: Text(
+              ref.msg(
+                MessageKeys.teamCreateRankingLabel,
+                l10n.createTeamRankingLabel,
+              ),
+            ),
+            subtitle: Text(
+              ref.msg(
+                MessageKeys.teamCreateRankingSubText,
+                l10n.createTeamRankingHint,
+              ),
+            ),
             value: _edit.enablePlayerRanking,
             onChanged: (v) =>
                 setState(() => _edit = _edit.copyWith(enablePlayerRanking: v)),
@@ -463,7 +502,12 @@ class _FormState extends ConsumerState<_Form> {
         leading: BackButton(onPressed: () => context.pop()),
         title: TestId(
           TeamSettingsTestIds.title,
-          child: Semantics(header: true, child: Text(l10n.teamSettingsTitle)),
+          child: Semantics(
+            header: true,
+            child: Text(
+              ref.msg(MessageKeys.teamSettingsNavTitle, l10n.teamSettingsTitle),
+            ),
+          ),
         ),
         actions: [
           if (showMenu)

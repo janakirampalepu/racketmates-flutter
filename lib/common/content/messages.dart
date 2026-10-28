@@ -96,6 +96,25 @@ abstract final class MessageKeys {
 
   static const teamArchivedCreateEvent =
       'events.create.team_archived_create_event_error';
+
+  static const teamCreateNavTitle = 'teams.create.nav_title';
+  static const teamCreateNameLabel = 'teams.create.name_label';
+  static const teamCreateNameHint = 'teams.create.name_hint';
+  static const teamCreateNameRequiredError = 'teams.create.name_required_error';
+  static const teamCreateTypeLabel = 'teams.create.type_label';
+  static const teamCreateTypeRequiredError = 'teams.create.type_required_error';
+  static const teamCreateSportsLabel = 'teams.create.sports_label';
+  static const teamCreateSportRequiredError =
+      'teams.create.sport_required_error';
+  static const teamCreateRankingLabel = 'teams.create.ranking_label';
+  static const teamCreateRankingSubText = 'teams.create.ranking_sub_text';
+
+  static const teamSettingsNavTitle = 'teams.settings.nav_title';
+  static const teamSettingsArchiveButton = 'teams.settings.archive_team_button';
+  static const teamSettingsUnarchiveButton =
+      'teams.settings.unarchive_team_button';
+  static const teamSettingsDeleteButton = 'teams.settings.delete_team_button';
+
   static const buttonNext = 'global.buttons.next';
   static const buttonSave = 'global.buttons.save';
   static const buttonCancel = 'global.buttons.cancel';

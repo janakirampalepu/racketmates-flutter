@@ -1305,7 +1305,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teamAddMembersLoadError => 'The search failed.';
 
   @override
-  String get teamSettingsTitle => 'Team settings';
+  String get teamSettingsTitle => 'Team Settings';
 
   @override
   String get teamSettingsAction => 'Team settings';
@@ -1412,23 +1412,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createTeamNameRequired => 'Enter a team name.';
 
   @override
-  String get createTeamTypeLabel => 'Team type';
+  String get createTeamTypeLabel => 'Type of team';
 
   @override
   String get createTeamTypeRequired => 'Choose a team type.';
 
   @override
-  String get createTeamSportsLabel => 'Sports';
+  String get createTeamSportsLabel => 'Sport(s)';
 
   @override
   String get createTeamSportRequired => 'Choose at least one sport.';
 
   @override
-  String get createTeamRankingLabel => 'Player ranking';
+  String get createTeamRankingLabel => 'Ranking';
 
   @override
   String get createTeamRankingHint =>
-      'Rank players by their results in team events.';
+      'Enable to calculate team rankings based on event results.';
 
   @override
   String get createTeamParticipatingLabel => 'You take part as';
