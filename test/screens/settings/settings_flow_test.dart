@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/notifications/push_models.dart';
+import 'package:racketmates/common/session/session_info_models.dart';
 import 'package:racketmates/common/settings/settings_models.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/screens/event_details/event_details_test_ids.dart';
 import 'package:racketmates/screens/event_reminders/event_reminders_test_ids.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
 import 'package:racketmates/screens/notification_settings/notification_settings_test_ids.dart';
+import 'package:racketmates/screens/profile/profile_test_ids.dart';
 import 'package:racketmates/screens/settings/settings_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
 import 'package:racketmates/screens/teams/teams_test_ids.dart';
@@ -46,6 +49,67 @@ void main() {
 
       await _tapTile(tester, SettingsTestIds.reminders);
       expect(_id(EventRemindersTestIds.root), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('shows the formatted number and opens change-phone', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      await tester.pumpWidget(
+        signedInApp(
+          users: FakeUserRepository(
+            profile: UserDetails(
+              user: AppUser(
+                id: 7,
+                firstName: 'Sam',
+                lastName: 'Lee',
+                mobileNumber: '5551234567',
+                country: const UserCountry(code: '1', regionCode: 'US'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await _openSettings(tester);
+      expect(find.text('+1 5551234567'), findsOneWidget);
+      await _tapTile(tester, SettingsTestIds.myNumber);
+      expect(_id(ChangePhoneTestIds.root), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('the edit button opens the profile editor', (tester) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      await tester.pumpWidget(signedInApp());
+      await _openSettings(tester);
+      await _tapTile(tester, SettingsTestIds.profile);
+      expect(_id(ProfileTestIds.root), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('the help button opens support chat when there is a room', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      await tester.pumpWidget(
+        signedInApp(
+          sessionInfo: FakeSessionInfoRepository(
+            response: const SessionInfoResponse(
+              user: SessionInfoUser(
+                id: 7,
+                timezoneIdentifier: 'America/New_York',
+                supportChatRoomUrl: 'support-room',
+              ),
+            ),
+          ),
+        ),
+      );
+      await _openSettings(tester);
+      await _tapTile(tester, SettingsTestIds.help);
+      expect(find.text('fake channel support-room'), findsOneWidget);
       handle.dispose();
     });
 

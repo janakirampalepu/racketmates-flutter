@@ -78,7 +78,6 @@ import 'package:racketmates/screens/change_phone/change_phone_screen.dart';
 import 'package:racketmates/screens/contact_us/contact_us_screen.dart';
 import 'package:racketmates/screens/kid_edit/kid_edit_screen.dart';
 import 'package:racketmates/screens/kids_settings/kids_settings_screen.dart';
-import 'package:racketmates/screens/my_roles/my_roles_screen.dart';
 import 'package:racketmates/screens/role_sports/role_sports_screen.dart';
 import 'package:racketmates/screens/delete_account/delete_account_screen.dart';
 import 'package:racketmates/screens/profile/profile_screen.dart';
@@ -635,22 +634,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const ProfileScreen(),
           ),
           GoRoute(
-            path: 'roles',
-            builder: (context, state) => const MyRolesScreen(),
-            routes: [
-              GoRoute(
-                path: 'sports/:role',
-                redirect: (context, state) =>
-                    const {
-                      'ur_player',
-                      'ur_coach',
-                    }.contains(state.pathParameters['role'])
-                    ? null
-                    : AppRoutes.roles,
-                builder: (context, state) =>
-                    RoleSportsScreen(role: state.pathParameters['role']!),
-              ),
-            ],
+            path: 'sports/:role',
+            redirect: (context, state) =>
+                const {
+                  'ur_player',
+                  'ur_coach',
+                }.contains(state.pathParameters['role'])
+                ? null
+                : AppRoutes.settings,
+            builder: (context, state) =>
+                RoleSportsScreen(role: state.pathParameters['role']!),
           ),
           GoRoute(
             path: 'kids',

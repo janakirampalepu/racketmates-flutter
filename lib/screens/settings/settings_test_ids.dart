@@ -1,12 +1,12 @@
 abstract final class SettingsTestIds {
   static const root = 'settings_screen';
   static const title = 'settings_title';
+  static const help = 'settings_help_button';
   static const name = 'settings_user_name';
-  static const subscription = 'settings_subscription_status';
   static const subscriptionTile = 'settings_subscription_tile';
+  static const myNumber = 'settings_my_number_tile';
   static const locations = 'settings_locations_tile';
-  static const profile = 'settings_profile_tile';
-  static const roles = 'settings_roles_tile';
+  static const profile = 'settings_profile_edit_button';
   static const share = 'settings_share_tile';
   static const contact = 'settings_contact_tile';
   static const deleteAccount = 'settings_delete_account_tile';

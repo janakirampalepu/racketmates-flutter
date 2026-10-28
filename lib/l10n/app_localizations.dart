@@ -3934,11 +3934,41 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settingsTitle;
 
+  /// No description provided for @settingsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get settingsHelp;
+
   /// No description provided for @settingsAccount.
   ///
   /// In en, this message translates to:
   /// **'Account'**
   String get settingsAccount;
+
+  /// No description provided for @settingsPreferencesGroupLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get settingsPreferencesGroupLabel;
+
+  /// No description provided for @settingsAppGroupLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get settingsAppGroupLabel;
+
+  /// No description provided for @settingsMyNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'My number'**
+  String get settingsMyNumber;
+
+  /// No description provided for @settingsFavoriteVenues.
+  ///
+  /// In en, this message translates to:
+  /// **'My favorite venues'**
+  String get settingsFavoriteVenues;
 
   /// No description provided for @settingsNotifications.
   ///

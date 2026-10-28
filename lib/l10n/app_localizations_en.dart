@@ -2088,7 +2088,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTitle => 'Settings';
 
   @override
+  String get settingsHelp => 'Help';
+
+  @override
   String get settingsAccount => 'Account';
+
+  @override
+  String get settingsPreferencesGroupLabel => 'Preferences';
+
+  @override
+  String get settingsAppGroupLabel => 'App';
+
+  @override
+  String get settingsMyNumber => 'My number';
+
+  @override
+  String get settingsFavoriteVenues => 'My favorite venues';
 
   @override
   String get settingsNotifications => 'Notifications';

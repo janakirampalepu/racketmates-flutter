@@ -55,13 +55,10 @@ abstract final class DeleteAccountTestIds {
 }
 
 abstract final class RolesTestIds {
-  static const root = 'roles_screen';
-  static const title = 'roles_title';
+  /// Settings screen's own inline role rows (native `roleRowView`).
   static const player = 'roles_player_tile';
   static const coach = 'roles_coach_tile';
   static const parent = 'roles_parent_tile';
-  static const loadError = 'roles_load_error';
-  static const retry = 'roles_retry_button';
 
   static const sportsRoot = 'role_sports_screen';
   static const sportsTitle = 'role_sports_title';

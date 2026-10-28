@@ -55,6 +55,37 @@ abstract final class MessageKeys {
   static const homeUpdatesTitle = 'home_page.latest_updates_title';
   static const homeUpdatesEmpty = 'home_page.latest_updates_no_updates_title';
 
+  // settings (profile settings screen, native `ProfileSettingsView`)
+  static const settingsNavTitle = 'settings.nav_title';
+  static const settingsAccountGroupLabel = 'settings.account_group_label';
+  static const settingsPersonalizationGroupLabel =
+      'settings.personalization_group_label';
+  static const settingsAppGroupLabel = 'settings.app_group_label';
+  static const settingsChangePhoneNumberTitle =
+      'settings.change_phone_number_title';
+  static const settingsMyFavoriteVenuesOptionTitle =
+      'settings.my_favorite_venues_option_title';
+  static const settingsEventRemindersOptionTitle =
+      'settings.event_reminders_option_title';
+  static const settingsNotificationsOptionTitle =
+      'settings.notifications_option_title';
+  static const settingsSubscriptionOptionTitle =
+      'settings.subscription_option_title';
+  static const settingsShareWithFriendsOptionTitle =
+      'settings.share_with_friends_option_title';
+  static const settingsRateRacketmatesOptionTitle =
+      'settings.rate_racketmates_option_title';
+  static const settingsContactUsOptionTitle =
+      'settings.contact_us_option_title';
+  static const settingsLogoutButton = 'settings.logout_button';
+  static const settingsDeleteAccountButton = 'settings.delete_account_button';
+  static const settingsNotAPlayerText = 'settings.not_a_player_text';
+  static const settingsNotACoachText = 'settings.not_a_coach_text';
+  static const settingsNotAParentText = 'settings.not_a_parent_text';
+  static const settingsSubscriptionPremiumText =
+      'settings.subscription_premium_text';
+  static const settingsSubscriptionFreeText = 'settings.subscription_free_text';
+
   // settings.share_with_friends_strings
   static const shareTitle = 'settings.share_with_friends_strings.title';
   static const shareText = 'settings.share_with_friends_strings.sub_text';

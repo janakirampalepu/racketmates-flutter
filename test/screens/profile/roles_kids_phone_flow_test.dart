@@ -79,10 +79,9 @@ AppUser _parent({List<AppUser> kids = const [], bool coach = false}) => AppUser(
 FakeUserRepository _users(AppUser user) =>
     FakeUserRepository(profile: UserDetails(user: user));
 
-Future<void> _openRoles(WidgetTester tester) async {
-  await _openSettings(tester);
-  await _tap(tester, SettingsTestIds.roles);
-}
+// Player/Coach/Parent are now inline rows on the Settings screen itself
+// (native `profileHeaderCard`), not a separate "Roles and sports" screen.
+Future<void> _openRoles(WidgetTester tester) => _openSettings(tester);
 
 void main() {
   group('roles and sports', () {
