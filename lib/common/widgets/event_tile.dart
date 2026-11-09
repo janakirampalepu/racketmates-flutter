@@ -245,6 +245,11 @@ class EventTile extends ConsumerWidget {
                                 ),
                             ],
                           ),
+                          // The gap under the header (date/title/status/chip)
+                          // is noticeably bigger than the gaps between the
+                          // info lines below it on a real device — measured
+                          // from a screenshot, not just eyeballed.
+                          SizedBox(height: sdp(6)),
                           if (time.isNotEmpty)
                             _line(context, 'ic_schedule_date_time', time),
                           if (place.isNotEmpty)
@@ -499,7 +504,10 @@ class _EventActionButtons extends StatelessWidget {
         );
       case 'event_view_action_directions':
         return _ActionButton(
-          icon: Icons.directions_outlined,
+          // A location pin, matching the icon on a real device screenshot
+          // (and the same pin used on this card's own location line) —
+          // not a turn/road-sign "directions" glyph.
+          icon: Icons.location_on_outlined,
           label: ref.msg(
             MessageKeys.eventShowDirectionsButton,
             l10n.eventGetDirections,
@@ -582,6 +590,14 @@ class _EventActionButtons extends StatelessWidget {
 /// the card) rather than acting in place — the accept/decline/directions
 /// flows already live on the event/manage screens, so wiring a second,
 /// parallel action path here was out of scope for this visual-parity pass.
+/// Native `actionButton()` (iOS `EventListListRow.swift`, the Home-carousel
+/// path this app's `showActionButtons` mirrors): full-width,
+/// `cornerRadius(16)` (rounder than the card's own 12), default background
+/// `Background.Solid.secondary2`/`Text.primary` text/`imagePrimeryColor`-ish
+/// icon tint; `decline` overrides to a white card (fixed, not theme-aware —
+/// native's own override reads as a deliberately stark white regardless of
+/// theme); `accept`/`rejoin`/`joinWaitlist`/the scores actions override to
+/// `Background.Solid.Green.green1` with black text/icon.
 class _ActionButton extends StatelessWidget {
   const _ActionButton({
     required this.icon,
@@ -599,39 +615,45 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final child = Text(
-      label,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: const TextStyle(fontSize: 12),
-    );
-    final iconWidget = Icon(icon, size: 16);
+    final n = context.native;
+    final sdp = context.sdp;
+    final Color background;
+    final Color foreground;
+    final Color iconColor;
+    final BorderSide? side;
     if (filled) {
-      return FilledButton.icon(
-        onPressed: onTap,
-        icon: iconWidget,
-        label: child,
-        style: const ButtonStyle(
-          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 8)),
-        ),
-      );
+      background = n.backgroundSolidGreen1;
+      foreground = Colors.black;
+      iconColor = Colors.black;
+      side = null;
+    } else if (outlined) {
+      background = Colors.white;
+      foreground = Colors.black87;
+      iconColor = Colors.black87;
+      side = const BorderSide(color: Colors.white);
+    } else {
+      background = n.backgroundSolidSecondary2;
+      foreground = n.textPrimary;
+      iconColor = n.imagePrimeryColor;
+      side = null;
     }
-    if (outlined) {
-      return OutlinedButton.icon(
-        onPressed: onTap,
-        icon: iconWidget,
-        label: child,
-        style: const ButtonStyle(
-          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 8)),
-        ),
-      );
-    }
-    return FilledButton.tonalIcon(
+    return FilledButton.icon(
       onPressed: onTap,
-      icon: iconWidget,
-      label: child,
-      style: const ButtonStyle(
-        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 8)),
+      icon: Icon(icon, size: sdp(16), color: iconColor),
+      label: Text(
+        label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(fontSize: sdp(12), color: foreground),
+      ),
+      style: FilledButton.styleFrom(
+        backgroundColor: background,
+        disabledBackgroundColor: background,
+        side: side,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(sdp(16)),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: sdp(8)),
       ),
     );
   }
