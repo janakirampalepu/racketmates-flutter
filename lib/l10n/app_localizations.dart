@@ -3946,6 +3946,12 @@ abstract class AppLocalizations {
   /// **'Confirm scores'**
   String get eventConfirmScores;
 
+  /// No description provided for @eventEditScores.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit scores'**
+  String get eventEditScores;
+
   /// No description provided for @eventScoresConfirmed.
   ///
   /// In en, this message translates to:

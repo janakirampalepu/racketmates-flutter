@@ -817,6 +817,7 @@
   "eventScoreErrorNumber": "Scores are whole numbers.",
   "eventSubmitScores": "Submit scores",
   "eventConfirmScores": "Confirm scores",
+  "eventEditScores": "Edit scores",
   "eventScoresConfirmed": "Scores confirmed.",
   "eventScoresConfirmFailed": "The scores could not be confirmed. Please try again.",
   "eventScoreErrorTieBreak": "A tie-break cannot end level.",

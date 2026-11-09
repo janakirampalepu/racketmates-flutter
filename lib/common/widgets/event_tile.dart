@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:racketmates/common/content/content_controller.dart';
+import 'package:racketmates/common/content/content_text.dart';
+import 'package:racketmates/common/content/messages.dart';
 import 'package:intl/intl.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
@@ -425,7 +427,10 @@ class _EventActionButtons extends StatelessWidget {
       buttons.add(
         _ActionButton(
           icon: Icons.visibility_outlined,
-          label: l10n.eventViewAction,
+          label: ref.msg(
+            MessageKeys.eventViewEventButton,
+            l10n.eventViewAction,
+          ),
           onTap: onTap,
         ),
       );
@@ -451,52 +456,96 @@ class _EventActionButtons extends StatelessWidget {
       case 'event_view_action_decline':
         return _ActionButton(
           icon: Icons.close,
-          label: l10n.rsvpDecline,
+          label: ref.msg(MessageKeys.rsvpDeclineButton, l10n.rsvpDecline),
           onTap: tap,
           outlined: true,
         );
       case 'event_view_action_accept':
         return _ActionButton(
           icon: Icons.check,
-          label: l10n.rsvpAccept,
+          label: ref.msg(MessageKeys.rsvpAcceptButton, l10n.rsvpAccept),
           onTap: tap,
           filled: true,
         );
       case 'event_view_action_edit_response':
         return _ActionButton(
           icon: Icons.edit_outlined,
-          label: l10n.rsvpEditResponse,
+          label: ref.msg(
+            MessageKeys.rsvpEditResponseButton,
+            l10n.rsvpEditResponse,
+          ),
           onTap: tap,
         );
       case 'user_action_manage_event':
         return _ActionButton(
           icon: Icons.settings_outlined,
-          label: l10n.eventManageAction,
+          label: ref.msg(MessageKeys.eventManageButton, l10n.eventManageAction),
           onTap: tap,
         );
       case 'event_view_action_directions':
         return _ActionButton(
           icon: Icons.directions_outlined,
-          label: l10n.eventGetDirections,
+          label: ref.msg(
+            MessageKeys.eventShowDirectionsButton,
+            l10n.eventGetDirections,
+          ),
           onTap: tap,
         );
       case 'event_view_action_leave':
         return _ActionButton(
           icon: Icons.logout,
-          label: l10n.rsvpLeave,
+          label: ref.msg(MessageKeys.rsvpLeaveButton, l10n.rsvpLeave),
           onTap: tap,
         );
       case 'event_view_action_rejoin':
         return _ActionButton(
           icon: Icons.replay,
-          label: l10n.rsvpRejoin,
+          label: ref.msg(MessageKeys.rsvpRejoinButton, l10n.rsvpRejoin),
           onTap: tap,
           filled: true,
         );
       case 'event_view_action_join_waitlist':
         return _ActionButton(
           icon: Icons.hourglass_bottom,
-          label: l10n.rsvpJoinWaitlist,
+          label: ref.msg(
+            MessageKeys.rsvpJoinWaitlistButton,
+            l10n.rsvpJoinWaitlist,
+          ),
+          onTap: tap,
+          filled: true,
+        );
+      // Native source confirms these 3 are offered through the exact same
+      // swipe/action-button mechanism as the upcoming actions above (one
+      // adapter/layout on Android, the same `EventSwipeActions` on iOS) —
+      // previously missing here entirely, so a past event with one of
+      // these as its primary/secondary action fell through to the generic
+      // "View event" button instead of its real action.
+      case 'user_action_submit_scores':
+        return _ActionButton(
+          icon: Icons.scoreboard_outlined,
+          label: ref.msg(
+            MessageKeys.scoringSubmitScoresButton,
+            l10n.eventSubmitScores,
+          ),
+          onTap: tap,
+          filled: true,
+        );
+      case 'user_action_update_scores':
+        return _ActionButton(
+          icon: Icons.edit_note_outlined,
+          label: ref.msg(
+            MessageKeys.scoringEditScoresButton,
+            l10n.eventEditScores,
+          ),
+          onTap: tap,
+        );
+      case 'user_action_confirm_scores':
+        return _ActionButton(
+          icon: Icons.check_circle_outline,
+          label: ref.msg(
+            MessageKeys.scoringConfirmScoresButton,
+            l10n.eventConfirmScores,
+          ),
           onTap: tap,
           filled: true,
         );
@@ -504,7 +553,10 @@ class _EventActionButtons extends StatelessWidget {
       default:
         return _ActionButton(
           icon: Icons.visibility_outlined,
-          label: l10n.eventViewAction,
+          label: ref.msg(
+            MessageKeys.eventViewEventButton,
+            l10n.eventViewAction,
+          ),
           onTap: onTap,
         );
     }

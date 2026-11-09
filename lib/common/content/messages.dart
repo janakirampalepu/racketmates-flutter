@@ -134,6 +134,26 @@ abstract final class MessageKeys {
   static const scheduleNoUpcoming = 'schedule.no_upcoming_events_title';
   static const scheduleNoPast = 'schedule.no_past_events_title';
 
+  // Schedule-card action buttons (native `EventListListRow`/
+  // `ScheduleV2ListAdapter` — same keys for the always-visible and the
+  // swipe-reveal variants, confirmed by the 2026-11-09 native audit; key
+  // paths are this app's usual snake_case inference from the Swift/Kotlin
+  // property names, unverified against a live backend).
+  static const rsvpDeclineButton = 'events.view.rsvp_decline_button';
+  static const rsvpAcceptButton = 'events.view.rsvp_accept_button';
+  static const rsvpEditResponseButton = 'events.view.rsvp_edit_response_button';
+  static const eventManageButton = 'events.view.manage_button';
+  static const eventShowDirectionsButton = 'global.buttons.show_directions';
+  static const rsvpLeaveButton = 'events.view.rsvp_leave_button';
+  static const rsvpRejoinButton = 'events.view.rsvp_rejoin_button';
+  static const rsvpJoinWaitlistButton = 'events.view.rsvp_join_waitlist_button';
+  static const eventViewEventButton = 'events.view_event_button';
+  static const scoringSubmitScoresButton =
+      'events.scoring.submit_scores_button';
+  static const scoringEditScoresButton = 'events.scoring.edit_scores_button';
+  static const scoringConfirmScoresButton =
+      'events.scoring.confirm_scores_button';
+
   static const teamArchivedCreateEvent =
       'events.create.team_archived_create_event_error';
 

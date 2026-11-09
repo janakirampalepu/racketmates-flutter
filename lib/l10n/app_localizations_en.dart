@@ -2100,6 +2100,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventConfirmScores => 'Confirm scores';
 
   @override
+  String get eventEditScores => 'Edit scores';
+
+  @override
   String get eventScoresConfirmed => 'Scores confirmed.';
 
   @override

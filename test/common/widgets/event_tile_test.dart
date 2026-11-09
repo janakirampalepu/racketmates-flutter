@@ -154,4 +154,42 @@ void main() {
     expect(find.text('View event'), findsOneWidget);
     handle.dispose();
   });
+
+  // Confirmed from native source: submit/update/confirm scores go through
+  // the exact same action mechanism as every other row action (one
+  // adapter/layout on Android, the same `EventSwipeActions` on iOS) — a
+  // past event offering one of these used to fall through to the generic
+  // "View event" button since Flutter had no case for them at all.
+  for (final (action, label) in const [
+    ('user_action_submit_scores', 'Submit scores'),
+    ('user_action_update_scores', 'Edit scores'),
+    ('user_action_confirm_scores', 'Confirm scores'),
+  ]) {
+    testWidgets('$action renders its own "$label" button', (tester) async {
+      final handle = tester.ensureSemantics();
+      final repo = FakeScheduleRepository(
+        pages: {
+          ScheduleTab.past: [
+            [
+              ScheduleItem(
+                eventId: 1,
+                eventDate: '2026-11-03',
+                eventType: 'et_game',
+                swipeRight: EventSwipeAction(
+                  action: action,
+                  access: 'up_enabled',
+                ),
+              ),
+            ],
+          ],
+        },
+      );
+      await tester.pumpWidget(signedInApp(schedule: repo));
+      await _openSchedule(tester);
+      await tester.tap(_id(ScheduleTestIds.topRowPast));
+      await tester.pumpAndSettle();
+      expect(find.text(label), findsOneWidget);
+      handle.dispose();
+    });
+  }
 }
