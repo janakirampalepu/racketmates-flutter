@@ -8,6 +8,7 @@ import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/screens/event_details/event_details_state.dart';
 import 'package:racketmates/screens/home/home_view_model.dart';
 import 'package:racketmates/screens/schedule/schedule_view_model.dart';
+import 'package:racketmates/screens/team_details/team_schedule_view_model.dart';
 
 /// Event details plus the signed-in user's RSVP and manage actions.
 class EventDetailsViewModel extends Notifier<EventDetailsState> {
@@ -208,7 +209,8 @@ class EventDetailsViewModel extends Notifier<EventDetailsState> {
   void _refreshLists() {
     ref
       ..invalidate(homeViewModelProvider)
-      ..invalidate(scheduleListViewModelProvider);
+      ..invalidate(scheduleListViewModelProvider)
+      ..invalidate(teamScheduleViewModelProvider);
   }
 }
 

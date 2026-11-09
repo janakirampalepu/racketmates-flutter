@@ -11,6 +11,11 @@ class ScheduleListViewModel extends Notifier<ScheduleListState> {
 
   @override
   ScheduleListState build() {
+    // Switching the family selection re-fetches this tab, same as Home
+    // (native `onUserSelectChangeClick`).
+    ref.listen(selectedUserIdsProvider, (previous, next) {
+      if (previous != null && previous != next) refresh();
+    });
     Future.microtask(_loadPage);
     return const ScheduleListState();
   }

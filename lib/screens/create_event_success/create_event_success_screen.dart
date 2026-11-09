@@ -12,6 +12,7 @@ import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 import 'package:racketmates/screens/create_event_success/create_event_success_test_ids.dart';
 import 'package:racketmates/screens/home/home_view_model.dart';
 import 'package:racketmates/screens/schedule/schedule_view_model.dart';
+import 'package:racketmates/screens/team_details/team_schedule_view_model.dart';
 
 /// Event created. Leaving clears the wizard and refreshes home and schedule.
 class CreateEventSuccessScreen extends ConsumerWidget {
@@ -23,6 +24,7 @@ class CreateEventSuccessScreen extends ConsumerWidget {
     ref
       ..invalidate(homeViewModelProvider)
       ..invalidate(scheduleListViewModelProvider)
+      ..invalidate(teamScheduleViewModelProvider)
       ..invalidate(createEventSubmitterProvider)
       ..invalidate(draftsProvider);
     ref.read(createEventFlowProvider.notifier).reset();
