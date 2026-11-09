@@ -88,6 +88,7 @@ class Team {
     this.teamPlayers,
     this.userPermissions,
     this.chatRoomTypesForFiltering,
+    this.currentUserTeamPlayers,
   });
 
   factory Team.fromJson(Map<String, dynamic> json) => _$TeamFromJson(json);
@@ -110,6 +111,17 @@ class Team {
   /// `Team.filteredCustomTypeChatRoom`), used to scope the team's chat tab
   /// to its own channels (`GroupChannelListQuery.customTypesFilter`).
   final List<String>? chatRoomTypesForFiltering;
+
+  /// The signed-in user's own family (parent + kids) who are players on
+  /// THIS team (native Android `Team.kt`'s `current_user_team_players`,
+  /// used identically across `CustomChannelListFragment`, `TeamHomeFragment`,
+  /// `ScheduleFragment` and `CreateEventViewModel`) — the authoritative,
+  /// backend-computed list for the Team Chat family avatar row, instead of
+  /// intersecting the global family list against the team roster
+  /// client-side. Unverified against a live backend (field shape/presence
+  /// not independently confirmable here); `_TeamFamilyRow` falls back to
+  /// the client-side computation when this is null.
+  final List<TeamPlayer>? currentUserTeamPlayers;
 
   /// What the signed-in user may do with the team, keyed like the backend
   /// (`team.team_players.update`, `team.events.create`, ...).

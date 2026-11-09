@@ -7,7 +7,9 @@ import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/chat/chat_archive_tabs.dart';
 import 'package:racketmates/common/chat/chat_controller.dart';
 import 'package:racketmates/common/chat/chat_ui.dart';
+import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
+import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/common/users/user_profile_provider.dart';
 import 'package:racketmates/common/widgets/family_user_picker.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
@@ -124,7 +126,7 @@ class _TeamChatScreenState extends ConsumerState<TeamChatScreen> {
                   TeamChatTestIds.root,
                   child: Column(
                     children: [
-                      _TeamFamilyRow(teamId: widget.teamId),
+                      _TeamFamilyRow(teamId: widget.teamId, team: t),
                       FutureBuilder<bool>(
                         future: _hasArchived,
                         builder: (context, snapshot) => (snapshot.data ?? false)
@@ -191,30 +193,47 @@ class _TeamChatScreenState extends ConsumerState<TeamChatScreen> {
 /// `team.filteredCustomTypeChatRoom` does, already wired above) — it is
 /// purely a cosmetic "who's chatting" indicator, so this stays
 /// non-interactive rather than wiring a selection that would do nothing.
+///
+/// Primary path: `team.currentUserTeamPlayers` (native's own dedicated
+/// field for exactly this list, see `Team.currentUserTeamPlayers`'s doc
+/// comment). Fallback (when that field is null/absent, e.g. not yet present
+/// in a fixture/response — unverified against a live backend): the
+/// client-side intersection of the global family list with the team roster,
+/// which is how this row worked before that field was added.
 class _TeamFamilyRow extends ConsumerWidget {
-  const _TeamFamilyRow({required this.teamId});
+  const _TeamFamilyRow({required this.teamId, required this.team});
 
   final int teamId;
+  final Team team;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProfileProvider).value;
-    final roster = ref
-        .watch(
-          teamRosterProvider((
-            teamId: teamId,
-            inactive: false,
-            search: '',
-            sportKey: null,
-          )),
-        )
-        .value;
-    if (user == null || roster == null) return const SizedBox.shrink();
-    final rosterUserIds = {for (final m in roster) m.userId};
-    final members = [
-      for (final m in familyMembers(user))
-        if (rosterUserIds.contains(m.id)) m,
-    ];
+    final List<AppUser> members;
+    final fromServer = team.currentUserTeamPlayers;
+    if (fromServer != null) {
+      members = [
+        for (final p in fromServer)
+          if (p.user != null) p.user!,
+      ];
+    } else {
+      final user = ref.watch(userProfileProvider).value;
+      final roster = ref
+          .watch(
+            teamRosterProvider((
+              teamId: teamId,
+              inactive: false,
+              search: '',
+              sportKey: null,
+            )),
+          )
+          .value;
+      if (user == null || roster == null) return const SizedBox.shrink();
+      final rosterUserIds = {for (final m in roster) m.userId};
+      members = [
+        for (final m in familyMembers(user))
+          if (rosterUserIds.contains(m.id)) m,
+      ];
+    }
     if (members.length <= 1) return const SizedBox.shrink();
     final sdp = context.sdp;
     return TestId(

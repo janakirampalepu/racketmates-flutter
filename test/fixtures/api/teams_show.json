@@ -4,7 +4,16 @@
     "name": "Sunday Smashers",
     "team_type": "tt_competitive",
     "team_players_count": 12,
-    "team_sports": [{ "id": 1, "sport_type": "st_tennis" }]
+    "team_sports": [{ "id": 1, "sport_type": "st_tennis" }],
+    "current_user_team_players": [
+      {
+        "id": 500,
+        "user_id": 7,
+        "is_captain": true,
+        "is_player": true,
+        "user": { "id": 7, "uid": "uid-7", "first_name": "Sam", "last_name": "Lee" }
+      }
+    ]
   },
   "is_captain": true
 }

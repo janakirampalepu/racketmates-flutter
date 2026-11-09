@@ -76,6 +76,9 @@ Team _$TeamFromJson(Map<String, dynamic> json) => Team(
       (json['chat_room_types_for_filtering'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
+  currentUserTeamPlayers: (json['current_user_team_players'] as List<dynamic>?)
+      ?.map((e) => TeamPlayer.fromJson(e as Map<String, dynamic>))
+      .toList(),
 );
 
 Map<String, dynamic> _$TeamToJson(Team instance) => <String, dynamic>{
@@ -93,6 +96,7 @@ Map<String, dynamic> _$TeamToJson(Team instance) => <String, dynamic>{
   'future_events_count': instance.futureEventsCount,
   'team_players': instance.teamPlayers,
   'chat_room_types_for_filtering': instance.chatRoomTypesForFiltering,
+  'current_user_team_players': instance.currentUserTeamPlayers,
   'user_permissions': instance.userPermissions,
 };
 

@@ -101,6 +101,11 @@ void main() {
     final team = await repo.details(31);
     expect(adapter.requests.single.path, 'teams/31');
     expect(team.name, 'Sunday Smashers');
+    // `current_user_team_players`: the signed-in user's own family who are
+    // players on this team (native `Team.currentUserTeamPlayers`), used by
+    // Team Chat's family avatar row.
+    expect(team.currentUserTeamPlayers?.single.userId, 7);
+    expect(team.currentUserTeamPlayers?.single.user?.displayName, 'Sam Lee');
   });
 
   test('members request and parsing', () async {
