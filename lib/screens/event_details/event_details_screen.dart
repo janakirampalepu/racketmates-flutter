@@ -9,6 +9,7 @@ import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/rsvp_actions.dart';
 import 'package:racketmates/common/events/rsvp_preferences.dart';
 import 'package:racketmates/common/chat/event_chat.dart';
+import 'package:racketmates/common/session/access_tap.dart';
 import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/chat_new/new_chat_test_ids.dart';
@@ -220,9 +221,14 @@ class EventDetailsScreen extends ConsumerWidget {
               child: PopupMenuButton<String>(
                 tooltip: l10n.moreOptionsLabel,
                 enabled: !state.busy,
-                onSelected: (value) => value == 'manage'
-                    ? context.push(AppRoutes.eventManageFor(eventId))
-                    : _onCancelEvent(context, ref),
+                onSelected: (value) => handleAccessTap(
+                  context,
+                  ref,
+                  event.permission('event.manage'),
+                  value == 'manage'
+                      ? () => context.push(AppRoutes.eventManageFor(eventId))
+                      : () => _onCancelEvent(context, ref),
+                ),
                 itemBuilder: (_) => [
                   PopupMenuItem(
                     value: 'manage',

@@ -275,6 +275,37 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets(
+    'a disabled manage permission still shows the menu but explains itself',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      final json = apiFixture('events_show_manager');
+      (json['event']
+          as Map<String, dynamic>)['user_permissions']['event.manage'] = {
+        'access': 'up_disabled',
+        'message': 'Only the organizer can do this.',
+      };
+      useTallScreen(tester);
+      final schedule = FakeScheduleRepository(
+        event: EventDetailsResponse.fromJson(json).event,
+      );
+      await tester.pumpWidget(signedInApp(schedule: schedule));
+      await tester.pumpAndSettle();
+      final context = tester.element(_id(HomeTestIds.root));
+      unawaited(GoRouter.of(context).push(AppRoutes.eventFor(101)));
+      await tester.pumpAndSettle();
+
+      expect(_id(EventDetailsTestIds.menu), findsOneWidget);
+      await tester.tap(_id(EventDetailsTestIds.menu));
+      await tester.pumpAndSettle();
+      await tester.tap(_id(EventDetailsTestIds.menuManageEvent));
+      await tester.pumpAndSettle();
+      expect(find.text('Only the organizer can do this.'), findsOneWidget);
+      expect(_id(EventDetailsTestIds.root), findsOneWidget);
+      handle.dispose();
+    },
+  );
+
   for (final mode in [ThemeMode.light, ThemeMode.dark]) {
     testWidgets(
       'RSVP action bar meets contrast and tap-target guidelines ($mode)',

@@ -229,12 +229,20 @@ bool canConfirmScores(EventDetails event) {
   );
 }
 
-/// Whether the signed-in user may cancel this event (`event.manage`).
+/// Whether the "cancel event" menu item should be offered. Tapping it still
+/// runs through `handleAccessTap`, same as managing — this only hides it
+/// once the event is already cancelled, a state check, not a permission one.
 bool canCancelEvent(EventDetails event) =>
-    (event.permission('event.manage')?.enabled ?? false) &&
-    event.status != 'es_cancelled';
+    canManageEvent(event) && event.status != 'es_cancelled';
 
-/// Whether the signed-in user may manage this event (`event.manage`): change
-/// its settings, people, schedule and scores.
-bool canManageEvent(EventDetails event) =>
-    event.permission('event.manage')?.enabled ?? false;
+/// Whether the "manage this event" menu (settings, people, schedule, scores)
+/// should be offered at all (`event.manage`). Native shows the button for
+/// anything but "not available" and branches what tapping it does
+/// (`ViewEventDetailsFragment.navigateToManageEventScreen`) — this used to
+/// hide it for `up_disabled`/`up_requires_subscription` too, silently
+/// dropping the server's own explanation; fixed to match native, see
+/// `handleAccessTap`.
+bool canManageEvent(EventDetails event) {
+  final access = event.permission('event.manage')?.access;
+  return access != null && access != 'up_not_available';
+}
