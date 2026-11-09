@@ -9,6 +9,7 @@ import 'package:racketmates/common/teams/create_team_flow.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/teams/teams_repository.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
 
@@ -170,23 +171,13 @@ class _TeamAddMembersScreenState extends ConsumerState<TeamAddMembersScreen> {
             Expanded(
               child: candidates.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (_, _) => Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TestId(
-                        TeamAddMembersTestIds.error,
-                        child: Text(l10n.teamAddMembersLoadError),
-                      ),
-                      TestId(
-                        TeamAddMembersTestIds.retry,
-                        child: TextButton(
-                          onPressed: () =>
-                              ref.invalidate(teamCandidatesProvider),
-                          child: Text(l10n.retryAction),
-                        ),
-                      ),
-                    ],
+                error: (error, _) => Center(
+                  child: LoadErrorBody(
+                    error: error,
+                    fallbackText: l10n.teamAddMembersLoadError,
+                    retryId: TeamAddMembersTestIds.retry,
+                    onRetry: () => ref.invalidate(teamCandidatesProvider),
+                    errorTestId: TeamAddMembersTestIds.error,
                   ),
                 ),
                 data: (users) => users.isEmpty

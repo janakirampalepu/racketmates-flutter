@@ -348,6 +348,21 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('a server failure message replaces the generic text', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final schedule = FakeScheduleRepository()
+        ..failure = const ServerFailure(500, 'Could not load the schedule.');
+      await _openTeam(tester, teams: _repo(), schedule: schedule);
+      await _tap(tester, TeamHomeActionIds.upcomingSeeAll);
+      schedule.failing.add('page-past');
+      await _tap(tester, TeamDetailsTestIds.schedulePast);
+      expect(find.text('Could not load the schedule.'), findsOneWidget);
+      handle.dispose();
+    });
+
     testWidgets('an archived team opens on its past events', (tester) async {
       final handle = tester.ensureSemantics();
       useTallScreen(tester);
@@ -469,6 +484,24 @@ void main() {
         ..ranking = [ranked(501, _alex, 1, null, 10)];
       await _tap(tester, TeamDetailsTestIds.rankingsRetry);
       expect(_inRankings(find.text('Alex Kim')), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('a server failure message replaces the generic text', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final teams = _repo()
+        ..rankingFails = true
+        ..rankingFailure = const ServerFailure(500, 'Rankings are down.');
+      await _openTeam(tester, teams: teams);
+      await _tap(tester, TeamHomeActionIds.membersSeeAll);
+      expect(_inRankings(find.text('Rankings are down.')), findsOneWidget);
+      expect(
+        _inRankings(find.text('The ranking could not be loaded.')),
+        findsNothing,
+      );
       handle.dispose();
     });
 
@@ -718,6 +751,24 @@ void main() {
       expect(teams.memberCalls, isEmpty);
       handle.dispose();
     });
+
+    testWidgets('a server failure message replaces the generic text', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final teams = _repo()
+        ..membersFail = true
+        ..membersFailure = const ServerFailure(500, 'Could not load roster.');
+      await _openTeam(tester, teams: teams);
+      await _tap(tester, TeamHomeActionIds.manageMembers);
+      expect(_inMembers(find.text('Could not load roster.')), findsOneWidget);
+      expect(
+        _inMembers(find.text("We couldn't load the members.")),
+        findsNothing,
+      );
+      handle.dispose();
+    });
   });
 
   group('add members', () {
@@ -801,6 +852,63 @@ void main() {
       expect(_id(TeamAddMembersTestIds.error), findsOneWidget);
       handle.dispose();
     });
+  });
+
+  group('load failures', () {
+    testWidgets(
+      'team home: a server failure message replaces the generic text',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        useTallScreen(tester);
+        final teams = _repo()
+          ..detailsFailure = const ServerFailure(
+            500,
+            'Could not load this team.',
+          );
+        await _openTeam(tester, teams: teams);
+        expect(find.text('Could not load this team.'), findsOneWidget);
+        expect(find.text('Could not load this team home.'), findsNothing);
+        handle.dispose();
+      },
+    );
+
+    testWidgets(
+      'team chat: a server failure message replaces the generic text',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        useTallScreen(tester);
+        final teams = _repo()
+          ..detailsFailure = const ServerFailure(
+            500,
+            'Could not load this team.',
+          );
+        await _openTeam(tester, teams: teams);
+        await _tap(tester, TeamShellTestIds.navChat);
+        expect(find.text('Could not load this team.'), findsOneWidget);
+        handle.dispose();
+      },
+    );
+
+    testWidgets(
+      'add members: a server failure message replaces the generic text',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        useTallScreen(tester);
+        final teams = _repo()
+          ..candidatesFailure = const ServerFailure(
+            500,
+            'Could not search for people.',
+          );
+        await _openTeam(tester, teams: teams);
+        await _tap(tester, TeamHomeActionIds.manageMembers);
+        await _tap(tester, TeamDetailsTestIds.addMembers);
+        await tester.enterText(find.byType(TextField), 'x');
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpAndSettle();
+        expect(find.text('Could not search for people.'), findsOneWidget);
+        handle.dispose();
+      },
+    );
   });
 
   for (final dark in [false, true]) {

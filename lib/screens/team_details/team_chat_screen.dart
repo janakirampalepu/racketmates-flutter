@@ -12,6 +12,7 @@ import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/common/users/user_profile_provider.dart';
 import 'package:racketmates/common/widgets/family_user_picker.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/team_details/team_chat_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
@@ -97,23 +98,15 @@ class _TeamChatScreenState extends ConsumerState<TeamChatScreen> {
                 TeamChatTestIds.root,
                 child: const Center(child: CircularProgressIndicator()),
               ),
-              error: (_, _) => TestId(
+              error: (error, _) => TestId(
                 TeamChatTestIds.root,
                 child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(l10n.teamDetailsLoadError),
-                      TestId(
-                        TeamDetailsTestIds.retry,
-                        child: TextButton(
-                          onPressed: () => ref.invalidate(
-                            teamDetailsProvider(widget.teamId),
-                          ),
-                          child: Text(l10n.retryAction),
-                        ),
-                      ),
-                    ],
+                  child: LoadErrorBody(
+                    error: error,
+                    fallbackText: l10n.teamDetailsLoadError,
+                    retryId: TeamDetailsTestIds.retry,
+                    onRetry: () =>
+                        ref.invalidate(teamDetailsProvider(widget.teamId)),
                   ),
                 ),
               ),

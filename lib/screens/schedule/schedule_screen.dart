@@ -8,6 +8,7 @@ import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/widgets/event_tile.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/event_drafts/event_drafts_test_ids.dart';
 import 'package:racketmates/screens/schedule/schedule_test_ids.dart';
@@ -110,18 +111,11 @@ class _ScheduleListState extends ConsumerState<_ScheduleList>
     }
     if (state.failure != null && state.items.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(l10n.scheduleLoadError),
-            TestId(
-              ScheduleTestIds.retry(name),
-              child: TextButton(
-                onPressed: vm.retry,
-                child: Text(l10n.retryAction),
-              ),
-            ),
-          ],
+        child: LoadErrorBody(
+          error: state.failure,
+          fallbackText: l10n.scheduleLoadError,
+          retryId: ScheduleTestIds.retry(name),
+          onRetry: vm.retry,
         ),
       );
     }

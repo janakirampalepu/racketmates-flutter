@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/screens/event_details/event_details_test_ids.dart';
@@ -104,6 +105,20 @@ void main() {
     await tester.tap(_id(ScheduleTestIds.retry('past')));
     await tester.pumpAndSettle();
     expect(_id(ScheduleTestIds.event('past', 9)), findsOneWidget);
+    handle.dispose();
+  });
+
+  testWidgets('a server failure message replaces the generic text', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final repo = FakeScheduleRepository()
+      ..failing.add('page-upcoming')
+      ..failure = const ServerFailure(500, 'Could not load this schedule.');
+    await tester.pumpWidget(signedInApp(schedule: repo));
+    await _openSchedule(tester);
+    expect(find.text('Could not load this schedule.'), findsOneWidget);
+    expect(find.text('Could not load events.'), findsNothing);
     handle.dispose();
   });
 
