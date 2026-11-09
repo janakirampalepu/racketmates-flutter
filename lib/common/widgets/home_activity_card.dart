@@ -76,8 +76,10 @@ class _YearPage extends StatelessWidget {
 
   final HomePageStats stats;
 
-  bool get _isEmpty =>
-      (stats.totalEvents ?? 0) == 0 && (stats.totalHours ?? 0) == 0;
+  // Native iOS `ActivityView` line ~28: `if (stats?.totalHours == 0) &&
+  // !isTeamHomeView { emptyState }` — gated on `totalHours` alone, not also
+  // requiring `totalEvents == 0`.
+  bool get _isEmpty => (stats.totalHours ?? 0) == 0;
 
   @override
   Widget build(BuildContext context) {

@@ -24,34 +24,54 @@ List<AppUser> familyMembers(AppUser user) => [
   ...user.children ?? const [],
 ];
 
+/// Whether there is anyone to pick between for this user (native
+/// `canShowUserAvatars`/`DataManager.shared.selectedUsers.count > 1` on iOS;
+/// this app's own [FamilyAvatarsRow] gates the same way, on whether the
+/// signed-in user has any kids at all). Both native apps make this mutually
+/// exclusive with a screen's own title/greeting (Android's `HomeFragment`
+/// blanks the toolbar title and shows the avatar row instead; iOS's
+/// `navigationLeftView()` shows one or the other) — callers that put their
+/// own title next to [FamilyAvatarsRow] should check this first.
+bool hasFamilyToPick(AppUser? user) =>
+    user != null && (user.children ?? const []).isNotEmpty;
+
 /// Avatar row above a screen's content (native `layoutUsersList`, reused on
 /// Home, the Teams list and elsewhere): hidden entirely when the signed-in
 /// user has no kids, otherwise the parent plus up to two kids (native
 /// `MAX_DISPLAY_CHILDS`) with an expand chevron. Tapping either opens the
 /// multi-select picker, which filters every screen that reads
-/// `selectedUserIdsProvider`.
+/// `selectedUserIdsProvider`. [compact] drops the outer padding for use
+/// inside an `AppBar`'s `title` slot (Home puts it there in place of the
+/// greeting — see [hasFamilyToPick]); the default padding suits a normal
+/// scrollable-content row (e.g. the Teams list).
 class FamilyAvatarsRow extends ConsumerWidget {
-  const FamilyAvatarsRow({super.key});
+  const FamilyAvatarsRow({this.compact = false, super.key});
+
+  final bool compact;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProfileProvider).value;
-    if (user == null || (user.children ?? const []).isEmpty) {
+    if (!hasFamilyToPick(user)) {
       return const SizedBox.shrink();
     }
-    final members = familyMembers(user);
+    final members = familyMembers(user!);
     final selected = ref.watch(selectedUserIdsProvider).toSet();
     final n = context.native;
     final sdp = context.sdp;
     return TestId(
       FamilyPickerTestIds.row,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(sdp(12), sdp(4), sdp(12), sdp(4)),
+        padding: compact
+            ? EdgeInsets.zero
+            : EdgeInsets.fromLTRB(sdp(12), sdp(4), sdp(12), sdp(4)),
         child: InkWell(
           borderRadius: BorderRadius.circular(sdp(20)),
           onTap: () => showFamilyUserPicker(context, ref),
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: sdp(4)),
+            padding: compact
+                ? EdgeInsets.zero
+                : EdgeInsets.symmetric(vertical: sdp(4)),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

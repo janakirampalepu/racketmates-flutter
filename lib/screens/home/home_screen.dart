@@ -75,7 +75,14 @@ class HomeScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(homeViewModelProvider(null));
     final vm = ref.read(homeViewModelProvider(null).notifier);
-    final name = ref.watch(userProfileProvider).value?.firstName;
+    final profile = ref.watch(userProfileProvider).value;
+    final name = profile?.firstName;
+    // Native makes the greeting and the family-avatar picker mutually
+    // exclusive (Android `HomeFragment.handleSelectedPlayers()` blanks the
+    // toolbar title and shows the avatar row instead when there are kids;
+    // iOS `navigationLeftView()` does the same in its nav bar), rather than
+    // showing both at once.
+    final showFamilyAvatars = hasFamilyToPick(profile);
     final n = context.native;
     final sdp = context.sdp;
     final session = ref.watch(sessionInfoControllerProvider);
@@ -93,15 +100,17 @@ class HomeScreen extends ConsumerWidget {
           preferredSize: Size.fromHeight(sdp(1)),
           child: Container(height: sdp(1), color: n.ndotsColor),
         ),
-        title: TestId(
-          HomeTestIds.greeting,
-          child: Text(
-            (name != null && name.isNotEmpty)
-                ? l10n.homeGreeting(name)
-                : l10n.homePlaceholder,
-            style: NativeText.semibold(sdp(18), n.textPrimary),
-          ),
-        ),
+        title: showFamilyAvatars
+            ? const FamilyAvatarsRow(compact: true)
+            : TestId(
+                HomeTestIds.greeting,
+                child: Text(
+                  (name != null && name.isNotEmpty)
+                      ? l10n.homeGreeting(name)
+                      : l10n.homePlaceholder,
+                  style: NativeText.semibold(sdp(18), n.textPrimary),
+                ),
+              ),
         actions: [
           TestId(
             HomeTestIds.settingsButton,
@@ -123,7 +132,6 @@ class HomeScreen extends ConsumerWidget {
             padding: EdgeInsets.symmetric(vertical: sdp(4)),
             children: [
               const HomeDowntimeBanner(),
-              const FamilyAvatarsRow(),
               UpcomingEventsSection(
                 l10n: l10n,
                 value: state.upcoming,

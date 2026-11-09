@@ -16,7 +16,9 @@ import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/events/models/schedule_models.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
 import 'package:racketmates/common/sign_up/sport_labels.dart';
+import 'package:racketmates/common/users/user_profile_provider.dart';
 import 'package:racketmates/common/widgets/event_tile.dart';
+import 'package:racketmates/common/widgets/family_user_picker.dart';
 import 'package:racketmates/common/widgets/home_activity_card.dart';
 import 'package:racketmates/common/widgets/native_widgets.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
@@ -365,6 +367,10 @@ class PendingActionsSection extends StatelessWidget {
     return Consumer(
       builder: (context, ref, _) {
         final sdp = context.sdp;
+        // Native iOS `canShowUserAvatars` (`selectedUsers.count > 1`): this
+        // app shows/hides the same way `FamilyAvatarsRow` does, on whether
+        // the signed-in user has any kids at all.
+        final showAvatar = hasFamilyToPick(ref.watch(userProfileProvider).value);
         return TestId(
           sectionId,
           child: Column(
@@ -423,6 +429,7 @@ class PendingActionsSection extends StatelessWidget {
                           itemBuilder: (context, i) => _PendingTile(
                             action: items[i],
                             testId: actionIdFor(items[i].eventId ?? 0),
+                            showAvatar: showAvatar,
                           ),
                         ),
                       ),
@@ -441,12 +448,21 @@ class PendingActionsSection extends StatelessWidget {
 /// event itself (same as tapping the card) rather than acting in place,
 /// since the accept/decline/scores flows already live on the event screen.
 class _PendingTile extends StatelessWidget {
-  const _PendingTile({required this.action, required this.testId});
+  const _PendingTile({
+    required this.action,
+    required this.testId,
+    required this.showAvatar,
+  });
 
   static const double _width = 190;
 
   final PendingAction action;
   final String testId;
+
+  /// Native iOS `canShowUserAvatars`: show the event participant's avatar
+  /// next to the date badge only when there's more than one selectable
+  /// family member.
+  final bool showAvatar;
 
   @override
   Widget build(BuildContext context) {
@@ -502,7 +518,22 @@ class _PendingTile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _DateBadge(day: day, month: month),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _DateBadge(day: day, month: month),
+                          if (showAvatar && action.eventParticipantUser != null)
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.topRight,
+                                child: FamilyAvatar(
+                                  member: action.eventParticipantUser!,
+                                  isSelected: false,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                       SizedBox(height: sdp(12)),
                       Text(
                         title,
