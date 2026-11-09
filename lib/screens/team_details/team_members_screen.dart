@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
-import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_members_tab.dart';
@@ -28,22 +28,13 @@ class TeamMembersScreen extends ConsumerWidget {
       ),
       body: team.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, _) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TestId(
-                TeamDetailsTestIds.error,
-                child: Text(l10n.teamDetailsLoadError),
-              ),
-              TestId(
-                TeamDetailsTestIds.retry,
-                child: TextButton(
-                  onPressed: () => ref.invalidate(teamDetailsProvider(teamId)),
-                  child: Text(l10n.retryAction),
-                ),
-              ),
-            ],
+        error: (error, _) => Center(
+          child: LoadErrorBody(
+            error: error,
+            fallbackText: l10n.teamDetailsLoadError,
+            retryId: TeamDetailsTestIds.retry,
+            onRetry: () => ref.invalidate(teamDetailsProvider(teamId)),
+            errorTestId: TeamDetailsTestIds.error,
           ),
         ),
         data: (t) => TeamMembersTab(team: t),

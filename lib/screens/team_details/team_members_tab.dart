@@ -15,6 +15,7 @@ import 'package:racketmates/common/teams/team_labels.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/teams/teams_repository.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/team_details/team_access.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
@@ -329,19 +330,13 @@ class _TeamMembersTabState extends ConsumerState<TeamMembersTab> {
         Expanded(
           child: roster.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, _) => Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TestId(
-                    TeamDetailsTestIds.membersError,
-                    child: Text(l10n.teamMembersLoadError),
-                  ),
-                  TextButton(
-                    onPressed: () => ref.invalidate(teamRosterProvider),
-                    child: Text(l10n.retryAction),
-                  ),
-                ],
+            error: (error, _) => Center(
+              child: LoadErrorBody(
+                error: error,
+                fallbackText: l10n.teamMembersLoadError,
+                retryId: TeamDetailsTestIds.membersRetry,
+                onRetry: () => ref.invalidate(teamRosterProvider),
+                errorTestId: TeamDetailsTestIds.membersError,
               ),
             ),
             data: (list) => list.isEmpty

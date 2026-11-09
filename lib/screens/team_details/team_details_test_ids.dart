@@ -4,6 +4,7 @@ abstract final class TeamDetailsTestIds {
   static const error = 'team_details_error';
   static const retry = 'team_details_retry';
   static const membersError = 'team_details_members_error';
+  static const membersRetry = 'team_details_members_retry';
   static const membersEmpty = 'team_details_members_empty';
 
   /// `team_member_<teamPlayerId>`.

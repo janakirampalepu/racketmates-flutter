@@ -14,6 +14,7 @@ import 'package:racketmates/common/teams/team_edit.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/teams/teams_repository.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/team_details/team_access.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
@@ -213,23 +214,13 @@ class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
           .watch(teamRankingsProvider(args))
           .when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, _) => Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TestId(
-                    TeamDetailsTestIds.rankingsError,
-                    child: Text(l10n.teamRankingsLoadError),
-                  ),
-                  TestId(
-                    TeamDetailsTestIds.rankingsRetry,
-                    child: TextButton(
-                      onPressed: () =>
-                          ref.invalidate(teamRankingsProvider(args)),
-                      child: Text(l10n.retryAction),
-                    ),
-                  ),
-                ],
+            error: (error, _) => Center(
+              child: LoadErrorBody(
+                error: error,
+                fallbackText: l10n.teamRankingsLoadError,
+                retryId: TeamDetailsTestIds.rankingsRetry,
+                onRetry: () => ref.invalidate(teamRankingsProvider(args)),
+                errorTestId: TeamDetailsTestIds.rankingsError,
               ),
             ),
             data: (list) => list.isEmpty

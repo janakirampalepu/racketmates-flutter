@@ -6,6 +6,7 @@ import 'package:racketmates/common/session/access.dart';
 import 'package:racketmates/common/teams/member_rules.dart';
 import 'package:racketmates/common/teams/team_edit.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/team_details/team_access.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
@@ -52,22 +53,13 @@ class TeamScheduleScreen extends ConsumerWidget {
       ),
       body: team.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, _) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TestId(
-                TeamDetailsTestIds.error,
-                child: Text(l10n.teamDetailsLoadError),
-              ),
-              TestId(
-                TeamDetailsTestIds.retry,
-                child: TextButton(
-                  onPressed: () => ref.invalidate(teamDetailsProvider(teamId)),
-                  child: Text(l10n.retryAction),
-                ),
-              ),
-            ],
+        error: (error, _) => Center(
+          child: LoadErrorBody(
+            error: error,
+            fallbackText: l10n.teamDetailsLoadError,
+            retryId: TeamDetailsTestIds.retry,
+            onRetry: () => ref.invalidate(teamDetailsProvider(teamId)),
+            errorTestId: TeamDetailsTestIds.error,
           ),
         ),
         data: (t) =>
