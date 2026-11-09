@@ -26,6 +26,10 @@ enum ScheduleTab {
 /// Event roles requested by home and schedule (native `getSelectedOwnerType`).
 const defaultEventRoles = ['managing', 'participant'];
 
+/// `status` value for `schedule/to_be_scheduled` (native
+/// `AppConstants.EVENT_STATUS_TO_BE_RESCHEDULE`).
+const toBeRescheduledStatus = 'es_to_be_rescheduled';
+
 /// Home shows this many upcoming/past events (native `HOME_PAGE_UPCOMMING_COUNT`).
 const homeEventsCount = 3;
 
@@ -48,12 +52,25 @@ abstract class ScheduleRepository {
   });
 
   /// One page of a schedule tab; an empty list means the end was reached.
+  /// [eventRoles]/[sportTypes] default to every role/sport (native
+  /// `EventFilterPicker`'s own defaults).
   Future<ScheduleListResponse> schedulePage({
     required ScheduleTab tab,
     required int page,
     required List<String> userIds,
     required int hourFormat,
     int? teamId,
+    List<String>? eventRoles,
+    List<String>? sportTypes,
+  });
+
+  /// Events that still need a time picked (native's `to_be_scheduled`
+  /// screen, not a Schedule tab); not paginated, same as Android.
+  Future<List<ScheduleItem>> toBeScheduled({
+    required List<String> userIds,
+    int? teamId,
+    List<String>? eventRoles,
+    List<String>? sportTypes,
   });
 
   Future<List<PendingAction>> pendingActions({
@@ -154,6 +171,8 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
     required List<String> userIds,
     required int hourFormat,
     int? teamId,
+    List<String>? eventRoles,
+    List<String>? sportTypes,
   }) => _guard(
     () => api.scheduledEvents(
       perPage: schedulePageSize,
@@ -162,10 +181,30 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
       eventsFor: tab.eventsFor,
       timePeriod: tab.timePeriod,
       userIds: userIds,
-      eventRoles: defaultEventRoles,
+      eventRoles: eventRoles ?? defaultEventRoles,
+      sportTypes: sportTypes,
       hourFormat: hourFormat,
     ),
   );
+
+  @override
+  Future<List<ScheduleItem>> toBeScheduled({
+    required List<String> userIds,
+    int? teamId,
+    List<String>? eventRoles,
+    List<String>? sportTypes,
+  }) async {
+    final response = await _guard(
+      () => api.toBeScheduled(
+        status: toBeRescheduledStatus,
+        teamId: teamId,
+        userIds: userIds,
+        eventRoles: eventRoles ?? defaultEventRoles,
+        sportTypes: sportTypes,
+      ),
+    );
+    return response.scheduleItems ?? const [];
+  }
 
   @override
   Future<List<PendingAction>> pendingActions({
@@ -180,8 +219,7 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
   Future<List<HomePageStats>> activitySummary({
     required List<String> userIds,
   }) async =>
-      (await _guard(() => api.statsSummary(userIds: userIds)))
-          .homePageStats ??
+      (await _guard(() => api.statsSummary(userIds: userIds))).homePageStats ??
       const [];
 
   @override

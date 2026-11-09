@@ -59,6 +59,7 @@ import 'package:racketmates/screens/locations/locations_screen.dart';
 import 'package:racketmates/screens/venue_details/venue_screen.dart';
 import 'package:racketmates/screens/event_details/event_details_screen.dart';
 import 'package:racketmates/screens/event_drafts/event_drafts_screen.dart';
+import 'package:racketmates/screens/event_to_be_scheduled/to_be_scheduled_screen.dart';
 import 'package:racketmates/screens/home/home_screen.dart';
 import 'package:racketmates/screens/main_shell/main_shell_screen.dart';
 import 'package:racketmates/screens/schedule/schedule_screen.dart';
@@ -295,8 +296,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.locations,
         builder: (context, state) => LocationsScreen(
-          initialTabIndex:
-              state.uri.queryParameters['tab'] == 'favourites' ? 1 : 0,
+          initialTabIndex: state.uri.queryParameters['tab'] == 'favourites'
+              ? 1
+              : 0,
         ),
         routes: [
           GoRoute(
@@ -313,6 +315,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.drafts,
         builder: (context, state) => const EventDraftsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.toBeScheduled,
+        builder: (context, state) => const ToBeScheduledScreen(),
       ),
       GoRoute(
         path: AppRoutes.chatNew,

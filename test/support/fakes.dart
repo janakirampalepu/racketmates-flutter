@@ -39,6 +39,7 @@ import 'package:racketmates/common/events/participant_status_filter.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/events/models/schedule_models.dart';
+import 'package:racketmates/common/events/schedule_filter.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/billing/billing_models.dart';
 import 'package:racketmates/common/billing/billing_platform.dart';
@@ -512,6 +513,10 @@ class FakeScheduleRepository implements ScheduleRepository {
   final List<int> requestedPages = [];
   final List<int?> requestedTeams = [];
 
+  /// `eventRoles`/`sportTypes` the last `schedulePage` call carried.
+  List<String>? lastEventRoles;
+  List<String>? lastSportTypes;
+
   Future<T> _run<T>(String name, T Function() value) async {
     calls.add(name);
     await Future<void>.delayed(Duration.zero);
@@ -546,9 +551,13 @@ class FakeScheduleRepository implements ScheduleRepository {
     required List<String> userIds,
     required int hourFormat,
     int? teamId,
+    List<String>? eventRoles,
+    List<String>? sportTypes,
   }) {
     requestedPages.add(page);
     requestedTeams.add(teamId);
+    lastEventRoles = eventRoles;
+    lastSportTypes = sportTypes;
     return _run('page-${tab.name}', () {
       final list = pages[tab] ?? const [];
       return ScheduleListResponse(
@@ -556,6 +565,17 @@ class FakeScheduleRepository implements ScheduleRepository {
       );
     });
   }
+
+  /// Served by `toBeScheduled`; empty by default.
+  List<ScheduleItem> toBeScheduledItems = const [];
+
+  @override
+  Future<List<ScheduleItem>> toBeScheduled({
+    required List<String> userIds,
+    int? teamId,
+    List<String>? eventRoles,
+    List<String>? sportTypes,
+  }) => _run('to-be-scheduled', () => toBeScheduledItems);
 
   @override
   Future<List<PendingAction>> pendingActions({
@@ -1105,6 +1125,8 @@ List<Override> contentOverrides({
   FakePhotoPicker? photoPicker,
   FakePhoneVerificationRepository? phone,
   FakeDraftsRepository? drafts,
+  InMemoryScheduleFilterStore? scheduleFilterStore,
+  InMemoryScheduleFilterStore? teamScheduleFilterStore,
 }) => [
   landingVideoEnabledProvider.overrideWithValue(false),
   participantStatusFilterKeyProvider.overrideWith(
@@ -1155,6 +1177,11 @@ List<Override> contentOverrides({
   maintenanceDismissalStoreProvider.overrideWithValue(
     maintenanceDismissal ?? InMemoryMaintenanceDismissalStore(),
   ),
+  scheduleFilterStoreProvider(false)
+      .overrideWithValue(scheduleFilterStore ?? InMemoryScheduleFilterStore()),
+  scheduleFilterStoreProvider(
+    true,
+  ).overrideWithValue(teamScheduleFilterStore ?? InMemoryScheduleFilterStore()),
   supportRepositoryProvider.overrideWithValue(
     support ?? FakeSupportRepository(),
   ),
@@ -2132,6 +2159,16 @@ class InMemoryMaintenanceDismissalStore implements MaintenanceDismissalStore {
 
   @override
   Future<void> dismiss(String name) async => value = name;
+}
+
+class InMemoryScheduleFilterStore implements ScheduleFilterStore {
+  ScheduleFilter? value;
+
+  @override
+  Future<ScheduleFilter?> read() async => value;
+
+  @override
+  Future<void> write(ScheduleFilter filter) async => value = filter;
 }
 
 class FakeDraftsRepository implements DraftsRepository {

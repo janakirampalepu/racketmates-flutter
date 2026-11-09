@@ -527,6 +527,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scheduleLoadError => 'Could not load events.';
 
   @override
+  String get scheduleFilterAction => 'Filter events';
+
+  @override
+  String get scheduleFilterTitle => 'Filter events';
+
+  @override
+  String get scheduleFilterOwnerManaging => 'Events I\'m managing';
+
+  @override
+  String get scheduleFilterOwnerParticipant => 'Events I\'m participating in';
+
+  @override
+  String get scheduleFilterSportsLabel => 'Sports';
+
+  @override
+  String get scheduleFilterApply => 'Apply';
+
+  @override
+  String get toBeScheduledAction => 'To be rescheduled';
+
+  @override
+  String get toBeScheduledTitle => 'To be rescheduled';
+
+  @override
+  String get toBeScheduledEmpty => 'Nothing needs a new time right now.';
+
+  @override
+  String get toBeScheduledLoadError => 'Could not load these events.';
+
+  @override
   String get eventDetailsTitle => 'Event details';
 
   @override

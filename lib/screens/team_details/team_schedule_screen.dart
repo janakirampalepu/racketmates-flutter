@@ -8,6 +8,7 @@ import 'package:racketmates/common/teams/team_edit.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
+import 'package:racketmates/screens/schedule/schedule_filter_sheet.dart';
 import 'package:racketmates/screens/team_details/team_access.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_schedule_tab.dart';
@@ -32,6 +33,12 @@ class TeamScheduleScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: n.backgroundSolidPrimary,
         title: Text(l10n.teamTabSchedule),
+        actions: const [
+          ScheduleFilterButton(
+            isTeamContext: true,
+            testId: TeamDetailsTestIds.scheduleFilterButton,
+          ),
+        ],
       ),
       floatingActionButton: team.whenOrNull(
         data: (t) =>

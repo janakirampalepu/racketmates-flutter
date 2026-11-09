@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:racketmates/common/events/schedule_filter.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/screens/schedule/schedule_view_model.dart';
 
@@ -27,6 +28,8 @@ void main() {
         scheduleRepositoryProvider.overrideWithValue(repo),
         selectedUserIdsProvider.overrideWith(() => _FixedSelectedUsers(['7'])),
         hourFormatProvider.overrideWithValue(12),
+        scheduleFilterStoreProvider(false)
+            .overrideWithValue(InMemoryScheduleFilterStore()),
       ],
     );
     addTearDown(c.dispose);

@@ -19,6 +19,7 @@ abstract final class TeamDetailsTestIds {
   static const scheduleError = 'team_schedule_error';
   static const scheduleRetry = 'team_schedule_retry';
   static const scheduleCreateEvent = 'team_schedule_create_event_button';
+  static const scheduleFilterButton = 'team_schedule_filter_button';
 
   /// `team_schedule_event_<eventId>`.
   static String scheduleEvent(int id) => 'team_schedule_event_$id';

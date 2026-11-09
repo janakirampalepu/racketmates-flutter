@@ -81,6 +81,48 @@ void main() {
     },
   );
 
+  testWidgets('owner filter narrows the request to managing only', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final repo = FakeScheduleRepository(
+      pages: {
+        ScheduleTab.upcoming: [
+          [scheduleItem(1)],
+        ],
+      },
+    );
+    await tester.pumpWidget(signedInApp(schedule: repo));
+    await _openSchedule(tester);
+    expect(repo.lastEventRoles, ['managing', 'participant']);
+
+    await tester.tap(_id(ScheduleTestIds.filterButton));
+    await tester.pumpAndSettle();
+    await tester.tap(_id(ScheduleFilterTestIds.ownerParticipant));
+    await tester.pumpAndSettle();
+    await tester.tap(_id(ScheduleFilterTestIds.apply));
+    await tester.pumpAndSettle();
+
+    expect(repo.lastEventRoles, ['managing']);
+    handle.dispose();
+  });
+
+  testWidgets('the to-be-rescheduled button opens its own screen', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final repo = FakeScheduleRepository()
+      ..toBeScheduledItems = [scheduleItem(5)];
+    await tester.pumpWidget(signedInApp(schedule: repo));
+    await _openSchedule(tester);
+
+    await tester.tap(_id(ScheduleTestIds.toBeScheduledButton));
+    await tester.pumpAndSettle();
+    expect(_id(ToBeScheduledTestIds.root), findsOneWidget);
+    expect(_id(ToBeScheduledTestIds.event(5)), findsOneWidget);
+    handle.dispose();
+  });
+
   testWidgets('past tab loads its own list; empty and error states', (
     tester,
   ) async {

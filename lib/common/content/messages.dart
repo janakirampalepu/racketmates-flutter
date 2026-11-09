@@ -122,6 +122,8 @@ abstract final class MessageKeys {
   static const scheduleTitle = 'schedule.nav_title';
   static const scheduleUpcomingTab = 'schedule.events_title';
   static const schedulePastTab = 'schedule.past_events_title';
+  static const scheduleYetToBeRescheduledTitle =
+      'schedule.yet_to_be_scheduled_nav_title';
   static const scheduleNoUpcoming = 'schedule.no_upcoming_events_title';
   static const scheduleNoPast = 'schedule.no_past_events_title';
 

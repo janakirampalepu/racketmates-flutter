@@ -8,6 +8,7 @@ abstract final class AppRoutes {
   static const home = '/home';
   static const schedule = '/schedule';
   static const drafts = '/drafts';
+  static const toBeScheduled = '/schedule/to-be-rescheduled';
   static const chat = '/chat';
   static const chatChannel = '/chat/channel';
   static const chatChannelDetails = '/chat/channel/details';
@@ -201,6 +202,7 @@ abstract final class AppRoutes {
       location == locations ||
       location.startsWith('$locations/') ||
       location == drafts ||
+      location == toBeScheduled ||
       location == subscription ||
       location.startsWith('$subscription/') ||
       location.startsWith('$event/') ||

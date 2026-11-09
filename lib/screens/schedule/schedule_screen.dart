@@ -11,12 +11,12 @@ import 'package:racketmates/common/widgets/event_tile.dart';
 import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/event_drafts/event_drafts_test_ids.dart';
+import 'package:racketmates/screens/schedule/schedule_filter_sheet.dart';
 import 'package:racketmates/screens/schedule/schedule_test_ids.dart';
 import 'package:racketmates/screens/schedule/schedule_view_model.dart';
 
 /// Schedule tab: upcoming and past events (native `ScheduleFragment`).
-/// Drafts, to-be-rescheduled, filters, calendar view and swipe actions are
-/// later work.
+/// Calendar view and swipe actions are later work.
 class ScheduleScreen extends ConsumerWidget {
   const ScheduleScreen({super.key});
 
@@ -29,6 +29,15 @@ class ScheduleScreen extends ConsumerWidget {
         appBar: AppBar(
           title: Text(ref.msg(MessageKeys.scheduleTitle, l10n.scheduleTitle)),
           actions: [
+            const ScheduleFilterButton(isTeamContext: false),
+            TestId(
+              ScheduleTestIds.toBeScheduledButton,
+              child: IconButton(
+                tooltip: l10n.toBeScheduledAction,
+                icon: const Icon(Icons.event_repeat_outlined),
+                onPressed: () => context.push(AppRoutes.toBeScheduled),
+              ),
+            ),
             TestId(
               EventDraftActionIds.scheduleButton,
               child: IconButton(

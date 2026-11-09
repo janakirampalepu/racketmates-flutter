@@ -1072,6 +1072,66 @@ abstract class AppLocalizations {
   /// **'Could not load events.'**
   String get scheduleLoadError;
 
+  /// No description provided for @scheduleFilterAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter events'**
+  String get scheduleFilterAction;
+
+  /// No description provided for @scheduleFilterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter events'**
+  String get scheduleFilterTitle;
+
+  /// No description provided for @scheduleFilterOwnerManaging.
+  ///
+  /// In en, this message translates to:
+  /// **'Events I\'m managing'**
+  String get scheduleFilterOwnerManaging;
+
+  /// No description provided for @scheduleFilterOwnerParticipant.
+  ///
+  /// In en, this message translates to:
+  /// **'Events I\'m participating in'**
+  String get scheduleFilterOwnerParticipant;
+
+  /// No description provided for @scheduleFilterSportsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sports'**
+  String get scheduleFilterSportsLabel;
+
+  /// No description provided for @scheduleFilterApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get scheduleFilterApply;
+
+  /// No description provided for @toBeScheduledAction.
+  ///
+  /// In en, this message translates to:
+  /// **'To be rescheduled'**
+  String get toBeScheduledAction;
+
+  /// No description provided for @toBeScheduledTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'To be rescheduled'**
+  String get toBeScheduledTitle;
+
+  /// No description provided for @toBeScheduledEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing needs a new time right now.'**
+  String get toBeScheduledEmpty;
+
+  /// No description provided for @toBeScheduledLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load these events.'**
+  String get toBeScheduledLoadError;
+
   /// No description provided for @eventDetailsTitle.
   ///
   /// In en, this message translates to:

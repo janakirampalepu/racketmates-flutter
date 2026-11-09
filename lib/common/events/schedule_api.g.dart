@@ -29,6 +29,7 @@ class _ScheduleApi implements ScheduleApi {
     int? teamId,
     List<String>? userIds,
     List<String>? eventRoles,
+    List<String>? sportTypes,
     int? hourFormat,
   }) async {
     final _extra = <String, dynamic>{};
@@ -40,6 +41,7 @@ class _ScheduleApi implements ScheduleApi {
       r'team_id': teamId,
       r'user_ids[]': userIds,
       r'event_roles[]': eventRoles,
+      r'sport_types[]': sportTypes,
       r'hour_format': hourFormat,
     };
     queryParameters.removeWhere((k, v) => v == null);
@@ -50,6 +52,46 @@ class _ScheduleApi implements ScheduleApi {
           .compose(
             _dio.options,
             'schedule/scheduled_events',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ScheduleListResponse _value;
+    try {
+      _value = ScheduleListResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ScheduleListResponse> toBeScheduled({
+    String? status,
+    int? teamId,
+    List<String>? userIds,
+    List<String>? eventRoles,
+    List<String>? sportTypes,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'status': status,
+      r'team_id': teamId,
+      r'user_ids[]': userIds,
+      r'event_roles[]': eventRoles,
+      r'sport_types[]': sportTypes,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<ScheduleListResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            'schedule/to_be_scheduled',
             queryParameters: queryParameters,
             data: _data,
           )

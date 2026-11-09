@@ -24,7 +24,21 @@ abstract class ScheduleApi {
     @Query('team_id') int? teamId,
     @Query('user_ids[]') List<String>? userIds,
     @Query('event_roles[]') List<String>? eventRoles,
+    @Query('sport_types[]') List<String>? sportTypes,
     @Query('hour_format') int? hourFormat,
+  });
+
+  /// Events that need a time picked (native `btnToBeScheduledEvent`'s own
+  /// destination screen, not a Schedule tab). Same response shape as
+  /// `scheduled_events`; Android sends no paging for it, so this app
+  /// follows that and loads the whole list at once.
+  @GET('schedule/to_be_scheduled')
+  Future<ScheduleListResponse> toBeScheduled({
+    @Query('status') String? status,
+    @Query('team_id') int? teamId,
+    @Query('user_ids[]') List<String>? userIds,
+    @Query('event_roles[]') List<String>? eventRoles,
+    @Query('sport_types[]') List<String>? sportTypes,
   });
 
   @GET('current_session/pending_actions')

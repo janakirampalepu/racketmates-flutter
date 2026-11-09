@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/events/schedule_filter.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/screens/schedule/schedule_state.dart';
 
@@ -11,9 +12,12 @@ class ScheduleListViewModel extends Notifier<ScheduleListState> {
 
   @override
   ScheduleListState build() {
-    // Switching the family selection re-fetches this tab, same as Home
-    // (native `onUserSelectChangeClick`).
+    // Switching the family selection or the owner/sport filter re-fetches
+    // this tab, same as Home (native `onUserSelectChangeClick`).
     ref.listen(selectedUserIdsProvider, (previous, next) {
+      if (previous != null && previous != next) refresh();
+    });
+    ref.listen(scheduleFilterProvider(false), (previous, next) {
       if (previous != null && previous != next) refresh();
     });
     Future.microtask(_loadPage);
@@ -41,6 +45,7 @@ class ScheduleListViewModel extends Notifier<ScheduleListState> {
       failure: () => null,
     );
     try {
+      final filter = ref.read(scheduleFilterProvider(false));
       final response = await ref
           .read(scheduleRepositoryProvider)
           .schedulePage(
@@ -48,6 +53,8 @@ class ScheduleListViewModel extends Notifier<ScheduleListState> {
             page: state.nextPage,
             userIds: ref.read(selectedUserIdsProvider),
             hourFormat: ref.read(hourFormatProvider),
+            eventRoles: filter.eventRoles,
+            sportTypes: filter.sportTypesOrNull,
           );
       if (!ref.mounted) return;
       final fetched = response.scheduleItems ?? const [];

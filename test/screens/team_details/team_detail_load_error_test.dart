@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/events/schedule_filter.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/teams/teams_repository.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
@@ -28,7 +29,11 @@ Team _team() => const Team(
 );
 
 Widget _host(FakeTeamsRepository repo, Widget screen) => ProviderScope(
-  overrides: [teamsRepositoryProvider.overrideWithValue(repo)],
+  overrides: [
+    teamsRepositoryProvider.overrideWithValue(repo),
+    scheduleFilterStoreProvider(true)
+        .overrideWithValue(InMemoryScheduleFilterStore()),
+  ],
   child: MaterialApp(
     localizationsDelegates: const [
       AppLocalizations.delegate,
