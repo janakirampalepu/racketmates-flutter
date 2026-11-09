@@ -208,94 +208,104 @@ class _FormState extends ConsumerState<_Form> {
     if (!showArchive && !showUnarchive && !showDelete) return;
     await showModalBottomSheet<void>(
       context: context,
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.of(sheetContext).pop(),
-              ),
-            ),
-            if (showArchive)
-              TestId(
-                TeamSettingsTestIds.archive,
-                child: ListTile(
-                  leading: const Icon(Icons.archive_outlined),
-                  title: Text(
-                    ref.msg(
-                      MessageKeys.teamSettingsArchiveButton,
-                      l10n.teamArchive,
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.of(sheetContext).pop();
-                    _teamAction(
-                      TeamSettingsPermissions.archive,
-                      l10n.teamArchiveTitle(name),
-                      l10n.teamArchiveText,
-                      (repo) => repo.archive(_id),
-                      l10n.teamArchivedDone,
-                    );
-                  },
+      // `SafeArea` alone can still leave the sheet's last row under the
+      // system nav bar on some devices — add the inset explicitly too,
+      // the same fix already applied to the Rankings screen's own
+      // overflow sheet and the Settings screen's scrollable content.
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(sheetContext).padding.bottom,
+        ),
+        child: SafeArea(
+          bottom: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(sheetContext).pop(),
                 ),
               ),
-            if (showUnarchive)
-              TestId(
-                TeamSettingsTestIds.unarchive,
-                child: ListTile(
-                  leading: const Icon(Icons.unarchive_outlined),
-                  title: Text(
-                    ref.msg(
-                      MessageKeys.teamSettingsUnarchiveButton,
-                      l10n.teamUnarchive,
+              if (showArchive)
+                TestId(
+                  TeamSettingsTestIds.archive,
+                  child: ListTile(
+                    leading: const Icon(Icons.archive_outlined),
+                    title: Text(
+                      ref.msg(
+                        MessageKeys.teamSettingsArchiveButton,
+                        l10n.teamArchive,
+                      ),
                     ),
+                    onTap: () {
+                      Navigator.of(sheetContext).pop();
+                      _teamAction(
+                        TeamSettingsPermissions.archive,
+                        l10n.teamArchiveTitle(name),
+                        l10n.teamArchiveText,
+                        (repo) => repo.archive(_id),
+                        l10n.teamArchivedDone,
+                      );
+                    },
                   ),
-                  onTap: () {
-                    Navigator.of(sheetContext).pop();
-                    _teamAction(
-                      TeamSettingsPermissions.unarchive,
-                      l10n.teamUnarchiveTitle(name),
-                      l10n.teamUnarchiveText,
-                      (repo) => repo.unarchive(_id),
-                      l10n.teamUnarchivedDone,
-                    );
-                  },
                 ),
-              ),
-            if (showDelete)
-              TestId(
-                TeamSettingsTestIds.delete,
-                child: ListTile(
-                  leading: Icon(
-                    Icons.delete_outline,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  title: Text(
-                    ref.msg(
-                      MessageKeys.teamSettingsDeleteButton,
-                      l10n.teamDelete,
+              if (showUnarchive)
+                TestId(
+                  TeamSettingsTestIds.unarchive,
+                  child: ListTile(
+                    leading: const Icon(Icons.unarchive_outlined),
+                    title: Text(
+                      ref.msg(
+                        MessageKeys.teamSettingsUnarchiveButton,
+                        l10n.teamUnarchive,
+                      ),
                     ),
-                    style: TextStyle(
+                    onTap: () {
+                      Navigator.of(sheetContext).pop();
+                      _teamAction(
+                        TeamSettingsPermissions.unarchive,
+                        l10n.teamUnarchiveTitle(name),
+                        l10n.teamUnarchiveText,
+                        (repo) => repo.unarchive(_id),
+                        l10n.teamUnarchivedDone,
+                      );
+                    },
+                  ),
+                ),
+              if (showDelete)
+                TestId(
+                  TeamSettingsTestIds.delete,
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.delete_outline,
                       color: Theme.of(context).colorScheme.error,
                     ),
+                    title: Text(
+                      ref.msg(
+                        MessageKeys.teamSettingsDeleteButton,
+                        l10n.teamDelete,
+                      ),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.of(sheetContext).pop();
+                      _teamAction(
+                        TeamSettingsPermissions.destroy,
+                        l10n.teamDeleteTitle(name),
+                        l10n.teamDeleteText,
+                        (repo) => repo.deleteTeam(_id),
+                        l10n.teamDeletedDone,
+                        leaves: true,
+                      );
+                    },
                   ),
-                  onTap: () {
-                    Navigator.of(sheetContext).pop();
-                    _teamAction(
-                      TeamSettingsPermissions.destroy,
-                      l10n.teamDeleteTitle(name),
-                      l10n.teamDeleteText,
-                      (repo) => repo.deleteTeam(_id),
-                      l10n.teamDeletedDone,
-                      leaves: true,
-                    );
-                  },
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -510,6 +510,7 @@
   "teamRankingsEmpty": "No ranking yet for this selection.",
   "teamRankingsLoadError": "The ranking could not be loaded.",
   "teamRankingsOff": "Player ranking is not turned on for this team.",
+  "teamRankingSport": "Sport",
   "teamRankingPeriod": "Period",
   "teamRankingMatchType": "Match type",
   "teamRankingRecord": "{wins}W - {losses}L",

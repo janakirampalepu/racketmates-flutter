@@ -15,6 +15,7 @@ import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/teams/teams_repository.dart';
 import 'package:racketmates/common/widgets/load_error_body.dart';
+import 'package:racketmates/common/widgets/native_widgets.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/team_details/team_access.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
@@ -38,10 +39,13 @@ class TeamRankingsTab extends ConsumerStatefulWidget {
   final Team team;
 
   @override
-  ConsumerState<TeamRankingsTab> createState() => _TeamRankingsTabState();
+  ConsumerState<TeamRankingsTab> createState() => TeamRankingsTabState();
 }
 
-class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
+/// Public so the hosting screen's `AppBar` (native puts "Reset ranking" in
+/// the toolbar's own overflow menu, top-right — not inline with the
+/// filters) can reach [openActionsSheet] through a `GlobalKey`.
+class TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
   String? _sport;
   String? _period;
   // Native only offers Singles/Doubles here — no "All" option on either
@@ -51,6 +55,9 @@ class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
   // both native apps, never left as a null "all" selection.
   String? _matchType;
   bool _busy = false;
+  // Cached each build so the AppBar's action (outside this widget) can
+  // reset whichever sport is currently selected.
+  String? _resolvedSport;
 
   int get _teamId => widget.team.id ?? 0;
 
@@ -174,6 +181,41 @@ class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
     }
   }
 
+  /// "Reset ranking" (native's toolbar/overflow "other actions" menu) —
+  /// called from the hosting screen's `AppBar` action, top-right, not from
+  /// an icon inline with the filter row.
+  Future<void> openActionsSheet() async {
+    final sport = _resolvedSport;
+    if (sport == null) return;
+    final l10n = AppLocalizations.of(context);
+    await showModalBottomSheet<void>(
+      context: context,
+      // `SafeArea` alone can still leave the sheet's last row under the
+      // system nav bar on some devices — add the inset explicitly too,
+      // the same fix already applied to the Settings screen's scrollable
+      // content and the Team Settings overflow sheet.
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(sheetContext).padding.bottom,
+        ),
+        child: SafeArea(
+          bottom: false,
+          child: TestId(
+            TeamDetailsTestIds.rankingReset,
+            child: ListTile(
+              leading: const Icon(Icons.restart_alt),
+              title: Text(l10n.teamRankingReset),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _resetRanking(sport);
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -208,8 +250,7 @@ class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
     final n = context.native;
     final canAddPoints =
         _access(TeamPermissions.updateMember) != AccessDecision.hidden;
-    final canReset =
-        _access(TeamSettingsPermissions.settings) != AccessDecision.hidden;
+    _resolvedSport = sport;
 
     Widget table() {
       if (sport == null) {
@@ -343,97 +384,270 @@ class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
           );
     }
 
-    // Native never shows "Reset ranking" as a persistent inline link under
-    // the filters — it's a toolbar/menu action (Android's "other actions"
-    // overflow button, iOS's own action sheet) that opens a short action
-    // menu, which is what opens the existing confirmation dialog.
-    void openActions() {
-      showModalBottomSheet<void>(
-        context: context,
-        builder: (sheetContext) => SafeArea(
-          child: TestId(
-            TeamDetailsTestIds.rankingReset,
-            child: ListTile(
-              leading: const Icon(Icons.restart_alt),
-              title: Text(l10n.teamRankingReset),
-              onTap: () {
-                Navigator.of(sheetContext).pop();
-                _resetRanking(sport!);
-              },
+    // Native shows neither of these as chips or an inline Material
+    // dropdown: both the sport and the period are a single bordered pill
+    // button (icon/text + a trailing chevron) that opens a bottom-sheet
+    // list of every option (Android's `SelectSportPicker`/
+    // `SelectPeriodPicker`, iOS's `SelectSportSheetView`/
+    // `SelectPeriodSheetView`) — only the Singles/Doubles match type is a
+    // real two-chip toggle row on both platforms.
+    Future<void> openSportPicker() => showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) => _FilterPickerSheet(
+        title: l10n.teamRankingSport,
+        children: [
+          for (final key in sports)
+            TestId(
+              TeamDetailsTestIds.rankingSport(key),
+              child: _FilterOptionRow(
+                icon: SportKey.fromKey(key) == null
+                    ? null
+                    : sportIconName(SportKey.fromKey(key)!),
+                label: _sportText(l10n, key),
+                selected: key == sport,
+                onTap: () {
+                  setState(() => _sport = key);
+                  Navigator.of(sheetContext).pop();
+                },
+              ),
             ),
-          ),
-        ),
-      );
+        ],
+      ),
+    );
+
+    Future<void> openPeriodPicker() => showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) => _FilterPickerSheet(
+        title: l10n.teamRankingPeriod,
+        children: [
+          for (final p in periods)
+            if (p.key != null)
+              TestId(
+                TeamDetailsTestIds.rankingPeriod(p.key!),
+                child: _FilterOptionRow(
+                  label: p.localizedLabel ?? p.key!,
+                  selected: p.key == period,
+                  onTap: () {
+                    setState(() => _period = p.key);
+                    Navigator.of(sheetContext).pop();
+                  },
+                ),
+              ),
+        ],
+      ),
+    );
+
+    String? periodLabelFor(String? key) {
+      for (final p in periods) {
+        if (p.key == key) return p.localizedLabel ?? p.key;
+      }
+      return null;
     }
+
+    final periodLabel = periodLabelFor(period) ?? l10n.teamRankingPeriod;
 
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
               if (sports.length > 1)
-                for (final key in sports)
-                  TestId(
-                    TeamDetailsTestIds.rankingSport(key),
-                    child: ChoiceChip(
-                      label: Text(_sportText(l10n, key)),
-                      selected: key == sport,
-                      onSelected: (_) => setState(() => _sport = key),
-                    ),
+                TestId(
+                  TeamDetailsTestIds.rankingSportButton,
+                  child: _FilterPillButton(
+                    icon: SportKey.fromKey(sport ?? '') == null
+                        ? null
+                        : sportIconName(SportKey.fromKey(sport!)!),
+                    label: sport == null
+                        ? l10n.teamRankingSport
+                        : _sportText(l10n, sport),
+                    bold: true,
+                    onTap: openSportPicker,
                   ),
+                ),
+              Expanded(child: SizedBox(width: context.sdp(8))),
               if (periods.isNotEmpty)
                 TestId(
                   TeamDetailsTestIds.rankingsPeriod,
-                  child: DropdownButton<String>(
-                    value: period,
-                    hint: Text(l10n.teamRankingPeriod),
-                    items: [
-                      for (final p in periods)
-                        if (p.key != null)
-                          DropdownMenuItem(
-                            value: p.key,
-                            child: Text(p.localizedLabel ?? p.key!),
-                          ),
-                    ],
-                    onChanged: (v) => setState(() => _period = v),
-                  ),
-                ),
-              // No "All" chip — native only ever offers Singles/Doubles
-              // here (a two-way toggle on both platforms).
-              for (final m in matchTypes)
-                TestId(
-                  TeamDetailsTestIds.rankingMatch(m.key!),
-                  child: ChoiceChip(
-                    label: Text(m.localizedLabel ?? m.key!),
-                    selected: matchType == m.key,
-                    onSelected: (_) => setState(() => _matchType = m.key),
-                  ),
-                ),
-            ],
-                ),
-              ),
-              if (sport != null && canReset)
-                TestId(
-                  TeamDetailsTestIds.rankingOtherActions,
-                  child: IconButton(
-                    tooltip: l10n.teamRankingOtherActions,
-                    onPressed: _busy ? null : openActions,
-                    icon: const Icon(Icons.more_vert),
+                  child: _FilterPillButton(
+                    label: periodLabel,
+                    onTap: openPeriodPicker,
                   ),
                 ),
             ],
           ),
         ),
+        if (matchTypes.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Row(
+              children: [
+                // No "All" chip — native only ever offers Singles/Doubles
+                // here (a two-way toggle on both platforms).
+                for (final m in matchTypes)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: TestId(
+                      TeamDetailsTestIds.rankingMatch(m.key!),
+                      child: ChoiceChip(
+                        label: Text(m.localizedLabel ?? m.key!),
+                        selected: matchType == m.key,
+                        onSelected: (_) => setState(() => _matchType = m.key),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         Expanded(child: table()),
       ],
+    );
+  }
+}
+
+/// The sport/period selector button (native `tvSportName`/`sportSelector`,
+/// `tvDateFilter`/`periodSelector`): a bordered pill with optional leading
+/// icon, the current value, and a trailing dropdown chevron — not a chip
+/// row or a Material `DropdownButton`.
+class _FilterPillButton extends StatelessWidget {
+  const _FilterPillButton({
+    required this.label,
+    required this.onTap,
+    this.icon,
+    this.bold = false,
+  });
+
+  final String label;
+  final VoidCallback onTap;
+  final String? icon;
+  final bool bold;
+
+  @override
+  Widget build(BuildContext context) {
+    final n = context.native;
+    final sdp = context.sdp;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(sdp(8)),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: sdp(12), vertical: sdp(8)),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(sdp(8)),
+          border: Border.all(color: n.borderSolidPrimary),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              SvgIcon(icon!, size: sdp(18), color: n.imagePrimeryColor),
+              SizedBox(width: sdp(6)),
+            ],
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: n.textPrimary,
+                  fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: n.textPrimary, size: sdp(20)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A bottom-sheet list used by both the sport and period pickers (native's
+/// `SelectSportPicker`/`SelectPeriodPicker`/`SelectSportSheetView`/
+/// `SelectPeriodSheetView`): a title and one row per option.
+class _FilterPickerSheet extends StatelessWidget {
+  const _FilterPickerSheet({required this.title, required this.children});
+
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final n = context.native;
+    final sdp = context.sdp;
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(sdp(16), sdp(16), sdp(16), sdp(8)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: n.textPrimary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: sdp(16),
+                ),
+              ),
+              SizedBox(height: sdp(8)),
+              ...children,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One row inside [_FilterPickerSheet]: an optional sport icon, the label,
+/// and a check mark when selected.
+class _FilterOptionRow extends StatelessWidget {
+  const _FilterOptionRow({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.icon,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final String? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final n = context.native;
+    final sdp = context.sdp;
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: sdp(12)),
+        child: Row(
+          children: [
+            if (icon != null) ...[
+              SvgIcon(icon!, size: sdp(20), color: n.imagePrimeryColor),
+              SizedBox(width: sdp(12)),
+            ],
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: n.textPrimary,
+                  fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ),
+            if (selected)
+              Icon(Icons.check, color: n.imagePrimeryColor, size: sdp(20)),
+          ],
+        ),
+      ),
     );
   }
 }

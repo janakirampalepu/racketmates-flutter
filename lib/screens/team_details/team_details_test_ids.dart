@@ -38,7 +38,11 @@ abstract final class TeamDetailsTestIds {
   static const rankingResetConfirmYes = 'team_ranking_reset_confirm_yes';
   static const rankingResetFailed = 'team_ranking_reset_failed';
 
-  /// `team_rank_sport_<sportKey>`.
+  /// The sport-selector pill button (native `tvSportName`/`sportSelector`),
+  /// which opens a bottom sheet listing each option below.
+  static const rankingSportButton = 'team_rank_sport_button';
+
+  /// `team_rank_sport_<sportKey>`: a row in the sport-picker bottom sheet.
   static String rankingSport(String key) => 'team_rank_sport_$key';
 
   /// `team_rank_add_points_<teamPlayerId>`.
@@ -46,6 +50,9 @@ abstract final class TeamDetailsTestIds {
 
   /// `team_rank_match_<matchKey|all>`.
   static String rankingMatch(String key) => 'team_rank_match_$key';
+
+  /// `team_rank_period_<periodKey>`: a row in the period-picker bottom sheet.
+  static String rankingPeriod(String key) => 'team_rank_period_$key';
 
   /// `team_rank_row_<teamPlayerId>`.
   static String rankingRow(int id) => 'team_rank_row_$id';

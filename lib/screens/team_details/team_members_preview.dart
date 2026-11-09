@@ -107,7 +107,7 @@ class TeamMembersPreview extends ConsumerWidget {
                 ),
           if (canManageMembers)
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: sdp(16)),
+              padding: EdgeInsets.fromLTRB(sdp(16), sdp(12), sdp(16), 0),
               child: TestId(
                 TeamHomeActionIds.manageMembers,
                 // Native renders this as a filled, centered pill button —

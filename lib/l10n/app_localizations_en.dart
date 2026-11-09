@@ -1217,6 +1217,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Player ranking is not turned on for this team.';
 
   @override
+  String get teamRankingSport => 'Sport';
+
+  @override
   String get teamRankingPeriod => 'Period';
 
   @override

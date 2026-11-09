@@ -2344,6 +2344,12 @@ abstract class AppLocalizations {
   /// **'Player ranking is not turned on for this team.'**
   String get teamRankingsOff;
 
+  /// No description provided for @teamRankingSport.
+  ///
+  /// In en, this message translates to:
+  /// **'Sport'**
+  String get teamRankingSport;
+
   /// No description provided for @teamRankingPeriod.
   ///
   /// In en, this message translates to:

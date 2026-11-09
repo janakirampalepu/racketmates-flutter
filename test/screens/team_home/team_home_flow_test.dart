@@ -478,6 +478,9 @@ void main() {
       final teams = _repo();
       await _openTeam(tester, teams: teams);
       await _tap(tester, TeamHomeActionIds.membersSeeAll);
+      // The sport filter is a pill button that opens a bottom sheet
+      // listing each sport, not a chip row — open it, then pick one.
+      await _tap(tester, TeamDetailsTestIds.rankingSportButton);
       await _tap(tester, TeamDetailsTestIds.rankingSport('st_padel'));
       expect(teams.rankingRequests.last.sport, 'st_padel');
       await _tap(tester, TeamDetailsTestIds.rankingMatch('mt_singles'));
