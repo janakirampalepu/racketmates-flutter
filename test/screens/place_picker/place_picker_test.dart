@@ -196,7 +196,8 @@ void main() {
 
       expect(_id(PlacePickerTestIds.place(1)), findsOneWidget);
       expect(_id(PlacePickerTestIds.place(2)), findsOneWidget);
-      expect(find.text('1 Main St · 2.00 mi'), findsOneWidget);
+      expect(find.text('1 Main St'), findsOneWidget);
+      expect(find.text('2.00 mi'), findsOneWidget);
 
       await tester.enterText(
         find.descendant(

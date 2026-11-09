@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/session/session_info_controller.dart';
 import 'package:racketmates/common/widgets/load_error_body.dart';
+import 'package:racketmates/common/widgets/place_row_card.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/place_picker/place_picker_state.dart';
 import 'package:racketmates/screens/place_picker/place_picker_test_ids.dart';
@@ -133,33 +135,26 @@ class _PlaceList extends StatelessWidget {
       );
     }
     return ListView.builder(
+      padding: EdgeInsets.symmetric(horizontal: context.sdp(16)),
       itemCount: list.places.length,
       itemBuilder: (context, index) {
         final place = list.places[index];
         final id = place.id;
         final isFav = place.favourite ?? false;
-        return TestId(
-          PlacePickerTestIds.place(id ?? index),
-          child: ListTile(
-            minVerticalPadding: 12,
-            title: Text(place.name ?? ''),
-            subtitle: Text(
-              [
-                if ((place.address ?? '').isNotEmpty) place.address!,
-                ?formatDistance(place.distance, unit),
-              ].join(' · '),
+        return PlaceRowCard(
+          place: place,
+          distanceText: formatDistance(place.distance, unit),
+          testId: PlacePickerTestIds.place(id ?? index),
+          onTap: () => context.pop(place),
+          trailing: TestId(
+            PlacePickerTestIds.favourite(id ?? index),
+            child: IconButton(
+              tooltip: isFav
+                  ? l10n.removeFavouriteAction
+                  : l10n.addFavouriteAction,
+              icon: Icon(isFav ? Icons.star : Icons.star_border),
+              onPressed: busyId != null ? null : () => onToggle(place),
             ),
-            trailing: TestId(
-              PlacePickerTestIds.favourite(id ?? index),
-              child: IconButton(
-                tooltip: isFav
-                    ? l10n.removeFavouriteAction
-                    : l10n.addFavouriteAction,
-                icon: Icon(isFav ? Icons.star : Icons.star_border),
-                onPressed: busyId != null ? null : () => onToggle(place),
-              ),
-            ),
-            onTap: () => context.pop(place),
           ),
         );
       },
