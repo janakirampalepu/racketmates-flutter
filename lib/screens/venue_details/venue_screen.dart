@@ -11,6 +11,7 @@ import 'package:racketmates/common/links/external_links.dart';
 import 'package:racketmates/common/places/map_links.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/places/places_repository.dart';
+import 'package:racketmates/common/session/session_info_controller.dart';
 import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/locations/locations_test_ids.dart';
@@ -123,6 +124,9 @@ class _Details extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final courts = place.placeCourts ?? const <PlaceCourt>[];
     final typeLabel = ref.refLabel(place.placeType, '');
+    final unitKey = ref.watch(sessionInfoControllerProvider).user?.distanceType;
+    final unit = ref.refLabel(unitKey, l10n.locationsDefaultUnit);
+    final distanceText = formatDistance(place.distance, unit);
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -138,9 +142,9 @@ class _Details extends ConsumerWidget {
             ),
           ),
         ],
-        if ((place.distance ?? '').isNotEmpty) ...[
+        if (distanceText != null) ...[
           const SizedBox(height: 4),
-          TestId(VenueTestIds.distance, child: Text(place.distance!)),
+          TestId(VenueTestIds.distance, child: Text(distanceText)),
         ],
         if (place.requiresMembership ?? false) ...[
           const SizedBox(height: 8),

@@ -202,6 +202,7 @@ class _LocationsScreenState extends ConsumerState<LocationsScreen>
                     list: state.search,
                     emptyText: l10n.placesEmpty,
                     busyId: state.togglingFavouriteFor,
+                    unit: unit,
                     onRetry: _vm.loadSearch,
                     onToggle: _vm.toggleFavourite,
                     onOpen: _open,
@@ -210,6 +211,7 @@ class _LocationsScreenState extends ConsumerState<LocationsScreen>
                     list: state.favourites,
                     emptyText: l10n.placesFavouritesEmpty,
                     busyId: state.togglingFavouriteFor,
+                    unit: unit,
                     onRetry: _vm.loadFavourites,
                     onToggle: _vm.toggleFavourite,
                     onOpen: _open,
@@ -229,6 +231,7 @@ class _VenueList extends StatelessWidget {
     required this.list,
     required this.emptyText,
     required this.busyId,
+    required this.unit,
     required this.onRetry,
     required this.onToggle,
     required this.onOpen,
@@ -237,6 +240,7 @@ class _VenueList extends StatelessWidget {
   final PlaceListState list;
   final String emptyText;
   final int? busyId;
+  final String unit;
   final VoidCallback onRetry;
   final void Function(PlaceItem) onToggle;
   final void Function(PlaceItem) onOpen;
@@ -279,7 +283,7 @@ class _VenueList extends StatelessWidget {
               subtitle: Text(
                 [
                   if ((place.address ?? '').isNotEmpty) place.address!,
-                  if ((place.distance ?? '').isNotEmpty) place.distance!,
+                  ?formatDistance(place.distance, unit),
                 ].join(' · '),
               ),
               trailing: TestId(

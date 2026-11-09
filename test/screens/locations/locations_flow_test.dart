@@ -17,7 +17,7 @@ const _central = PlaceItem(
   id: 1,
   name: 'Central Courts',
   address: '1 Main St',
-  distance: '2 mi',
+  distance: 2,
   placeType: 'pt_club',
   requiresMembership: true,
   addressDetail: PlaceAddress(latitude: 40.1, longitude: -73.9),
@@ -35,7 +35,7 @@ const _west = PlaceItem(
   id: 2,
   name: 'Club West',
   address: '9 West Rd',
-  distance: '5 mi',
+  distance: 5,
   favourite: true,
 );
 
@@ -72,7 +72,7 @@ void main() {
       await _openLocations(tester);
       expect(_id(LocationsTestIds.root), findsOneWidget);
       expect(find.text('Central Courts'), findsOneWidget);
-      expect(find.textContaining('2 mi'), findsOneWidget);
+      expect(find.textContaining('2.00 mi'), findsOneWidget);
       expect(
         find.textContaining('Near your current location · Within 30 mi'),
         findsOneWidget,

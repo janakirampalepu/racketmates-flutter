@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/places/place_models.dart';
+import 'package:racketmates/common/session/session_info_controller.dart';
 import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/place_picker/place_picker_state.dart';
@@ -23,6 +25,8 @@ class PlacePickerScreen extends ConsumerWidget {
     final provider = placePickerViewModelProvider(sportType);
     final state = ref.watch(provider);
     final vm = ref.read(provider.notifier);
+    final unitKey = ref.watch(sessionInfoControllerProvider).user?.distanceType;
+    final unit = ref.refLabel(unitKey, l10n.locationsDefaultUnit);
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -66,6 +70,7 @@ class PlacePickerScreen extends ConsumerWidget {
                       list: state.search,
                       emptyText: l10n.placesEmpty,
                       busyId: state.togglingFavouriteFor,
+                      unit: unit,
                       onRetry: vm.loadSearch,
                       onToggle: vm.toggleFavourite,
                     ),
@@ -76,6 +81,7 @@ class PlacePickerScreen extends ConsumerWidget {
                 list: state.favourites,
                 emptyText: l10n.placesFavouritesEmpty,
                 busyId: state.togglingFavouriteFor,
+                unit: unit,
                 onRetry: vm.loadFavourites,
                 onToggle: vm.toggleFavourite,
               ),
@@ -92,6 +98,7 @@ class _PlaceList extends StatelessWidget {
     required this.list,
     required this.emptyText,
     required this.busyId,
+    required this.unit,
     required this.onRetry,
     required this.onToggle,
   });
@@ -99,6 +106,7 @@ class _PlaceList extends StatelessWidget {
   final PlaceListState list;
   final String emptyText;
   final int? busyId;
+  final String unit;
   final VoidCallback onRetry;
   final void Function(PlaceItem) onToggle;
 
@@ -138,7 +146,7 @@ class _PlaceList extends StatelessWidget {
             subtitle: Text(
               [
                 if ((place.address ?? '').isNotEmpty) place.address!,
-                if ((place.distance ?? '').isNotEmpty) place.distance!,
+                ?formatDistance(place.distance, unit),
               ].join(' · '),
             ),
             trailing: TestId(

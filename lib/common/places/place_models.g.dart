@@ -29,10 +29,10 @@ Map<String, dynamic> _$PlaceDetailsResponseToJson(
 ) => <String, dynamic>{'place': instance.place};
 
 PlaceItem _$PlaceItemFromJson(Map<String, dynamic> json) => PlaceItem(
-  id: (json['id'] as num?)?.toInt(),
+  id: const LenientIntConverter().fromJson(json['id']),
   name: json['name'] as String?,
   address: json['address'] as String?,
-  distance: json['distance'] as String?,
+  distance: const LenientDoubleConverter().fromJson(json['distance']),
   placeType: json['place_type'] as String?,
   addressDetail: json['address_detail'] == null
       ? null
@@ -46,10 +46,10 @@ PlaceItem _$PlaceItemFromJson(Map<String, dynamic> json) => PlaceItem(
 );
 
 Map<String, dynamic> _$PlaceItemToJson(PlaceItem instance) => <String, dynamic>{
-  'id': instance.id,
+  'id': const LenientIntConverter().toJson(instance.id),
   'name': instance.name,
   'address': instance.address,
-  'distance': instance.distance,
+  'distance': const LenientDoubleConverter().toJson(instance.distance),
   'place_type': instance.placeType,
   'address_detail': instance.addressDetail,
   'favourite': instance.favourite,
@@ -61,20 +61,20 @@ Map<String, dynamic> _$PlaceItemToJson(PlaceItem instance) => <String, dynamic>{
 PlaceAddress _$PlaceAddressFromJson(Map<String, dynamic> json) => PlaceAddress(
   cityName: json['city_name'] as String?,
   stateAbbreviation: json['state_abbreviation'] as String?,
-  latitude: (json['latitude'] as num?)?.toDouble(),
-  longitude: (json['longitude'] as num?)?.toDouble(),
+  latitude: const LenientDoubleConverter().fromJson(json['latitude']),
+  longitude: const LenientDoubleConverter().fromJson(json['longitude']),
 );
 
 Map<String, dynamic> _$PlaceAddressToJson(PlaceAddress instance) =>
     <String, dynamic>{
       'city_name': instance.cityName,
       'state_abbreviation': instance.stateAbbreviation,
-      'latitude': instance.latitude,
-      'longitude': instance.longitude,
+      'latitude': const LenientDoubleConverter().toJson(instance.latitude),
+      'longitude': const LenientDoubleConverter().toJson(instance.longitude),
     };
 
 PlaceCourt _$PlaceCourtFromJson(Map<String, dynamic> json) => PlaceCourt(
-  id: (json['id'] as num?)?.toInt(),
+  id: const LenientIntConverter().fromJson(json['id']),
   name: json['name'] as String?,
   courtType: json['court_type'] as String?,
   sportType: json['sport_type'] as String?,
@@ -82,7 +82,7 @@ PlaceCourt _$PlaceCourtFromJson(Map<String, dynamic> json) => PlaceCourt(
 
 Map<String, dynamic> _$PlaceCourtToJson(PlaceCourt instance) =>
     <String, dynamic>{
-      'id': instance.id,
+      'id': const LenientIntConverter().toJson(instance.id),
       'name': instance.name,
       'court_type': instance.courtType,
       'sport_type': instance.sportType,
