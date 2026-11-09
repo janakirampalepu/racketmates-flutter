@@ -24,17 +24,41 @@ class ScheduleFilterButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final n = context.native;
+    final sdp = context.sdp;
     final filter = ref.watch(scheduleFilterProvider(isTeamContext));
-    final active = filter.ownerships.length < 2 || filter.sportTypes.isNotEmpty;
+    final sports = ref.watch(accountSportsProvider).value ?? const {};
+    // Native's own "default" (`hasFilterInDefault`): both ownerships, and —
+    // only when the account plays more than one sport — every one of them
+    // selected. Narrowing either makes the icon switch to its filled/tinted
+    // "active" state (`ic_event_filter_seleted`/a lit-up `slider.horizontal.3`).
+    final isDefault =
+        filter.ownerships.length == 2 &&
+        (sports.length <= 1 || filter.sportTypes.length == sports.length);
+    final color = isDefault ? n.textTertiary : n.colorPrimary;
     return TestId(
       testId,
-      child: IconButton(
-        tooltip: l10n.scheduleFilterAction,
-        icon: Icon(active ? Icons.filter_alt : Icons.filter_alt_outlined),
-        onPressed: () => showModalBottomSheet<void>(
-          context: context,
-          isScrollControlled: true,
-          builder: (_) => _ScheduleFilterSheet(isTeamContext: isTeamContext),
+      child: Tooltip(
+        message: l10n.scheduleFilterAction,
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () => showModalBottomSheet<void>(
+            context: context,
+            isScrollControlled: true,
+            builder: (_) => _ScheduleFilterSheet(isTeamContext: isTeamContext),
+          ),
+          child: Container(
+            width: sdp(42),
+            height: sdp(42),
+            margin: EdgeInsets.all(sdp(4)),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: color),
+            ),
+            // Native's icon (`ic_event_filter`/iOS `slider.horizontal.3`) is
+            // the standard 3-horizontal-sliders "tune" glyph, not a funnel.
+            child: Icon(Icons.tune, size: sdp(18), color: color),
+          ),
         ),
       ),
     );

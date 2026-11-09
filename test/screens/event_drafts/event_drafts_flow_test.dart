@@ -71,16 +71,19 @@ Future<void> _menu(WidgetTester tester, String item) async {
 }
 
 void main() {
-  testWidgets('the drafts button lists drafts, or says there are none', (
-    tester,
-  ) async {
-    final handle = tester.ensureSemantics();
-    useTallScreen(tester);
-    await tester.pumpWidget(signedInApp(drafts: FakeDraftsRepository()));
-    await _openDrafts(tester);
-    expect(_id(EventDraftsTestIds.empty), findsOneWidget);
-    handle.dispose();
-  });
+  testWidgets(
+    'the drafts row is hidden with none, shown with a count otherwise',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      await tester.pumpWidget(signedInApp(drafts: FakeDraftsRepository()));
+      await tester.pumpAndSettle();
+      await tester.tap(_id(MainShellTestIds.navSchedule));
+      await tester.pumpAndSettle();
+      expect(_id(ScheduleTestIds.topRowDrafts), findsNothing);
+      handle.dispose();
+    },
+  );
 
   testWidgets('a draft shows what it is and when it was saved', (tester) async {
     final handle = tester.ensureSemantics();

@@ -40,8 +40,17 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     final provider = scheduleListViewModelProvider(ScheduleTab.upcoming);
     final state = ref.watch(provider);
     final vm = ref.read(provider.notifier);
-    final drafts = ref.watch(draftsProvider).value ?? const [];
-    final toBeScheduled = ref.watch(toBeScheduledProvider).value ?? const [];
+    final draftsAsync = ref.watch(draftsProvider);
+    final drafts = draftsAsync.value ?? const [];
+    // Hide only once we know for sure there's nothing — loading or a failed
+    // fetch keeps the row so the user can still reach it (and its own
+    // error/retry UI), matching native (which fetches these counts once
+    // and only hides a button when the server answer says zero).
+    final showDrafts = !draftsAsync.hasValue || drafts.isNotEmpty;
+    final toBeScheduledAsync = ref.watch(toBeScheduledProvider);
+    final toBeScheduled = toBeScheduledAsync.value ?? const [];
+    final showToBeScheduled =
+        !toBeScheduledAsync.hasValue || toBeScheduled.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -120,39 +129,47 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                       onLoadMore: vm.loadMore,
                       onRetry: vm.retry,
                       header: [
-                        Padding(
-                          padding: EdgeInsets.only(bottom: sdp(12)),
-                          child: ScheduleTopRow(
-                            testId: ScheduleTestIds.topRowDrafts,
-                            icon: Icons.drafts_outlined,
-                            label: l10n.scheduleDraftsRow(drafts.length),
-                            iconColor: n.textSecondary,
-                            textColor: n.textPrimary,
-                            backgroundColor: n.statusColorsDarkGray,
-                            borderColor: n.statusColorsDarkGray,
-                            onTap: () => context.push(AppRoutes.drafts),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(bottom: sdp(12)),
-                          child: ScheduleTopRow(
-                            testId: ScheduleTestIds.topRowToBeScheduled,
-                            icon: Icons.event_repeat_outlined,
-                            label: l10n.scheduleToBeScheduledRow(
-                              toBeScheduled.length,
+                        // Native hides the Drafts/To-be-rescheduled buttons
+                        // entirely when their count is zero (`displayListTypeView`:
+                        // visible only when the server's label is non-null);
+                        // only "Past" stays unconditional (tied to the
+                        // filter's own `showPastEvents` default, not a count).
+                        if (showDrafts)
+                          Padding(
+                            padding: EdgeInsets.only(bottom: sdp(12)),
+                            child: ScheduleTopRow(
+                              testId: ScheduleTestIds.topRowDrafts,
+                              icon: Icons.drafts_outlined,
+                              label: l10n.scheduleDraftsRow(drafts.length),
+                              iconColor: n.textSecondary,
+                              textColor: n.textPrimary,
+                              backgroundColor: n.statusColorsDarkGray,
+                              borderColor: n.statusColorsDarkGray,
+                              onTap: () => context.push(AppRoutes.drafts),
                             ),
-                            iconColor: n.statusColorsLightOrange,
-                            // Light orange on dark orange fails the app's
-                            // own enforced 4.5:1 text-contrast test; kept
-                            // the icon tint but moved the label text to
-                            // `textPrimary`, same fix as the Home activity
-                            // tiles hit for the same reason.
-                            textColor: n.textPrimary,
-                            backgroundColor: n.statusColorsDarkOrange,
-                            borderColor: n.statusColorsDarkOrange,
-                            onTap: () => context.push(AppRoutes.toBeScheduled),
                           ),
-                        ),
+                        if (showToBeScheduled)
+                          Padding(
+                            padding: EdgeInsets.only(bottom: sdp(12)),
+                            child: ScheduleTopRow(
+                              testId: ScheduleTestIds.topRowToBeScheduled,
+                              icon: Icons.event_repeat_outlined,
+                              label: l10n.scheduleToBeScheduledRow(
+                                toBeScheduled.length,
+                              ),
+                              iconColor: n.statusColorsLightOrange,
+                              // Light orange on dark orange fails the app's
+                              // own enforced 4.5:1 text-contrast test; kept
+                              // the icon tint but moved the label text to
+                              // `textPrimary`, same fix as the Home activity
+                              // tiles hit for the same reason.
+                              textColor: n.textPrimary,
+                              backgroundColor: n.statusColorsDarkOrange,
+                              borderColor: n.statusColorsDarkOrange,
+                              onTap: () =>
+                                  context.push(AppRoutes.toBeScheduled),
+                            ),
+                          ),
                         Padding(
                           padding: EdgeInsets.only(bottom: sdp(12)),
                           child: ScheduleTopRow(

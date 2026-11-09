@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:racketmates/common/create_event/drafts_models.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
@@ -127,18 +128,54 @@ void main() {
     handle.dispose();
   });
 
-  testWidgets('the drafts/to-be-rescheduled/past rows are always offered', (
-    tester,
-  ) async {
-    final handle = tester.ensureSemantics();
-    final repo = FakeScheduleRepository();
-    await tester.pumpWidget(signedInApp(schedule: repo));
-    await _openSchedule(tester);
-    expect(_id(ScheduleTestIds.topRowDrafts), findsOneWidget);
-    expect(_id(ScheduleTestIds.topRowToBeScheduled), findsOneWidget);
-    expect(_id(ScheduleTestIds.topRowPast), findsOneWidget);
-    handle.dispose();
-  });
+  testWidgets(
+    'the past row is always offered; drafts/to-be-rescheduled hide when empty',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      final repo = FakeScheduleRepository();
+      await tester.pumpWidget(signedInApp(schedule: repo));
+      await _openSchedule(tester);
+      expect(_id(ScheduleTestIds.topRowDrafts), findsNothing);
+      expect(_id(ScheduleTestIds.topRowToBeScheduled), findsNothing);
+      expect(_id(ScheduleTestIds.topRowPast), findsOneWidget);
+      handle.dispose();
+    },
+  );
+
+  testWidgets(
+    'the drafts/to-be-rescheduled rows show with a count when non-empty',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      final repo = FakeScheduleRepository()
+        ..toBeScheduledItems = [scheduleItem(5)];
+      await tester.pumpWidget(
+        signedInApp(
+          schedule: repo,
+          drafts: FakeDraftsRepository(
+            drafts: const [DraftSummary(eventId: 1, eventType: 'et_casual')],
+          ),
+        ),
+      );
+      await _openSchedule(tester);
+      expect(_id(ScheduleTestIds.topRowDrafts), findsOneWidget);
+      expect(_id(ScheduleTestIds.topRowToBeScheduled), findsOneWidget);
+      handle.dispose();
+    },
+  );
+
+  testWidgets(
+    'a failed drafts fetch keeps the row reachable instead of hiding it',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      final drafts = FakeDraftsRepository()..listFails = true;
+      await tester.pumpWidget(
+        signedInApp(schedule: FakeScheduleRepository(), drafts: drafts),
+      );
+      await _openSchedule(tester);
+      expect(_id(ScheduleTestIds.topRowDrafts), findsOneWidget);
+      handle.dispose();
+    },
+  );
 
   testWidgets('the to-be-rescheduled row opens its own screen', (tester) async {
     final handle = tester.ensureSemantics();

@@ -4,6 +4,7 @@ import 'package:racketmates/common/content/content_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/events/event_action_access.dart';
 import 'package:racketmates/common/events/event_status_style.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
 import 'package:racketmates/common/sign_up/sport_labels.dart';
@@ -274,6 +275,7 @@ class EventTile extends ConsumerWidget {
                             ),
                             child: _EventActionButtons(
                               l10n: l10n,
+                              ref: ref,
                               left: item.swipeLeft,
                               right: item.swipeRight,
                               onTap: onTap,
@@ -388,30 +390,33 @@ class _Avatar extends StatelessWidget {
 /// Native raw action values shared with the pending-actions card
 /// (`EventViewAction`/`PermissionActionType`) — the set an upcoming-event
 /// card actually renders a button for (`canShowUpcomingAction`: excludes
-/// the scores actions, which only appear on past events).
+/// the scores actions, which only appear on past events). A button is
+/// shown for anything but `up_not_available` (iOS's own rule — Android
+/// hides disabled/subscription-gated actions too, but iOS's richer
+/// handling fits this app's existing enabled/disabled/needs-subscription
+/// model better, see `handleEventActionTap`); tapping a disabled or
+/// subscription-gated one explains why instead of silently opening the
+/// event like an enabled one would.
 class _EventActionButtons extends StatelessWidget {
   const _EventActionButtons({
     required this.l10n,
+    required this.ref,
     required this.left,
     required this.right,
     required this.onTap,
   });
 
   final AppLocalizations l10n;
+  final WidgetRef ref;
   final EventSwipeAction? left;
   final EventSwipeAction? right;
   final VoidCallback? onTap;
 
-  static const _notAvailable = 'up_not_available';
-
-  bool _usable(EventSwipeAction? action) =>
-      action?.action != null && action?.access != _notAvailable;
-
   @override
   Widget build(BuildContext context) {
     final sdp = context.sdp;
-    final hasLeft = _usable(left);
-    final hasRight = _usable(right);
+    final hasLeft = canShowEventAction(left);
+    final hasRight = canShowEventAction(right);
     final buttons = [
       if (hasLeft) _buttonFor(context, left!),
       if (hasRight) _buttonFor(context, right!),
@@ -435,58 +440,64 @@ class _EventActionButtons extends StatelessWidget {
     );
   }
 
+  VoidCallback? _tapFor(BuildContext context, EventSwipeAction action) =>
+      onTap == null
+      ? null
+      : () => handleEventActionTap(context, ref, action, onTap!);
+
   Widget _buttonFor(BuildContext context, EventSwipeAction action) {
+    final tap = _tapFor(context, action);
     switch (action.action) {
       case 'event_view_action_decline':
         return _ActionButton(
           icon: Icons.close,
           label: l10n.rsvpDecline,
-          onTap: onTap,
+          onTap: tap,
           outlined: true,
         );
       case 'event_view_action_accept':
         return _ActionButton(
           icon: Icons.check,
           label: l10n.rsvpAccept,
-          onTap: onTap,
+          onTap: tap,
           filled: true,
         );
       case 'event_view_action_edit_response':
         return _ActionButton(
           icon: Icons.edit_outlined,
           label: l10n.rsvpEditResponse,
-          onTap: onTap,
+          onTap: tap,
         );
       case 'user_action_manage_event':
         return _ActionButton(
           icon: Icons.settings_outlined,
           label: l10n.eventManageAction,
-          onTap: onTap,
+          onTap: tap,
         );
       case 'event_view_action_directions':
         return _ActionButton(
           icon: Icons.directions_outlined,
           label: l10n.eventGetDirections,
-          onTap: onTap,
+          onTap: tap,
         );
       case 'event_view_action_leave':
         return _ActionButton(
           icon: Icons.logout,
           label: l10n.rsvpLeave,
-          onTap: onTap,
+          onTap: tap,
         );
       case 'event_view_action_rejoin':
         return _ActionButton(
           icon: Icons.replay,
           label: l10n.rsvpRejoin,
-          onTap: onTap,
+          onTap: tap,
           filled: true,
         );
       case 'event_view_action_join_waitlist':
         return _ActionButton(
           icon: Icons.hourglass_bottom,
           label: l10n.rsvpJoinWaitlist,
-          onTap: onTap,
+          onTap: tap,
           filled: true,
         );
       case 'user_action_view_event':
