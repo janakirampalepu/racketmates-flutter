@@ -180,7 +180,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
               ),
-              if (trailing != null) ...[SizedBox(width: sdp(12)), trailing],
+              if (trailing != null) ...[
+                SizedBox(width: sdp(12)),
+                Flexible(child: trailing),
+              ],
               SizedBox(width: sdp(12)),
               Icon(
                 externalLink ? Icons.open_in_new : Icons.chevron_right,
@@ -805,13 +808,18 @@ class _SubscriptionBadge extends StatelessWidget {
             ),
           ),
           SizedBox(width: sdp(4)),
-          TestId(
-            premium
-                ? SettingsTestIds.subscriptionPremiumLabel
-                : SettingsTestIds.subscriptionFreeLabel,
-            child: Text(
-              text,
-              style: TextStyle(color: n.textPrimary, fontSize: 12),
+          Flexible(
+            child: TestId(
+              premium
+                  ? SettingsTestIds.subscriptionPremiumLabel
+                  : SettingsTestIds.subscriptionFreeLabel,
+              // No maxLines cap — on a narrow row (title + badge sharing the
+              // space) this wraps to 2 lines rather than forcing the title
+              // next to it down to a 1-2 char stub, or overflowing.
+              child: Text(
+                text,
+                style: TextStyle(color: n.textPrimary, fontSize: 12),
+              ),
             ),
           ),
         ],

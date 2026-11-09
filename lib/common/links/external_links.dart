@@ -27,7 +27,13 @@ abstract final class SubscriptionLinks {
   static final termsApple = Uri.parse(
     'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
   );
-  static final privacy = Uri.parse('https://racketmatesapp.com/privacypolicy');
+  // Android's own `privacy_url` string resource ("/privacypolicy", no
+  // underscore) 404s on the live site — confirmed directly. iOS's
+  // `racketmatesPrivacyUrl` ("/privacy_policy") is the one that actually
+  // resolves; use that on both platforms.
+  static final privacy = Uri.parse(
+    'https://racketmatesapp.com/privacy_policy',
+  );
   static final redeemAndroid = Uri.parse('https://play.google.com/redeem');
   static final manageAndroid = Uri.parse(
     'https://play.google.com/store/account/subscriptions',
