@@ -12,17 +12,10 @@ abstract final class TeamDetailsTestIds {
 
   static const tabRankings = 'team_tab_rankings';
 
-  // Schedule
-  static const scheduleUpcoming = 'team_schedule_upcoming_button';
-  static const schedulePast = 'team_schedule_past_button';
-  static const scheduleEmpty = 'team_schedule_empty';
-  static const scheduleError = 'team_schedule_error';
-  static const scheduleRetry = 'team_schedule_retry';
+  // Schedule (the list itself uses the shared `ScheduleTestIds` helpers
+  // with `testName` 'team_upcoming'/'team_past' — see `TeamScheduleScreen`).
   static const scheduleCreateEvent = 'team_schedule_create_event_button';
   static const scheduleFilterButton = 'team_schedule_filter_button';
-
-  /// `team_schedule_event_<eventId>`.
-  static String scheduleEvent(int id) => 'team_schedule_event_$id';
 
   // Rankings
   static const rankingsOff = 'team_rankings_off';

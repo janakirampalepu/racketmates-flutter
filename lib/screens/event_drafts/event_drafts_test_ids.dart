@@ -21,5 +21,4 @@ abstract final class EventDraftActionIds {
   static const discardConfirm = 'create_event_draft_discard_confirm';
   static const discardKeep = 'create_event_draft_discard_keep';
   static const saving = 'create_event_draft_saving';
-  static const scheduleButton = 'schedule_drafts_button';
 }

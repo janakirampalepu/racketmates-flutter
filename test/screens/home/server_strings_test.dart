@@ -82,9 +82,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(_id(ScheduleTestIds.root), findsOneWidget);
     expect(find.text('My calendar'), findsOneWidget);
-    expect(find.text('Soon'), findsOneWidget);
-    expect(find.text('History'), findsOneWidget);
     expect(find.text('Nothing planned'), findsOneWidget);
+
+    // "History" is the Past-events screen's own title now (no Upcoming/Past
+    // tab exists on either native app).
+    await tester.tap(_id(ScheduleTestIds.topRowPast));
+    await tester.pumpAndSettle();
+    expect(find.text('History'), findsOneWidget);
     handle.dispose();
   });
 

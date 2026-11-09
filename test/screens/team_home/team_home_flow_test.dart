@@ -10,6 +10,7 @@ import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/common/widgets/family_user_picker.dart';
 import 'package:racketmates/screens/event_details/event_details_test_ids.dart';
 import 'package:racketmates/screens/main_shell/main_shell_test_ids.dart';
+import 'package:racketmates/screens/schedule/schedule_test_ids.dart';
 import 'package:racketmates/screens/subscription/subscription_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_members_tab.dart';
@@ -164,7 +165,7 @@ void main() {
         expect(_id(TeamDetailsTestIds.root), findsOneWidget);
 
         await _tap(tester, TeamShellTestIds.navSchedule);
-        expect(_id(TeamDetailsTestIds.scheduleEmpty), findsOneWidget);
+        expect(_id(ScheduleTestIds.empty('team_upcoming')), findsOneWidget);
 
         await _tap(tester, TeamShellTestIds.navChat);
         expect(_id(TeamChatTestIds.list), findsOneWidget);
@@ -236,9 +237,7 @@ void main() {
         await _openTeam(
           tester,
           teams: _repo(
-            team: _team(
-              currentUserTeamPlayers: const [_captain, _patCoach],
-            ),
+            team: _team(currentUserTeamPlayers: const [_captain, _patCoach]),
           ),
           schedule: FakeScheduleRepository(),
         );
@@ -349,40 +348,36 @@ void main() {
       },
     );
 
-    testWidgets(
-      '"Manage members" is hidden without the team.manage_players '
-      'permission (native layoutManageMembers)',
-      (tester) async {
-        final handle = tester.ensureSemantics();
-        useTallScreen(tester);
-        await _openTeam(
-          tester,
-          teams: _repo(team: _team(permissions: const {})),
-        );
-        expect(_id(TeamHomeActionIds.manageMembers), findsNothing);
-        handle.dispose();
-      },
-    );
+    testWidgets('"Manage members" is hidden without the team.manage_players '
+        'permission (native layoutManageMembers)', (tester) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      await _openTeam(
+        tester,
+        teams: _repo(team: _team(permissions: const {})),
+      );
+      expect(_id(TeamHomeActionIds.manageMembers), findsNothing);
+      handle.dispose();
+    });
 
-    testWidgets(
-      '"Manage members" shows when team.manage_players is enabled',
-      (tester) async {
-        final handle = tester.ensureSemantics();
-        useTallScreen(tester);
-        await _openTeam(
-          tester,
-          teams: _repo(
-            team: _team(
-              permissions: const {
-                'team.manage_players': AccessInfo(access: 'up_enabled'),
-              },
-            ),
+    testWidgets('"Manage members" shows when team.manage_players is enabled', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      await _openTeam(
+        tester,
+        teams: _repo(
+          team: _team(
+            permissions: const {
+              'team.manage_players': AccessInfo(access: 'up_enabled'),
+            },
           ),
-        );
-        expect(_id(TeamHomeActionIds.manageMembers), findsOneWidget);
-        handle.dispose();
-      },
-    );
+        ),
+      );
+      expect(_id(TeamHomeActionIds.manageMembers), findsOneWidget);
+      handle.dispose();
+    });
   });
 
   group('full schedule screen', () {
@@ -392,13 +387,13 @@ void main() {
       final schedule = FakeScheduleRepository();
       await _openTeam(tester, teams: _repo(), schedule: schedule);
       await _tap(tester, TeamHomeActionIds.upcomingSeeAll);
-      expect(_id(TeamDetailsTestIds.scheduleEmpty), findsOneWidget);
+      expect(_id(ScheduleTestIds.empty('team_upcoming')), findsOneWidget);
       schedule.failing.add('page-past');
-      await _tap(tester, TeamDetailsTestIds.schedulePast);
-      expect(_id(TeamDetailsTestIds.scheduleError), findsOneWidget);
+      await _tap(tester, ScheduleTestIds.topRowPast);
+      expect(find.text('Could not load past events.'), findsOneWidget);
       schedule.failing.clear();
-      await _tap(tester, TeamDetailsTestIds.scheduleRetry);
-      expect(_id(TeamDetailsTestIds.scheduleEmpty), findsOneWidget);
+      await _tap(tester, ScheduleTestIds.retry('team_past'));
+      expect(_id(ScheduleTestIds.empty('team_past')), findsOneWidget);
       handle.dispose();
     });
 
@@ -412,12 +407,18 @@ void main() {
       await _openTeam(tester, teams: _repo(), schedule: schedule);
       await _tap(tester, TeamHomeActionIds.upcomingSeeAll);
       schedule.failing.add('page-past');
-      await _tap(tester, TeamDetailsTestIds.schedulePast);
+      await _tap(tester, ScheduleTestIds.topRowPast);
       expect(find.text('Could not load the schedule.'), findsOneWidget);
       handle.dispose();
     });
 
-    testWidgets('an archived team opens on its past events', (tester) async {
+    // Corrects an earlier, unverified assumption: the native design audit
+    // found neither platform has an Upcoming/Past tab at all (let alone
+    // defaulting an archived team to one) — "Past" is always reached by
+    // explicitly tapping its own row/button, archived or not.
+    testWidgets('an archived team still opens on the upcoming view', (
+      tester,
+    ) async {
       final handle = tester.ensureSemantics();
       useTallScreen(tester);
       final schedule = FakeScheduleRepository();
@@ -427,8 +428,8 @@ void main() {
         schedule: schedule,
       );
       await _tap(tester, TeamHomeActionIds.upcomingSeeAll);
-      expect(schedule.calls, contains('page-past'));
-      expect(schedule.calls, isNot(contains('page-upcoming')));
+      expect(schedule.calls, contains('page-upcoming'));
+      expect(schedule.calls, isNot(contains('page-past')));
       handle.dispose();
     });
   });

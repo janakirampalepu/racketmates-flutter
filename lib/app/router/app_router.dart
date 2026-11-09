@@ -59,6 +59,7 @@ import 'package:racketmates/screens/locations/locations_screen.dart';
 import 'package:racketmates/screens/venue_details/venue_screen.dart';
 import 'package:racketmates/screens/event_details/event_details_screen.dart';
 import 'package:racketmates/screens/event_drafts/event_drafts_screen.dart';
+import 'package:racketmates/screens/event_past/past_events_screen.dart';
 import 'package:racketmates/screens/event_to_be_scheduled/to_be_scheduled_screen.dart';
 import 'package:racketmates/screens/home/home_screen.dart';
 import 'package:racketmates/screens/main_shell/main_shell_screen.dart';
@@ -319,6 +320,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.toBeScheduled,
         builder: (context, state) => const ToBeScheduledScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.pastEvents,
+        builder: (context, state) => const PastEventsScreen(),
       ),
       GoRoute(
         path: AppRoutes.chatNew,
@@ -623,6 +628,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'rankings',
             builder: (context, state) => TeamRankingsScreen(
+              teamId: int.parse(state.pathParameters['id']!),
+            ),
+          ),
+          GoRoute(
+            path: 'schedule/past',
+            builder: (context, state) => PastEventsScreen(
               teamId: int.parse(state.pathParameters['id']!),
             ),
           ),

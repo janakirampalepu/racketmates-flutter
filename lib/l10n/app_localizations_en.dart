@@ -557,6 +557,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toBeScheduledLoadError => 'Could not load these events.';
 
   @override
+  String scheduleDraftsRow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'drafts',
+      one: 'draft',
+    );
+    return '$count saved $_temp0';
+  }
+
+  @override
+  String scheduleToBeScheduledRow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'events',
+      one: 'event',
+    );
+    return '$count $_temp0 need a time';
+  }
+
+  @override
+  String get schedulePastEventsRow => 'Past events';
+
+  @override
+  String get pastEventsTitle => 'Past events';
+
+  @override
+  String get pastEventsLoadError => 'Could not load past events.';
+
+  @override
+  String get pastEventsEmpty => 'You have no past events.';
+
+  @override
   String get eventDetailsTitle => 'Event details';
 
   @override

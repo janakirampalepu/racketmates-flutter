@@ -25,6 +25,7 @@ void main() {
     tester,
   ) async {
     final handle = tester.ensureSemantics();
+    useTallScreen(tester);
     final repo = FakeScheduleRepository(
       pages: {
         ScheduleTab.upcoming: [
@@ -46,6 +47,25 @@ void main() {
     await tester.tap(_id(ScheduleTestIds.event('upcoming', 1)));
     await tester.pumpAndSettle();
     expect(_id(EventDetailsTestIds.root), findsOneWidget);
+    handle.dispose();
+  });
+
+  testWidgets('the List/Calendar toggle shows a placeholder for Calendar', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final repo = FakeScheduleRepository();
+    await tester.pumpWidget(signedInApp(schedule: repo));
+    await _openSchedule(tester);
+    expect(_id(ScheduleTestIds.calendarPlaceholder), findsNothing);
+
+    await tester.tap(_id(ScheduleTestIds.viewToggleCalendar));
+    await tester.pumpAndSettle();
+    expect(_id(ScheduleTestIds.calendarPlaceholder), findsOneWidget);
+
+    await tester.tap(_id(ScheduleTestIds.viewToggleList));
+    await tester.pumpAndSettle();
+    expect(_id(ScheduleTestIds.calendarPlaceholder), findsNothing);
     handle.dispose();
   });
 
@@ -107,48 +127,60 @@ void main() {
     handle.dispose();
   });
 
-  testWidgets('the to-be-rescheduled button opens its own screen', (
+  testWidgets('the drafts/to-be-rescheduled/past rows are always offered', (
     tester,
   ) async {
+    final handle = tester.ensureSemantics();
+    final repo = FakeScheduleRepository();
+    await tester.pumpWidget(signedInApp(schedule: repo));
+    await _openSchedule(tester);
+    expect(_id(ScheduleTestIds.topRowDrafts), findsOneWidget);
+    expect(_id(ScheduleTestIds.topRowToBeScheduled), findsOneWidget);
+    expect(_id(ScheduleTestIds.topRowPast), findsOneWidget);
+    handle.dispose();
+  });
+
+  testWidgets('the to-be-rescheduled row opens its own screen', (tester) async {
     final handle = tester.ensureSemantics();
     final repo = FakeScheduleRepository()
       ..toBeScheduledItems = [scheduleItem(5)];
     await tester.pumpWidget(signedInApp(schedule: repo));
     await _openSchedule(tester);
 
-    await tester.tap(_id(ScheduleTestIds.toBeScheduledButton));
+    expect(_id(ScheduleTestIds.topRowToBeScheduled), findsOneWidget);
+    await tester.tap(_id(ScheduleTestIds.topRowToBeScheduled));
     await tester.pumpAndSettle();
     expect(_id(ToBeScheduledTestIds.root), findsOneWidget);
     expect(_id(ToBeScheduledTestIds.event(5)), findsOneWidget);
     handle.dispose();
   });
 
-  testWidgets('past tab loads its own list; empty and error states', (
-    tester,
-  ) async {
-    final handle = tester.ensureSemantics();
-    final repo = FakeScheduleRepository()..failing.add('page-past');
-    await tester.pumpWidget(signedInApp(schedule: repo));
-    await _openSchedule(tester);
+  testWidgets(
+    'the past-events row opens its own screen; empty and error states',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      final repo = FakeScheduleRepository()..failing.add('page-past');
+      await tester.pumpWidget(signedInApp(schedule: repo));
+      await _openSchedule(tester);
+      expect(_id(ScheduleTestIds.empty('upcoming')), findsOneWidget);
+      expect(find.text('You have no upcoming events.'), findsOneWidget);
 
-    // Upcoming has no events.
-    expect(_id(ScheduleTestIds.empty('upcoming')), findsOneWidget);
-    expect(find.text('You have no upcoming events.'), findsOneWidget);
+      await tester.tap(_id(ScheduleTestIds.topRowPast));
+      await tester.pumpAndSettle();
+      expect(_id(PastEventsTestIds.root), findsOneWidget);
+      expect(find.text('Could not load past events.'), findsOneWidget);
 
-    await tester.tap(_id(ScheduleTestIds.tab('past')));
-    await tester.pumpAndSettle();
-    expect(find.text('Could not load events.'), findsOneWidget);
-
-    repo
-      ..failing.clear()
-      ..pages[ScheduleTab.past] = [
-        [scheduleItem(9, date: '2026-09-01')],
-      ];
-    await tester.tap(_id(ScheduleTestIds.retry('past')));
-    await tester.pumpAndSettle();
-    expect(_id(ScheduleTestIds.event('past', 9)), findsOneWidget);
-    handle.dispose();
-  });
+      repo
+        ..failing.clear()
+        ..pages[ScheduleTab.past] = [
+          [scheduleItem(9, date: '2026-09-01')],
+        ];
+      await tester.tap(_id(ScheduleTestIds.retry('past')));
+      await tester.pumpAndSettle();
+      expect(_id(ScheduleTestIds.event('past', 9)), findsOneWidget);
+      handle.dispose();
+    },
+  );
 
   testWidgets('a server failure message replaces the generic text', (
     tester,
@@ -172,6 +204,7 @@ void main() {
       tester.platformDispatcher.platformBrightnessTestValue =
           mode == ThemeMode.dark ? Brightness.dark : Brightness.light;
       addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+      useTallScreen(tester);
       final repo = FakeScheduleRepository(
         pages: {
           ScheduleTab.upcoming: [

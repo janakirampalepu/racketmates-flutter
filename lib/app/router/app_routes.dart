@@ -9,6 +9,7 @@ abstract final class AppRoutes {
   static const schedule = '/schedule';
   static const drafts = '/drafts';
   static const toBeScheduled = '/schedule/to-be-rescheduled';
+  static const pastEvents = '/schedule/past';
   static const chat = '/chat';
   static const chatChannel = '/chat/channel';
   static const chatChannelDetails = '/chat/channel/details';
@@ -152,6 +153,7 @@ abstract final class AppRoutes {
   static String teamAddMembersFor(int id) => '$team/$id/add-members';
   static String teamSettingsFor(int id) => '$team/$id/settings';
   static String teamScheduleFor(int id) => '$team/$id/schedule';
+  static String teamPastEventsFor(int id) => '$team/$id/schedule/past';
   static String teamChatFor(int id) => '$team/$id/chat';
   static String teamRankingsFor(int id) => '$team/$id/rankings';
   static String teamMembersFor(int id) => '$team/$id/members';
@@ -203,6 +205,7 @@ abstract final class AppRoutes {
       location.startsWith('$locations/') ||
       location == drafts ||
       location == toBeScheduled ||
+      location == pastEvents ||
       location == subscription ||
       location.startsWith('$subscription/') ||
       location.startsWith('$event/') ||

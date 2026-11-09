@@ -120,7 +120,14 @@ abstract final class MessageKeys {
       'settings.subscription.carousel_item_support_sub_text';
 
   static const scheduleTitle = 'schedule.nav_title';
+  // Was assumed to label an "Upcoming" tab; the native design audit found
+  // there is no Upcoming/Past tab on either platform, so this key currently
+  // has no screen to attach to. Left here (unused) rather than deleted,
+  // since the key itself is still a real server string.
   static const scheduleUpcomingTab = 'schedule.events_title';
+
+  /// Now the Past-events screen's title (native's own key name for it),
+  /// not a tab label — see `PastEventsScreen`.
   static const schedulePastTab = 'schedule.past_events_title';
   static const scheduleYetToBeRescheduledTitle =
       'schedule.yet_to_be_scheduled_nav_title';

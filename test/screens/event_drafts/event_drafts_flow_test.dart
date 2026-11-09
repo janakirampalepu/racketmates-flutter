@@ -49,7 +49,7 @@ Future<void> _openDrafts(WidgetTester tester) async {
   await tester.pumpAndSettle();
   await tester.tap(_id(MainShellTestIds.navSchedule));
   await tester.pumpAndSettle();
-  await tester.tap(_id(EventDraftActionIds.scheduleButton));
+  await tester.tap(_id(ScheduleTestIds.topRowDrafts));
   await tester.pumpAndSettle();
 }
 

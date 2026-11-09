@@ -1132,6 +1132,42 @@ abstract class AppLocalizations {
   /// **'Could not load these events.'**
   String get toBeScheduledLoadError;
 
+  /// No description provided for @scheduleDraftsRow.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} saved {count, plural, one{draft} other{drafts}}'**
+  String scheduleDraftsRow(int count);
+
+  /// No description provided for @scheduleToBeScheduledRow.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} {count, plural, one{event} other{events}} need a time'**
+  String scheduleToBeScheduledRow(int count);
+
+  /// No description provided for @schedulePastEventsRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Past events'**
+  String get schedulePastEventsRow;
+
+  /// No description provided for @pastEventsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Past events'**
+  String get pastEventsTitle;
+
+  /// No description provided for @pastEventsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load past events.'**
+  String get pastEventsLoadError;
+
+  /// No description provided for @pastEventsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no past events.'**
+  String get pastEventsEmpty;
+
   /// No description provided for @eventDetailsTitle.
   ///
   /// In en, this message translates to:
