@@ -61,10 +61,11 @@ abstract class ScheduleRepository {
     int? teamId,
   });
 
-  Future<List<HomePageStats>> activitySummary({
-    required List<String> userIds,
-    int? teamId,
-  });
+  // No `teamId` param: `current_session/stats_summary` has no team
+  // scoping (confirmed against Android's own Retrofit contract — it
+  // only takes `user_ids[]`); team-scoped activity comes from the
+  // `Team` object's own fields instead (see `home_view_model.dart`).
+  Future<List<HomePageStats>> activitySummary({required List<String> userIds});
 
   Future<List<PlayerCard>> latestUpdates({required List<String> userIds});
 
@@ -178,9 +179,8 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
   @override
   Future<List<HomePageStats>> activitySummary({
     required List<String> userIds,
-    int? teamId,
   }) async =>
-      (await _guard(() => api.statsSummary(teamId: teamId, userIds: userIds)))
+      (await _guard(() => api.statsSummary(userIds: userIds)))
           .homePageStats ??
       const [];
 

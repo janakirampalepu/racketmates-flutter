@@ -700,6 +700,7 @@ class HomeActivitySection extends StatelessWidget {
     required this.sectionId,
     required this.retryId,
     required this.yearBadgeId,
+    this.isTeamHome = false,
     super.key,
   });
 
@@ -709,6 +710,9 @@ class HomeActivitySection extends StatelessWidget {
   final String sectionId;
   final String retryId;
   final String yearBadgeId;
+
+  /// See `HomeActivityCard.isTeamHome`.
+  final bool isTeamHome;
 
   @override
   Widget build(BuildContext context) {
@@ -740,7 +744,7 @@ class HomeActivitySection extends StatelessWidget {
                 onRetry: onRetry,
                 data: (years) => years.isEmpty
                     ? const SizedBox.shrink()
-                    : HomeActivityCard(years: years),
+                    : HomeActivityCard(years: years, isTeamHome: isTeamHome),
               ),
             ],
           ),

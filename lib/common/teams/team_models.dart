@@ -89,6 +89,9 @@ class Team {
     this.userPermissions,
     this.chatRoomTypesForFiltering,
     this.currentUserTeamPlayers,
+    this.eventsCompleted,
+    this.eventsWon,
+    this.eventsLost,
   });
 
   factory Team.fromJson(Map<String, dynamic> json) => _$TeamFromJson(json);
@@ -122,6 +125,17 @@ class Team {
   /// not independently confirmable here); `_TeamFamilyRow` falls back to
   /// the client-side computation when this is null.
   final List<TeamPlayer>? currentUserTeamPlayers;
+
+  /// Team Home's "Activity snapshot" numbers (native Android
+  /// `Team.kt`'s `events_completed`/`events_won`/`events_lost`, read
+  /// straight off this object by `TeamHomeFragment.displayTeamStats` /
+  /// iOS `TeamHomeViewModel`). Neither native app calls a separate
+  /// stats endpoint for this — `current_session/stats_summary` has no
+  /// `team_id` support (confirmed against Android's own Retrofit
+  /// contract), so team-scoped activity has to come from here instead.
+  final int? eventsCompleted;
+  final int? eventsWon;
+  final int? eventsLost;
 
   /// What the signed-in user may do with the team, keyed like the backend
   /// (`team.team_players.update`, `team.events.create`, ...).

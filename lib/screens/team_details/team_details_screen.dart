@@ -5,6 +5,7 @@ import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/session/access.dart';
 import 'package:racketmates/common/teams/member_rules.dart';
 import 'package:racketmates/common/teams/team_edit.dart';
@@ -43,6 +44,26 @@ class TeamDetailsScreen extends ConsumerWidget {
       final ranking = t.enablePlayerRanking ?? false;
       final state = ref.watch(homeViewModelProvider(teamId));
       final vm = ref.read(homeViewModelProvider(teamId).notifier);
+      final canCreateEvent =
+          memberAccess(
+            t,
+            TeamSettingsPermissions.createEvent,
+            subscribed: true,
+          ) !=
+          AccessDecision.hidden;
+      // Team Home's own activity numbers (native `TeamHomeFragment
+      // .displayTeamStats` / `TeamHomeViewModel`): read straight off the
+      // Team object, never a separate stats call (see home_view_model.dart
+      // for why) — a single "year" entry with no hours breakdown, since
+      // that's all native actually has for a team.
+      final activity = AsyncValue<List<HomePageStats>>.data([
+        HomePageStats(
+          year: DateTime.now().year,
+          totalEvents: t.eventsCompleted,
+          wins: t.eventsWon,
+          losses: t.eventsLost,
+        ),
+      ]);
       return Scaffold(
         backgroundColor: n.backgroundSolidPrimary,
         appBar: AppBar(
@@ -102,11 +123,14 @@ class TeamDetailsScreen extends ConsumerWidget {
                   createEventId: TeamHomeActionIds.upcomingCreateEvent,
                   eventIdFor: TeamHomeActionIds.upcomingEvent,
                   onSeeAll: () => context.go(AppRoutes.teamScheduleFor(teamId)),
-                  // Create event lives on Team Schedule now (native: the
-                  // same place the global Schedule tab's own FAB is), not
-                  // on Team Home.
-                  canOfferCreate: false,
-                  onCreateEvent: (_, _) async {},
+                  // Native shows a create-event button in Team Home's own
+                  // empty Upcoming-events state too (Android's nested
+                  // `btnCreateEvent` inside `layoutUpcomingNoEvents`, iOS's
+                  // `canShowAddEventButton()`), gated on the same
+                  // `team.events.create` permission as Team Schedule's FAB
+                  // — both entry points exist natively, not just one.
+                  canOfferCreate: canCreateEvent,
+                  onCreateEvent: (ctx, r) => startTeamCreateEvent(ctx, r, t),
                 ),
                 SizedBox(height: context.sdp(32)),
                 PendingActionsSection(
@@ -122,11 +146,12 @@ class TeamDetailsScreen extends ConsumerWidget {
                 SizedBox(height: context.sdp(32)),
                 HomeActivitySection(
                   l10n: l10n,
-                  value: state.activity,
+                  value: activity,
                   onRetry: () => vm.reload(HomeSection.activity),
                   sectionId: TeamHomeActionIds.activitySection,
                   retryId: TeamHomeActionIds.activityRetry,
                   yearBadgeId: TeamHomeActionIds.activityYear,
+                  isTeamHome: true,
                 ),
               ],
             ),

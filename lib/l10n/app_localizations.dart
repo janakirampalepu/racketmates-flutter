@@ -2356,12 +2356,6 @@ abstract class AppLocalizations {
   /// **'Match type'**
   String get teamRankingMatchType;
 
-  /// No description provided for @teamRankingAllMatches.
-  ///
-  /// In en, this message translates to:
-  /// **'All'**
-  String get teamRankingAllMatches;
-
   /// No description provided for @teamRankingRecord.
   ///
   /// In en, this message translates to:
@@ -2421,6 +2415,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The points could not be saved.'**
   String get teamRankingPointsFailed;
+
+  /// No description provided for @teamRankingOtherActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get teamRankingOtherActions;
 
   /// No description provided for @teamRankingReset.
   ///

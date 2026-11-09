@@ -59,8 +59,18 @@ class HomeViewModel extends Notifier<HomeState> {
           (v) => state = state.copyWith(upcoming: v),
         );
       case HomeSection.activity:
+        // Team Home never calls a separate stats endpoint — native
+        // `current_session/stats_summary` has no team scoping (it only
+        // takes `user_ids[]`), so both native apps read the activity
+        // numbers straight off the already-fetched `Team` object instead
+        // (see `team_details_screen.dart`, which builds this section's
+        // data directly from `Team.eventsCompleted/eventsWon/eventsLost`
+        // rather than this provider for team mode). Calling this with a
+        // `teamId` previously just silently returned the signed-in
+        // user's own global stats, which is the bug this skip fixes.
+        if (_teamId != null) return;
         await _load<List<HomePageStats>>(
-          () => _repo.activitySummary(userIds: _userIds, teamId: _teamId),
+          () => _repo.activitySummary(userIds: _userIds),
           (v) => state = state.copyWith(activity: v),
         );
     }

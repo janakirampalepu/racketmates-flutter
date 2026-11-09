@@ -106,12 +106,47 @@ class TeamMembersPreview extends ConsumerWidget {
                   ),
                 ),
           if (canManageMembers)
-            TestId(
-              TeamHomeActionIds.manageMembers,
-              child: ListTile(
-                leading: const Icon(Icons.group_outlined),
-                title: Text(l10n.teamHomeManageMembers),
-                onTap: openMembers,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: sdp(16)),
+              child: TestId(
+                TeamHomeActionIds.manageMembers,
+                // Native renders this as a filled, centered pill button —
+                // Android's `layoutManageMembers` (`bg_white_rect`
+                // background, centered icon+text), iOS's `manageMembersButton`
+                // (`SecondaryButtonView`, `Background.Solid.tertiary1`) —
+                // not a bare list row.
+                child: Material(
+                  color: n.backgroundSolidTertiary1,
+                  borderRadius: BorderRadius.circular(sdp(8)),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(sdp(8)),
+                    onTap: openMembers,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: sdp(10)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.group_outlined,
+                            size: sdp(18),
+                            // n.textSecondary on this tinted background
+                            // clears only 4.35:1 — below this project's own
+                            // enforced WCAG AA minimum (caught by the
+                            // guideline test); textPrimary is the same fix
+                            // already used elsewhere in this app for the
+                            // same class of issue.
+                            color: n.textPrimary,
+                          ),
+                          SizedBox(width: sdp(8)),
+                          Text(
+                            l10n.teamHomeManageMembers,
+                            style: TextStyle(color: n.textPrimary),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
         ],

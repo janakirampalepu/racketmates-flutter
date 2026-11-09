@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
+import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/events/models/schedule_models.dart';
 import 'package:racketmates/common/session/session_info_models.dart';
 import 'package:racketmates/common/teams/team_models.dart';
@@ -51,6 +52,9 @@ Team _team({
   bool archived = false,
   List<String>? chatRoomTypes,
   List<TeamPlayer>? currentUserTeamPlayers,
+  int? eventsCompleted,
+  int? eventsWon,
+  int? eventsLost,
 }) => Team(
   id: 31,
   name: 'Sunday Smashers',
@@ -64,6 +68,9 @@ Team _team({
   userPermissions: permissions,
   chatRoomTypesForFiltering: chatRoomTypes,
   currentUserTeamPlayers: currentUserTeamPlayers,
+  eventsCompleted: eventsCompleted,
+  eventsWon: eventsWon,
+  eventsLost: eventsLost,
 );
 
 const _captain = TeamPlayer(
@@ -291,9 +298,56 @@ void main() {
       final schedule = FakeScheduleRepository();
       await _openTeam(tester, teams: _repo(), schedule: schedule);
       expect(schedule.pendingTeamId, 31);
-      expect(schedule.activityTeamId, 31);
       handle.dispose();
     });
+
+    testWidgets(
+      'activity snapshot comes from the team itself, not a global stats '
+      'call (native TeamHomeFragment.displayTeamStats/TeamHomeViewModel — '
+      'current_session/stats_summary has no team scoping)',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        useTallScreen(tester);
+        final schedule = FakeScheduleRepository()
+          // A different value from the team's own numbers below — if the
+          // Activity section ever shows this, it's wrongly falling back to
+          // the global per-user stats call again.
+          ..activity = [const HomePageStats(totalEvents: 99, wins: 99)];
+        final team = _team(eventsCompleted: 6, eventsWon: 2, eventsLost: 1);
+        await _openTeam(
+          tester,
+          teams: _repo(team: team),
+          schedule: schedule,
+        );
+        final activity = find.descendant(
+          of: _id(TeamHomeActionIds.activitySection),
+          matching: find.text('6'),
+        );
+        expect(activity, findsOneWidget);
+        expect(
+          find.descendant(
+            of: _id(TeamHomeActionIds.activitySection),
+            matching: find.text('2'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: _id(TeamHomeActionIds.activitySection),
+            matching: find.text('1'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: _id(TeamHomeActionIds.activitySection),
+            matching: find.text('99'),
+          ),
+          findsNothing,
+        );
+        handle.dispose();
+      },
+    );
 
     testWidgets(
       '"Manage members" is hidden without the team.manage_players '
@@ -407,7 +461,9 @@ void main() {
         team: 31,
         sport: 'st_tennis',
         period: 'rpd_all_time',
-        matchType: null,
+        // Defaults to doubles — native has no "all matches" option here,
+        // only a Singles/Doubles toggle, defaulting to doubles.
+        matchType: 'mt_doubles',
       ));
       expect(_inRankings(find.text('Alex Kim')), findsOneWidget);
       expect(find.text('3W - 1L · 120 pts'), findsOneWidget);
@@ -424,10 +480,10 @@ void main() {
       await _tap(tester, TeamHomeActionIds.membersSeeAll);
       await _tap(tester, TeamDetailsTestIds.rankingSport('st_padel'));
       expect(teams.rankingRequests.last.sport, 'st_padel');
+      await _tap(tester, TeamDetailsTestIds.rankingMatch('mt_singles'));
+      expect(teams.rankingRequests.last.matchType, 'mt_singles');
       await _tap(tester, TeamDetailsTestIds.rankingMatch('mt_doubles'));
       expect(teams.rankingRequests.last.matchType, 'mt_doubles');
-      await _tap(tester, TeamDetailsTestIds.rankingMatch('all'));
-      expect(teams.rankingRequests.last.matchType, isNull);
       expect(_id(TeamDetailsTestIds.rankingsEmpty), findsOneWidget);
       handle.dispose();
     });
@@ -447,7 +503,7 @@ void main() {
         '15',
       );
       await _tap(tester, TeamDetailsTestIds.rankingPointsSave);
-      expect(teams.pointsAdded, [(501, 15, 'st_tennis', null)]);
+      expect(teams.pointsAdded, [(501, 15, 'st_tennis', 'mt_doubles')]);
       handle.dispose();
     });
 
@@ -466,6 +522,10 @@ void main() {
       )..ranking = [ranked(501, _alex, 1, null, 10)];
       await _openTeam(tester, teams: teams);
       await _tap(tester, TeamHomeActionIds.membersSeeAll);
+      // Reset ranking lives behind a "more actions" menu (native: a
+      // toolbar/overflow action opening a short action sheet), not a
+      // persistent inline link.
+      await _tap(tester, TeamDetailsTestIds.rankingOtherActions);
       await _tap(tester, TeamDetailsTestIds.rankingReset);
       await _tap(tester, TeamDetailsTestIds.rankingResetConfirmYes);
       expect(teams.rankingResets, [(31, 'st_tennis')]);

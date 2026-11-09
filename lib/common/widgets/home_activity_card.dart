@@ -12,9 +12,17 @@ import 'package:racketmates/l10n/app_localizations.dart';
 /// shown only when there is more than one year (native `TabLayoutMediator`,
 /// wired only when `activityStats.size > 1`).
 class HomeActivityCard extends StatefulWidget {
-  const HomeActivityCard({required this.years, super.key});
+  const HomeActivityCard({required this.years, this.isTeamHome = false, super.key});
 
   final List<HomePageStats> years;
+
+  /// iOS's own empty-state condition (`stats?.totalHours == 0 &&
+  /// !isTeamHomeView`) excludes Team Home from the hours-based check —
+  /// Team Home has no hours breakdown at all (its stats come straight off
+  /// the `Team` object: events/wins/losses only, see
+  /// `team_details_screen.dart`), so gating on `totalHours` there would
+  /// always read as empty even with real event data.
+  final bool isTeamHome;
 
   @override
   State<HomeActivityCard> createState() => _HomeActivityCardState();
@@ -42,7 +50,8 @@ class _HomeActivityCardState extends State<HomeActivityCard> {
             controller: _controller,
             itemCount: years.length,
             onPageChanged: (i) => setState(() => _page = i),
-            itemBuilder: (context, i) => _YearPage(stats: years[i]),
+            itemBuilder: (context, i) =>
+                _YearPage(stats: years[i], isTeamHome: widget.isTeamHome),
           ),
         ),
         if (years.length > 1)
@@ -72,14 +81,22 @@ class _HomeActivityCardState extends State<HomeActivityCard> {
 }
 
 class _YearPage extends StatelessWidget {
-  const _YearPage({required this.stats});
+  const _YearPage({required this.stats, required this.isTeamHome});
 
   final HomePageStats stats;
+  final bool isTeamHome;
 
   // Native iOS `ActivityView` line ~28: `if (stats?.totalHours == 0) &&
-  // !isTeamHomeView { emptyState }` — gated on `totalHours` alone, not also
-  // requiring `totalEvents == 0`.
-  bool get _isEmpty => (stats.totalHours ?? 0) == 0;
+  // !isTeamHomeView { emptyState }` — gated on `totalHours` alone (not also
+  // requiring `totalEvents == 0`) for the Home tab, but Team Home has its
+  // own separate condition (`TeamHomeViewModel.shouldShowActivityEmptyState`:
+  // `eventsCompleted == 0 && eventsWon == 0 && eventsLost == 0`), since team
+  // stats never carry an hours breakdown at all.
+  bool get _isEmpty => isTeamHome
+      ? (stats.totalEvents ?? 0) == 0 &&
+            (stats.wins ?? 0) == 0 &&
+            (stats.losses ?? 0) == 0
+      : (stats.totalHours ?? 0) == 0;
 
   @override
   Widget build(BuildContext context) {

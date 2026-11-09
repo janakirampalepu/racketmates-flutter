@@ -1223,9 +1223,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teamRankingMatchType => 'Match type';
 
   @override
-  String get teamRankingAllMatches => 'All';
-
-  @override
   String teamRankingRecord(int wins, int losses) {
     return '${wins}W - ${losses}L';
   }
@@ -1266,6 +1263,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teamRankingPointsFailed => 'The points could not be saved.';
+
+  @override
+  String get teamRankingOtherActions => 'More actions';
 
   @override
   String get teamRankingReset => 'Reset ranking';

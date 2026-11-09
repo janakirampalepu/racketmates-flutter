@@ -44,7 +44,12 @@ class TeamRankingsTab extends ConsumerStatefulWidget {
 class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
   String? _sport;
   String? _period;
-  String? _matchType; // null = all
+  // Native only offers Singles/Doubles here — no "All" option on either
+  // platform (Android's `llMatchTypePreference` is a plain two-way
+  // toggle; iOS's `MatchType` enum has no all-matches case either) — so
+  // this always resolves to one of the two, defaulting to doubles like
+  // both native apps, never left as a null "all" selection.
+  String? _matchType;
   bool _busy = false;
 
   int get _teamId => widget.team.id ?? 0;
@@ -55,7 +60,11 @@ class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
     subscribed: ref.read(sessionInfoControllerProvider).isSubscribed,
   );
 
-  Future<void> _addPoints(TeamPlayer member, String sport) async {
+  Future<void> _addPoints(
+    TeamPlayer member,
+    String sport,
+    String? matchType,
+  ) async {
     if (!await checkTeamAccess(
           context,
           ref,
@@ -83,7 +92,7 @@ class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
             teamPlayerId,
             earnedPoints: points,
             sportType: sport,
-            matchType: _matchType,
+            matchType: matchType,
           );
       ref.invalidate(teamRankingsProvider);
     } on AppFailure {
@@ -189,6 +198,13 @@ class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
     final sports = team.sportKeys;
     final sport = _sport ?? (sports.isEmpty ? null : sports.first);
     final period = _period ?? periods.firstOrNull?.key;
+    final defaultMatchType = matchTypes
+        .firstWhere(
+          (m) => m.key == 'mt_doubles',
+          orElse: () => matchTypes.firstOrNull ?? const ReferenceItem(),
+        )
+        .key;
+    final matchType = _matchType ?? defaultMatchType;
     final n = context.native;
     final canAddPoints =
         _access(TeamPermissions.updateMember) != AccessDecision.hidden;
@@ -208,7 +224,7 @@ class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
         teamId: team.id ?? 0,
         sport: sport,
         period: period,
-        matchType: _matchType,
+        matchType: matchType,
       );
       return ref
           .watch(teamRankingsProvider(args))
@@ -236,17 +252,46 @@ class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
                       final m = list[i];
                       final rank = m.currentRank ?? i + 1;
                       final change = rankChange(m);
+                      final name = m.user?.displayName ?? '';
+                      final initial = name.trim().isEmpty
+                          ? ''
+                          : name.trim()[0].toUpperCase();
                       return TestId(
                         TeamDetailsTestIds.rankingRow(m.id ?? i),
                         child: MergeSemantics(
                           child: ListTile(
-                            leading: CircleAvatar(
-                              child: Semantics(
-                                label: l10n.teamRankingRank(rank),
-                                child: Text('$rank'),
-                              ),
+                            // Native shows a rank number alongside a real
+                            // photo/initials avatar for each member, not a
+                            // number standing in as the avatar itself.
+                            leading: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: context.sdp(20),
+                                  child: Semantics(
+                                    label: l10n.teamRankingRank(rank),
+                                    child: Text(
+                                      '$rank',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(color: n.textSecondary),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: context.sdp(8)),
+                                CircleAvatar(
+                                  radius: context.sdp(18),
+                                  backgroundColor: n.avatarBgColor,
+                                  child: Text(
+                                    initial,
+                                    style: TextStyle(
+                                      color: n.imagePrimeryColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            title: Text(m.user?.displayName ?? ''),
+                            title: Text(name),
                             subtitle: Text(
                               '${l10n.teamRankingRecord(m.wins ?? 0, m.losses ?? 0)}'
                               ' · ${l10n.teamRankingPoints(m.totalPoints ?? 0)}',
@@ -284,7 +329,8 @@ class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
                                       ),
                                       onPressed: _busy
                                           ? null
-                                          : () => _addPoints(m, sport),
+                                          : () =>
+                                                _addPoints(m, sport, matchType),
                                     ),
                                   ),
                               ],
@@ -297,15 +343,42 @@ class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
           );
     }
 
+    // Native never shows "Reset ranking" as a persistent inline link under
+    // the filters — it's a toolbar/menu action (Android's "other actions"
+    // overflow button, iOS's own action sheet) that opens a short action
+    // menu, which is what opens the existing confirmation dialog.
+    void openActions() {
+      showModalBottomSheet<void>(
+        context: context,
+        builder: (sheetContext) => SafeArea(
+          child: TestId(
+            TeamDetailsTestIds.rankingReset,
+            child: ListTile(
+              leading: const Icon(Icons.restart_alt),
+              title: Text(l10n.teamRankingReset),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _resetRanking(sport!);
+              },
+            ),
+          ),
+        ),
+      );
+    }
+
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            crossAxisAlignment: WrapCrossAlignment.center,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Expanded(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
               if (sports.length > 1)
                 for (final key in sports)
                   TestId(
@@ -333,43 +406,32 @@ class _TeamRankingsTabState extends ConsumerState<TeamRankingsTab> {
                     onChanged: (v) => setState(() => _period = v),
                   ),
                 ),
-              if (matchTypes.isNotEmpty) ...[
+              // No "All" chip — native only ever offers Singles/Doubles
+              // here (a two-way toggle on both platforms).
+              for (final m in matchTypes)
                 TestId(
-                  TeamDetailsTestIds.rankingMatch('all'),
+                  TeamDetailsTestIds.rankingMatch(m.key!),
                   child: ChoiceChip(
-                    label: Text(l10n.teamRankingAllMatches),
-                    selected: _matchType == null,
-                    onSelected: (_) => setState(() => _matchType = null),
+                    label: Text(m.localizedLabel ?? m.key!),
+                    selected: matchType == m.key,
+                    onSelected: (_) => setState(() => _matchType = m.key),
                   ),
                 ),
-                for (final m in matchTypes)
-                  TestId(
-                    TeamDetailsTestIds.rankingMatch(m.key!),
-                    child: ChoiceChip(
-                      label: Text(m.localizedLabel ?? m.key!),
-                      selected: _matchType == m.key,
-                      onSelected: (_) => setState(() => _matchType = m.key),
-                    ),
+            ],
+                ),
+              ),
+              if (sport != null && canReset)
+                TestId(
+                  TeamDetailsTestIds.rankingOtherActions,
+                  child: IconButton(
+                    tooltip: l10n.teamRankingOtherActions,
+                    onPressed: _busy ? null : openActions,
+                    icon: const Icon(Icons.more_vert),
                   ),
-              ],
+                ),
             ],
           ),
         ),
-        if (sport != null && canReset)
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TestId(
-                TeamDetailsTestIds.rankingReset,
-                child: TextButton.icon(
-                  onPressed: _busy ? null : () => _resetRanking(sport),
-                  icon: const Icon(Icons.restart_alt),
-                  label: Text(l10n.teamRankingReset),
-                ),
-              ),
-            ),
-          ),
         Expanded(child: table()),
       ],
     );

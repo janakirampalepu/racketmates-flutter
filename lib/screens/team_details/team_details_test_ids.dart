@@ -29,6 +29,7 @@ abstract final class TeamDetailsTestIds {
   static const rankingsError = 'team_rankings_error';
   static const rankingsRetry = 'team_rankings_retry';
   static const rankingsPeriod = 'team_rankings_period';
+  static const rankingOtherActions = 'team_rankings_other_actions_button';
   static const rankingReset = 'team_rankings_reset_button';
   static const rankingPointsDialog = 'team_ranking_points_dialog';
   static const rankingPointsField = 'team_ranking_points_field';

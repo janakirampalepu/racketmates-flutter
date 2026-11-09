@@ -19,11 +19,18 @@ class TeamRankingsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final n = context.native;
     final team = ref.watch(teamDetailsProvider(teamId));
+    final teamName = team.value?.name;
     return Scaffold(
       backgroundColor: n.backgroundSolidPrimary,
       appBar: AppBar(
         backgroundColor: n.backgroundSolidPrimary,
-        title: Text(l10n.teamTabRankings),
+        // Native: "Rankings - <Team Name>" (Android
+        // `TeamMemberRankingFragment`'s title), not bare "Rankings".
+        title: Text(
+          teamName == null || teamName.isEmpty
+              ? l10n.teamTabRankings
+              : '${l10n.teamTabRankings} - $teamName',
+        ),
       ),
       body: team.when(
         loading: () => const Center(child: CircularProgressIndicator()),
