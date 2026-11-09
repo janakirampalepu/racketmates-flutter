@@ -16,6 +16,7 @@ import 'package:racketmates/common/teams/team_labels.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/billing/billing_sync.dart';
 import 'package:racketmates/common/widgets/family_user_picker.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/common/widgets/native_widgets.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/teams/teams_test_ids.dart';
@@ -93,19 +94,13 @@ class TeamsScreen extends ConsumerWidget {
 
     Widget body() => teams.when(
       loading: () => const _TeamsShimmer(),
-      error: (_, _) => Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TestId(TeamsTestIds.error, child: Text(l10n.teamsLoadError)),
-            TestId(
-              TeamsTestIds.retry,
-              child: TextButton(
-                onPressed: () => ref.invalidate(myTeamsProvider),
-                child: Text(l10n.retryAction),
-              ),
-            ),
-          ],
+      error: (error, _) => Center(
+        child: LoadErrorBody(
+          error: error,
+          fallbackText: l10n.teamsLoadError,
+          retryId: TeamsTestIds.retry,
+          onRetry: () => ref.invalidate(myTeamsProvider),
+          errorTestId: TeamsTestIds.error,
         ),
       ),
       data: (list) => list.isEmpty

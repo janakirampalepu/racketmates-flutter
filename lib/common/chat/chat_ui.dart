@@ -7,6 +7,7 @@ import 'package:racketmates/common/chat/chat_avatar.dart';
 import 'package:racketmates/common/chat/chat_channel_display.dart';
 import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/content/messages.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/chat/chat_test_ids.dart';
 import 'package:sendbird_chat_sdk/sendbird_chat_sdk.dart';
@@ -336,6 +337,9 @@ class _ChannelListBodyState extends State<_ChannelListBody> {
   List<GroupChannel> _channels = [];
   bool _loading = true;
   bool _error = false;
+  // The failure the last fetch threw, for `LoadErrorBody` — kept separate
+  // from `_error` so the loading/pagination logic above stays untouched.
+  Object? _errorObject;
   // Bumped on every reload so a slow, now-superseded fetch can't overwrite
   // a newer one's result when it finally completes.
   int _requestId = 0;
@@ -371,6 +375,7 @@ class _ChannelListBodyState extends State<_ChannelListBody> {
       _channels = [];
       _loading = true;
       _error = false;
+      _errorObject = null;
     });
     _query = GroupChannelListQuery()
       ..customTypesFilter = widget.customTypesFilter ?? const []
@@ -390,11 +395,12 @@ class _ChannelListBodyState extends State<_ChannelListBody> {
         _channels = [..._channels, ...channels];
         _loading = false;
       });
-    } on Object {
+    } on Object catch (error) {
       if (!mounted || requestId != _requestId) return;
       setState(() {
         _loading = false;
         _error = _channels.isEmpty;
+        _errorObject = error;
       });
     }
   }
@@ -424,26 +430,12 @@ class _ChannelListBodyState extends State<_ChannelListBody> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TestId(
-                ChatTestIds.listError,
-                child: Text(
-                  l10n.chatListLoadError,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: n.textSecondary),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TestId(
-                ChatTestIds.listRetry,
-                child: FilledButton(
-                  onPressed: _reload,
-                  child: Text(l10n.retryAction),
-                ),
-              ),
-            ],
+          child: LoadErrorBody(
+            error: _errorObject,
+            fallbackText: l10n.chatListLoadError,
+            retryId: ChatTestIds.listRetry,
+            onRetry: _reload,
+            errorTestId: ChatTestIds.listError,
           ),
         ),
       );

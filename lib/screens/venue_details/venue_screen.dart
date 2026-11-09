@@ -11,6 +11,7 @@ import 'package:racketmates/common/links/external_links.dart';
 import 'package:racketmates/common/places/map_links.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/places/places_repository.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/locations/locations_test_ids.dart';
 
@@ -96,20 +97,13 @@ class _VenueScreenState extends ConsumerState<VenueScreen> {
               ),
             ),
           ),
-          error: (_, _) => Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TestId(VenueTestIds.error, child: Text(l10n.venueLoadError)),
-                TestId(
-                  VenueTestIds.retry,
-                  child: TextButton(
-                    onPressed: () =>
-                        ref.invalidate(venueProvider(widget.placeId)),
-                    child: Text(l10n.retryAction),
-                  ),
-                ),
-              ],
+          error: (error, _) => Center(
+            child: LoadErrorBody(
+              error: error,
+              fallbackText: l10n.venueLoadError,
+              retryId: VenueTestIds.retry,
+              onRetry: () => ref.invalidate(venueProvider(widget.placeId)),
+              errorTestId: VenueTestIds.error,
             ),
           ),
           data: (place) => _Details(place: place),

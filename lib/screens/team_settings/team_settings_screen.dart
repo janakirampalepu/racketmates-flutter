@@ -17,6 +17,7 @@ import 'package:racketmates/common/teams/team_edit.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/teams/teams_repository.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/common/widgets/sport_select_row.dart';
 import 'package:racketmates/common/widgets/team_type_cards.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
@@ -58,7 +59,7 @@ class TeamSettingsScreen extends ConsumerWidget {
           child: Center(child: CircularProgressIndicator()),
         ),
       ),
-      error: (_, _) => Scaffold(
+      error: (error, _) => Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
           leading: BackButton(onPressed: () => context.pop()),
@@ -78,22 +79,12 @@ class TeamSettingsScreen extends ConsumerWidget {
         body: TestId(
           TeamSettingsTestIds.root,
           child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TestId(
-                  TeamSettingsTestIds.loadError,
-                  child: Text(l10n.teamDetailsLoadError),
-                ),
-                TestId(
-                  TeamSettingsTestIds.retry,
-                  child: TextButton(
-                    onPressed: () =>
-                        ref.invalidate(teamDetailsProvider(teamId)),
-                    child: Text(l10n.retryAction),
-                  ),
-                ),
-              ],
+            child: LoadErrorBody(
+              error: error,
+              fallbackText: l10n.teamDetailsLoadError,
+              retryId: TeamSettingsTestIds.retry,
+              onRetry: () => ref.invalidate(teamDetailsProvider(teamId)),
+              errorTestId: TeamSettingsTestIds.loadError,
             ),
           ),
         ),

@@ -5,6 +5,7 @@ import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/widgets/event_tile.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
 import 'package:racketmates/screens/team_details/team_schedule_view_model.dart';
@@ -65,21 +66,12 @@ class _TeamScheduleTabState extends ConsumerState<TeamScheduleTab> {
       }
       if (state.failure != null) {
         return Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TestId(
-                TeamDetailsTestIds.scheduleError,
-                child: Text(l10n.teamScheduleLoadError),
-              ),
-              TestId(
-                TeamDetailsTestIds.scheduleRetry,
-                child: TextButton(
-                  onPressed: vm.refresh,
-                  child: Text(l10n.retryAction),
-                ),
-              ),
-            ],
+          child: LoadErrorBody(
+            error: state.failure,
+            fallbackText: l10n.teamScheduleLoadError,
+            retryId: TeamDetailsTestIds.scheduleRetry,
+            onRetry: vm.refresh,
+            errorTestId: TeamDetailsTestIds.scheduleError,
           ),
         );
       }
