@@ -139,6 +139,10 @@ abstract final class MessageKeys {
       'teams.create.sport_required_error';
   static const teamCreateRankingLabel = 'teams.create.ranking_label';
   static const teamCreateRankingSubText = 'teams.create.ranking_sub_text';
+  static const teamCreateParticipatingLabel =
+      'teams.create.participating_as_label';
+  static const teamCreateParticipatingHint =
+      'teams.create.captain_added_warning';
 
   static const teamSettingsNavTitle = 'teams.settings.nav_title';
   static const teamSettingsArchiveButton = 'teams.settings.archive_team_button';
@@ -160,6 +164,23 @@ abstract final class MessageKeys {
   static const chatNoPersonsError = 'chat.no_persons_error';
   static const globalHintSearchByNameOrPhone =
       'global.hint_texts.search_por_person';
+
+  // Chat details: archive/unarchive confirmation (native
+  // `ChatroomArchivePicker`, same message-key naming for both chat room
+  // states).
+  static const chatArchiveConfirmTitle = 'chat.archive_chat_confirm_title';
+  static const chatArchiveConfirmSubText = 'chat.archive_chat_confirm_sub_text';
+  static const chatArchiveConfirmYesButton =
+      'chat.archive_chat_confirm_yes_button';
+  static const chatArchiveConfirmNoButton =
+      'chat.archive_chat_confirm_no_button';
+  static const chatUnarchiveConfirmTitle = 'chat.unarchive_chat_confirm_title';
+  static const chatUnarchiveConfirmSubText =
+      'chat.unarchive_chat_confirm_sub_text';
+  static const chatUnarchiveConfirmYesButton =
+      'chat.unarchive_chat_confirm_yes_button';
+  static const chatUnarchiveConfirmNoButton =
+      'chat.unarchive_chat_confirm_no_button';
 
   static const createEventTitle = 'events.create.nav_title';
   static const createTypeTitle = 'events.create.event_type_selection_title';

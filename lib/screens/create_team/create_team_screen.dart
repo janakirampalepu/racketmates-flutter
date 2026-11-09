@@ -171,14 +171,26 @@ class _CreateTeamScreenState extends ConsumerState<CreateTeamScreen> {
             onChanged: (v) => flow.setRanking(value: v),
           ),
         ),
-        heading(l10n.createTeamParticipatingLabel),
-        Text(l10n.createTeamParticipatingHint),
+        heading(
+          ref.msg(
+            MessageKeys.teamCreateParticipatingLabel,
+            l10n.createTeamParticipatingLabel,
+          ),
+        ),
+        Text(
+          ref.msg(
+            MessageKeys.teamCreateParticipatingHint,
+            l10n.createTeamParticipatingHint,
+          ),
+        ),
         if (hasRole(RoleKeys.player))
           TestId(
             CreateTeamTestIds.selfPlayer,
             child: SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text(l10n.teamRolePlayer),
+              title: Text(
+                ref.msg(MessageKeys.prePlayerTitle, l10n.teamRolePlayer),
+              ),
               value: draft.selfPlayer,
               onChanged: (v) => flow.setSelfPlayer(value: v),
             ),
@@ -188,7 +200,9 @@ class _CreateTeamScreenState extends ConsumerState<CreateTeamScreen> {
             CreateTeamTestIds.selfCoach,
             child: SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text(l10n.teamRoleCoach),
+              title: Text(
+                ref.msg(MessageKeys.preCoachTitle, l10n.teamRoleCoach),
+              ),
               value: draft.selfCoach,
               onChanged: (v) => flow.setSelfCoach(value: v),
             ),
