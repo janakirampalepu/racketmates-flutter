@@ -174,12 +174,34 @@ void main() {
       expect(find.textContaining('Court 1'), findsOneWidget);
       expect(find.textContaining('No court'), findsOneWidget);
       expect(_id(EventManageRoundsTestIds.match(503)), findsNothing);
-
       await _tap(tester, EventManageRoundsTestIds.round(702));
       expect(_id(EventManageRoundsTestIds.match(503)), findsOneWidget);
       expect(_id(EventManageRoundsTestIds.match(501)), findsNothing);
       handle.dispose();
     });
+
+    testWidgets(
+      'a server failure loading the event replaces the generic text',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        useTallScreen(tester);
+        final schedule = FakeScheduleRepository(
+          event: EventDetailsResponse.fromJson(
+            apiFixture('events_show_manage_rounds'),
+          ).event,
+        )
+          ..failure = const ServerFailure(500, 'Event is gone now')
+          ..failing.add('event-101');
+        await tester.pumpWidget(signedInApp(schedule: schedule));
+        await tester.pumpAndSettle();
+        final context = tester.element(_id(HomeTestIds.root));
+        unawaited(GoRouter.of(context).push(rounds));
+        await tester.pumpAndSettle();
+        expect(find.text('Event is gone now'), findsOneWidget);
+        expect(find.text('Could not load this event.'), findsNothing);
+        handle.dispose();
+      },
+    );
 
     testWidgets('a round is added', (tester) async {
       final handle = tester.ensureSemantics();

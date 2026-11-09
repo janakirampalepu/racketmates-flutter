@@ -12,6 +12,7 @@ import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/models/event_match_models.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/places/places_repository.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/event_details/event_details_view_model.dart';
 import 'package:racketmates/screens/event_manage/event_manage_view_model.dart';
@@ -96,9 +97,12 @@ class _EventManageRoundsScreenState
                 padding: EdgeInsets.all(32),
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (_, _) => Padding(
+              error: (error, _) => Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text(l10n.eventLoadError),
+                child: LoadErrorBody(
+                  error: error,
+                  fallbackText: l10n.eventLoadError,
+                ),
               ),
               data: (list) => ListView(
                 shrinkWrap: true,
@@ -401,7 +405,10 @@ class _EventManageRoundsScreenState
         child: event == null
             ? Center(
                 child: eventAsync.hasError
-                    ? Text(l10n.eventLoadError)
+                    ? LoadErrorBody(
+                        error: eventAsync.error,
+                        fallbackText: l10n.eventLoadError,
+                      )
                     : const CircularProgressIndicator(),
               )
             : body(event),
@@ -433,6 +440,7 @@ class _AssignSheetState extends ConsumerState<_AssignSheet> {
   late final List<int> _selected = [...widget.current];
   List<EventParticipant>? _players;
   bool _failed = false;
+  Object? _error;
   int _request = 0;
 
   @override
@@ -456,10 +464,16 @@ class _AssignSheetState extends ConsumerState<_AssignSheet> {
       if (!mounted || request != _request) return;
       setState(() {
         _failed = false;
+        _error = null;
         _players = [for (final g in groups) ...?g.eventParticipants];
       });
-    } on Object {
-      if (mounted && request == _request) setState(() => _failed = true);
+    } on Object catch (e) {
+      if (mounted && request == _request) {
+        setState(() {
+          _failed = true;
+          _error = e;
+        });
+      }
     }
   }
 
@@ -504,9 +518,10 @@ class _AssignSheetState extends ConsumerState<_AssignSheet> {
                 child: _failed
                     ? Padding(
                         padding: const EdgeInsets.all(24),
-                        child: TestId(
-                          EventManageRoundsTestIds.assignError,
-                          child: Text(l10n.eventPairsLoadError),
+                        child: LoadErrorBody(
+                          error: _error,
+                          fallbackText: l10n.eventPairsLoadError,
+                          errorTestId: EventManageRoundsTestIds.assignError,
                         ),
                       )
                     : players == null

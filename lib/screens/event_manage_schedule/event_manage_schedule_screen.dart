@@ -7,6 +7,7 @@ import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/events/manage_logic.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/models/event_match_models.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_when_where/create_event_when_where_screen.dart';
 import 'package:racketmates/screens/create_event_when_where/create_event_when_where_view_model.dart';
@@ -106,7 +107,10 @@ class _EventManageScheduleScreenState
         ),
         body: Center(
           child: eventAsync.hasError
-              ? Text(l10n.eventLoadError)
+              ? LoadErrorBody(
+                  error: eventAsync.error,
+                  fallbackText: l10n.eventLoadError,
+                )
               : event != null && !canSeed
               ? Text(l10n.eventManageScheduleUnsupported)
               : const CircularProgressIndicator(),

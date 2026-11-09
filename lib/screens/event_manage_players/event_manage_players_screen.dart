@@ -7,6 +7,7 @@ import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/events/event_labels.dart';
 import 'package:racketmates/common/events/manage_logic.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/event_details/event_details_view_model.dart';
 import 'package:racketmates/screens/event_manage/event_manage_view_model.dart';
@@ -273,7 +274,10 @@ class _EventManagePlayersScreenState
           child: event == null
               ? Center(
                   child: eventAsync.hasError
-                      ? Text(l10n.eventLoadError)
+                      ? LoadErrorBody(
+                          error: eventAsync.error,
+                          fallbackText: l10n.eventLoadError,
+                        )
                       : const CircularProgressIndicator(),
                 )
               : body(event),

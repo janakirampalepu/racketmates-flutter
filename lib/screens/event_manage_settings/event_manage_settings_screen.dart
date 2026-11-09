@@ -7,6 +7,7 @@ import 'package:racketmates/common/create_event/scoring.dart';
 import 'package:racketmates/common/events/manage_logic.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/common/widgets/number_stepper.dart';
 import 'package:racketmates/common/widgets/scoring_picker.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
@@ -62,7 +63,10 @@ class _EventManageSettingsScreenState
         ),
         body: Center(
           child: eventAsync.hasError
-              ? Text(l10n.eventLoadError)
+              ? LoadErrorBody(
+                  error: eventAsync.error,
+                  fallbackText: l10n.eventLoadError,
+                )
               : const CircularProgressIndicator(),
         ),
       );
