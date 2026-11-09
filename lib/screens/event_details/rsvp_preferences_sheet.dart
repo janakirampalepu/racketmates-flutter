@@ -7,6 +7,7 @@ import 'package:racketmates/common/events/event_actions_repository.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/participant_status_filter.dart';
 import 'package:racketmates/common/events/rsvp_preferences.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/event_details/event_details_test_ids.dart';
 
@@ -253,6 +254,7 @@ class _PartnerPicker extends ConsumerStatefulWidget {
 class _PartnerPickerState extends ConsumerState<_PartnerPicker> {
   List<EventParticipantGroup>? _groups;
   bool _failed = false;
+  Object? _error;
   int _request = 0;
   EventParticipant? _choice;
 
@@ -281,10 +283,16 @@ class _PartnerPickerState extends ConsumerState<_PartnerPicker> {
       if (!mounted || request != _request) return;
       setState(() {
         _failed = false;
+        _error = null;
         _groups = groups;
       });
-    } on Object {
-      if (mounted && request == _request) setState(() => _failed = true);
+    } on Object catch (error) {
+      if (mounted && request == _request) {
+        setState(() {
+          _failed = true;
+          _error = error;
+        });
+      }
     }
   }
 
@@ -331,9 +339,10 @@ class _PartnerPickerState extends ConsumerState<_PartnerPicker> {
                 child: _failed
                     ? Padding(
                         padding: const EdgeInsets.all(24),
-                        child: TestId(
-                          EventDetailsTestIds.partnerError,
-                          child: Text(l10n.rsvpPartnerLoadError),
+                        child: LoadErrorBody(
+                          error: _error,
+                          fallbackText: l10n.rsvpPartnerLoadError,
+                          errorTestId: EventDetailsTestIds.partnerError,
                         ),
                       )
                     : groups == null

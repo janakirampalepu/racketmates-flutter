@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:racketmates/common/content/content_cache.dart';
+import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
@@ -240,6 +241,38 @@ void main() {
     w.teams.failing = false;
     await _tap(tester, CreateEventOpponentSelectTestIds.retry);
     expect(_id(CreateEventOpponentSelectTestIds.team(44)), findsOneWidget);
+    handle.dispose();
+  });
+
+  testWidgets('a server failure message replaces the generic text', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    useTallScreen(tester);
+    final w = _Wizard();
+    await tester.pumpWidget(w.app());
+    await _toDynamics(tester);
+    await _tap(
+      tester,
+      CreateEventTeamDynamicsTestIds.option('ott_specific_team'),
+    );
+    await _tap(tester, CreateEventTeamDynamicsTestIds.next);
+
+    w.teams
+      ..opponents = const [_eagles]
+      ..failing = true
+      ..opponentFailure = const ServerFailure(
+        500,
+        'Could not load opposing teams.',
+      );
+    await tester.enterText(
+      _field(CreateEventOpponentSelectTestIds.search),
+      'e',
+    );
+    await tester.pump(const Duration(milliseconds: 450));
+    await tester.pumpAndSettle();
+    expect(find.text('Could not load opposing teams.'), findsOneWidget);
+    expect(find.text("We couldn't load your teams."), findsNothing);
     handle.dispose();
   });
 

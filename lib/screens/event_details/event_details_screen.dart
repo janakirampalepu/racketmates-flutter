@@ -9,6 +9,7 @@ import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/events/rsvp_actions.dart';
 import 'package:racketmates/common/events/rsvp_preferences.dart';
 import 'package:racketmates/common/chat/event_chat.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/chat_new/new_chat_test_ids.dart';
 import 'package:racketmates/screens/event_details/event_chat_actions.dart';
@@ -312,19 +313,12 @@ class EventDetailsScreen extends ConsumerWidget {
         EventDetailsTestIds.root,
         child: state.event.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(l10n.eventLoadError),
-                TestId(
-                  EventDetailsTestIds.retry,
-                  child: TextButton(
-                    onPressed: vm.load,
-                    child: Text(l10n.retryAction),
-                  ),
-                ),
-              ],
+          error: (error, _) => Center(
+            child: LoadErrorBody(
+              error: error,
+              fallbackText: l10n.eventLoadError,
+              retryId: EventDetailsTestIds.retry,
+              onRetry: vm.load,
             ),
           ),
           data: (event) => _Body(

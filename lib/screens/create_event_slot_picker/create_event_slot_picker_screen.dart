@@ -6,6 +6,7 @@ import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/create_event/match_draft.dart';
 import 'package:racketmates/common/create_event/people_kind.dart';
 import 'package:racketmates/common/create_event/people_search.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_slot_picker/create_event_slot_picker_test_ids.dart';
 
@@ -38,18 +39,11 @@ class CreateEventSlotPickerScreen extends ConsumerWidget {
       }
       if (state.failure != null) {
         return Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(l10n.createPlayersLoadError),
-              TestId(
-                CreateEventSlotPickerTestIds.retry,
-                child: TextButton(
-                  onPressed: vm.search,
-                  child: Text(l10n.retryAction),
-                ),
-              ),
-            ],
+          child: LoadErrorBody(
+            error: state.failure,
+            fallbackText: l10n.createPlayersLoadError,
+            retryId: CreateEventSlotPickerTestIds.retry,
+            onRetry: vm.search,
           ),
         );
       }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:racketmates/common/content/content_cache.dart';
+import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
@@ -222,6 +223,25 @@ void main() {
     w.teams.failing = false;
     await _tap(tester, CreateEventTeamSelectTestIds.retry);
     expect(_id(CreateEventTeamSelectTestIds.team(31)), findsOneWidget);
+    handle.dispose();
+  });
+
+  testWidgets('a server failure message replaces the generic text', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final w = _Wizard()
+      ..teams.failing = true
+      ..teams.captainFailure = const ServerFailure(
+        500,
+        'Could not load your teams.',
+      );
+    await tester.pumpWidget(w.app());
+    await _open(tester, 'et_practice_drill');
+    await _sport(tester);
+    await _chooseTeamEvent(tester);
+    expect(find.text('Could not load your teams.'), findsOneWidget);
+    expect(find.text("We couldn't load your teams."), findsNothing);
     handle.dispose();
   });
 

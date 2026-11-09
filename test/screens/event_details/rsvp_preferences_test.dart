@@ -247,6 +247,19 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('a server failure message replaces the generic text', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final actions = await _open(tester, _roundRobin());
+      await _tap(tester, EventDetailsTestIds.action('accept'));
+      actions.failure = const ServerFailure(500, 'Could not load partners.');
+      await _tap(tester, EventDetailsTestIds.prefsSelectPartner);
+      expect(find.text('Could not load partners.'), findsOneWidget);
+      expect(find.text('The players could not be loaded.'), findsNothing);
+      handle.dispose();
+    });
+
     testWidgets('a chosen partner can be changed', (tester) async {
       final handle = tester.ensureSemantics();
       final actions = await _open(

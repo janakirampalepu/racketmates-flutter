@@ -22,8 +22,8 @@ class LoadErrorBody extends StatelessWidget {
   const LoadErrorBody({
     required this.error,
     required this.fallbackText,
-    required this.retryId,
-    required this.onRetry,
+    this.retryId,
+    this.onRetry,
     this.errorTestId,
     super.key,
   });
@@ -37,8 +37,11 @@ class LoadErrorBody extends StatelessWidget {
   /// technical one (`ParseFailure`/`UnknownFailure`) whose raw message
   /// isn't meant for a user.
   final String fallbackText;
-  final String retryId;
-  final VoidCallback onRetry;
+
+  /// Omit both to render without a retry button (a few screens, e.g. a
+  /// read-only error line with no retry action, have none).
+  final String? retryId;
+  final VoidCallback? onRetry;
 
   /// Wraps the message text in a `TestId`, for screens whose existing tests
   /// already look up a dedicated error element.
@@ -68,10 +71,14 @@ class LoadErrorBody extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
-        TestId(
-          retryId,
-          child: TextButton(onPressed: onRetry, child: Text(l10n.retryAction)),
-        ),
+        if (retryId != null && onRetry != null)
+          TestId(
+            retryId!,
+            child: TextButton(
+              onPressed: onRetry,
+              child: Text(l10n.retryAction),
+            ),
+          ),
       ],
     );
   }

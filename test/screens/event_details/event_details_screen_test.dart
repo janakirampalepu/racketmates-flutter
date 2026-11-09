@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
+import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/screens/event_details/event_details_test_ids.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
@@ -85,6 +86,19 @@ void main() {
     await tester.tap(_id(EventDetailsTestIds.retry));
     await tester.pumpAndSettle();
     expect(find.text('Game'), findsOneWidget);
+    handle.dispose();
+  });
+
+  testWidgets('a server failure message replaces the generic text', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final repo = FakeScheduleRepository(event: _event)
+      ..failing.add('event-101')
+      ..failure = const ServerFailure(500, 'Could not load this event now.');
+    await _open(tester, repo);
+    expect(find.text('Could not load this event now.'), findsOneWidget);
+    expect(find.text('Could not load this event.'), findsNothing);
     handle.dispose();
   });
 

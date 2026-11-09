@@ -10,6 +10,7 @@ import 'package:racketmates/common/create_event/event_draft.dart';
 import 'package:racketmates/common/teams/team_labels.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_event_team_select/create_event_team_select_test_ids.dart';
@@ -95,17 +96,13 @@ class _CreateEventTeamSelectScreenState
               child: Center(child: CircularProgressIndicator()),
             ),
           ],
-          error: (_, _) => [
-            TestId(
-              CreateEventTeamSelectTestIds.error,
-              child: Text(l10n.teamsLoadError),
-            ),
-            TestId(
-              CreateEventTeamSelectTestIds.retry,
-              child: TextButton(
-                onPressed: () => ref.invalidate(captainTeamsProvider(sport)),
-                child: Text(l10n.retryAction),
-              ),
+          error: (error, _) => [
+            LoadErrorBody(
+              error: error,
+              fallbackText: l10n.teamsLoadError,
+              retryId: CreateEventTeamSelectTestIds.retry,
+              onRetry: () => ref.invalidate(captainTeamsProvider(sport)),
+              errorTestId: CreateEventTeamSelectTestIds.error,
             ),
           ],
           data: (list) => list.isEmpty

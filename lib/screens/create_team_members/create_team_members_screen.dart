@@ -9,6 +9,7 @@ import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/teams/create_team_flow.dart';
 import 'package:racketmates/common/teams/team_member_search.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/common/widgets/step_scaffold.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/create_team_members/create_team_members_test_ids.dart';
@@ -47,17 +48,11 @@ class CreateTeamMembersScreen extends ConsumerWidget {
         );
       }
       if (state.failure != null) {
-        return Column(
-          children: [
-            Text(l10n.createPlayersLoadError),
-            TestId(
-              CreateTeamMembersTestIds.retry,
-              child: TextButton(
-                onPressed: vm.search,
-                child: Text(l10n.retryAction),
-              ),
-            ),
-          ],
+        return LoadErrorBody(
+          error: state.failure,
+          fallbackText: l10n.createPlayersLoadError,
+          retryId: CreateTeamMembersTestIds.retry,
+          onRetry: vm.search,
         );
       }
       if (state.isEmpty) {

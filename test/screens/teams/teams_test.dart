@@ -176,6 +176,19 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('a server failure message replaces the generic text', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final teams = FakeTeamsRepository(teams: [_smashers])
+      ..failing = true
+      ..myTeamsFailure = const ServerFailure(500, 'Could not load teams.');
+    await tester.pumpWidget(signedInApp(teams: teams));
+    await _openTeams(tester);
+    expect(find.text('Could not load teams.'), findsOneWidget);
+    handle.dispose();
+  });
+
   testWidgets('a team opens with its members and roles', (tester) async {
     final handle = tester.ensureSemantics();
     useTallScreen(tester);
@@ -295,6 +308,34 @@ void main() {
     expect(_id(TeamsTestIds.root), findsOneWidget);
     expect(teams.myTeamsRequests, hasLength(2));
     expect(find.text('Team created.'), findsOneWidget);
+    handle.dispose();
+  });
+
+  testWidgets('create team members: a server failure message replaces the '
+      'generic text', (tester) async {
+    final handle = tester.ensureSemantics();
+    useTallScreen(tester);
+    final teams = FakeTeamsRepository();
+    final repo = FakeCreateEventRepository(players: [_alex, _pat])
+      ..searchFails = true
+      ..searchFailure = const ServerFailure(
+        500,
+        'Could not search players.',
+      );
+    await tester.pumpWidget(
+      signedInApp(teams: teams, createEvent: repo, users: _playerAndCoach()),
+    );
+    await _openTeams(tester);
+    await _tap(tester, TeamsTestIds.create);
+    await tester.enterText(_field(CreateTeamTestIds.name), 'Net Ninjas');
+    await tester.pump();
+    await _tap(tester, CreateTeamTestIds.type(TeamTypes.competitive));
+    await _tap(tester, CreateTeamTestIds.sport('st_tennis'));
+    await _tap(tester, CreateTeamTestIds.next);
+
+    expect(_id(CreateTeamMembersTestIds.root), findsOneWidget);
+    expect(find.text('Could not search players.'), findsOneWidget);
+    expect(find.text('Could not load players.'), findsNothing);
     handle.dispose();
   });
 

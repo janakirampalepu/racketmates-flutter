@@ -962,6 +962,11 @@ class FakeSettingsRepository implements SettingsRepository {
   List<ReminderPreference> stored;
   AppFailure? failure;
   bool loadFails = false;
+
+  /// Overrides the failure thrown by [reminders] when [loadFails] is set,
+  /// instead of the default `OfflineFailure` — for asserting the screen
+  /// surfaces a specific failure's message/debug detail.
+  AppFailure? loadFailure;
   int nextId = 100;
   final List<String> calls = [];
   final List<({String token, TargetPlatform platform, String language})>
@@ -979,7 +984,7 @@ class FakeSettingsRepository implements SettingsRepository {
   Future<List<ReminderPreference>> reminders(int userId) async {
     calls.add('reminders:$userId');
     await Future<void>.delayed(Duration.zero);
-    if (loadFails) throw const OfflineFailure();
+    if (loadFails) throw loadFailure ?? const OfflineFailure();
     return List.of(stored);
   }
 
@@ -1180,6 +1185,11 @@ class FakePlacesRepository implements PlacesRepository {
   /// instead of the default `OfflineFailure` — for asserting the screen
   /// surfaces a specific failure's message/debug detail.
   AppFailure? searchFailure;
+
+  /// Overrides the failure thrown by [details] when it fails (either
+  /// [failing] or a missing id), instead of the default `OfflineFailure` —
+  /// for asserting the venue screen surfaces a specific failure's message.
+  AppFailure? detailsFailure;
   final List<({String query, String? sport})> searches = [];
   final List<({double? latitude, double? longitude, int? distance})> locations =
       [];
@@ -1222,7 +1232,7 @@ class FakePlacesRepository implements PlacesRepository {
     detailsCalls.add(id);
     await Future<void>.delayed(Duration.zero);
     final d = detailsById[id];
-    if (failing || d == null) throw const OfflineFailure();
+    if (failing || d == null) throw detailsFailure ?? const OfflineFailure();
     return d;
   }
 
@@ -1258,6 +1268,30 @@ class FakeTeamsRepository implements TeamsRepository {
   List<Team> opponents = const [];
   bool failing = false;
   bool membersFail = false;
+
+  /// Overrides [failing]'s fixed `OfflineFailure` with an arbitrary one for
+  /// [details] (e.g. a `ServerFailure` carrying a server message).
+  AppFailure? detailsFailure;
+
+  /// Overrides [failing]'s fixed `OfflineFailure` with an arbitrary one for
+  /// [myTeams] (e.g. a `ServerFailure` carrying a server message).
+  AppFailure? myTeamsFailure;
+
+  /// Overrides [failing]'s fixed `OfflineFailure` with an arbitrary one for
+  /// [captainTeams] (e.g. a `ServerFailure` carrying a server message).
+  AppFailure? captainFailure;
+
+  /// Overrides [failing]'s fixed `OfflineFailure` with an arbitrary one for
+  /// [opponentTeams] (e.g. a `ServerFailure` carrying a server message).
+  AppFailure? opponentFailure;
+
+  /// Overrides [membersFail]'s fixed `OfflineFailure` with an arbitrary one
+  /// for [searchNonMembers].
+  AppFailure? candidatesFailure;
+
+  /// Overrides [membersFail]'s fixed `OfflineFailure` with an arbitrary one
+  /// for [members].
+  AppFailure? membersFailure;
   AppFailure? createFailure;
   Map<String, dynamic>? created;
   int createdId = 900;
@@ -1272,7 +1306,7 @@ class FakeTeamsRepository implements TeamsRepository {
   Future<List<Team>> myTeams({required List<String> userIds}) async {
     myTeamsRequests.add(userIds);
     await Future<void>.delayed(Duration.zero);
-    if (failing) throw const OfflineFailure();
+    if (failing) throw myTeamsFailure ?? const OfflineFailure();
     return teams;
   }
 
@@ -1284,7 +1318,7 @@ class FakeTeamsRepository implements TeamsRepository {
   }) async {
     captainRequests.add((sport: sportKey, userIds: userIds));
     await Future<void>.delayed(Duration.zero);
-    if (failing) throw const OfflineFailure();
+    if (failing) throw captainFailure ?? const OfflineFailure();
     return captain;
   }
 
@@ -1300,7 +1334,7 @@ class FakeTeamsRepository implements TeamsRepository {
       query: query,
     ));
     await Future<void>.delayed(Duration.zero);
-    if (failing) throw const OfflineFailure();
+    if (failing) throw opponentFailure ?? const OfflineFailure();
     return [
       for (final t in opponents)
         if (t.id != excludeTeamId &&
@@ -1313,6 +1347,7 @@ class FakeTeamsRepository implements TeamsRepository {
   @override
   Future<Team> details(int id) async {
     await Future<void>.delayed(Duration.zero);
+    if (detailsFailure != null) throw detailsFailure!;
     if (failing) throw const OfflineFailure();
     return [...teams, ...captain].firstWhere((t) => t.id == id);
   }
@@ -1332,7 +1367,7 @@ class FakeTeamsRepository implements TeamsRepository {
       sport: sportKey,
     ));
     await Future<void>.delayed(Duration.zero);
-    if (membersFail) throw const OfflineFailure();
+    if (membersFail) throw membersFailure ?? const OfflineFailure();
     return [
       for (final m in membersByTeam[teamId] ?? const <TeamPlayer>[])
         if ((includeInactive || !m.isInactive) &&
@@ -1350,6 +1385,10 @@ class FakeTeamsRepository implements TeamsRepository {
   /// What the ranking answers, by (sport, period, match type) in the calls.
   List<TeamPlayer> ranking = const [];
   bool rankingFails = false;
+
+  /// Overrides [rankingFails]'s fixed `OfflineFailure` with an arbitrary one
+  /// for [rankings].
+  AppFailure? rankingFailure;
   final List<({int team, String sport, String? period, String? matchType})>
   rankingRequests = [];
 
@@ -1377,7 +1416,7 @@ class FakeTeamsRepository implements TeamsRepository {
       matchType: matchType,
     ));
     await Future<void>.delayed(Duration.zero);
-    if (rankingFails) throw const OfflineFailure();
+    if (rankingFails) throw rankingFailure ?? const OfflineFailure();
     return ranking;
   }
 
@@ -1477,6 +1516,7 @@ class FakeTeamsRepository implements TeamsRepository {
   }) async {
     candidateSearches.add((team: teamId, query: query, sports: sportKeys));
     await Future<void>.delayed(Duration.zero);
+    if (candidatesFailure != null) throw candidatesFailure!;
     if (membersFail) throw const OfflineFailure();
     return [
       for (final u in candidates)
@@ -1616,6 +1656,14 @@ class FakeCreateEventRepository implements CreateEventRepository {
   int? createdId;
   AppFailure? createFailure;
   bool searchFails = false;
+
+  /// Overrides [searchFails]'s fixed `OfflineFailure` with an arbitrary one
+  /// for [searchUsers] (e.g. a `ServerFailure` carrying a server message).
+  AppFailure? searchFailure;
+
+  /// Overrides [scoringFails]'s fixed `OfflineFailure` with an arbitrary one
+  /// for [scoringFormats] (e.g. a `ServerFailure` carrying a server message).
+  AppFailure? scoringFailure;
   int? timezone = 99;
   Map<String, dynamic>? body;
   final List<({String query, String? role, String? sport})> searches = [];
@@ -1649,7 +1697,7 @@ class FakeCreateEventRepository implements CreateEventRepository {
   }) async {
     searches.add((query: query, role: role, sport: sportKey));
     await Future<void>.delayed(Duration.zero);
-    if (searchFails) throw const OfflineFailure();
+    if (searchFails) throw searchFailure ?? const OfflineFailure();
     return [
       for (final p in players)
         if (query.isEmpty ||
@@ -1665,7 +1713,7 @@ class FakeCreateEventRepository implements CreateEventRepository {
   }) async {
     scoringRequests.add((sport: sportKey, eventType: eventType));
     await Future<void>.delayed(Duration.zero);
-    if (scoringFails) throw const OfflineFailure();
+    if (scoringFails) throw scoringFailure ?? const OfflineFailure();
     return scoring;
   }
 
@@ -2102,13 +2150,17 @@ class FakeDraftsRepository implements DraftsRepository {
   bool listFails = false;
   bool requestFails = false;
   AppFailure? deleteFailure;
+
+  /// Overrides [listFails]'s fixed `OfflineFailure` with an arbitrary one
+  /// for [list] (e.g. a `ServerFailure` carrying a server message).
+  AppFailure? listFailure;
   final List<int> deleted = [];
   final List<int> opened = [];
 
   @override
   Future<List<DraftSummary>> list({required List<String> userIds}) async {
     await Future<void>.delayed(Duration.zero);
-    if (listFails) throw const OfflineFailure();
+    if (listFails) throw listFailure ?? const OfflineFailure();
     return drafts;
   }
 
