@@ -4,30 +4,46 @@ import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
+import 'package:racketmates/common/session/access.dart';
+import 'package:racketmates/common/session/session_info_controller.dart';
+import 'package:racketmates/common/teams/member_rules.dart';
+import 'package:racketmates/common/teams/team_edit.dart';
 import 'package:racketmates/common/teams/team_labels.dart';
 import 'package:racketmates/common/teams/team_models.dart';
-import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/widgets/home_sections.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/team_details/team_details_test_ids.dart';
 
 /// Team Home's one team-only section (native `layoutTeamMembers`): a short
 /// preview of the roster with "See all" and a "Manage members" row below.
-/// "Manage members" always opens the full member list/management screen
-/// (`TeamMembersScreen`); "See all" instead opens the ranking list when the
+/// "Manage members" opens the full member list/management screen
+/// (`TeamMembersScreen`), gated by `team.manage_players` (native
+/// `TeamHomeFragment.displayHomeTeamSettings`'s `layoutManageMembers`,
+/// hidden when `team.userPermissions.teamManagePlayers.accessState ==
+/// UP_NOT_AVAILABLE`); "See all" instead opens the ranking list when the
 /// team has ranking on (native `sectionTitle(..., showSeeAll: true) { if
 /// isTeamRankingEnabled { push(.teamMemberRankingListView) } else {
 /// push(.teamMemberListView) } }` — Team Home has no rankings icon of its
 /// own; this is how native reaches it). There is no Home equivalent — every
 /// other dashboard section is shared (`common/widgets/home_sections.dart`).
+///
+/// The preview reads `team.teamPlayers` — the roster already embedded in
+/// `GET teams/{id}` — instead of fetching `GET teams/{id}/team_players`
+/// again. Native does the same: Android `TeamHomeFragment.displayTeamMembers`
+/// reads `viewModel.team.value?.teamPlayers` directly (`Team.kt`'s
+/// `team_players` field), and iOS's `memberSection()` reads
+/// `TeamDetailsManager.shared.getTeamDetail()?.team?.teamPlayers`
+/// (`Team.swift`'s `teamPlayers`) — neither calls the dedicated
+/// `team_players` endpoint for this preview; only the full Manage Members
+/// screen (`teamRosterProvider`) does, for its own search/pagination.
 class TeamMembersPreview extends ConsumerWidget {
   const TeamMembersPreview({
-    required this.teamId,
+    required this.team,
     required this.rankingEnabled,
     super.key,
   });
 
-  final int teamId;
+  final Team team;
   final bool rankingEnabled;
 
   static const _previewCount = 3;
@@ -37,14 +53,18 @@ class TeamMembersPreview extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final n = context.native;
     final sdp = context.sdp;
-    final roster = ref.watch(
-      teamRosterProvider((
-        teamId: teamId,
-        inactive: false,
-        search: '',
-        sportKey: null,
-      )),
-    );
+    final teamId = team.id ?? 0;
+    final members = [
+      for (final member in team.teamPlayers ?? const <TeamPlayer>[])
+        if (!member.isInactive) member,
+    ];
+    final canManageMembers =
+        memberAccess(
+          team,
+          TeamSettingsPermissions.manageMembers,
+          subscribed: ref.watch(sessionInfoControllerProvider).isSubscribed,
+        ) !=
+        AccessDecision.hidden;
 
     void openMembers() => context.push(AppRoutes.teamMembersFor(teamId));
     void seeAll() => rankingEnabled
@@ -61,51 +81,39 @@ class TeamMembersPreview extends ConsumerWidget {
             seeAllId: TeamHomeActionIds.membersSeeAll,
             onSeeAll: seeAll,
           ),
-          roster.when(
-            loading: () => const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-            error: (_, _) => Padding(
-              padding: EdgeInsets.symmetric(horizontal: sdp(16)),
-              child: Text(
-                l10n.teamMembersLoadError,
-                style: TextStyle(color: n.textSecondary),
-              ),
-            ),
-            data: (members) => members.isEmpty
-                ? Padding(
+          members.isEmpty
+              ? Padding(
+                  padding: EdgeInsets.symmetric(horizontal: sdp(16)),
+                  child: Text(
+                    l10n.teamMembersEmpty,
+                    style: TextStyle(color: n.textSecondary),
+                  ),
+                )
+              : SizedBox(
+                  height: sdp(156),
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
                     padding: EdgeInsets.symmetric(horizontal: sdp(16)),
-                    child: Text(
-                      l10n.teamMembersEmpty,
-                      style: TextStyle(color: n.textSecondary),
-                    ),
-                  )
-                : SizedBox(
-                    height: sdp(156),
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.symmetric(horizontal: sdp(16)),
-                      itemCount: members.take(_previewCount).length,
-                      separatorBuilder: (_, _) => SizedBox(width: sdp(12)),
-                      itemBuilder: (context, i) => _MemberCard(
-                        member: members[i],
-                        testId: TeamHomeActionIds.memberPreview(
-                          members[i].id ?? members[i].userId ?? 0,
-                        ),
-                        onTap: openMembers,
+                    itemCount: members.take(_previewCount).length,
+                    separatorBuilder: (_, _) => SizedBox(width: sdp(12)),
+                    itemBuilder: (context, i) => _MemberCard(
+                      member: members[i],
+                      testId: TeamHomeActionIds.memberPreview(
+                        members[i].id ?? members[i].userId ?? 0,
                       ),
+                      onTap: openMembers,
                     ),
                   ),
-          ),
-          TestId(
-            TeamHomeActionIds.manageMembers,
-            child: ListTile(
-              leading: const Icon(Icons.group_outlined),
-              title: Text(l10n.teamHomeManageMembers),
-              onTap: openMembers,
+                ),
+          if (canManageMembers)
+            TestId(
+              TeamHomeActionIds.manageMembers,
+              child: ListTile(
+                leading: const Icon(Icons.group_outlined),
+                title: Text(l10n.teamHomeManageMembers),
+                onTap: openMembers,
+              ),
             ),
-          ),
         ],
       ),
     );

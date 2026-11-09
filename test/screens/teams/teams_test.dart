@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/events/models/event_details.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/common/widgets/family_user_picker.dart';
@@ -34,6 +35,9 @@ const _smashers = Team(
     TeamSport(id: 1, sportType: 'st_tennis'),
     TeamSport(id: 2, sportType: 'st_padel'),
   ],
+  userPermissions: {
+    'team.manage_players': AccessInfo(access: 'up_enabled'),
+  },
 );
 const _casuals = Team(
   id: 32,
@@ -196,7 +200,6 @@ void main() {
 
     expect(_id(TeamDetailsTestIds.root), findsOneWidget);
     expect(find.text('Sunday Smashers'), findsOneWidget);
-    expect(find.textContaining('Tennis, Padel'), findsOneWidget);
     await _tap(tester, TeamHomeActionIds.manageMembers);
     expect(_inMembers(find.text('Alex Kim')), findsOneWidget);
     expect(_inMembers(find.text('Captain, Player')), findsOneWidget);

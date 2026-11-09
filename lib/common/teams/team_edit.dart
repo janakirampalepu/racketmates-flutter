@@ -9,6 +9,12 @@ abstract final class TeamSettingsPermissions {
   static const unarchive = 'team.unarchive';
   static const destroy = 'team.destroy';
   static const createEvent = 'team.events.create';
+
+  /// Gates the "Manage members" entry on Team Home (native
+  /// `LatestUserPermissions.teamManagePlayers`, `@SerializedName
+  /// ("team.manage_players")`; `TeamHomeFragment.displayHomeTeamSettings`
+  /// hides `layoutManageMembers` when this is `up_not_available`).
+  static const manageMembers = 'team.manage_players';
 }
 
 /// What the settings screen edits.

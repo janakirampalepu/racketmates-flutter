@@ -42,6 +42,7 @@ const _all = {
   'team.team_players.reactivate': AccessInfo(access: 'up_enabled'),
   'team.team_players.destroy': AccessInfo(access: 'up_enabled'),
   'team.team_players.create': AccessInfo(access: 'up_enabled'),
+  'team.manage_players': AccessInfo(access: 'up_enabled'),
 };
 
 Team _team({
@@ -49,6 +50,7 @@ Team _team({
   bool ranking = true,
   bool archived = false,
   List<String>? chatRoomTypes,
+  List<TeamPlayer>? currentUserTeamPlayers,
 }) => Team(
   id: 31,
   name: 'Sunday Smashers',
@@ -61,6 +63,7 @@ Team _team({
   ],
   userPermissions: permissions,
   chatRoomTypesForFiltering: chatRoomTypes,
+  currentUserTeamPlayers: currentUserTeamPlayers,
 );
 
 const _captain = TeamPlayer(
@@ -213,6 +216,31 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets(
+      'the family row uses current_user_team_players directly when present',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        useTallScreen(tester);
+        // The server's own `current_user_team_players` already lists Sam
+        // (captain) and Pat (coach) as the signed-in user's family on this
+        // team; the row should use it directly rather than recomputing the
+        // intersection client-side (no `children` set on the fetched
+        // profile here, so the fallback path would find nothing).
+        await _openTeam(
+          tester,
+          teams: _repo(
+            team: _team(
+              currentUserTeamPlayers: const [_captain, _patCoach],
+            ),
+          ),
+          schedule: FakeScheduleRepository(),
+        );
+        await _tap(tester, TeamShellTestIds.navChat);
+        expect(_id(FamilyPickerTestIds.row), findsOneWidget);
+        handle.dispose();
+      },
+    );
+
     testWidgets("the team chat tab is scoped to the team's own channels", (
       tester,
     ) async {
@@ -266,6 +294,41 @@ void main() {
       expect(schedule.activityTeamId, 31);
       handle.dispose();
     });
+
+    testWidgets(
+      '"Manage members" is hidden without the team.manage_players '
+      'permission (native layoutManageMembers)',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        useTallScreen(tester);
+        await _openTeam(
+          tester,
+          teams: _repo(team: _team(permissions: const {})),
+        );
+        expect(_id(TeamHomeActionIds.manageMembers), findsNothing);
+        handle.dispose();
+      },
+    );
+
+    testWidgets(
+      '"Manage members" shows when team.manage_players is enabled',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        useTallScreen(tester);
+        await _openTeam(
+          tester,
+          teams: _repo(
+            team: _team(
+              permissions: const {
+                'team.manage_players': AccessInfo(access: 'up_enabled'),
+              },
+            ),
+          ),
+        );
+        expect(_id(TeamHomeActionIds.manageMembers), findsOneWidget);
+        handle.dispose();
+      },
+    );
   });
 
   group('full schedule screen', () {
@@ -556,7 +619,13 @@ void main() {
       useTallScreen(tester);
       await _openTeam(
         tester,
-        teams: _repo(team: _team(permissions: const {})),
+        teams: _repo(
+          team: _team(
+            permissions: const {
+              'team.manage_players': AccessInfo(access: 'up_enabled'),
+            },
+          ),
+        ),
       );
       await _tap(tester, TeamHomeActionIds.manageMembers);
       expect(_inMembers(find.text('Alex Kim')), findsOneWidget);
@@ -595,6 +664,7 @@ void main() {
       final teams = _repo(
         team: _team(
           permissions: const {
+            'team.manage_players': AccessInfo(access: 'up_enabled'),
             'team.team_players.destroy': AccessInfo(
               access: 'up_disabled',
               message: 'Members cannot be removed during a season.',
@@ -621,6 +691,7 @@ void main() {
       final teams = _repo(
         team: _team(
           permissions: const {
+            'team.manage_players': AccessInfo(access: 'up_enabled'),
             'team.team_players.destroy': AccessInfo(
               access: 'up_requires_subscription',
             ),

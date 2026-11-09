@@ -4,12 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
-import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/session/access.dart';
 import 'package:racketmates/common/teams/member_rules.dart';
 import 'package:racketmates/common/teams/team_edit.dart';
-import 'package:racketmates/common/teams/team_labels.dart';
 import 'package:racketmates/common/teams/team_models.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/teams/teams_repository.dart';
@@ -93,22 +91,6 @@ class TeamDetailsScreen extends ConsumerWidget {
                     onChanged: () =>
                         ref.invalidate(teamDetailsProvider(teamId)),
                   ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      [
-                        ref.refLabel(
-                          t.teamType,
-                          teamTypeLabel(l10n, t.teamType),
-                        ),
-                        if (t.sportKeys.isNotEmpty) teamSportsText(l10n, t),
-                      ].join(' · '),
-                      style: TextStyle(color: n.textSecondary, fontSize: 12),
-                    ),
-                  ),
-                ),
                 UpcomingEventsSection(
                   l10n: l10n,
                   value: state.upcoming,
@@ -135,7 +117,7 @@ class TeamDetailsScreen extends ConsumerWidget {
                   actionIdFor: TeamHomeActionIds.pendingAction,
                 ),
                 SizedBox(height: context.sdp(32)),
-                TeamMembersPreview(teamId: teamId, rankingEnabled: ranking),
+                TeamMembersPreview(team: t, rankingEnabled: ranking),
                 SizedBox(height: context.sdp(32)),
                 HomeActivitySection(
                   l10n: l10n,
