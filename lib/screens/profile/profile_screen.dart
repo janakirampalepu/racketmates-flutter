@@ -17,8 +17,10 @@ import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/profile/profile_test_ids.dart';
 
 /// The user's profile (native `ProfilePicUpdateFragment`): photo, first and
-/// last name and email. Changing roles, sports or the mobile number goes
-/// through the sign-up screens and is later work.
+/// last name and email, plus a "Change number" row when the profile has a
+/// mobile number (opens `ChangePhoneScreen`). Roles and sports are edited
+/// from the Settings header card instead (`RoleSportsScreen`, pushed via
+/// `AppRoutes.roleSportsFor`), not from this screen.
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 

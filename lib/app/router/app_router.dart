@@ -294,7 +294,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.locations,
-        builder: (context, state) => const LocationsScreen(),
+        builder: (context, state) => LocationsScreen(
+          initialTabIndex:
+              state.uri.queryParameters['tab'] == 'favourites' ? 1 : 0,
+        ),
         routes: [
           GoRoute(
             path: ':id',

@@ -92,8 +92,11 @@ void main() {
         signedInApp(users: _users(_parent(kids: [_kai], coach: true))),
       );
       await _openRoles(tester);
-      expect(find.text('Padel, Tennis'), findsOneWidget); // player
-      expect(find.text('Tennis'), findsOneWidget); // coach
+      // Native always renders a sport count, never the sport names
+      // (`playerSubTitle`/`coachSubTitle`), so a role with two sports and
+      // one with a single sport read "2 sports"/"1 sport".
+      expect(find.text('2 sports'), findsOneWidget); // player
+      expect(find.text('1 sport'), findsOneWidget); // coach
       expect(find.text('1 kid'), findsOneWidget);
       handle.dispose();
     });

@@ -362,8 +362,13 @@ void main() {
         ),
       );
       await _openSettings(tester);
-      expect(_id(SettingsTestIds.support), findsOneWidget);
-      expect(_id(SettingsTestIds.contact), findsNothing);
+      // Native has exactly one "Contact us" row either way (same icon,
+      // same native id) — only its destination changes, so this is
+      // checked by behavior (tapping it never opens the contact form)
+      // rather than by two distinct ids.
+      expect(_id(SettingsTestIds.contact), findsOneWidget);
+      await _tap(tester, SettingsTestIds.contact);
+      expect(_id(ContactTestIds.root), findsNothing);
       handle.dispose();
     });
   });

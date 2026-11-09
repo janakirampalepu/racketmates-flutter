@@ -12,6 +12,11 @@ abstract final class AppRoutes {
   static const chatChannel = '/chat/channel';
   static const chatChannelDetails = '/chat/channel/details';
   static const locations = '/locations';
+
+  /// Opens Locations straight on the Favourites tab (native's dedicated
+  /// favourites-only push, e.g. Settings' "My favorite venues" row). The
+  /// normal entry point (`locations`) keeps defaulting to Nearby.
+  static const locationsFavourites = '/locations?tab=favourites';
   static const chatNew = '/chat/new';
   static const subscription = '/subscription';
   static const subscriptionSuccess = '/subscription/success';

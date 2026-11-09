@@ -55,10 +55,22 @@ abstract final class DeleteAccountTestIds {
 }
 
 abstract final class RolesTestIds {
-  /// Settings screen's own inline role rows (native `roleRowView`).
-  static const player = 'roles_player_tile';
-  static const coach = 'roles_coach_tile';
-  static const parent = 'roles_parent_tile';
+  /// Settings screen's own inline role rows (native `roleRowView`). The
+  /// whole row is wrapped under the icon's own native id
+  /// (`profile_settings_role_<iconName>`), same convention used for every
+  /// other row on this screen (see `SettingsTestIds`).
+  static const player = 'profile_settings_role_player_icon';
+  static const coach = 'profile_settings_role_coach_icon';
+  static const parent = 'profile_settings_role_parent_icon';
+
+  /// Subtitle text ids (native `accessibilityIdentifierForRoleSubText`).
+  /// Native itself reuses `..._role_player_coachSubText`/
+  /// `..._parentSubText` under the `player` prefix for coach/parent too —
+  /// kept exactly as-is per CLAUDE.md §9.1 rather than "fixed", since this
+  /// typo-looking string is the live Appium-visible value.
+  static const playerSubtitle = 'profile_settings_role_player_playerSubText';
+  static const coachSubtitle = 'profile_settings_role_player_coachSubText';
+  static const parentSubtitle = 'profile_settings_role_player_parentSubText';
 
   static const sportsRoot = 'role_sports_screen';
   static const sportsTitle = 'role_sports_title';

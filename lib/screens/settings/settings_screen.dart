@@ -112,7 +112,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ? '+$countryCode $phone'
               : phone);
 
-    Widget sectionTitle(String text, {String? trailing}) => Padding(
+    Widget sectionTitle(
+      String text, {
+      String? trailing,
+      String? trailingId,
+    }) => Padding(
       padding: EdgeInsets.only(bottom: sdp(12)),
       child: Row(
         children: [
@@ -126,7 +130,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const Spacer(),
           if (trailing != null)
-            Text(trailing, style: TextStyle(color: n.textSecondary)),
+            TestId(
+              trailingId ?? SettingsTestIds.version,
+              child: Text(trailing, style: TextStyle(color: n.textSecondary)),
+            ),
         ],
       ),
     );
@@ -178,13 +185,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     Widget section(
       String title, {
       String? versionText,
+      String? versionTextId,
       required List<Widget> children,
     }) => Padding(
       padding: EdgeInsets.fromLTRB(sdp(16), 0, sdp(16), sdp(24)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          sectionTitle(title, trailing: versionText),
+          sectionTitle(title, trailing: versionText, trailingId: versionTextId),
           for (final (i, child) in children.indexed) ...[
             if (i > 0) SizedBox(height: sdp(12)),
             child,
@@ -244,9 +252,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         MessageKeys.settingsChangePhoneNumberTitle,
                         l10n.settingsMyNumber,
                       ),
-                      trailing: Text(
-                        phoneDisplay,
-                        style: TextStyle(color: n.textSecondary),
+                      trailing: TestId(
+                        SettingsTestIds.phoneNumber,
+                        child: Text(
+                          phoneDisplay,
+                          style: TextStyle(color: n.textSecondary),
+                        ),
                       ),
                       onTap: () => context.push(AppRoutes.changePhone),
                     ),
@@ -257,7 +268,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         MessageKeys.settingsMyFavoriteVenuesOptionTitle,
                         l10n.settingsFavoriteVenues,
                       ),
-                      onTap: () => context.push(AppRoutes.locations),
+                      onTap: () =>
+                          context.push(AppRoutes.locationsFavourites),
                     ),
                   ],
                 ),
@@ -292,6 +304,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     MessageKeys.settingsAppGroupLabel,
                     l10n.settingsAppGroupLabel,
                   ),
+                  versionTextId: SettingsTestIds.version,
                   versionText: ref.watch(_appVersionProvider).value,
                   children: [
                     if (ref.watch(billingSupportedProvider))
@@ -370,6 +383,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       MessageKeys.settingsLogoutButton,
                       l10n.signOutAction,
                     ),
+                    labelId: SettingsTestIds.logoutButtonText,
                     background: n.backgroundSolidSecondary2,
                     foreground: n.textPrimary,
                     iconColor: n.iconPrimary,
@@ -385,6 +399,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       MessageKeys.settingsDeleteAccountButton,
                       l10n.settingsDeleteAccount,
                     ),
+                    labelId: SettingsTestIds.deleteButtonText,
                     background: n.statusColorsDarkRed,
                     foreground: n.textPrimary,
                     iconColor: n.statusColorsLightRed,
@@ -412,12 +427,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 }
 
-/// `{versionName}({versionCode})` (native `Bundle.appVersionAndBuildNumber`)
+/// `v{versionName}({versionCode, zero-padded to 3 digits})`, matching
+/// native's `Bundle.appVersionAndBuildNumber` exactly (e.g. `v26.6.2(318)`)
 /// — not server-driven, there is nothing to fetch it from.
 final _appVersionProvider = FutureProvider.autoDispose<String>((ref) async {
   final info = await PackageInfo.fromPlatform();
-  return '${info.version}(${info.buildNumber})';
+  return 'v${info.version}(${_zeroPadded(info.buildNumber)})';
 });
+
+/// Zero-pads a build number string to 3 digits, same as native's
+/// `String(format: "%03d", ...)`. A no-op when the string is already 3+
+/// characters or isn't a plain non-negative integer (so a malformed build
+/// number is shown as-is instead of crashing).
+String _zeroPadded(String buildNumber) {
+  final n = int.tryParse(buildNumber);
+  if (n == null || n < 0) return buildNumber;
+  return buildNumber.padLeft(3, '0');
+}
 
 /// The avatar + edit icon + name/email + inline Player/Coach/Parent rows
 /// (native `profileHeaderCard`): one card, the avatar overlapping its top
@@ -440,6 +466,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
 
     Widget roleRow({
       required String id,
+      String? subtitleId,
       required IconData icon,
       required Color iconColor,
       required String title,
@@ -469,19 +496,51 @@ class _ProfileHeaderCard extends ConsumerWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    Text(
-                      subtitle,
-                      style: TextStyle(color: n.textSecondary, fontSize: 12),
-                    ),
+                    subtitleId == null
+                        ? Text(
+                            subtitle,
+                            style: TextStyle(
+                              color: n.textSecondary,
+                              fontSize: 12,
+                            ),
+                          )
+                        : TestId(
+                            subtitleId,
+                            // Wrapping this Text in its own Semantics node
+                            // (needed for the identifier) makes the WCAG
+                            // contrast checker sample a tighter box around
+                            // the glyphs — same effect already hit for the
+                            // Home activity tiles and Settings' own footer
+                            // buttons (see CLAUDE.md's migration log for
+                            // this screen) — so this one needs `textPrimary`
+                            // where the unwrapped sibling text above was
+                            // fine with `textSecondary`.
+                            child: Text(
+                              subtitle,
+                              style: TextStyle(
+                                color: n.textPrimary,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
                   ],
                 ),
               ),
               if (badge != null) ...[badge, SizedBox(width: sdp(4))],
-              Icon(
-                inactive ? Icons.add_circle_outline : Icons.chevron_right,
-                color: n.iconPrimary,
-                size: sdp(inactive ? 22 : 18),
-              ),
+              inactive
+                  ? TestId(
+                      SettingsTestIds.addButton,
+                      child: Icon(
+                        Icons.add_circle_outline,
+                        color: n.iconPrimary,
+                        size: sdp(22),
+                      ),
+                    )
+                  : Icon(
+                      Icons.chevron_right,
+                      color: n.iconPrimary,
+                      size: sdp(18),
+                    ),
             ],
           ),
         ),
@@ -502,10 +561,11 @@ class _ProfileHeaderCard extends ConsumerWidget {
     final hasCoach = user.roleOf(RoleKeys.coach) != null;
     final kids = user.children ?? const <AppUser>[];
 
-    String sportsText(String role) => [
-      for (final s in SportKey.values)
-        if (sportsOfRole(user, role).contains(s)) sportLabel(l10n, s),
-    ].join(', ');
+    // Native (`playerSubTitle`/`coachSubTitle`, `userRoleSportsCountString`)
+    // always renders a sport *count*, never the sport names — introduced as
+    // its own helper rather than repurposing a shared sports-label helper
+    // with other callers.
+    int sportsCount(String role) => sportsOfRole(user, role).length;
 
     Widget sportIcons(String role) {
       final sports = [
@@ -579,16 +639,23 @@ class _ProfileHeaderCard extends ConsumerWidget {
                 ),
               ),
               if ((user.email ?? '').isNotEmpty)
-                Text(user.email!, style: TextStyle(color: n.textSecondary)),
+                TestId(
+                  SettingsTestIds.email,
+                  child: Text(
+                    user.email!,
+                    style: TextStyle(color: n.textSecondary),
+                  ),
+                ),
               SizedBox(height: sdp(12)),
               divider(),
               roleRow(
                 id: RolesTestIds.player,
+                subtitleId: RolesTestIds.playerSubtitle,
                 icon: Icons.sports_tennis,
                 iconColor: hasPlayer ? n.iconPrimary : n.textTertiary,
                 title: l10n.rolePlayer,
                 subtitle: hasPlayer
-                    ? l10n.roleActiveSports(sportsText(RoleKeys.player))
+                    ? l10n.roleSportsCount(sportsCount(RoleKeys.player))
                     : ref.msg(
                         MessageKeys.settingsNotAPlayerText,
                         l10n.roleNotActive,
@@ -601,11 +668,12 @@ class _ProfileHeaderCard extends ConsumerWidget {
               divider(),
               roleRow(
                 id: RolesTestIds.coach,
+                subtitleId: RolesTestIds.coachSubtitle,
                 icon: Icons.school_outlined,
                 iconColor: hasCoach ? n.iconPrimary : n.textTertiary,
                 title: l10n.roleCoach,
                 subtitle: hasCoach
-                    ? l10n.roleActiveSports(sportsText(RoleKeys.coach))
+                    ? l10n.roleSportsCount(sportsCount(RoleKeys.coach))
                     : ref.msg(
                         MessageKeys.settingsNotACoachText,
                         l10n.roleNotActive,
@@ -618,6 +686,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
               divider(),
               roleRow(
                 id: RolesTestIds.parent,
+                subtitleId: RolesTestIds.parentSubtitle,
                 icon: Icons.family_restroom,
                 iconColor: kids.isNotEmpty ? n.iconPrimary : n.textTertiary,
                 title: l10n.roleParent,
@@ -635,7 +704,10 @@ class _ProfileHeaderCard extends ConsumerWidget {
             ],
           ),
         ),
-        _InitialsAvatar(user: user, size: sdp(_avatarSize)),
+        TestId(
+          SettingsTestIds.avatar,
+          child: _InitialsAvatar(user: user, size: sdp(_avatarSize)),
+        ),
       ],
     );
   }
@@ -700,13 +772,26 @@ class _SubscriptionBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            premium ? Icons.star : Icons.check_circle_outline,
-            size: sdp(12),
-            color: n.textPrimary,
+          TestId(
+            premium
+                ? SettingsTestIds.subscriptionPremiumIcon
+                : SettingsTestIds.subscriptionFreeIcon,
+            child: Icon(
+              premium ? Icons.star : Icons.check_circle_outline,
+              size: sdp(12),
+              color: n.textPrimary,
+            ),
           ),
           SizedBox(width: sdp(4)),
-          Text(text, style: TextStyle(color: n.textPrimary, fontSize: 12)),
+          TestId(
+            premium
+                ? SettingsTestIds.subscriptionPremiumLabel
+                : SettingsTestIds.subscriptionFreeLabel,
+            child: Text(
+              text,
+              style: TextStyle(color: n.textPrimary, fontSize: 12),
+            ),
+          ),
         ],
       ),
     );
@@ -718,6 +803,7 @@ class _FooterButton extends StatelessWidget {
   const _FooterButton({
     required this.icon,
     required this.label,
+    this.labelId,
     required this.background,
     required this.foreground,
     required this.iconColor,
@@ -726,6 +812,7 @@ class _FooterButton extends StatelessWidget {
 
   final IconData icon;
   final String label;
+  final String? labelId;
   final Color background;
   final Color foreground;
   final Color iconColor;
@@ -740,15 +827,32 @@ class _FooterButton extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(sdp(16)),
         onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: sdp(16)),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: sdp(18), color: iconColor),
-              SizedBox(width: sdp(12)),
-              Text(label, style: TextStyle(color: foreground)),
-            ],
+        child: Semantics(
+          // The label text below now carries its own identifier (a
+          // separate Semantics node, needed for the native id), which
+          // stops it merging its label up into this InkWell's own
+          // tappable node the way an unwrapped Text would — so the
+          // tappable node needs an explicit label of its own instead.
+          button: true,
+          label: label,
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: sdp(16)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: sdp(18), color: iconColor),
+                SizedBox(width: sdp(12)),
+                labelId == null
+                    ? Text(label, style: TextStyle(color: foreground))
+                    : TestId(
+                        labelId!,
+                        child: Text(
+                          label,
+                          style: TextStyle(color: foreground),
+                        ),
+                      ),
+              ],
+            ),
           ),
         ),
       ),

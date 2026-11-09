@@ -790,6 +790,54 @@ abstract class AppLocalizations {
   /// **'Unarchive chat'**
   String get chatChannelDetailsUnarchive;
 
+  /// No description provided for @archiveChatConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive this chat?'**
+  String get archiveChatConfirmTitle;
+
+  /// No description provided for @archiveChatConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You can unarchive it later from the Archived tab.'**
+  String get archiveChatConfirmMessage;
+
+  /// No description provided for @archiveChatConfirmYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get archiveChatConfirmYes;
+
+  /// No description provided for @archiveChatConfirmNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get archiveChatConfirmNo;
+
+  /// No description provided for @unarchiveChatConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unarchive this chat?'**
+  String get unarchiveChatConfirmTitle;
+
+  /// No description provided for @unarchiveChatConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'It will move back to your active chats.'**
+  String get unarchiveChatConfirmMessage;
+
+  /// No description provided for @unarchiveChatConfirmYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get unarchiveChatConfirmYes;
+
+  /// No description provided for @unarchiveChatConfirmNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get unarchiveChatConfirmNo;
+
   /// No description provided for @seeLessAction.
   ///
   /// In en, this message translates to:
@@ -4353,6 +4401,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{sports}'**
   String roleActiveSports(String sports);
+
+  /// No description provided for @roleSportsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 sport} other{{count} sports}}'**
+  String roleSportsCount(int count);
 
   /// No description provided for @roleNotActive.
   ///

@@ -21,7 +21,12 @@ import 'package:racketmates/screens/place_picker/place_picker_view_model.dart';
 /// opens its page. Creating a venue (address search, courts) is not part of
 /// this build.
 class LocationsScreen extends ConsumerStatefulWidget {
-  const LocationsScreen({super.key});
+  const LocationsScreen({super.key, this.initialTabIndex = 0});
+
+  /// Which tab opens first: 0 = Nearby (the default, same as every other
+  /// entry point), 1 = Favourites (native's dedicated favourites-only push,
+  /// e.g. Settings' "My favorite venues" row).
+  final int initialTabIndex;
 
   @override
   ConsumerState<LocationsScreen> createState() => _LocationsScreenState();
@@ -36,7 +41,11 @@ class _LocationsScreenState extends ConsumerState<LocationsScreen>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 2, vsync: this);
+    _tabs = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialTabIndex == 1 ? 1 : 0,
+    );
     // Back from the system settings after allowing location.
     _lifecycle = AppLifecycleListener(
       onResume: () {

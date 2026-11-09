@@ -42,7 +42,13 @@ Future<void> _openLocations(WidgetTester tester) async {
   await tester.pumpAndSettle();
   await tester.tap(_id(HomeTestIds.settingsButton));
   await tester.pumpAndSettle();
+  // Settings' own "My favorite venues" row now opens straight on the
+  // Favourites tab (native's dedicated favourites-only push); switch back
+  // to Nearby here so this generic locations-list suite keeps exercising
+  // the same default behavior as before.
   await tester.tap(_id(SettingsTestIds.locations));
+  await tester.pumpAndSettle();
+  await tester.tap(_id(LocationsTestIds.tabNearby));
   await tester.pumpAndSettle();
 }
 

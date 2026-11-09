@@ -375,6 +375,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatChannelDetailsUnarchive => 'Unarchive chat';
 
   @override
+  String get archiveChatConfirmTitle => 'Archive this chat?';
+
+  @override
+  String get archiveChatConfirmMessage =>
+      'You can unarchive it later from the Archived tab.';
+
+  @override
+  String get archiveChatConfirmYes => 'Yes';
+
+  @override
+  String get archiveChatConfirmNo => 'No';
+
+  @override
+  String get unarchiveChatConfirmTitle => 'Unarchive this chat?';
+
+  @override
+  String get unarchiveChatConfirmMessage =>
+      'It will move back to your active chats.';
+
+  @override
+  String get unarchiveChatConfirmYes => 'Yes';
+
+  @override
+  String get unarchiveChatConfirmNo => 'No';
+
+  @override
   String get seeLessAction => 'See less';
 
   @override
@@ -2307,6 +2333,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String roleActiveSports(String sports) {
     return '$sports';
+  }
+
+  @override
+  String roleSportsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sports',
+      one: '1 sport',
+    );
+    return '$_temp0';
   }
 
   @override
