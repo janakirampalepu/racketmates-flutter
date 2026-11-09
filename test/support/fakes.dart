@@ -1175,6 +1175,11 @@ class FakePlacesRepository implements PlacesRepository {
   List<PlaceItem> favouritePlaces;
   Map<int, PlaceItem> detailsById;
   bool failing = false;
+
+  /// Overrides the failure thrown by [search] when [failing] is set,
+  /// instead of the default `OfflineFailure` — for asserting the screen
+  /// surfaces a specific failure's message/debug detail.
+  AppFailure? searchFailure;
   final List<({String query, String? sport})> searches = [];
   final List<({double? latitude, double? longitude, int? distance})> locations =
       [];
@@ -1196,7 +1201,7 @@ class FakePlacesRepository implements PlacesRepository {
       distance: distance,
     ));
     await Future<void>.delayed(Duration.zero);
-    if (failing) throw const OfflineFailure();
+    if (failing) throw searchFailure ?? const OfflineFailure();
     return [
       for (final p in places)
         if (query.isEmpty ||

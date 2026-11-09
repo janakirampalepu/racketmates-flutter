@@ -47,8 +47,14 @@ class PlacesRepositoryImpl implements PlacesRepository {
       return await call();
     } on DioException catch (e) {
       throw mapDioException(e);
-    } on TypeError {
-      throw const ParseFailure();
+    } on Object catch (e) {
+      // A response-shape mismatch doesn't always throw `TypeError` (e.g. a
+      // method call on an unexpectedly-null value throws `NoSuchMethodError`
+      // instead) — catch any non-Dio failure and keep its real message
+      // rather than losing it behind a blank `ParseFailure` (see
+      // `ScheduleRepositoryImpl._guard` for the same fix and the original
+      // "Upcoming events" investigation this pattern comes from).
+      throw ParseFailure(e.toString());
     }
   }
 

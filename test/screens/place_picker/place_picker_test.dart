@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
+import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/location/location_platform.dart';
 import 'package:racketmates/common/location/user_location.dart';
@@ -246,6 +247,47 @@ void main() {
       expect(find.text('Could not load venues.'), findsNothing);
       handle.dispose();
     });
+
+    testWidgets('a server failure message replaces the generic text', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final repo = FakePlacesRepository(places: [_central])
+        ..failing = true
+        ..searchFailure = const ServerFailure(
+          500,
+          'Could not search this area.',
+        );
+      await tester.pumpWidget(_host(repo));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      expect(find.text('Could not search this area.'), findsOneWidget);
+      expect(find.text('Could not load venues.'), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets(
+      'a technical (parse) failure keeps the generic text, with a debug detail',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        final repo = FakePlacesRepository(places: [_central])
+          ..failing = true
+          ..searchFailure = const ParseFailure(
+            "type 'String' is not a subtype of type 'num?' in type cast",
+          );
+        await tester.pumpWidget(_host(repo));
+        await tester.tap(find.text('open'));
+        await tester.pumpAndSettle();
+        expect(find.text('Could not load venues.'), findsOneWidget);
+        expect(
+          find.textContaining(
+            "ParseFailure: type 'String' is not a subtype",
+          ),
+          findsOneWidget,
+        );
+        handle.dispose();
+      },
+    );
 
     testWidgets('star button toggles a favourite', (tester) async {
       final handle = tester.ensureSemantics();
