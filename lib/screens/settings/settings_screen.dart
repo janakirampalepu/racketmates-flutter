@@ -124,7 +124,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             text,
             style: TextStyle(
               color: n.textPrimary,
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -132,7 +132,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           if (trailing != null)
             TestId(
               trailingId ?? SettingsTestIds.version,
-              child: Text(trailing, style: TextStyle(color: n.textSecondary)),
+              child: Text(
+                trailing,
+                style: TextStyle(color: n.textSecondary, fontSize: 12),
+              ),
             ),
         ],
       ),
@@ -148,21 +151,29 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }) => TestId(
       id,
       child: InkWell(
-        borderRadius: BorderRadius.circular(sdp(12)),
+        borderRadius: BorderRadius.circular(sdp(8)),
         onTap: _loggingOut ? null : onTap,
         child: Container(
           padding: EdgeInsets.all(sdp(16)),
+          // Native tints each row with a faint gradient fill
+          // (gradientBackground, alpha 0.1); left this row transparent —
+          // a tint light enough to read on top of still dropped the
+          // trailing text's contrast below this project's own enforced
+          // WCAG AA minimum (caught by the golden test), and no single
+          // color worked for every trailing-text color used across rows.
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(sdp(12)),
-            border: Border.all(color: n.borderSolidPrimary),
+            borderRadius: BorderRadius.circular(sdp(8)),
+            border: Border.all(color: n.borderSolidSecondary),
           ),
           child: Row(
             children: [
               Icon(icon, color: n.iconPrimary, size: sdp(24)),
-              SizedBox(width: sdp(12)),
+              SizedBox(width: sdp(8)),
               Expanded(
                 child: Text(
                   title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: n.textPrimary,
                     fontWeight: FontWeight.w500,
@@ -174,7 +185,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               Icon(
                 externalLink ? Icons.open_in_new : Icons.chevron_right,
                 color: n.iconPrimary,
-                size: sdp(externalLink ? 20 : 18),
+                size: sdp(externalLink ? 24 : 14),
               ),
             ],
           ),
@@ -188,7 +199,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       String? versionTextId,
       required List<Widget> children,
     }) => Padding(
-      padding: EdgeInsets.fromLTRB(sdp(16), 0, sdp(16), sdp(24)),
+      // Horizontal inset already comes from the ListView's own padding
+      // below — adding it here too doubled the left/right margin on every
+      // section row compared to the profile header card above them.
+      padding: EdgeInsets.only(bottom: sdp(24)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -235,7 +249,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Stack(
           children: [
             ListView(
-              padding: EdgeInsets.fromLTRB(sdp(16), sdp(16), sdp(16), sdp(24)),
+              padding: EdgeInsets.fromLTRB(
+                sdp(16),
+                sdp(16),
+                sdp(16),
+                sdp(24) + MediaQuery.of(context).padding.bottom,
+              ),
               children: [
                 _ProfileHeaderCard(profile: profile),
                 SizedBox(height: sdp(24)),
@@ -462,7 +481,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
     final sdp = context.sdp;
     final avatarRadius = sdp(_avatarSize) / 2;
 
-    Widget divider() => Container(height: 1, color: n.borderSolidPrimary);
+    Widget divider() => Container(height: 1, color: n.borderSolidSecondary);
 
     Widget roleRow({
       required String id,
@@ -483,7 +502,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
           padding: EdgeInsets.symmetric(horizontal: sdp(12), vertical: sdp(10)),
           child: Row(
             children: [
-              Icon(icon, color: iconColor, size: sdp(32)),
+              Icon(icon, color: iconColor, size: sdp(40)),
               SizedBox(width: sdp(12)),
               Expanded(
                 child: Column(
@@ -491,6 +510,8 @@ class _ProfileHeaderCard extends ConsumerWidget {
                   children: [
                     Text(
                       title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: n.textPrimary,
                         fontWeight: FontWeight.w600,
@@ -615,6 +636,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
           ),
           child: Column(
             children: [
+              SizedBox(height: sdp(8)),
               Align(
                 alignment: Alignment.topRight,
                 child: TestId(
@@ -633,8 +655,8 @@ class _ProfileHeaderCard extends ConsumerWidget {
                   name,
                   style: TextStyle(
                     color: n.textPrimary,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -778,8 +800,8 @@ class _SubscriptionBadge extends StatelessWidget {
                 : SettingsTestIds.subscriptionFreeIcon,
             child: Icon(
               premium ? Icons.star : Icons.check_circle_outline,
-              size: sdp(12),
-              color: n.textPrimary,
+              size: sdp(premium ? 8 : 12),
+              color: premium ? n.iconPrimary : n.textPrimary,
             ),
           ),
           SizedBox(width: sdp(4)),
