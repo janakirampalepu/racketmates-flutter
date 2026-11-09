@@ -11,6 +11,7 @@ import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/content/content_text.dart';
 import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
+import 'package:racketmates/common/errors/failure_message.dart';
 import 'package:racketmates/common/events/event_labels.dart';
 import 'package:racketmates/common/events/models/home_models.dart';
 import 'package:racketmates/common/events/models/schedule_models.dart';
@@ -94,23 +95,6 @@ class HomeSectionHeader extends StatelessWidget {
   }
 }
 
-/// Debug-only detail for a section's error state: always something, even
-/// for failure types whose `message` is null by design (`OfflineFailure`/
-/// `TimeoutFailure`) or whose body didn't match `extractServerMessage`'s
-/// expected keys — a failure with no message would otherwise look
-/// identical to one that was never caught at all.
-String? _debugDetail(Object? error) {
-  if (error is ServerFailure) {
-    final message = error.message;
-    return 'HTTP ${error.statusCode}${message != null && message.isNotEmpty ? ': $message' : ''}';
-  }
-  if (error is AppFailure) {
-    final message = error.message;
-    return '${error.runtimeType}${message != null && message.isNotEmpty ? ': $message' : ''}';
-  }
-  return error?.toString();
-}
-
 /// Section loading/error chrome shared by the three sections (native
 /// `carosel_shimmer`: one small and one large placeholder card).
 Widget _sectionBody<T>({
@@ -125,24 +109,10 @@ Widget _sectionBody<T>({
   error: (error, _) {
     final n = context.native;
     final sdp = context.sdp;
-    // A `ParseFailure`/`UnknownFailure`'s message is a raw Dart exception —
-    // useful for diagnosing a response-shape mismatch, too technical to
-    // show a user in production. Server-provided messages (`ServerFailure`
-    // etc.) are already meant to be user-facing.
-    final isTechnical = error is ParseFailure || error is UnknownFailure;
-    final serverMessage = (error is AppFailure && !isTechnical)
-        ? error.message
-        : null;
-    final text = (serverMessage != null && serverMessage.isNotEmpty)
-        ? serverMessage
+    final text = error is AppFailure
+        ? failureMessage(l10n, error, fallback: l10n.sectionLoadError)
         : l10n.sectionLoadError;
-    // Every failure type gets a debug line, even ones whose `message` is
-    // always null by design (`OfflineFailure`/`TimeoutFailure`) or whose
-    // body didn't match `extractServerMessage`'s expected keys — otherwise
-    // a failure with no message looks identical to one that was never
-    // caught at all, which is indistinguishable from the screen's own
-    // "nothing extra showed up" report.
-    final debugDetail = kDebugMode ? _debugDetail(error) : null;
+    final debugDetail = kDebugMode ? debugFailureDetail(error) : null;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: sdp(16)),
       child: Column(

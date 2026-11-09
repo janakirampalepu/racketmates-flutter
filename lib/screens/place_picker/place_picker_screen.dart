@@ -1,10 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
-import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/places/place_models.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/place_picker/place_picker_state.dart';
 import 'package:racketmates/screens/place_picker/place_picker_test_ids.dart';
@@ -111,38 +110,12 @@ class _PlaceList extends StatelessWidget {
     }
     final failure = list.failure;
     if (failure != null) {
-      // `ParseFailure`/`UnknownFailure` carry a raw Dart exception — useful
-      // for diagnosing a response-shape mismatch, too technical for a user.
-      // A server-provided message (`ServerFailure`, ...) is already meant
-      // to be user-facing, so show it instead of the generic text.
-      final isTechnical = failure is ParseFailure || failure is UnknownFailure;
-      final serverMessage = isTechnical ? null : failure.message;
-      final text = (serverMessage != null && serverMessage.isNotEmpty)
-          ? serverMessage
-          : l10n.placesLoadError;
-      final debugDetail = kDebugMode ? _debugDetail(failure) : null;
       return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(text, textAlign: TextAlign.center),
-            if (debugDetail != null && debugDetail.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  debugDetail,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
-            TestId(
-              PlacePickerTestIds.retry,
-              child: TextButton(
-                onPressed: onRetry,
-                child: Text(l10n.retryAction),
-              ),
-            ),
-          ],
+        child: LoadErrorBody(
+          error: failure,
+          fallbackText: l10n.placesLoadError,
+          retryId: PlacePickerTestIds.retry,
+          onRetry: onRetry,
         ),
       );
     }
@@ -184,21 +157,4 @@ class _PlaceList extends StatelessWidget {
       },
     );
   }
-}
-
-/// Debug-only detail for a load failure, even for a failure type whose
-/// `message` is null by design (`OfflineFailure`/`TimeoutFailure`) or whose
-/// body didn't match `extractServerMessage`'s expected keys — otherwise a
-/// failure with no message looks identical to one that was never caught at
-/// all. Same pattern as `home_sections.dart`'s private `_debugDetail`.
-String? _debugDetail(Object? error) {
-  if (error is ServerFailure) {
-    final message = error.message;
-    return 'HTTP ${error.statusCode}${message != null && message.isNotEmpty ? ': $message' : ''}';
-  }
-  if (error is AppFailure) {
-    final message = error.message;
-    return '${error.runtimeType}${message != null && message.isNotEmpty ? ': $message' : ''}';
-  }
-  return error?.toString();
 }
