@@ -10,6 +10,7 @@ import 'package:racketmates/screens/chat/chat_test_ids.dart';
 import 'package:racketmates/screens/chat_channel_details/chat_channel_details_test_ids.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
 import 'package:racketmates/screens/main_shell/main_shell_test_ids.dart';
+import 'package:racketmates/screens/profile/profile_test_ids.dart';
 import 'package:racketmates/screens/settings/settings_test_ids.dart';
 import 'package:racketmates/screens/welcome/welcome_test_ids.dart';
 
@@ -159,6 +160,71 @@ void main() {
       );
       handle.dispose();
     });
+
+    testWidgets(
+      'archiving from the details screen asks for confirmation first',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        useTallScreen(tester);
+        final chatUi = FakeChatUi();
+        await tester.pumpWidget(signedInApp(chatUi: chatUi));
+        await _openChatTab(tester);
+        await tester.tap(find.text('open channel-1'));
+        await tester.pumpAndSettle();
+        await tester.tap(_id(ChatTestIds.channelHeader));
+        await tester.pumpAndSettle();
+
+        // Tapping "Archive chat" opens a confirmation dialog, not the call
+        // itself (native `ChatroomArchivePicker`).
+        await tester.tap(_id(ChatChannelDetailsTestIds.archiveButton));
+        await tester.pumpAndSettle();
+        expect(chatUi.archiveCalls, isEmpty);
+        expect(find.byType(AlertDialog), findsOneWidget);
+
+        // "No" dismisses without archiving.
+        await tester.tap(_id(ChatChannelDetailsTestIds.archiveConfirmNo));
+        await tester.pumpAndSettle();
+        expect(chatUi.archiveCalls, isEmpty);
+        expect(find.byType(AlertDialog), findsNothing);
+
+        // Archiving again and confirming with "Yes" does call it.
+        await tester.tap(_id(ChatChannelDetailsTestIds.archiveButton));
+        await tester.pumpAndSettle();
+        await tester.tap(_id(ChatChannelDetailsTestIds.archiveConfirmYes));
+        await tester.pumpAndSettle();
+        expect(chatUi.archiveCalls, [('channel-1', true)]);
+        handle.dispose();
+      },
+    );
+
+    testWidgets(
+      'a member with no photo shows initials, not a generic person icon',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        useTallScreen(tester);
+        final chatUi = FakeChatUi()
+          ..info = const ChatChannelInfo(
+            title: 'Team chat',
+            members: [
+              ChatChannelMember(
+                userId: 'u1',
+                nickname: 'Alex Morgan',
+                isMe: false,
+              ),
+            ],
+            isMuted: false,
+          );
+        await tester.pumpWidget(signedInApp(chatUi: chatUi));
+        await _openChatTab(tester);
+        await tester.tap(find.text('open channel-1'));
+        await tester.pumpAndSettle();
+        await tester.tap(_id(ChatTestIds.channelHeader));
+        await tester.pumpAndSettle();
+        expect(find.text('AM'), findsOneWidget);
+        expect(find.byIcon(Icons.person), findsNothing);
+        handle.dispose();
+      },
+    );
 
     testWidgets('a failed connection offers a retry', (tester) async {
       final handle = tester.ensureSemantics();
@@ -324,7 +390,12 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(_id(HomeTestIds.settingsButton));
       await tester.pumpAndSettle();
-      expect(_id(SettingsTestIds.support), findsNothing);
+      // Native has one "Contact us" row either way (same native id); without
+      // a support room it opens the contact form instead of a chat channel.
+      expect(_id(SettingsTestIds.contact), findsOneWidget);
+      await tester.tap(_id(SettingsTestIds.contact));
+      await tester.pumpAndSettle();
+      expect(_id(ContactTestIds.root), findsOneWidget);
       handle.dispose();
     });
 

@@ -9,4 +9,6 @@ abstract final class ChatChannelDetailsTestIds {
   static const retry = 'chat_channel_details_retry_button';
   static const loading = 'chat_channel_details_loading';
   static const archiveButton = 'chat_channel_details_archive_button';
+  static const archiveConfirmYes = 'chat_channel_details_archive_confirm_yes';
+  static const archiveConfirmNo = 'chat_channel_details_archive_confirm_no';
 }

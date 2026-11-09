@@ -5,6 +5,8 @@ import 'package:racketmates/app/theme/native_theme.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/chat/chat_avatar.dart';
 import 'package:racketmates/common/chat/chat_ui.dart';
+import 'package:racketmates/common/content/content_text.dart';
+import 'package:racketmates/common/content/messages.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/chat_channel_details/chat_channel_details_test_ids.dart';
 
@@ -174,12 +176,20 @@ class _DetailsBodyState extends ConsumerState<_DetailsBody> {
             ChatChannelDetailsTestIds.member(member.userId),
             child: ListTile(
               leading: CircleAvatar(
-                backgroundColor: n.background200,
+                backgroundColor: member.avatarUrl != null
+                    ? n.background200
+                    : n.avatarBgColor,
                 backgroundImage: member.avatarUrl != null
                     ? NetworkImage(member.avatarUrl!)
                     : null,
                 child: member.avatarUrl == null
-                    ? Icon(Icons.person, color: n.textSecondary)
+                    ? Text(
+                        _initialsFromName(member.nickname),
+                        style: TextStyle(
+                          color: n.imagePrimeryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
                     : null,
               ),
               title: Text(
@@ -235,9 +245,12 @@ class _DetailsBodyState extends ConsumerState<_DetailsBody> {
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
               onTap: () async {
+                final archiving = !info.isArchived;
+                final confirmed = await _confirmArchive(archiving: archiving);
+                if (!confirmed) return;
                 await ref
                     .read(chatUiProvider)
-                    .setArchived(widget.channelUrl, archived: !info.isArchived);
+                    .setArchived(widget.channelUrl, archived: archiving);
                 ref.invalidate(chatChannelInfoProvider(widget.channelUrl));
               },
             ),
@@ -246,4 +259,86 @@ class _DetailsBodyState extends ConsumerState<_DetailsBody> {
       ],
     );
   }
+
+  /// Native always confirms before archiving/unarchiving (Android
+  /// `ChatroomArchivePicker`, a dialog opened from `ChatroomDetailsPicker`
+  /// rather than toggling immediately); server-driven title/subtitle/
+  /// yes/no text with an ARB fallback, same pattern as
+  /// `TeamSettingsScreen._confirm`.
+  Future<bool> _confirmArchive({required bool archiving}) async {
+    final l10n = AppLocalizations.of(context);
+    final title = archiving
+        ? ref.msg(
+            MessageKeys.chatArchiveConfirmTitle,
+            l10n.archiveChatConfirmTitle,
+          )
+        : ref.msg(
+            MessageKeys.chatUnarchiveConfirmTitle,
+            l10n.unarchiveChatConfirmTitle,
+          );
+    final message = archiving
+        ? ref.msg(
+            MessageKeys.chatArchiveConfirmSubText,
+            l10n.archiveChatConfirmMessage,
+          )
+        : ref.msg(
+            MessageKeys.chatUnarchiveConfirmSubText,
+            l10n.unarchiveChatConfirmMessage,
+          );
+    final yesLabel = archiving
+        ? ref.msg(
+            MessageKeys.chatArchiveConfirmYesButton,
+            l10n.archiveChatConfirmYes,
+          )
+        : ref.msg(
+            MessageKeys.chatUnarchiveConfirmYesButton,
+            l10n.unarchiveChatConfirmYes,
+          );
+    final noLabel = archiving
+        ? ref.msg(
+            MessageKeys.chatArchiveConfirmNoButton,
+            l10n.archiveChatConfirmNo,
+          )
+        : ref.msg(
+            MessageKeys.chatUnarchiveConfirmNoButton,
+            l10n.unarchiveChatConfirmNo,
+          );
+    return await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: [
+              TestId(
+                ChatChannelDetailsTestIds.archiveConfirmNo,
+                child: TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                  child: Text(noLabel),
+                ),
+              ),
+              TestId(
+                ChatChannelDetailsTestIds.archiveConfirmYes,
+                child: FilledButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(true),
+                  child: Text(yesLabel),
+                ),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+}
+
+/// First letter of the first word plus the first letter of the last word
+/// of a display name (native `User.getInitials()`); `ChatChannelMember`
+/// only carries a combined `nickname`, not separate first/last fields, so
+/// this splits on whitespace instead of reading two fields like
+/// `_initials` in `new_chat_screen.dart`.
+String _initialsFromName(String name) {
+  final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty);
+  if (parts.isEmpty) return '';
+  final first = parts.first[0];
+  final last = parts.length > 1 ? parts.last[0] : '';
+  return ('$first$last').toUpperCase();
 }
