@@ -1,10 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:racketmates/common/events/models/schedule_models.dart';
-import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/session/session_info_models.dart';
 import 'package:racketmates/screens/event_details/event_details_test_ids.dart';
+import 'package:racketmates/screens/home/home_test_ids.dart';
+import 'package:racketmates/common/events/schedule_repository.dart'
+    show ScheduleTab;
 import 'package:racketmates/screens/main_shell/main_shell_test_ids.dart';
-import 'package:racketmates/screens/schedule/schedule_test_ids.dart';
 import 'package:racketmates/screens/subscription/subscription_test_ids.dart';
 
 import '../../support/app_harness.dart';
@@ -12,44 +13,41 @@ import '../../support/fakes.dart';
 
 Finder _id(String id) => find.bySemanticsIdentifier(id);
 
-Future<void> _openSchedule(WidgetTester tester) async {
-  await tester.pumpAndSettle();
-  await tester.tap(_id(MainShellTestIds.navSchedule));
-  await tester.pumpAndSettle();
-  expect(_id(ScheduleTestIds.root), findsOneWidget);
-}
-
 SessionInfoResponse _free() => const SessionInfoResponse(
   user: SessionInfoUser(id: 7, hasFullFeatureAccess: false),
 );
 
-/// An action button's visibility/tap behavior follows the event's own
-/// `access` state (native: Android only shows a swipe action when
-/// `access == UP_ENABLED`; iOS shows it for anything but `not_available`
-/// and branches what tapping does — this app follows iOS's richer model,
-/// see `handleEventActionTap`).
+/// `EventTile`'s action-button row only renders where native actually shows
+/// one — the Home-screen carousel (`showActionButtons: true`); the Schedule
+/// screen, Team Schedule, Past events and To-be-rescheduled all use
+/// swipe-to-reveal instead and never show a persistent row (confirmed
+/// against a real iOS Schedule-screen screenshot showing no buttons on any
+/// card), so these tests exercise the buttons through Home.
+///
+/// A button's own visibility/tap behavior follows the event's own `access`
+/// state (native: Android only shows a swipe action when `access ==
+/// UP_ENABLED`; iOS shows it for anything but `not_available` and branches
+/// what tapping does — this app follows iOS's richer model, see
+/// `handleEventActionTap`).
 void main() {
   testWidgets('an enabled action opens the event directly', (tester) async {
     final handle = tester.ensureSemantics();
     final repo = FakeScheduleRepository(
-      pages: {
-        ScheduleTab.upcoming: [
-          [
-            ScheduleItem(
-              eventId: 1,
-              eventDate: '2026-11-03',
-              eventType: 'et_game',
-              swipeRight: const EventSwipeAction(
-                action: 'user_action_manage_event',
-                access: 'up_enabled',
-              ),
-            ),
-          ],
-        ],
-      },
+      upcoming: [
+        ScheduleItem(
+          eventId: 1,
+          eventDate: '2026-11-03',
+          eventType: 'et_game',
+          swipeRight: const EventSwipeAction(
+            action: 'user_action_manage_event',
+            access: 'up_enabled',
+          ),
+        ),
+      ],
     );
     await tester.pumpWidget(signedInApp(schedule: repo));
-    await _openSchedule(tester);
+    await tester.pumpAndSettle();
+    expect(_id(HomeTestIds.event('upcoming', 1)), findsOneWidget);
     expect(find.text('Manage event'), findsOneWidget);
 
     await tester.tap(find.text('Manage event'));
@@ -63,25 +61,21 @@ void main() {
     (tester) async {
       final handle = tester.ensureSemantics();
       final repo = FakeScheduleRepository(
-        pages: {
-          ScheduleTab.upcoming: [
-            [
-              ScheduleItem(
-                eventId: 1,
-                eventDate: '2026-11-03',
-                eventType: 'et_game',
-                swipeRight: const EventSwipeAction(
-                  action: 'user_action_manage_event',
-                  access: 'up_disabled',
-                  message: 'Only the organizer can manage this event.',
-                ),
-              ),
-            ],
-          ],
-        },
+        upcoming: [
+          ScheduleItem(
+            eventId: 1,
+            eventDate: '2026-11-03',
+            eventType: 'et_game',
+            swipeRight: const EventSwipeAction(
+              action: 'user_action_manage_event',
+              access: 'up_disabled',
+              message: 'Only the organizer can manage this event.',
+            ),
+          ),
+        ],
       );
       await tester.pumpWidget(signedInApp(schedule: repo));
-      await _openSchedule(tester);
+      await tester.pumpAndSettle();
 
       await tester.tap(find.text('Manage event'));
       await tester.pumpAndSettle();
@@ -97,21 +91,17 @@ void main() {
   testWidgets('a subscription-gated action offers the plans', (tester) async {
     final handle = tester.ensureSemantics();
     final repo = FakeScheduleRepository(
-      pages: {
-        ScheduleTab.upcoming: [
-          [
-            ScheduleItem(
-              eventId: 1,
-              eventDate: '2026-11-03',
-              eventType: 'et_game',
-              swipeRight: const EventSwipeAction(
-                action: 'user_action_manage_event',
-                access: 'up_requires_subscription',
-              ),
-            ),
-          ],
-        ],
-      },
+      upcoming: [
+        ScheduleItem(
+          eventId: 1,
+          eventDate: '2026-11-03',
+          eventType: 'et_game',
+          swipeRight: const EventSwipeAction(
+            action: 'user_action_manage_event',
+            access: 'up_requires_subscription',
+          ),
+        ),
+      ],
     );
     await tester.pumpWidget(
       signedInApp(
@@ -119,7 +109,7 @@ void main() {
         sessionInfo: FakeSessionInfoRepository(response: _free()),
       ),
     );
-    await _openSchedule(tester);
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('Manage event'));
     await tester.pumpAndSettle();
@@ -132,24 +122,20 @@ void main() {
   ) async {
     final handle = tester.ensureSemantics();
     final repo = FakeScheduleRepository(
-      pages: {
-        ScheduleTab.upcoming: [
-          [
-            ScheduleItem(
-              eventId: 1,
-              eventDate: '2026-11-03',
-              eventType: 'et_game',
-              swipeRight: const EventSwipeAction(
-                action: 'user_action_manage_event',
-                access: 'up_not_available',
-              ),
-            ),
-          ],
-        ],
-      },
+      upcoming: [
+        ScheduleItem(
+          eventId: 1,
+          eventDate: '2026-11-03',
+          eventType: 'et_game',
+          swipeRight: const EventSwipeAction(
+            action: 'user_action_manage_event',
+            access: 'up_not_available',
+          ),
+        ),
+      ],
     );
     await tester.pumpWidget(signedInApp(schedule: repo));
-    await _openSchedule(tester);
+    await tester.pumpAndSettle();
     expect(find.text('Manage event'), findsNothing);
     expect(find.text('View event'), findsOneWidget);
     handle.dispose();
@@ -168,15 +154,36 @@ void main() {
     testWidgets('$action renders its own "$label" button', (tester) async {
       final handle = tester.ensureSemantics();
       final repo = FakeScheduleRepository(
+        upcoming: [
+          ScheduleItem(
+            eventId: 1,
+            eventDate: '2026-11-03',
+            eventType: 'et_game',
+            swipeRight: EventSwipeAction(action: action, access: 'up_enabled'),
+          ),
+        ],
+      );
+      await tester.pumpWidget(signedInApp(schedule: repo));
+      await tester.pumpAndSettle();
+      expect(find.text(label), findsOneWidget);
+      handle.dispose();
+    });
+  }
+
+  testWidgets(
+    'the Schedule screen never shows the action-button row (swipe-to-reveal native-side instead)',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      final repo = FakeScheduleRepository(
         pages: {
-          ScheduleTab.past: [
+          ScheduleTab.upcoming: [
             [
               ScheduleItem(
                 eventId: 1,
                 eventDate: '2026-11-03',
                 eventType: 'et_game',
-                swipeRight: EventSwipeAction(
-                  action: action,
+                swipeRight: const EventSwipeAction(
+                  action: 'user_action_manage_event',
                   access: 'up_enabled',
                 ),
               ),
@@ -185,11 +192,12 @@ void main() {
         },
       );
       await tester.pumpWidget(signedInApp(schedule: repo));
-      await _openSchedule(tester);
-      await tester.tap(_id(ScheduleTestIds.topRowPast));
       await tester.pumpAndSettle();
-      expect(find.text(label), findsOneWidget);
+      await tester.tap(_id(MainShellTestIds.navSchedule));
+      await tester.pumpAndSettle();
+      expect(find.text('Manage event'), findsNothing);
+      expect(find.text('View event'), findsNothing);
       handle.dispose();
-    });
-  }
+    },
+  );
 }

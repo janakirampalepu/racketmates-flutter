@@ -19,11 +19,24 @@ import 'package:racketmates/l10n/app_localizations.dart';
 /// One event row, shared by home and schedule. Date comes from `event_date`
 /// (`yyyy-MM-dd`); time slot, place and status labels are server-provided
 /// (native `CommonEventsAdapter`).
+///
+/// [showActionButtons] controls the persistent action-button row at the
+/// bottom of the card. Native only shows it on the Home-screen carousel
+/// (iOS `UpcomingEventsView` passes `showActionButtons: true` to its row;
+/// `TeamHomeView` explicitly passes `false`); the Schedule screen, Team
+/// Schedule, Past events and To-be-rescheduled all use swipe-to-reveal
+/// instead (`EventSwipeActions.swift`/Android's swipe panels), never a
+/// persistent row — confirmed against a real iOS screenshot of the
+/// Schedule screen, which shows no buttons on any card. Swipe gestures
+/// themselves are not implemented yet (a real card feature, not a label
+/// fix); this only stops the Schedule-family screens from showing a row
+/// native never shows there.
 class EventTile extends ConsumerWidget {
   const EventTile({
     required this.item,
     required this.testId,
     this.onTap,
+    this.showActionButtons = false,
     super.key,
   });
 
@@ -32,6 +45,7 @@ class EventTile extends ConsumerWidget {
   /// Appium identifier of the whole tile (`<screen>_event_<eventId>`).
   final String testId;
   final VoidCallback? onTap;
+  final bool showActionButtons;
 
   static String _withMore(String text, int? more, AppLocalizations l10n) =>
       (more ?? 0) > 0 ? '$text ${l10n.moreSuffix(more!)}' : text;
@@ -268,21 +282,22 @@ class EventTile extends ConsumerWidget {
                               ],
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(
-                              sdp(8),
-                              sdp(10),
-                              sdp(8),
-                              0,
+                          if (showActionButtons)
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                sdp(8),
+                                sdp(10),
+                                sdp(8),
+                                0,
+                              ),
+                              child: _EventActionButtons(
+                                l10n: l10n,
+                                ref: ref,
+                                left: item.swipeLeft,
+                                right: item.swipeRight,
+                                onTap: onTap,
+                              ),
                             ),
-                            child: _EventActionButtons(
-                              l10n: l10n,
-                              ref: ref,
-                              left: item.swipeLeft,
-                              right: item.swipeRight,
-                              onTap: onTap,
-                            ),
-                          ),
                         ],
                       ),
                     ),

@@ -42,8 +42,10 @@ void main() {
     expect(_id(ScheduleTestIds.event('upcoming', 2)), findsOneWidget);
     expect(find.text('Practice'), findsOneWidget);
     expect(find.text('6:00 PM - 7:30 PM'), findsWidgets);
-    // No swipeLeft/swipeRight on this fixture: falls back to "View event".
-    expect(find.text('View event'), findsWidgets);
+    // The Schedule screen never shows a persistent action-button row —
+    // native uses swipe-to-reveal here, not a visible button (confirmed
+    // against a real iOS screenshot); only the Home carousel shows one.
+    expect(find.text('View event'), findsNothing);
 
     await tester.tap(_id(ScheduleTestIds.event('upcoming', 1)));
     await tester.pumpAndSettle();

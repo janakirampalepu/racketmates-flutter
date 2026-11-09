@@ -289,6 +289,7 @@ class UpcomingEventsSection extends StatelessWidget {
                         child: EventTile(
                           item: events[i],
                           testId: eventIdFor(events[i].eventId!),
+                          showActionButtons: true,
                           onTap: () => context.push(
                             AppRoutes.eventFor(events[i].eventId!),
                           ),
