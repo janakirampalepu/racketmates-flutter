@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:racketmates/common/auth/session_controller.dart';
+import 'package:racketmates/common/auth/session_state.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
-import 'package:racketmates/common/events/schedule_repository.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
 import 'package:racketmates/common/teams/teams_providers.dart';
 import 'package:racketmates/common/teams/teams_repository.dart';
@@ -191,9 +192,12 @@ class CreateTeamSubmitter extends Notifier<CreateTeamSubmission> {
 
   /// True when the team was created.
   Future<bool> submit() async {
-    final selfId = int.tryParse(
-      ref.read(selectedUserIdsProvider).firstOrNull ?? '',
-    );
+    // Native (`NewTeamFragment`/`TeamCreationView`) always builds the
+    // creator/captain entry from the signed-in user, never from the
+    // Home/Schedule family-aggregation filter (which has no defined order
+    // and may not even include the signed-in user).
+    final session = ref.read(sessionControllerProvider);
+    final selfId = session is SignedIn ? session.token.user?.id : null;
     if (selfId == null || state.loading) return false;
     state = const CreateTeamSubmission(loading: true);
     try {
