@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:racketmates/common/content/content_cache.dart';
 import 'package:racketmates/common/create_event/create_event_api.dart';
+import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/screens/create_event_assign_players/create_event_assign_players_test_ids.dart';
@@ -176,6 +177,7 @@ void main() {
     tester,
   ) async {
     final handle = tester.ensureSemantics();
+    useTallScreen(tester);
     final w = _Wizard()..create.scoringFails = true;
     await tester.pumpWidget(w.app());
     await _openWizard(tester, 'et_casual');
@@ -192,6 +194,24 @@ void main() {
     expect(_id(CreateEventMatchesTestIds.root), findsOneWidget);
     handle.dispose();
   });
+
+  testWidgets(
+    'scoring formats: a server failure message replaces the generic text',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      final w = _Wizard()
+        ..create.scoringFails = true
+        ..create.scoringFailure = const ServerFailure(
+          500,
+          'Scoring formats unavailable',
+        );
+      await tester.pumpWidget(w.app());
+      await _openWizard(tester, 'et_casual');
+      await _throughSport(tester);
+      expect(find.text('Scoring formats unavailable'), findsOneWidget);
+      handle.dispose();
+    },
+  );
 
   testWidgets('padel has no deciding set choice', (tester) async {
     final handle = tester.ensureSemantics();
@@ -349,6 +369,33 @@ void main() {
     expect((sides[1] as Map)['event_participants'], [
       {'user_id': 9, 'position': 'epp_center'},
     ]);
+    handle.dispose();
+  });
+
+  testWidgets('a server failure message replaces the generic text in the '
+      'slot picker', (tester) async {
+    final handle = tester.ensureSemantics();
+    useTallScreen(tester);
+    final w = _Wizard();
+    await tester.pumpWidget(w.app());
+    await _openWizard(tester, 'et_casual');
+    await _throughSport(tester);
+    await _tap(tester, CreateEventSettingsTestIds.next);
+    await _tap(tester, CreateEventMatchesTestIds.matchType(0, 'mt_singles'));
+    await _tap(tester, CreateEventMatchesTestIds.next);
+    await _throughWhenWhere(tester);
+    await _tap(tester, CreateEventAssignTypeTestIds.assignNow);
+    await _tap(tester, CreateEventAssignTypeTestIds.next);
+
+    w.create.searchFails = true;
+    w.create.searchFailure = const ServerFailure(
+      500,
+      'Could not search players.',
+    );
+    const top = ('ecs_top', 'epp_center');
+    await _tap(tester, CreateEventAssignPlayersTestIds.slot(0, top.$1, top.$2));
+    expect(find.text('Could not search players.'), findsOneWidget);
+    expect(find.text('Could not load players.'), findsNothing);
     handle.dispose();
   });
 

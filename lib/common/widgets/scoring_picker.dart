@@ -8,6 +8,7 @@ import 'package:racketmates/common/create_event/scoring.dart';
 import 'package:racketmates/common/create_event/scoring_formats_provider.dart';
 import 'package:racketmates/common/events/event_labels.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/common/widgets/number_stepper.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 
@@ -77,26 +78,17 @@ class ScoringPicker extends ConsumerWidget {
               ),
             ),
           ),
-          error: (_, _) => Column(
+          error: (error, _) => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TestId(
-                '${idPrefix}_scoring_error',
-                child: Semantics(
-                  liveRegion: true,
-                  child: Text(
-                    l10n.createScoringLoadError,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                ),
-              ),
-              TestId(
-                '${idPrefix}_scoring_retry',
-                child: TextButton(
-                  onPressed: () => ref.invalidate(scoringFormatsProvider(args)),
-                  child: Text(l10n.retryAction),
+              Semantics(
+                liveRegion: true,
+                child: LoadErrorBody(
+                  error: error,
+                  fallbackText: l10n.createScoringLoadError,
+                  retryId: '${idPrefix}_scoring_retry',
+                  onRetry: () => ref.invalidate(scoringFormatsProvider(args)),
+                  errorTestId: '${idPrefix}_scoring_error',
                 ),
               ),
             ],

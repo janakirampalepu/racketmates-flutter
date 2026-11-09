@@ -8,6 +8,7 @@ import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/events/event_actions_repository.dart';
 import 'package:racketmates/common/events/manage_logic.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/event_details/event_details_view_model.dart';
 import 'package:racketmates/screens/event_manage/event_manage_view_model.dart';
@@ -308,7 +309,12 @@ class _EventManagePairsScreenState
         EventManagePairsTestIds.root,
         child: data.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => Center(child: Text(l10n.eventPairsLoadError)),
+          error: (error, _) => Center(
+            child: LoadErrorBody(
+              error: error,
+              fallbackText: l10n.eventPairsLoadError,
+            ),
+          ),
           data: body,
         ),
       ),

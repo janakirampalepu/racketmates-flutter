@@ -6,6 +6,7 @@ import 'package:racketmates/common/create_event/create_event_flow.dart';
 import 'package:racketmates/common/create_event/people_kind.dart';
 import 'package:racketmates/common/create_event/people_search.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 
 /// Appium identifiers of one people step (`<prefix>_screen`, `_title`, ...).
@@ -81,18 +82,11 @@ class _PeopleStepState extends ConsumerState<PeopleStep> {
       }
       if (state.failure != null) {
         return Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(l10n.createPlayersLoadError),
-              TestId(
-                ids.retry,
-                child: TextButton(
-                  onPressed: vm.search,
-                  child: Text(l10n.retryAction),
-                ),
-              ),
-            ],
+          child: LoadErrorBody(
+            error: state.failure,
+            fallbackText: l10n.createPlayersLoadError,
+            retryId: ids.retry,
+            onRetry: vm.search,
           ),
         );
       }

@@ -227,6 +227,18 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('a server failure message replaces the generic text', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await _open(
+      tester,
+      failure: const ServerFailure(500, 'Pairs unavailable'),
+    );
+    expect(find.text('Pairs unavailable'), findsOneWidget);
+    handle.dispose();
+  });
+
   for (final dark in [false, true]) {
     testWidgets('pairs meet guidelines (${dark ? 'dark' : 'light'})', (
       tester,

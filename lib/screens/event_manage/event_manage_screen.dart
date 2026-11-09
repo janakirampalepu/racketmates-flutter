@@ -7,6 +7,7 @@ import 'package:racketmates/app/router/app_routes.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/events/manage_logic.dart';
 import 'package:racketmates/common/events/models/event_details.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/event_details/event_details_view_model.dart';
 import 'package:racketmates/screens/event_manage/event_manage_test_ids.dart';
@@ -183,7 +184,9 @@ class EventManageScreen extends ConsumerWidget {
         EventManageTestIds.root,
         child: event.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => Center(child: Text(l10n.eventLoadError)),
+          error: (error, _) => Center(
+            child: LoadErrorBody(error: error, fallbackText: l10n.eventLoadError),
+          ),
           data: body,
         ),
       ),

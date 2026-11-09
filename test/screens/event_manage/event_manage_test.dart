@@ -47,6 +47,7 @@ Future<_Open> _open(
   String fixture, {
   String? route,
   AppFailure? failure,
+  AppFailure? loadFailure,
   List<AppUser> people = const [],
   void Function(Map<String, dynamic> event)? edit,
 }) async {
@@ -56,6 +57,10 @@ Future<_Open> _open(
   final schedule = FakeScheduleRepository(
     event: EventDetailsResponse.fromJson(json).event,
   );
+  if (loadFailure != null) {
+    schedule.failure = loadFailure;
+    schedule.failing.add('event-101');
+  }
   final actions = FakeEventActionsRepository(failure: failure);
   final create = FakeCreateEventRepository(players: people);
   await tester.pumpWidget(
@@ -117,6 +122,20 @@ void main() {
       final handle = tester.ensureSemantics();
       await _open(tester, 'events_show_invited');
       expect(_id(EventDetailsTestIds.menu), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('the hub surfaces the server message when the event fails', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _open(
+        tester,
+        'events_show_manage_practice',
+        route: AppRoutes.eventManageFor(101),
+        loadFailure: const ServerFailure(500, 'Event unavailable'),
+      );
+      expect(find.text('Event unavailable'), findsOneWidget);
       handle.dispose();
     });
 
@@ -252,6 +271,22 @@ void main() {
       expect(_id(EventManageSettingsTestIds.save), findsNothing);
       handle.dispose();
     });
+
+    testWidgets(
+      'a server failure loading the event replaces the generic text',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        await _open(
+          tester,
+          'events_show_manage_practice',
+          route: AppRoutes.eventManageSettingsFor(101),
+          loadFailure: const ServerFailure(500, 'Event is gone now'),
+        );
+        expect(find.text('Event is gone now'), findsOneWidget);
+        expect(find.text('Could not load this event.'), findsNothing);
+        handle.dispose();
+      },
+    );
   });
 
   group('people', () {
@@ -387,6 +422,51 @@ void main() {
       expect(add.onPressed, isNull);
       handle.dispose();
     });
+
+    testWidgets(
+      'add people: a server failure message replaces the generic text',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        final o = await _open(
+          tester,
+          'events_show_manage_practice',
+          route: AppRoutes.eventManageAddPeopleFor(101, coaches: false),
+          people: const [AppUser(id: 12, firstName: 'Sam', lastName: 'Fox')],
+        );
+        o.create.searchFails = true;
+        o.create.searchFailure = const ServerFailure(
+          500,
+          'Players unavailable',
+        );
+        await tester.enterText(
+          find.descendant(
+            of: _id(EventManageAddPeopleTestIds.search),
+            matching: find.byType(TextField),
+          ),
+          'sam',
+        );
+        await tester.pump(const Duration(milliseconds: 450));
+        await tester.pumpAndSettle();
+        expect(find.text('Players unavailable'), findsOneWidget);
+        handle.dispose();
+      },
+    );
+
+    testWidgets(
+      'a server failure loading the event replaces the generic text',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        await _open(
+          tester,
+          'events_show_manage_practice',
+          route: AppRoutes.eventManagePlayersFor(101),
+          loadFailure: const ServerFailure(500, 'Event is gone now'),
+        );
+        expect(find.text('Event is gone now'), findsOneWidget);
+        expect(find.text('Could not load this event.'), findsNothing);
+        handle.dispose();
+      },
+    );
   });
 
   group('schedule', () {
@@ -450,6 +530,22 @@ void main() {
       expect(_id(CreateEventWhenWhereTestIds.root), findsOneWidget);
       handle.dispose();
     });
+
+    testWidgets(
+      'a server failure loading the event replaces the generic text',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        await _open(
+          tester,
+          'events_show_manage_practice',
+          route: AppRoutes.eventManageScheduleFor(101),
+          loadFailure: const ServerFailure(500, 'Event is gone now'),
+        );
+        expect(find.text('Event is gone now'), findsOneWidget);
+        expect(find.text('Could not load this event.'), findsNothing);
+        handle.dispose();
+      },
+    );
   });
 
   group('scores', () {
@@ -466,6 +562,22 @@ void main() {
       expect(find.text('Unfinished'), findsOneWidget);
       handle.dispose();
     });
+
+    testWidgets(
+      'a server failure loading the event replaces the generic text',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        await _open(
+          tester,
+          'events_show_manage_game',
+          route: AppRoutes.eventManageScoresFor(101),
+          loadFailure: const ServerFailure(500, 'Event is gone now'),
+        );
+        expect(find.text('Event is gone now'), findsOneWidget);
+        expect(find.text('Could not load this event.'), findsNothing);
+        handle.dispose();
+      },
+    );
 
     testWidgets('add the third set; the tie-break scores stay', (tester) async {
       final handle = tester.ensureSemantics();

@@ -10,6 +10,7 @@ import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/events/event_labels.dart';
 import 'package:racketmates/common/sign_up/sign_up_draft.dart';
 import 'package:racketmates/common/sign_up/sport_labels.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/event_drafts/event_draft_actions.dart';
 import 'package:racketmates/screens/event_drafts/event_drafts_test_ids.dart';
@@ -81,22 +82,13 @@ class EventDraftsScreen extends ConsumerWidget {
         EventDraftsTestIds.root,
         child: drafts.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TestId(
-                  EventDraftsTestIds.error,
-                  child: Text(l10n.draftsLoadError),
-                ),
-                TestId(
-                  EventDraftsTestIds.retry,
-                  child: TextButton(
-                    onPressed: () => ref.invalidate(draftsProvider),
-                    child: Text(l10n.retryAction),
-                  ),
-                ),
-              ],
+          error: (error, _) => Center(
+            child: LoadErrorBody(
+              error: error,
+              fallbackText: l10n.draftsLoadError,
+              retryId: EventDraftsTestIds.retry,
+              onRetry: () => ref.invalidate(draftsProvider),
+              errorTestId: EventDraftsTestIds.error,
             ),
           ),
           data: (list) => list.isEmpty

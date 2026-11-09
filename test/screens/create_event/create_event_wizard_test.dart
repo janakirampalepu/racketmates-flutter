@@ -282,6 +282,38 @@ void main() {
     },
   );
 
+  testWidgets('a server failure message replaces the generic text', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final w = _Wizard()
+      ..create.searchFails = true
+      ..create.searchFailure = const ServerFailure(500, 'Players unavailable');
+    await tester.pumpWidget(w.app());
+    await _openWizard(tester);
+    await _throughSport(tester);
+    await _throughSettings(tester);
+    expect(find.text('Players unavailable'), findsOneWidget);
+    handle.dispose();
+  });
+
+  testWidgets(
+    'a technical (parse) failure keeps the generic text, with a debug detail',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      final w = _Wizard()
+        ..create.searchFails = true
+        ..create.searchFailure = const ParseFailure('boom');
+      await tester.pumpWidget(w.app());
+      await _openWizard(tester);
+      await _throughSport(tester);
+      await _throughSettings(tester);
+      expect(find.text('Could not load players.'), findsOneWidget);
+      expect(find.textContaining('ParseFailure'), findsOneWidget);
+      handle.dispose();
+    },
+  );
+
   testWidgets(
     'when/where: validation, venue courts loaded by id, sport-filtered courts',
     (tester) async {

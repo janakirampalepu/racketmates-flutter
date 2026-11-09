@@ -109,6 +109,20 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('a server failure message replaces the generic text', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    useTallScreen(tester);
+    final drafts = FakeDraftsRepository(drafts: [_summary])
+      ..listFails = true
+      ..listFailure = const ServerFailure(500, 'Drafts unavailable');
+    await tester.pumpWidget(signedInApp(drafts: drafts));
+    await _openDrafts(tester);
+    expect(find.text('Drafts unavailable'), findsOneWidget);
+    handle.dispose();
+  });
+
   testWidgets('deleting asks first and removes the draft', (tester) async {
     final handle = tester.ensureSemantics();
     useTallScreen(tester);

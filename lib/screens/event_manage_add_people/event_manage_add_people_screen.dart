@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/events/manage_logic.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/event_details/event_details_view_model.dart';
 import 'package:racketmates/screens/event_manage/event_manage_view_model.dart';
@@ -60,18 +61,11 @@ class _EventManageAddPeopleScreenState
       }
       if (state.failure != null) {
         return Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(l10n.createPlayersLoadError),
-              TestId(
-                EventManageAddPeopleTestIds.retry,
-                child: TextButton(
-                  onPressed: vm.search,
-                  child: Text(l10n.retryAction),
-                ),
-              ),
-            ],
+          child: LoadErrorBody(
+            error: state.failure,
+            fallbackText: l10n.createPlayersLoadError,
+            retryId: EventManageAddPeopleTestIds.retry,
+            onRetry: vm.search,
           ),
         );
       }
