@@ -10,6 +10,7 @@ import 'package:racketmates/common/location/location_platform.dart';
 import 'package:racketmates/common/location/user_location.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/common/session/session_info_controller.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/locations/locations_test_ids.dart';
 import 'package:racketmates/screens/place_picker/place_picker_state.dart';
@@ -248,18 +249,12 @@ class _VenueList extends StatelessWidget {
     }
     if (list.failure != null) {
       return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TestId(LocationsTestIds.error, child: Text(l10n.placesLoadError)),
-            TestId(
-              LocationsTestIds.retry,
-              child: TextButton(
-                onPressed: onRetry,
-                child: Text(l10n.retryAction),
-              ),
-            ),
-          ],
+        child: LoadErrorBody(
+          error: list.failure,
+          fallbackText: l10n.placesLoadError,
+          retryId: LocationsTestIds.retry,
+          onRetry: onRetry,
+          errorTestId: LocationsTestIds.error,
         ),
       );
     }

@@ -215,6 +215,20 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('a server failure message replaces the generic text', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final users = _users()
+        ..failure = const ServerFailure(500, 'Could not load your profile.');
+      await tester.pumpWidget(signedInApp(users: users));
+      await _openSettings(tester);
+      await _tap(tester, SettingsTestIds.profile);
+      expect(find.text('Could not load your profile.'), findsOneWidget);
+      handle.dispose();
+    });
+
     for (final dark in [false, true]) {
       testWidgets('meets guidelines (${dark ? 'dark' : 'light'})', (
         tester,

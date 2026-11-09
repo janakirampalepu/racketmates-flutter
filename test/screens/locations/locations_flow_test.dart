@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/location/location_platform.dart';
 import 'package:racketmates/common/places/place_models.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
@@ -188,6 +189,23 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('a server failure message replaces the generic text', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final places = FakePlacesRepository()
+        ..failing = true
+        ..searchFailure = const ServerFailure(
+          500,
+          'Could not search this area.',
+        );
+      await tester.pumpWidget(signedInApp(places: places));
+      await _openLocations(tester);
+      expect(find.text('Could not search this area.'), findsOneWidget);
+      handle.dispose();
+    });
+
     for (final dark in [false, true]) {
       testWidgets('meets guidelines (${dark ? 'dark' : 'light'})', (
         tester,
@@ -293,6 +311,20 @@ void main() {
       await tester.tap(_id(VenueTestIds.retry));
       await tester.pumpAndSettle();
       expect(_id(VenueTestIds.court(10)), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('a server failure message replaces the generic text', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final places = FakePlacesRepository(
+        places: [_central],
+        detailsById: const {},
+      )..detailsFailure = const ServerFailure(500, 'Venue not available.');
+      await openCentral(tester, places: places);
+      expect(find.text('Venue not available.'), findsOneWidget);
       handle.dispose();
     });
 

@@ -13,6 +13,7 @@ import 'package:racketmates/common/profile/profile_edit.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/common/users/user_profile_provider.dart';
 import 'package:racketmates/common/users/user_repository.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/profile/profile_test_ids.dart';
 
@@ -41,10 +42,15 @@ class ProfileScreen extends ConsumerWidget {
         ProfileTestIds.root,
         child: profile.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) =>
-              _LoadError(onRetry: () => ref.invalidate(userProfileProvider)),
+          error: (error, _) => _LoadError(
+            error: error,
+            onRetry: () => ref.invalidate(userProfileProvider),
+          ),
           data: (user) => user == null
-              ? _LoadError(onRetry: () => ref.invalidate(userProfileProvider))
+              ? _LoadError(
+                  error: null,
+                  onRetry: () => ref.invalidate(userProfileProvider),
+                )
               : _Form(user: user),
         ),
       ),
@@ -53,26 +59,21 @@ class ProfileScreen extends ConsumerWidget {
 }
 
 class _LoadError extends StatelessWidget {
-  const _LoadError({required this.onRetry});
+  const _LoadError({required this.error, required this.onRetry});
 
+  final Object? error;
   final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TestId(ProfileTestIds.loadError, child: Text(l10n.profileLoadError)),
-          TestId(
-            ProfileTestIds.retry,
-            child: TextButton(
-              onPressed: onRetry,
-              child: Text(l10n.retryAction),
-            ),
-          ),
-        ],
+      child: LoadErrorBody(
+        error: error,
+        fallbackText: l10n.profileLoadError,
+        retryId: ProfileTestIds.retry,
+        onRetry: onRetry,
+        errorTestId: ProfileTestIds.loadError,
       ),
     );
   }

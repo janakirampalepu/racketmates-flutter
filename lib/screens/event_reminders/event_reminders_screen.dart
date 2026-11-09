@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:racketmates/common/accessibility/test_id.dart';
 import 'package:racketmates/common/settings/reminder_rules.dart';
 import 'package:racketmates/common/settings/settings_models.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/event_reminders/event_reminders_test_ids.dart';
 import 'package:racketmates/screens/event_reminders/event_reminders_view_model.dart';
@@ -114,22 +115,13 @@ class EventRemindersScreen extends ConsumerWidget {
         EventRemindersTestIds.root,
         child: state.reminders.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TestId(
-                  EventRemindersTestIds.error,
-                  child: Text(l10n.remindersLoadError),
-                ),
-                TestId(
-                  EventRemindersTestIds.retry,
-                  child: TextButton(
-                    onPressed: vm.load,
-                    child: Text(l10n.retryAction),
-                  ),
-                ),
-              ],
+          error: (error, _) => Center(
+            child: LoadErrorBody(
+              error: error,
+              fallbackText: l10n.remindersLoadError,
+              retryId: EventRemindersTestIds.retry,
+              onRetry: vm.load,
+              errorTestId: EventRemindersTestIds.error,
             ),
           ),
           data: body,

@@ -345,6 +345,23 @@ void main() {
       expect(find.text('10 minutes before'), findsOneWidget);
       handle.dispose();
     });
+
+    testWidgets('a server failure message replaces the generic text', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      useTallScreen(tester);
+      final settings = FakeSettingsRepository()
+        ..loadFails = true
+        ..loadFailure = const ServerFailure(
+          500,
+          'Could not load your reminders.',
+        );
+      await tester.pumpWidget(signedInApp(settings: settings));
+      await open(tester);
+      expect(find.text('Could not load your reminders.'), findsOneWidget);
+      handle.dispose();
+    });
   });
 
   group('push notifications in the app', () {

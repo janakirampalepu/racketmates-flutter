@@ -12,6 +12,7 @@ import 'package:racketmates/common/sign_up/sport_labels.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/common/users/user_profile_provider.dart';
 import 'package:racketmates/common/users/user_repository.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/profile/profile_test_ids.dart';
 
@@ -42,10 +43,20 @@ class KidEditScreen extends ConsumerWidget {
         KidEditTestIds.root,
         child: profile.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => Center(child: Text(l10n.profileLoadError)),
+          error: (error, _) => Center(
+            child: LoadErrorBody(
+              error: error,
+              fallbackText: l10n.profileLoadError,
+            ),
+          ),
           data: (parent) {
             if (parent == null) {
-              return Center(child: Text(l10n.profileLoadError));
+              return Center(
+                child: LoadErrorBody(
+                  error: null,
+                  fallbackText: l10n.profileLoadError,
+                ),
+              );
             }
             AppUser? kid;
             for (final c in parent.children ?? const <AppUser>[]) {

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:racketmates/common/auth/models/phone_verification.dart';
 import 'package:racketmates/common/errors/app_failure.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
+import 'package:racketmates/common/users/user_profile_provider.dart';
+import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/home/home_test_ids.dart';
 import 'package:racketmates/screens/profile/profile_test_ids.dart';
+import 'package:racketmates/screens/role_sports/role_sports_screen.dart';
 import 'package:racketmates/screens/settings/settings_test_ids.dart';
 
 import '../../support/app_harness.dart';
@@ -326,6 +331,24 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets(
+      'a server failure message replaces the generic text when the profile fails to load',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        useTallScreen(tester);
+        final users = _users(_parent())
+          ..failure = const ServerFailure(
+            500,
+            'Could not load your profile.',
+          );
+        await tester.pumpWidget(signedInApp(users: users));
+        await _openRoles(tester);
+        await _tap(tester, RolesTestIds.parent);
+        expect(find.text('Could not load your profile.'), findsOneWidget);
+        handle.dispose();
+      },
+    );
+
     testWidgets('a failing removal keeps the kid', (tester) async {
       final handle = tester.ensureSemantics();
       useTallScreen(tester);
@@ -480,4 +503,35 @@ void main() {
       handle.dispose();
     });
   }
+
+  group('role sports load error', () {
+    testWidgets('a server failure message replaces the generic text', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userProfileProvider.overrideWith(
+              (ref) async =>
+                  throw const ServerFailure(500, 'Could not load this profile.'),
+            ),
+          ],
+          child: const MaterialApp(
+            localizationsDelegates: [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+            ],
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: RoleSportsScreen(role: RoleKeys.player),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Could not load this profile.'), findsOneWidget);
+      expect(find.text('Your profile could not be loaded.'), findsNothing);
+      handle.dispose();
+    });
+  });
 }

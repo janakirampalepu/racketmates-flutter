@@ -10,6 +10,7 @@ import 'package:racketmates/common/sign_up/sport_labels.dart';
 import 'package:racketmates/common/users/models/app_user.dart';
 import 'package:racketmates/common/users/user_profile_provider.dart';
 import 'package:racketmates/common/users/user_repository.dart';
+import 'package:racketmates/common/widgets/load_error_body.dart';
 import 'package:racketmates/l10n/app_localizations.dart';
 import 'package:racketmates/screens/profile/profile_test_ids.dart';
 
@@ -213,9 +214,19 @@ class _KidsSettingsScreenState extends ConsumerState<KidsSettingsScreen> {
         KidsSettingsTestIds.root,
         child: profile.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => Center(child: Text(l10n.profileLoadError)),
+          error: (error, _) => Center(
+            child: LoadErrorBody(
+              error: error,
+              fallbackText: l10n.profileLoadError,
+            ),
+          ),
           data: (user) => user == null
-              ? Center(child: Text(l10n.profileLoadError))
+              ? Center(
+                  child: LoadErrorBody(
+                    error: null,
+                    fallbackText: l10n.profileLoadError,
+                  ),
+                )
               : body(user),
         ),
       ),
