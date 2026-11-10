@@ -35,8 +35,14 @@ end
 # required in CI (it carries API_VERSION, OAuth client values, etc.).
 def flutter_args(env, build_number: nil)
   args = ["--flavor", env, "-t", "lib/main_#{env}.dart"]
+  # The actual flutter build command below runs after `cd ..` (repo root), so
+  # the file passed to --dart-define-from-file is relative to repo root. But
+  # this existence check runs in the Fastfile's own cwd (fastlane/), one
+  # level down -- check there too or the flag silently gets dropped even
+  # when the file exists.
   defines = "env/#{env}.json"
-  if File.exist?(defines)
+  repo_root = File.expand_path("..", __dir__)
+  if File.exist?(File.join(repo_root, defines))
     args += ["--dart-define-from-file=#{defines}"]
   else
     UI.important("#{defines} not found; the app will fail startup validation without API_VERSION/OAUTH_* defines.")
